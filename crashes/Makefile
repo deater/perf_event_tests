@@ -6,7 +6,7 @@ LFLAGS_PTHREAD = -lpthread
 PAPI_INCLUDE = -I/usr/local/include
 PAPI_LIB = /usr/local/lib/libpapi.a
 
-all:	pe_inherit_memleak pe_multiplex_panic mpx-pthread
+all:	pe_inherit_memleak pe_task_schedule_panic
 
 ####
 
@@ -19,25 +19,17 @@ pe_inherit_memleak.o:	pe_inherit_memleak.c
 
 ####
 
-pe_multiplex_panic:	pe_multiplex_panic.o
-	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o pe_multiplex_panic pe_multiplex_panic.o
+pe_task_schedule_panic:	pe_task_schedule_panic.o
+	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o pe_task_schedule_panic pe_task_schedule_panic.o
 
-pe_multiplex_panic.o:	pe_multiplex_panic.c
-	$(CC) $(CFLAGS) -c pe_multiplex_panic.c
+pe_task_schedule_panic.o:	pe_task_schedule_panic.c
+	$(CC) $(CFLAGS) -c pe_task_schedule_panic.c
 
 
 ####
 
-mpx-pthread:	mpx-pthread.o
-	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o mpx-pthread mpx-pthread.o $(PAPI_LIB)
-
-mpx-pthread.o:	mpx-pthread.c
-	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c mpx-pthread.c
-
-
-
 
 clean:	
-	rm -f *~ *.o pe_inherit_memleak pe_multiplex_panic mpx-pthread
+	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic
 
 

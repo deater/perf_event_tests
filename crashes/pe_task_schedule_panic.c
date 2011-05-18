@@ -1,10 +1,13 @@
-/* pe_multiplex_panic.c  */
+/* pe_task_schedule_panic.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
 
 /* Running has a good chance of panicing unpatched kernel */
 /* Based on behavior of mpx-pthread.c from perfsuite      */
 
-/* Compile with gcc -O2 -Wall -o pe_multiplex_panic pe_multiplex_panic.c -lpthread */
+/* Fixed by commit ab711fe08297de1485fff0a366e6db8828cafd6a */
+/* Which is included in Linux 2.6.39                        */
+
+/* Compile with gcc -O2 -Wall -o pe_task_schedule_panic pe_task_schedule_panic.c -lpthread */
 
 #include <stdio.h>
 #include <stdlib.h>

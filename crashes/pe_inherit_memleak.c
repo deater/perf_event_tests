@@ -3,6 +3,9 @@
 
 /* Each time run will leak hundreds of megabytes of kernel memory */
 
+/* Fixed by commit 38b435b16c36b0d863efcf3f07b34a6fac9873fd */
+/*   which is included in Linux 2.6.39                      */
+
 /* Compile with gcc -O2 -Wall -o pe_inherit_memleak pe_inherit_memleak.c -lpthread */
 
 #include <stdio.h>

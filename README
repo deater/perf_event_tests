@@ -1,0 +1,36 @@
+The Perf Event Testsuite
+  by Vince Weaver   <vweaver1 _at_ eecs.utk.edu>
+
+
+This series of test is meant to validate that the perf_event
+subsystem is working.
+
+There are various subdirectories:
+
+   + crashes   -- these contain tests known to crash certain
+                  kernel versions from userspace.
+                  * USE CAUTION RUNNING THESE TESTS *
+
+   + validation -- tests that validate the perf_event generalized
+                  events to see if they count what we think they do
+
+   + unfinished -- unfinished tests
+
+To run the tests, in general just enter the directory, run "make"
+  then run the test of interest.  Eventually I might write some sort
+  of test script harness.
+
+
+#########
+ Website
+#########
+
+The most recent version of this code can be found here:
+
+   http://web.eecs.utk.edu/~vweaver1/projects/perf-events/validation.html
+
+
+---
+
+Vince
+18 May 2011

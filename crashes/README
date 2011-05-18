@@ -1,0 +1,37 @@
+             ******** WARNING **********
+
+These tests can crash your system!  You have been warned!
+
+They have been included to aid in testing whether a current
+running kernel has been properly patched.
+
+
+###########################################################
+
+Included tests
+
+
++ pe_inherit_memleak
+
+  This tests the bug with inherit support that can quickly 
+  out-of-memory your system with unfreeable kernel memory.
+
+  This problem was introduced in 2.6.34 and fixed in 2.6.39
+  It has been backported to various stable kernels (2.6.38.2, etc.)
+ 
+    changeset 38b435b16c36b0d863efcf3f07b34a6fac9873fd
+    http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=38b435b16c36b0d863efcf3f07b34a6fac9873fd
+
++ pe_task_schedule_panic
+
+  This tests the bug with task context scheduling that can
+  cause a kernel panic or system hang.
+
+  This problem was fixed in 2.6.39 and has been backported
+  to the various stable kernels (2.6.38.4, etc.)
+
+     changeset ab711fe08297de1485fff0a366e6db8828cafd6a
+     http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab711fe08297de1485fff0a366e6db8828cafd6a
+
+
+#############################################################
