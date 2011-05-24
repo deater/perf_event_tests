@@ -1,0 +1,14 @@
+event validation tests
+   instructions
+   branches
+Offcore Response
+
+other bug tests
+  all of the ones in PAPI
+
+scripts to run all tests
+
+change "bug" results from pass/fail to "BROKEN KERNEL" "GOOD KERNEL".
+
+include copy of linux perf_event.h header file
+
