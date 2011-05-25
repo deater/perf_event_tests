@@ -1,12 +1,11 @@
 event validation tests
-  Offcore Response
+
 
 other bug tests
   all of the ones in PAPI
 
-scripts to run all tests
+inherit?
 
-change "bug" results from pass/fail to "BROKEN KERNEL" "GOOD KERNEL".
 
 
 

@@ -21,19 +21,13 @@
 #include <sys/prctl.h>
 
 #include "perf_event.h"
-
 #include "test_utils.h"
+#include "perf_helpers.h"
 
 static int count=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   count++;
-}
-
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
- 
-   return syscall(__NR_perf_event_open, hw_event_uptr, pid, cpu, group_fd,flags);
 }
 
 double busywork(int count) {

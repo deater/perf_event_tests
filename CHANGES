@@ -1,3 +1,11 @@
+25 May 2011
++ Clean up code and separate assembly into their own directory
++ Add separate include and lib directory
++ Clean up Makefiles
++ Move run scripts to root of tree
++ Added a bunch more tests
++ Release version 0.5
+
 24 May 2011
 + Add "bugs" directory that reports on the status of less
   critical bugs.

@@ -2,25 +2,10 @@
 #include <stdlib.h>
 
 #include "perf_event.h"
-#include "branches_test.h"
+#include "branches_testcode.h"
 
-long long branches_test(int fd, int num_runs,
-			long long *high,
-			long long *low,
-			int quiet, char *test_string) {
-
-  int i,ret;
-
-   long long count,total=0;
-
-   *high=0;
-   *low=0;
-
-   for(i=0;i<num_runs;i++) {
-
-     ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-     ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
-
+int branches_testcode(void) {
+   
 #if defined(__i386__) || (defined __x86_64__)   
    asm("\txor %%ecx,%%ecx\n"
        "\tmov $500000,%%ecx\n"
@@ -38,20 +23,10 @@ long long branches_test(int fd, int num_runs,
        : /* no inputs */
        : "cc", "%ecx", "%eax" /* clobbered */
     );
-#else
-   if (!quiet) printf("Unknown architecture\n");
-   test_fail(test_string);
+    return 0;
 #endif
-     
-   ioctl(fd, PERF_EVENT_IOC_DISABLE,0);     
-   ret=read(fd,&count,sizeof(long long));
+    return -1;
 
-      if (count>*high) *high=count;
-      if ((*low==0) || (count<*low)) *low=count;
-      total+=count;
-   }
-
-   return (total/num_runs);
 }
 
 #if 0

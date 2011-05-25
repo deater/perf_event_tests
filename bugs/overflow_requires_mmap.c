@@ -1,7 +1,5 @@
-/* overflow_required_mmap.c  */
+/* overflow_requires_mmap.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
-
-/* Compile with gcc -O2 -Wall -o overflow_required_mmap overflow_required_mmap.c */
 
 #define _GNU_SOURCE 1
 
@@ -21,20 +19,15 @@
 #include <sys/ioctl.h>
 #include <asm/unistd.h>
 #include <sys/prctl.h>
-#include <linux/perf_event.h>
 
-
+#include "perf_event.h"
+#include "test_utils.h"
+#include "perf_helpers.h"
 
 static int count=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   count++;
-}
-
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
- 
-   return syscall(__NR_perf_event_open, hw_event_uptr, pid, cpu, group_fd,flags);
 }
 
 double busywork(int count) {
@@ -52,16 +45,23 @@ double busywork(int count) {
 
 int main(int argc, char** argv) {
    
-  int ret,fd1,fd2;   
-  double result;
+   int ret,fd1,fd2,quiet;
+   double result;
 
    struct perf_event_attr pe;
 
    struct sigaction sa;
 
-   printf("Before 2.6.40 you'd get no overflows on counters\n");
-   printf(" if they didn't have an associated mmap'd ring buffer\n");
+   char test_string[]="Testing if overflow signals require ring buffer...";
    
+   quiet=test_quiet();
+   
+   if (!quiet) {
+      printf("Currently you get no overflows on counters\n");
+      printf(" if they don't have an associated mmap'd ring buffer\n");
+   }
+   
+   /* set up signal handler */
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
    sa.sa_flags = SA_SIGINFO;
@@ -71,19 +71,16 @@ int main(int argc, char** argv) {
      exit(1);
    }
    
+   /* set up perf event 1 */
    memset(&pe,0,sizeof(struct perf_event_attr));
-
    pe.type=PERF_TYPE_HARDWARE;
    pe.size=sizeof(struct perf_event_attr);
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.sample_period=000000;
-   pe.sample_type=0;
    pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
    pe.disabled=1;
    pe.pinned=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
-   pe.wakeup_events=1;
 
    fd1=perf_event_open(&pe,0,-1,-1,0);
    if (fd1<0) {
@@ -91,6 +88,8 @@ int main(int argc, char** argv) {
       exit(1);
    }
 
+   /* setup event 2, a sampling event */
+   memset(&pe,0,sizeof(struct perf_event_attr));   
    pe.type=PERF_TYPE_HARDWARE;
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
    pe.sample_period=1000000;
@@ -109,7 +108,7 @@ int main(int argc, char** argv) {
    }
 
 
-   /* Before 2.6.40 you'd get no overflows w/o this mmap */
+   /* Currently you get no overflows w/o this mmap */
 #if 0
      {
    void *blargh;
@@ -119,6 +118,7 @@ int main(int argc, char** argv) {
      }
 #endif
    
+   /* setup event 2 to have overflow signals */
    fcntl(fd2, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
    fcntl(fd2, F_SETSIG, SIGIO);
    fcntl(fd2, F_SETOWN,getpid());
@@ -126,24 +126,26 @@ int main(int argc, char** argv) {
    ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
    ioctl(fd2, PERF_EVENT_IOC_RESET, 0);   
 
+   /* enable counting */
    ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
 
-   if (ret<0) {
-     fprintf(stderr,"Error with PERF_EVENT_IOC_REFRESH of group leader: "
-	     "%d %s\n",errno,strerror(errno));
-     exit(1);
-   }
-
    result=busywork(10000000);
-   
+
+   /* disable counting */
    ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
+   if (ret<0) {
+      if (!quiet) printf("Disable failure\n");      
+   }
       
-   printf("Count: %d %lf\n",count,result);
+   /* need to consume some of these values or compiler optimizes away */
+   if (!quiet) printf("Count: %d %lf\n",count,result);
+   
+   /* if overflows, then we pass */
    if (count>0) {
-      printf("PASSED\n");
+      test_pass(test_string);
    }
    else {
-      printf("FAILED\n");
+      test_kernel_fail(test_string);
    }
    
    return 0;

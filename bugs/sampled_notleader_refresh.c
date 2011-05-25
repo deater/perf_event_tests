@@ -1,8 +1,6 @@
 /* sampled_notleader_refresh.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
 
-/* Compile with gcc -O2 -Wall -o sampled_notleader_refresh sampled_notleader_refresh.c */
-
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -21,18 +19,17 @@
 #include <sys/ioctl.h>
 #include <asm/unistd.h>
 #include <sys/prctl.h>
-#include <linux/perf_event.h>
+
+#include "perf_event.h"
+#include "perf_helpers.h"
+#include "test_utils.h"
+
+char test_string[]="Testing if refresh of group leader enables siblings...";
 
 static int count=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   count++;
-}
-
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
- 
-   return syscall(__NR_perf_event_open, hw_event_uptr, pid, cpu, group_fd,flags);
 }
 
 double busywork(int count) {
@@ -50,6 +47,7 @@ double busywork(int count) {
 
 int main(int argc, char** argv) {
    
+   int quiet;
    int ret,fd1,fd2;   
    double result;
    void *blargh;
@@ -57,10 +55,15 @@ int main(int argc, char** argv) {
 
    struct sigaction sa;
 
-   printf("This check tests if PERF_EVENT_IOC_REFRESH on\n");
-   printf("  a group leader enables sampled events in siblibgs.\n");
-   printf("  this behavior was removed in 2.6.37\n");
-     
+   quiet=test_quiet();
+   
+   if (!quiet) {
+      printf("\nThis check tests if PERF_EVENT_IOC_REFRESH on\n");
+      printf("  a group leader enables sampled events in siblibgs.\n");
+      printf("  This behavior was removed in 2.6.37\n");
+   }
+   
+   /* setup signal handler */
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
    sa.sa_flags = SA_SIGINFO;
@@ -70,16 +73,13 @@ int main(int argc, char** argv) {
      exit(1);
    }
    
+   /* setup first event, which has no sampling */
    memset(&pe,0,sizeof(struct perf_event_attr));
-
    pe.type=PERF_TYPE_HARDWARE;
    pe.size=sizeof(struct perf_event_attr);
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.sample_period=000000;
-   pe.sample_type=0;
    pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
    pe.disabled=1;
-   pe.pinned=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
    pe.wakeup_events=1;
@@ -90,13 +90,12 @@ int main(int argc, char** argv) {
       exit(1);
    }
 
+   /* setup second event, which samples */
+   memset(&pe,0,sizeof(struct perf_event_attr));
    pe.type=PERF_TYPE_HARDWARE;
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
    pe.sample_period=1000000;
    pe.sample_type=PERF_SAMPLE_IP;
-   pe.read_format=0;
-   pe.disabled=0;
-   pe.pinned=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
    pe.wakeup_events=1;
@@ -111,42 +110,47 @@ int main(int argc, char** argv) {
    /* before at least 2.6.40 you have to have a mmap'd ring-buffer */
    /* or you won't get any samples.                                */
    /* This took me 6 hours to figure out.                          */
-     
-   
-   
+        
    blargh=mmap(NULL, (1+1)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
      
-   
+   /* setup our fd to signal on overflow */
    fcntl(fd2, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
    fcntl(fd2, F_SETSIG, SIGIO);
    fcntl(fd2, F_SETOWN,getpid());
    
+   /* start counting */
    ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
    ioctl(fd2, PERF_EVENT_IOC_RESET, 0);   
 
+   /* UNDEFINED BEHAVIOR!  This shouldn't work... */
    ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
 
    if (ret<0) {
-     fprintf(stderr,"Error with PERF_EVENT_IOC_REFRESH of group leader: "
-	     "%d %s\n",errno,strerror(errno));
-     printf("PASSED\n");
-     exit(1);
+      if (!quiet) {
+         fprintf(stderr,"Proper error returned with PERF_EVENT_IOC_REFRESH "
+		        "of group leader: %d %s\n",errno,strerror(errno));
+      }
+      test_kernel_pass(test_string);
+      exit(1);
    }
 
    result=busywork(10000000);
    
    ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
-      
-   printf("Count: %d %lf %p\n",count,result,blargh);
-
+   
+   /* Need to consume or compiler complains/optimizes away */
+   if (!quiet) {
+      printf("Count: %d %lf %p\n",count,result,blargh);
+   }
+   
    if (count>0) {
-      printf("Unsupported enabling of sibling events\n");
-      printf("FAILED\n");  
+      if (!quiet) printf("Unsupported enabling of sibling events\n");
+      test_caution(test_string);
    }
    else {
-      printf("No overflow events generated.\n");
-      printf("FAILED\n");
+      if (!quiet) printf("No overflow events generated.\n");
+      test_kernel_fail(test_string);
    }
    
    return 0;
