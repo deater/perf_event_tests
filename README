@@ -20,8 +20,8 @@ There are various subdirectories:
    + unfinished -- unfinished tests
 
 To run the tests, in general just enter the directory, run "make"
-  then run the test of interest.  Eventually I might write some sort
-  of test script harness.
+  then run "./run_tests.sh".  You can also run the individual tests of 
+  interest for more results.
 
 
 #########

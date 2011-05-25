@@ -4,6 +4,8 @@
 + Added overflow_requires_mmap and sampled_notleader_refresh tests
 + Added validation/simple_overflow test
 + Release version 0.3
++ Add branches and instructions test
++ Release version 0.4
 
 18 May 2011
 + Finish crashes/pe_task_schedule_panic.c

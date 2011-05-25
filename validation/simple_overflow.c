@@ -1,8 +1,6 @@
 /* simple_overflow.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
 
-/* Compile with gcc -O2 -Wall -o simple_overflow simple_overflow.c */
-
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -21,7 +19,10 @@
 #include <sys/ioctl.h>
 #include <asm/unistd.h>
 #include <sys/prctl.h>
-#include <linux/perf_event.h>
+
+#include "perf_event.h"
+
+#include "test_utils.h"
 
 static int count=0;
 
@@ -50,15 +51,18 @@ double busywork(int count) {
 
 int main(int argc, char** argv) {
    
-   int ret,fd1,fd2;   
+  int ret,fd1,fd2,quiet;   
    double result;
 
    struct perf_event_attr pe;
 
    struct sigaction sa;
    void *blargh;
+   char test_string[]="Testing simple overflows...";
    
-   printf("This tests that a simple overflow example works.\n");
+   quiet=test_quiet();
+
+   if (!quiet) printf("This tests that a simple overflow example works.\n");
    
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
@@ -135,15 +139,15 @@ int main(int argc, char** argv) {
    result=busywork(10000000);
    
    ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
-      
-   printf("Count: %d %lf %p\n",count,result,blargh);
+    
+   if (!quiet) printf("Count: %d %lf %p\n",count,result,blargh);
 
    if (count>0) {
-      printf("PASSED\n");  
+     test_pass(test_string);
    }
    else {
-      printf("No overflow events generated.\n");
-      printf("FAILED\n");
+      if (!quiet) printf("No overflow events generated.\n");
+      test_fail(test_string);
    }
    
    return 0;
