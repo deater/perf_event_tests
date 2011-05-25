@@ -27,13 +27,13 @@
 
 int main(int argc, char** argv) {
    
-   int ret,quiet,i;
+  int ret,quiet,i,result;
 
    struct perf_event_attr pe;
 
-   char test_string[]="Testing if events checked for schedulability at open...";
+   char test_string[]="Testing if events checked for schedulability at read...";
 
-   #define NUM_EVENTS 8
+   #define NUM_EVENTS 7
    int fd[NUM_EVENTS];
    long long events[NUM_EVENTS]={
       PERF_COUNT_HW_CPU_CYCLES,
@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
       PERF_COUNT_HW_CACHE_REFERENCES,
       PERF_COUNT_HW_CACHE_MISSES,
       PERF_COUNT_HW_BRANCH_MISSES,
+      PERF_COUNT_HW_BRANCH_INSTRUCTIONS,
       PERF_COUNT_HW_BUS_CYCLES,
    };
    
@@ -48,7 +49,7 @@ int main(int argc, char** argv) {
    
    if (!quiet) {
       printf("Before 2.6.33 events weren't checked to see if they could\n");
-      printf("  run together until enable time, rather than at open time.\n");
+      printf("  run together until read time, rather than at open time.\n");
    }
 
    fd[0]=-1;
@@ -57,9 +58,11 @@ int main(int argc, char** argv) {
       memset(&pe,0,sizeof(struct perf_event_attr));
       pe.type=PERF_TYPE_HARDWARE;
       pe.size=sizeof(struct perf_event_attr);
-      pe.config=events[0];
-      pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
-      if (i==0) pe.disabled=1;
+      pe.config=events[i];
+      if (i==0) {
+	pe.disabled=1;
+	pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+      }
       pe.pinned=0;
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
@@ -89,6 +92,16 @@ int main(int argc, char** argv) {
       if (!quiet) printf("Error disabling\n");
    }
      
+
+
+   long long buffer[4096];
+
+   result=read(fd[0],buffer,4096);
+   if (result<0) {
+     fprintf(stderr,"Test failed at read time\n");
+     test_kernel_fail(test_string);
+   }
+
    test_kernel_pass(test_string);
       
    return 0;

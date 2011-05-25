@@ -16,18 +16,14 @@
 #include <unistd.h>
 #include <asm/unistd.h>
 #include <sys/prctl.h>
-#include <linux/perf_event.h>
+#include "perf_event.h"
+#include "perf_helpers.h"
 
 void *thread_work(void *blah) {
     
    return NULL;
 }
 
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
- 
-   return syscall(__NR_perf_event_open, hw_event_uptr, pid, cpu, group_fd,flags);
-}
 
 int main(int argc, char** argv) {
    

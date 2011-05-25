@@ -7,8 +7,6 @@
 /* Fixed by commit ab711fe08297de1485fff0a366e6db8828cafd6a */
 /* Which is included in Linux 2.6.39                        */
 
-/* Compile with gcc -O2 -Wall -o pe_task_schedule_panic pe_task_schedule_panic.c -lpthread */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,13 +16,10 @@
 #include <sys/ioctl.h>
 #include <asm/unistd.h>
 #include <sys/prctl.h>
-#include <linux/perf_event.h>
 
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
- 
-   return syscall(__NR_perf_event_open, hw_event_uptr, pid, cpu, group_fd,flags);
-}
+#include "perf_event.h"
+#include "perf_helpers.h"
+
 
 double busywork(int count) {
  

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall
+CFLAGS = -O2 -Wall -I../include
 LFLAGS =
 LFLAGS_PTHREAD = -lpthread
 
@@ -10,8 +10,13 @@ all:	pe_inherit_memleak pe_task_schedule_panic
 
 ####
 
-pe_inherit_memleak:	pe_inherit_memleak.o
-	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o pe_inherit_memleak pe_inherit_memleak.o
+../lib/perf_helpers.o:	../lib/perf_helpers.c
+	cd ../lib && make
+
+####
+
+pe_inherit_memleak:	pe_inherit_memleak.o ../lib/perf_helpers.o
+	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o pe_inherit_memleak pe_inherit_memleak.o ../lib/perf_helpers.o
 
 pe_inherit_memleak.o:	pe_inherit_memleak.c
 	$(CC) $(CFLAGS) -c pe_inherit_memleak.c
@@ -19,8 +24,8 @@ pe_inherit_memleak.o:	pe_inherit_memleak.c
 
 ####
 
-pe_task_schedule_panic:	pe_task_schedule_panic.o
-	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o pe_task_schedule_panic pe_task_schedule_panic.o
+pe_task_schedule_panic:	pe_task_schedule_panic.o ../lib/perf_helpers.o
+	$(CC) $(LFLAGS) $(LFLAGS_PTHREAD) -o pe_task_schedule_panic pe_task_schedule_panic.o ../lib/perf_helpers.o
 
 pe_task_schedule_panic.o:	pe_task_schedule_panic.c
 	$(CC) $(CFLAGS) -c pe_task_schedule_panic.c

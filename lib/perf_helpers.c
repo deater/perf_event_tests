@@ -8,6 +8,15 @@
 #include "perf_event.h"
 #include "perf_helpers.h"
 
+#ifndef __NR_perf_event_open
+
+#if defined(__i386__)
+#define __NR_perf_event_open    336
+#elif defined(__x86_64__) 
+#define __NR_perf_event_open    298
+#endif
+#endif
+
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
 		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
    

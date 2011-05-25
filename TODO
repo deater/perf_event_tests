@@ -1,8 +1,7 @@
 event validation tests
+  cache?
 
-
-other bug tests
-  all of the ones in PAPI
+Fix PAPI checks to make sure they do fail on 2.6.32 as claimed
 
 inherit?
 
