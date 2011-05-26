@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
 	                   PERF_FORMAT_TOTAL_TIME_ENABLED|
 	                   PERF_FORMAT_TOTAL_TIME_RUNNING;
             pe.disabled=1;
+	    pe.pinned=1;
 	 }
-         pe.pinned=0;
          pe.exclude_kernel=1;
          pe.exclude_hv=1;
 

@@ -1,3 +1,9 @@
+26 May 2011
++ Add sync_read_required test
++ Fix check_schedulability to fail properly
++ Fix the papi_multiplex test.
++ Release version 0.6
+
 25 May 2011
 + Clean up code and separate assembly into their own directory
 + Add separate include and lib directory

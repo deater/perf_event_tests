@@ -1,5 +1,11 @@
-/* check_schedulability.c  */
+/* check_papi_multiplexing.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
+
+/* The PAPI multiplexing code partitions events that don't fit in */
+/*  the HW counters.  This requires failure on open, as checked   */
+/*  by the existing check_schedulability test.  The failure mode  */
+/*  is slightly different though so check for this too.           */
+
 
 #define _GNU_SOURCE 1
 
@@ -31,11 +37,18 @@ int main(int argc, char** argv) {
 
    struct perf_event_attr pe;
 
-   char test_string[]="Testing if events checked for schedulability at read...";
+   char test_string[]="Testing if schedulability checked with pinned=0...";
 
-   #define NUM_EVENTS 7
+   #define NUM_EVENTS 14
    int fd[NUM_EVENTS];
    long long events[NUM_EVENTS]={
+      PERF_COUNT_HW_CPU_CYCLES,
+      PERF_COUNT_HW_INSTRUCTIONS,
+      PERF_COUNT_HW_CACHE_REFERENCES,
+      PERF_COUNT_HW_CACHE_MISSES,
+      PERF_COUNT_HW_BRANCH_MISSES,
+      PERF_COUNT_HW_BRANCH_INSTRUCTIONS,
+      PERF_COUNT_HW_BUS_CYCLES,
       PERF_COUNT_HW_CPU_CYCLES,
       PERF_COUNT_HW_INSTRUCTIONS,
       PERF_COUNT_HW_CACHE_REFERENCES,
@@ -50,6 +63,9 @@ int main(int argc, char** argv) {
    if (!quiet) {
       printf("Before 2.6.33 events weren't checked to see if they could\n");
       printf("  run together until read time, rather than at open time.\n");
+      printf("This broke PAPI multiplexing which depends on knowing at open.\n");
+      printf("  in order to set up partitioning.  This is a different error\n");
+      printf("  case than check_schedulability as the group leader isn't pinned.\n");
    }
 
    fd[0]=-1;
@@ -61,7 +77,6 @@ int main(int argc, char** argv) {
       pe.config=events[i];
       if (i==0) {
 	pe.disabled=1;
-	pe.pinned=1; /* must be set */
       }
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
@@ -89,11 +104,24 @@ int main(int argc, char** argv) {
       if (!quiet) printf("Error disabling\n");
    }
      
-   long long buffer[4096];
+   long long buffer;
+   int zeros=0;
 
-   result=read(fd[0],buffer,4096);
-   if (result<=0) {
-     if (!quiet) fprintf(stderr,"Test failed at read time\n");
+   for(i=0;i<NUM_EVENTS;i++) {
+
+     result=read(fd[i],&buffer,sizeof(long long));
+      if (result<=0) {
+         if (!quiet) fprintf(stderr,"Test failed at read time\n");
+         test_kernel_fail(test_string);
+      }
+      
+      if (buffer==0) zeros++;
+   }
+
+   if (!quiet) fprintf(stderr,"%d counters were zero\n",zeros);
+
+   if (zeros==NUM_EVENTS) {
+     if (!quiet) fprintf(stderr,"All counters were zero.\n");
      test_kernel_fail(test_string);
    }
 

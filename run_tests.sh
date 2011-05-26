@@ -15,10 +15,11 @@ echo "* Checking basic perf_event functionality"
 
 echo
 echo "* Checking bugs that PAPI has to work around"
+./bugs/sync_read_required
 ./bugs/read_group_at_once
 ./bugs/format_id_support
 ./bugs/check_schedulability
-./bugs/check_multiplexing
+./bugs/check_papi_multiplexing
 
 echo
 echo "* Checking bugs that can silently produce wrong results"

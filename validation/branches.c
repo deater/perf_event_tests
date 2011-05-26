@@ -5,6 +5,9 @@
 
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu                 */
 
+/* prior to 2.6.35 the wrong branch event was used on AMD machines */
+
+
 char test_string[]="Testing \"branches\" generalized event...";
 int quiet=0;
 int fd;

@@ -2,6 +2,10 @@
 
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu        */
 
+/* x86 constraints not implemented until 2.6.33 */
+/* b690081d4d3f6a23541493f1682835c3cd5c54a1     */
+/* perf_events: Add event constraints support for Intel processors */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

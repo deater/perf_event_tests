@@ -4,7 +4,7 @@ LFLAGS =
 
 all:	sampled_notleader_refresh overflow_requires_mmap \
 	format_id_support read_group_at_once check_schedulability \
-	check_multiplexing
+	check_papi_multiplexing sync_read_required
 
 #
 
@@ -54,7 +54,7 @@ read_group_at_once:	read_group_at_once.o \
 
 read_group_at_once.o:	read_group_at_once.c
 	$(CC) $(CFLAGS) -c read_group_at_once.c
-	
+
 ###
 
 format_id_support:	format_id_support.o \
@@ -68,7 +68,7 @@ format_id_support:	format_id_support.o \
 
 format_id_support.o:	format_id_support.c
 	$(CC) $(CFLAGS) -c format_id_support.c
-	
+
 ###
 
 check_schedulability:	check_schedulability.o \
@@ -82,26 +82,41 @@ check_schedulability:	check_schedulability.o \
 
 check_schedulability.o:	check_schedulability.c
 	$(CC) $(CFLAGS) -c check_schedulability.c
-	
+
 ###	
 
-check_multiplexing:	check_multiplexing.o \
+check_papi_multiplexing:	check_papi_multiplexing.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
 				../lib/matrix_multiply.o
-	$(CC) $(LFLAGS) -o check_multiplexing check_multiplexing.o \
+	$(CC) $(LFLAGS) -o check_papi_multiplexing check_papi_multiplexing.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
 				../lib/matrix_multiply.o
 
-check_multiplexing.o:	check_multiplexing.c
-	$(CC) $(CFLAGS) -c check_multiplexing.c
-	
+check_papi_multiplexing.o:	check_papi_multiplexing.c
+	$(CC) $(CFLAGS) -c check_papi_multiplexing.c
+
 ###
+
+sync_read_required:	sync_read_required.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o sync_read_required sync_read_required.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+sync_read_required.o:	sync_read_required.c
+	$(CC) $(CFLAGS) -c sync_read_required.c
+
+###
+
 
 clean:	
 	rm -f *~ *.o sampled_notleader_refresh overflow_requires_mmap \
 	read_group_at_once format_id_support check_schedulability \
-	check_multiplexing
+	check_papi_multiplexing sync_read_required
 
 

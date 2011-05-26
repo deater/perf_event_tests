@@ -4,7 +4,10 @@ event validation tests
 Fix PAPI checks to make sure they do fail on 2.6.32 as claimed
 
 inherit?
+inherit and PERF_FORMAT_GROUP?
 
 
+document:
+  pinned flag?
 
 
