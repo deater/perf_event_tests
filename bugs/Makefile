@@ -3,8 +3,9 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	sampled_notleader_refresh overflow_requires_mmap \
-	format_id_support read_group_at_once check_schedulability \
-	check_papi_multiplexing sync_read_required
+	read_group_attached check_schedulability \
+	check_papi_multiplexing sync_read_required \
+	ioctl_refresh_0
 
 #
 
@@ -43,31 +44,17 @@ sampled_notleader_refresh.o:	sampled_notleader_refresh.c
 
 ###
 
-read_group_at_once:	read_group_at_once.o \
+read_group_attached:	read_group_attached.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
 				../lib/matrix_multiply.o
-	$(CC) $(LFLAGS) -o read_group_at_once read_group_at_once.o \
-				../lib/perf_helpers.o \
-				../lib/test_utils.o \
-				../lib/matrix_multiply.o
-
-read_group_at_once.o:	read_group_at_once.c
-	$(CC) $(CFLAGS) -c read_group_at_once.c
-
-###
-
-format_id_support:	format_id_support.o \
-				../lib/perf_helpers.o \
-				../lib/test_utils.o \
-				../lib/matrix_multiply.o
-	$(CC) $(LFLAGS) -o format_id_support format_id_support.o \
+	$(CC) $(LFLAGS) -o read_group_attached read_group_attached.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
 				../lib/matrix_multiply.o
 
-format_id_support.o:	format_id_support.c
-	$(CC) $(CFLAGS) -c format_id_support.c
+read_group_attached.o:	read_group_attached.c
+	$(CC) $(CFLAGS) -c read_group_attached.c
 
 ###
 
@@ -113,10 +100,26 @@ sync_read_required.o:	sync_read_required.c
 
 ###
 
+ioctl_refresh_0:	ioctl_refresh_0.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o ioctl_refresh_0 ioctl_refresh_0.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+ioctl_refresh_0.o:	ioctl_refresh_0.c
+	$(CC) $(CFLAGS) -c ioctl_refresh_0.c
+
+
+###
+
 
 clean:	
 	rm -f *~ *.o sampled_notleader_refresh overflow_requires_mmap \
-	read_group_at_once format_id_support check_schedulability \
-	check_papi_multiplexing sync_read_required
+	read_group_attached check_schedulability \
+	check_papi_multiplexing sync_read_required \
+	ioctl_refresh_0
 
 

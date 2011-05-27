@@ -13,6 +13,7 @@ int test_quiet(void) {
 #define RED    "\033[1;31m"
 #define YELLOW "\033[1;33m"
 #define GREEN  "\033[1;32m"
+#define BLUE   "\033[1;34m"
 #define WHITE  "\033[1m"
 #define NORMAL "\033[0m"
 
@@ -100,6 +101,20 @@ void test_kernel_pass(char *string) {
 
   exit(1);
 }
+
+void test_unexplained(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sUNEXPLAINED%s\n", 60, string, 
+	   BLUE, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s UNEXPLAINED\n", 60, string);
+  }
+
+  exit(1);
+}
+
 
 
 double display_error(long long average,

@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
    quiet=test_quiet();
    
    if (!quiet) {
-      printf("Before 2.6.34 the FORMAT_ID read format did not work.\n");      
+      printf("Simple test of FORMAT_GROUP and FORMAT_ID.\n");
    }
    
    /* set up group leader */
@@ -95,13 +95,13 @@ int main(int argc, char** argv) {
    result=read(fd1,buffer,BUFFER_SIZE*sizeof(long long));
    if (result<0) {
       fprintf(stderr,"Unexpected read result %d\n",result);
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    /* should be 2 */
    if (result!=(2)*sizeof(long long)) {
       fprintf(stderr,"Unexpected read result %d\n",result);
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    if (!quiet) {
@@ -112,13 +112,13 @@ int main(int argc, char** argv) {
    result=read(fd2,buffer,BUFFER_SIZE*sizeof(long long));
    if (result<0) {
       fprintf(stderr,"Unexpected read result %d\n",result);
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    /* should be 2 */
    if (result!=(2)*sizeof(long long)) {
       fprintf(stderr,"Unexpected read result %d\n",result);
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    if (!quiet) {
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
          printf("Format ID[%d] : %lld\n",1,buffer[1]);
    }   
      
-   test_kernel_pass(test_string);
+   test_pass(test_string);
       
    return 0;
 }

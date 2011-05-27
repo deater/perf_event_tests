@@ -6,6 +6,7 @@ void test_fail(char *string);
 void test_kernel_fail(char *string);
 void test_kernel_pass(char *string);
 void test_skip(char *string);
+void test_unexplained(char *string);
 double display_error(long long average,
 		     long long high,
 		     long long low,

@@ -2,8 +2,9 @@ CC = gcc
 CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
-all:	branches instructions offcore_response \
-	check_constraints simple_overflow
+all:	branches cache-references instructions offcore_response \
+	check_constraints format_id_support \
+	simple_overflow_leader simple_overflow_sibling
 
 ###
 
@@ -30,6 +31,17 @@ branches:	branches.o ../lib/test_utils.o \
 
 branches.o:	branches.c
 	$(CC) $(CFLAGS) -c branches.c
+
+###
+
+cache-references:	cache-references.o ../lib/test_utils.o \
+				../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o cache-references cache-references.o \
+			../lib/test_utils.o \
+			../lib/perf_helpers.o
+
+cache-references.o:	cache-references.c
+	$(CC) $(CFLAGS) -c cache-references.c
 
 ###
 
@@ -72,19 +84,51 @@ check_constraints:	check_constraints.o ../lib/test_utils.o \
 check_constraints.o:	check_constraints.c
 	$(CC) $(CFLAGS) -c check_constraints.c
 
+###                                                                            
+
+format_id_support:	format_id_support.o \
+	../lib/perf_helpers.o \
+	../lib/test_utils.o \
+	../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o format_id_support format_id_support.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+format_id_support.o:	format_id_support.c
+	$(CC) $(CFLAGS) -c format_id_support.c
+
 ###
 
-simple_overflow:	simple_overflow.o ../lib/test_utils.o \
-					../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o simple_overflow simple_overflow.o \
+simple_overflow_leader:	simple_overflow_leader.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o simple_overflow_leader simple_overflow_leader.o \
 				../lib/test_utils.o \
-				../lib/perf_helpers.o
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
 
-simple_overflow.o:	simple_overflow.c
-	$(CC) $(CFLAGS) -c simple_overflow.c
+simple_overflow_leader.o:	simple_overflow_leader.c
+	$(CC) $(CFLAGS) -c simple_overflow_leader.c
+
+###
+
+simple_overflow_sibling:	simple_overflow_sibling.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o simple_overflow_sibling simple_overflow_sibling.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+simple_overflow_sibling.o:	simple_overflow_sibling.c
+	$(CC) $(CFLAGS) -c simple_overflow_sibling.c
+
 
 clean:	
-	rm -f *~ *.o branches instructions offcore_response \
-		check_constraints simple_overflow
+	rm -f *~ *.o branches cache-references instructions offcore_response \
+		check_constraints format_id_support \
+		simple_overflow_leader simple_overflow_sibling
+
 
 

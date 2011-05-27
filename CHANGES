@@ -1,3 +1,11 @@
+27 May 2011
+
++ Fix the read_group_attached
++ Move the format_id test to be a validation test rather than bug
++ Add test to caution on using PERF_IO_REFRESH with 0 argument
++ Add cache-references test.
++ Release version 0.7
+
 26 May 2011
 + Add sync_read_required test
 + Fix check_schedulability to fail properly

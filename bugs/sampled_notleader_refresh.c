@@ -1,6 +1,10 @@
 /* sampled_notleader_refresh.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
 
+/* This unsupported behavior was changed in 2.6.37    */
+/*   commit 2e939d1da9b5628642314c1e68b4319e61263c94  */
+/*   perf: Limit event refresh to sampling event      */
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>

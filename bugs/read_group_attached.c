@@ -1,5 +1,10 @@
-/* read_group_at_once.c  */
+/* read_group_attached.c  */
 /* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
+
+/* This was fixed in 2.6.34 by                       */
+/*   commit 050735b08ca8a016bbace4445fa025b88fee770b */
+/*   perf: Fix exit() vs PERF_FORMAT_GROUP           */
+
 
 #define _GNU_SOURCE 1
 
@@ -19,6 +24,8 @@
 #include <sys/ioctl.h>
 #include <asm/unistd.h>
 #include <sys/prctl.h>
+#include <sys/wait.h>
+#include <sys/ptrace.h>
 
 #include "perf_event.h"
 #include "test_utils.h"
@@ -28,17 +35,52 @@
 int main(int argc, char** argv) {
    
    int ret,fd1,fd2,quiet,i;
-   int result;
+   int result,status;
+   pid_t pid;
 
    struct perf_event_attr pe;
 
-   char test_string[]="Testing if all siblings can be read from group leader...";
+   char test_string[]="Testing if FORMAT_GROUP works on attached processes...";
    
    quiet=test_quiet();
    
+   pid = fork(  );
+
+   if ( pid < 0 ) {
+     fprintf(stderr,"Failed fork\n");
+     test_fail(test_string);
+   }
+
+   /* our child */
+   if ( pid == 0 ) {
+      if (ptrace(PTRACE_TRACEME, 0, 0, 0) == 0) {
+	 kill(getpid(),SIGTRAP);
+	 naive_matrix_multiply(1);
+      }
+      else {
+	fprintf(stderr,"Failed ptrace...\n");
+      }
+      return 1;
+   }
+
+
    if (!quiet) {
       printf("Before 2.6.34 you could not read all sibling counts\n");
       printf("  from the group leader by specifying FORMAT_GROUP\n");
+   }
+
+   pid_t  child = wait( &status );
+
+   if (!quiet) printf( "Monitoring pid %d status %d\n",pid,child );
+
+   if (WIFSTOPPED( status )) {
+     if (!quiet) printf( "Child has stopped due to signal %d (%s)\n",
+	       WSTOPSIG( status ), strsignal(WSTOPSIG( status )) );
+   }
+   if (WIFSIGNALED( status )) {
+     if (!quiet) printf( "Child %d received signal %d (%s)\n",
+	       child,
+	       WTERMSIG(status) , strsignal(WTERMSIG( status )) );
    }
    
    /* set up group leader */
@@ -48,11 +90,11 @@ int main(int argc, char** argv) {
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
    pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
    pe.disabled=1;
-   pe.pinned=0;
+   pe.pinned=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
-   fd1=perf_event_open(&pe,0,-1,-1,0);
+   fd1=perf_event_open(&pe,pid,-1,-1,0);
    if (fd1<0) {
       if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
       test_fail(test_string);
@@ -66,7 +108,7 @@ int main(int argc, char** argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
-   fd2=perf_event_open(&pe,0,-1,fd1,0);
+   fd2=perf_event_open(&pe,pid,-1,fd1,0);
    if (fd2<0) {
       if (!quiet) fprintf(stderr,"Error opening %llx\n",pe.config);
       test_fail(test_string);
@@ -78,7 +120,29 @@ int main(int argc, char** argv) {
    /* enable counting */
    ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
 
-   naive_matrix_multiply(quiet);
+
+   if (!quiet) printf("Continuing child\n");
+   if ( ptrace( PTRACE_CONT, pid, NULL, NULL ) == -1 ) {
+     fprintf(stderr,"Error continuing\n");
+     test_fail(test_string);
+   }
+
+
+   do {
+     child = wait( &status );
+     if (!quiet) printf( "Debugger exited wait() with %d\n", child);
+     if (WIFSTOPPED( status )) {
+       if (!quiet) printf( "Child has stopped due to signal %d (%s)\n",
+			   WSTOPSIG( status ), 
+			   strsignal(WSTOPSIG( status )) );
+       }
+     if (WIFSIGNALED( status )) {
+       if (!quiet) printf( "Child %d received signal %d (%s)\n",
+		           child, WTERMSIG(status) , 
+			   strsignal(WTERMSIG( status )) );
+       }
+   } while (!WIFEXITED( status ));
+
 
    /* disable counting */
    ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
@@ -94,14 +158,14 @@ int main(int argc, char** argv) {
      
    result=read(fd1,buffer,BUFFER_SIZE*sizeof(long long));
    if (result<0) {
-      fprintf(stderr,"Unexpected read result %d\n",result);
+     if (!quiet) fprintf(stderr,"Unexpected read result %d\n",result);
       test_kernel_fail(test_string);
    }
    
    /* should be 1 + 2*num_events */
    /* which is 5 in our case     */
    if (result!=(5)*sizeof(long long)) {
-      fprintf(stderr,"Unexpected read result %d\n",result);
+     if (!quiet) fprintf(stderr,"Unexpected read result %d\n",result);
       test_kernel_fail(test_string);
    }
    

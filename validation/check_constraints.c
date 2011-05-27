@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
    long long events[MAX_EVENTS];
    int num_events=0;
    
-   for(i=0;i<0;i++) events[i]=0;
+   for(i=0;i<MAX_EVENTS;i++) events[i]=0;
    
    quiet=test_quiet();
    
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
       memset(&pe,0,sizeof(struct perf_event_attr));
       pe.size=sizeof(struct perf_event_attr);
       pe.type=PERF_TYPE_RAW;
-      pe.config=events[1];
+      pe.config=events[i];
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
 
