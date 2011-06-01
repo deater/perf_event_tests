@@ -28,7 +28,9 @@
 #include "perf_helpers.h"
 #include "matrix_multiply.h"
 
-static int count=0;
+static struct signal_counts {
+  int in,out,msg,err,pri,hup,unknown;
+} count = {0,0,0,0,0,0,0};
 
 static int fd1;
 
@@ -37,7 +39,15 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  count++;
+  switch(oh->si_code) {
+     case POLL_IN:  count.in++;  break;
+     case POLL_OUT: count.out++; break;
+     case POLL_MSG: count.msg++; break;
+     case POLL_ERR: count.err++; break;
+     case POLL_PRI: count.pri++; break;
+     case POLL_HUP: count.hup++; break;
+     default: count.unknown++; break;
+  }
 
   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
   
@@ -48,10 +58,18 @@ static void our_handler2(int signum,siginfo_t *oh, void *blah) {
 
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  count++;
+  switch(oh->si_code) {
+     case POLL_IN:  count.in++;  break;
+     case POLL_OUT: count.out++; break;
+     case POLL_MSG: count.msg++; break;
+     case POLL_ERR: count.err++; break;
+     case POLL_PRI: count.pri++; break;
+     case POLL_HUP: count.hup++; break;
+     default: count.unknown++; break;
+  }
 
   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,3);
-  
+ 
 }
 
 
@@ -121,14 +139,24 @@ int main(int argc, char** argv) {
    
    ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
     
-   if (!quiet) printf("Count: %d %p\n",count,blargh);
+   if (!quiet) {
+      printf("Counts, using mmap buffer %p\n",blargh);
+      printf("\tPOLL_IN : %d\n",count.in);
+      printf("\tPOLL_OUT: %d\n",count.out);
+      printf("\tPOLL_MSG: %d\n",count.msg);
+      printf("\tPOLL_ERR: %d\n",count.err);
+      printf("\tPOLL_PRI: %d\n",count.pri);
+      printf("\tPOLL_HUP: %d\n",count.hup);
+      printf("\tUNKNOWN : %d\n",count.unknown);
+   }
 
-   if (count==0) {
+   if (count.hup==0) {
       if (!quiet) printf("No overflow events generated.\n");
       test_fail(test_string);
    }
-   first_count=count;
-   count=0;
+   first_count=count.hup;
+
+   memset(&count,0,sizeof(count));
 
    close(fd1);
 
@@ -185,14 +213,24 @@ int main(int argc, char** argv) {
    
    ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
     
-   if (!quiet) printf("Count: %d %p\n",count,blargh);
+   if (!quiet) {
+      printf("Counts, using mmap buffer %p\n",blargh);
+      printf("\tPOLL_IN : %d\n",count.in);
+      printf("\tPOLL_OUT: %d\n",count.out);
+      printf("\tPOLL_MSG: %d\n",count.msg);
+      printf("\tPOLL_ERR: %d\n",count.err);
+      printf("\tPOLL_PRI: %d\n",count.pri);
+      printf("\tPOLL_HUP: %d\n",count.hup);
+      printf("\tUNKNOWN : %d\n",count.unknown);
+   }
 
-   if (count==0) {
+
+   if (count.hup==0) {
       if (!quiet) printf("No overflow events generated.\n");
       test_fail(test_string);
    }
 
-   second_count=count;
+   second_count=count.hup;
    close(fd1);
 
    if (!quiet) printf("Count1: %d  Count2: %d Expected count2: %d\n",
