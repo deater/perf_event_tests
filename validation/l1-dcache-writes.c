@@ -1,14 +1,14 @@
-/* This file attempts to test the L1 data cache references     */
+/* This file attempts to test the L1 data cache writes         */
 /* performance counter on various architectures, as            */
 /* implemented by the perf_events generalized event            */
 /*    cache-references                                         */
 
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu                 */
 
-/* We assume "cache-references" means L1 Data Cache Refereneces */
-/* Sometimes the C compiler doesn't help us, we should use asm  */
+/* We assume "cache-references" means L1 Data Cache write      */
+/* Sometimes the C compiler doesn't help us, we should use asm */
 
-char test_string[]="Testing \"cache-references\" generalized event...";
+char test_string[]="Testing \"L1-dcache-stores\" generalized event...";
 int quiet=0;
 int fd;
 
@@ -26,9 +26,9 @@ int fd;
 
 int main(int argc, char **argv) {
    
-  int num_runs=100,i,read_result;
+  int num_runs=100,i,j,read_result;
    long long high=0,low=0,average=0;
-   double error;
+   double error,total_sum=0.0;
    struct perf_event_attr pe;
    
    long long count,total=0;
@@ -44,9 +44,11 @@ int main(int argc, char **argv) {
 
    memset(&pe,0,sizeof(struct perf_event_attr));
    
-   pe.type=PERF_TYPE_HARDWARE;
+   pe.type=PERF_TYPE_HW_CACHE;
    pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_CACHE_REFERENCES;
+   pe.config=PERF_COUNT_HW_CACHE_L1D |
+     (PERF_COUNT_HW_CACHE_OP_WRITE<<8) |
+     (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
    pe.disabled=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
@@ -63,31 +65,23 @@ int main(int argc, char **argv) {
       /* Test if the C compiler uses a sane number of data cache acceess */
       /*******************************************************************/
 
-
-
       double array[ARRAYSIZE];
       double aSumm = 0.0;
 
-      if (!quiet) printf("Write test:\n");
-
       ioctl(fd, PERF_EVENT_IOC_RESET, 0);
       ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
-
    
-      for(i=0; i<ARRAYSIZE; i++) { 
-	array[i]=(double)i;
+      for(j=0; j<ARRAYSIZE; j++) { 
+	array[j]=(double)j;
       }
      
       ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
       read_result=read(fd,&count,sizeof(long long));
 
-      for(i=0; i<ARRAYSIZE; i++) { 
-	aSumm+=array[i];
+      for(j=0; j<ARRAYSIZE; j++) { 
+	aSumm+=array[j];
       }
-
-
-      if (!quiet) printf("\tL1 D accesseses: %lld %lf\n",count,aSumm);
-
+      total_sum+=aSumm;
 
       //      if (result==CODE_UNIMPLEMENTED) {
       //	 test_skip(test_string);
@@ -106,11 +100,13 @@ int main(int argc, char **argv) {
 
    average=(total/num_runs);
 
+   if (!quiet) printf("Keep compiler from optimizing: %lf\n",total_sum);
+
    error=display_error(average,high,low,ARRAYSIZE,quiet);
 
    if ((error > 1.0) || (error<-1.0)) {
      if (!quiet) printf("Instruction count off by more than 1%%\n");
-     test_unexplained(test_string);
+     test_fail(test_string);
    }
    if (!quiet) printf("\n");
 

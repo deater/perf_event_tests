@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
-all:	branches cache-references instructions offcore_response \
+all:	branches l1-dcache-writes instructions offcore_response \
 	check_constraints format_id_support \
 	simple_overflow_leader simple_overflow_sibling
 
@@ -34,14 +34,14 @@ branches.o:	branches.c
 
 ###
 
-cache-references:	cache-references.o ../lib/test_utils.o \
+l1-dcache-writes:	l1-dcache-writes.o ../lib/test_utils.o \
 				../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o cache-references cache-references.o \
+	$(CC) $(LFLAGS) -o l1-dcache-writes l1-dcache-writes.o \
 			../lib/test_utils.o \
 			../lib/perf_helpers.o
 
-cache-references.o:	cache-references.c
-	$(CC) $(CFLAGS) -c cache-references.c
+l1-dcache-writes.o:	l1-dcache-writes.c
+	$(CC) $(CFLAGS) -c l1-dcache-writes.c
 
 ###
 
@@ -126,7 +126,7 @@ simple_overflow_sibling.o:	simple_overflow_sibling.c
 
 
 clean:	
-	rm -f *~ *.o branches cache-references instructions offcore_response \
+	rm -f *~ *.o branches l1-dcache-writes instructions offcore_response \
 		check_constraints format_id_support \
 		simple_overflow_leader simple_overflow_sibling
 

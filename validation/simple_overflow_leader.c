@@ -29,8 +29,8 @@
 #include "matrix_multiply.h"
 
 static struct signal_counts {
-  int in,out,msg,err,pri,hup,unknown;
-} count = {0,0,0,0,0,0,0};
+  int in,out,msg,err,pri,hup,unknown,total;
+} count = {0,0,0,0,0,0,0,0};
 
 static int fd1;
 
@@ -48,6 +48,8 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
      case POLL_HUP: count.hup++; break;
      default: count.unknown++; break;
   }
+
+  count.total++;
 
   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
   
@@ -67,6 +69,8 @@ static void our_handler2(int signum,siginfo_t *oh, void *blah) {
      case POLL_HUP: count.hup++; break;
      default: count.unknown++; break;
   }
+
+  count.total++;
 
   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,3);
  
@@ -150,11 +154,11 @@ int main(int argc, char** argv) {
       printf("\tUNKNOWN : %d\n",count.unknown);
    }
 
-   if (count.hup==0) {
+   if (count.total==0) {
       if (!quiet) printf("No overflow events generated.\n");
       test_fail(test_string);
    }
-   first_count=count.hup;
+   first_count=count.total;
 
    memset(&count,0,sizeof(count));
 
@@ -225,12 +229,12 @@ int main(int argc, char** argv) {
    }
 
 
-   if (count.hup==0) {
+   if (count.total==0) {
       if (!quiet) printf("No overflow events generated.\n");
       test_fail(test_string);
    }
 
-   second_count=count.hup;
+   second_count=count.total;
    close(fd1);
 
    if (!quiet) printf("Count1: %d  Count2: %d Expected count2: %d\n",

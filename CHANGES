@@ -1,3 +1,12 @@
+6 June 2011
++ Add more hardcoded syscall numbers so we run on machines with
+  older headers (Power6 was the one giving me trouble)
++ More debugging in the overflow case.  Still chasing bugs
+  in 2.6.36/Power and 3.0-rc1
++ Make cache test more specific, properly program Cache events.
+  l1-dcache-writes.c
++ Release version 0.8
+
 27 May 2011
 
 + Fix the read_group_attached
