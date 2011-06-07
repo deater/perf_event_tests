@@ -1,11 +1,10 @@
 /* This file attempts to test the L1 data cache writes         */
 /* performance counter on various architectures, as            */
 /* implemented by the perf_events generalized event            */
-/*    cache-references                                         */
+/*    l1-dcache-stores                                         */
 
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu                 */
 
-/* We assume "cache-references" means L1 Data Cache write      */
 /* Sometimes the C compiler doesn't help us, we should use asm */
 
 char test_string[]="Testing \"L1-dcache-stores\" generalized event...";
@@ -105,7 +104,10 @@ int main(int argc, char **argv) {
    error=display_error(average,high,low,ARRAYSIZE,quiet);
 
    if ((error > 1.0) || (error<-1.0)) {
-     if (!quiet) printf("Instruction count off by more than 1%%\n");
+     if (!quiet) {
+        printf("\nInstruction count off by more than 1%%\n");
+	printf("This test is known to fail on AMD fam10h machines\n\n");
+     }
      test_fail(test_string);
    }
    if (!quiet) printf("\n");

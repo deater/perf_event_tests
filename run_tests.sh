@@ -6,7 +6,8 @@ echo
 echo "* Checking generalized events"
 ./validation/branches
 ./validation/instructions
-./validation/l1-dcache-writes
+./validation/l1-dcache-stores
+./validation/l1-dcache-loads
 echo
 echo "* Checking offcore response events"
 ./validation/offcore_response

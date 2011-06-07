@@ -2,7 +2,8 @@ CC = gcc
 CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
-all:	branches l1-dcache-writes instructions offcore_response \
+all:	branches l1-dcache-loads l1-dcache-stores instructions \
+	offcore_response \
 	check_constraints format_id_support \
 	simple_overflow_leader simple_overflow_sibling
 
@@ -34,14 +35,25 @@ branches.o:	branches.c
 
 ###
 
-l1-dcache-writes:	l1-dcache-writes.o ../lib/test_utils.o \
+l1-dcache-loads:	l1-dcache-loads.o ../lib/test_utils.o \
 				../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o l1-dcache-writes l1-dcache-writes.o \
+	$(CC) $(LFLAGS) -o l1-dcache-loads l1-dcache-loads.o \
 			../lib/test_utils.o \
 			../lib/perf_helpers.o
 
-l1-dcache-writes.o:	l1-dcache-writes.c
-	$(CC) $(CFLAGS) -c l1-dcache-writes.c
+l1-dcache-loads.o:	l1-dcache-loads.c
+	$(CC) $(CFLAGS) -c l1-dcache-loads.c
+
+###
+
+l1-dcache-stores:	l1-dcache-stores.o ../lib/test_utils.o \
+				../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o l1-dcache-stores l1-dcache-stores.o \
+			../lib/test_utils.o \
+			../lib/perf_helpers.o
+
+l1-dcache-stores.o:	l1-dcache-stores.c
+	$(CC) $(CFLAGS) -c l1-dcache-stores.c
 
 ###
 
@@ -126,7 +138,8 @@ simple_overflow_sibling.o:	simple_overflow_sibling.c
 
 
 clean:	
-	rm -f *~ *.o branches l1-dcache-writes instructions offcore_response \
+	rm -f *~ *.o branches l1-dcache-loads l1-dcache-stores instructions \
+		offcore_response \
 		check_constraints format_id_support \
 		simple_overflow_leader simple_overflow_sibling
 
