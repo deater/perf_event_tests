@@ -25,6 +25,9 @@ There are various subdirectories:
                   kernel versions from userspace.
                   * USE CAUTION RUNNING THESE TESTS *
 
+   + PAPI       -- tests for the PAPI library.  Only compile/run
+                  these if you have PAPI installed
+
    + validation -- tests that validate the perf_event generalized
                   events to see if they count what we think they do
 
@@ -42,4 +45,4 @@ The most recent version of this code can be found here:
 ---
 
 Vince
-27 May 2011
+8 June 2011

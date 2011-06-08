@@ -5,6 +5,7 @@ export TESTS_QUIET=y
 echo
 echo "* Checking generalized events"
 ./validation/branches
+./validation/branch-misses
 ./validation/instructions
 ./validation/l1-dcache-stores
 ./validation/l1-dcache-loads

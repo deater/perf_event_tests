@@ -67,8 +67,8 @@ int main(int argc, char **argv) {
       read_result=read(fd,&count,sizeof(long long));
       
       if (result==CODE_UNIMPLEMENTED) {
+	 printf("\tNo test code for this architecture\n");
 	 test_skip(test_string);
-	 fprintf(stdout,"\tNo test code for this architecture\n");
       }
       
       if (read_result!=sizeof(long long)) {
