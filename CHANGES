@@ -1,6 +1,7 @@
 8 June 2011
 + Import the PAPI vvtests.  Why not.
-
++ Add validation/branch-misses test
++ Release version 0.10
 
 7 June 2011
 + Fix name of l1-dcache-stores

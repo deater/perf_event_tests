@@ -67,13 +67,12 @@ int main(int argc, char **argv) {
       read_result=read(fd,&count,sizeof(long long));
       
       if (result==CODE_UNIMPLEMENTED) {
-	 printf("\tNo test code for this architecture\n");
+	if (!quiet) printf("\tNo test code for this architecture\n");
 	 test_skip(test_string);
       }
       
       if (read_result!=sizeof(long long)) {
-	 test_fail(test_string);
-         fprintf(stdout,"Error extra data in read %d\n",read_result);	 
+ 	 if (!quiet) printf("Error extra data in read %d\n",read_result);		test_fail(test_string);
       }
       
       if (count>high) high=count;
