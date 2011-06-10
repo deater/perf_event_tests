@@ -20,7 +20,6 @@ int main(int argc, char **argv) {
    int retval,quiet;
    int events[2];
    long long counts[2];
-   long long expected;
    int EventSet=PAPI_NULL;
    char test_string[]="Testing perf_event software events...";
 
@@ -31,9 +30,10 @@ int main(int argc, char **argv) {
       if (!quiet) printf("ERROR: PAPI_library_init %d\n", retval);
       test_fail(test_string);
    }
-   
-   expected=naive_matrix_multiply_estimated_flops(quiet);
 
+   /* Needs to be kernel as context switches is a kernel event */
+   PAPI_set_domain(PAPI_DOM_KERNEL);
+   
    if (PAPI_create_eventset(&EventSet)!=PAPI_OK) {
       if (!quiet) printf("PAPI_create_eventset %d\n",retval);
       test_fail(test_string);
@@ -69,6 +69,14 @@ int main(int argc, char **argv) {
       printf("   PAPI_TOT_INS: %lld\n",counts[1]);
    }
 
+   if (counts[0]==0) {
+      if (!quiet) {
+	 printf("Context switches was 0. This probably shouldn't\n");
+         printf("Unless you have a very fast processor.\n");
+      }
+      test_fail(test_string);
+   }
+   
    PAPI_shutdown();
 
    test_pass(test_string);

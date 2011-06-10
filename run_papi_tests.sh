@@ -7,6 +7,13 @@ echo "* Checking PAPI predefined events"
 ./papi/papi_br_cn
 ./papi/papi_br_ins
 ./papi/papi_br_msp
+./papi/papi_br_ntk
+./papi/papi_br_prc
+./papi/papi_br_tkn
+./papi/papi_br_ucn
+./papi/papi_fp_ins
+./papi/papi_fp_ops
+./papi/papi_hw_int
 
 echo
 echo "* Checking bugs that can silently produce wrong results"

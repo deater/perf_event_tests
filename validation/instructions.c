@@ -47,27 +47,27 @@ void test_million(void) {
      ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
      result=instructions_million();
-      
-     ioctl(fd, PERF_EVENT_IOC_DISABLE,0);     
+
+     ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
      read_result=read(fd,&count,sizeof(long long));
 
      if (result==CODE_UNIMPLEMENTED) {
 	fprintf(stderr,"\tCode unimplemented\n");
 	test_fail(test_string);	
      }
-      
+
      if (read_result!=sizeof(long long)) {
 	fprintf(stderr,"\tImproper return from read: %d\n",read_result);
 	test_fail(test_string);	
      }
-      
+
      if (count>high) high=count;
       if ((low==0) || (count<low)) low=count;
       total+=count;
    }
 
    average=total/NUM_RUNS;
-   
+
    error=display_error(average,high,low,1000000ULL,quiet);
 
    if ((error > 1.0) || (error<-1.0)) {

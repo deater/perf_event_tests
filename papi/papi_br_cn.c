@@ -16,7 +16,7 @@
 #include "branches_testcode.h"
 
 int main(int argc, char **argv) {
-   
+
   int retval,quiet;
 
    int num_runs=100;
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
    long long counts[1],total=0;
 
    char test_string[]="Testing PAPI_BR_CN predefined event...";
-   
+
    quiet=test_quiet();
 
    retval = PAPI_library_init(PAPI_VER_CURRENT);
@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
    }
 
    if (!quiet) {
-   
-      printf("\n");   
+
+      printf("\n");
 
       printf("Testing a loop with %lld conditional branches (%d times):\n",
           expected,num_runs);

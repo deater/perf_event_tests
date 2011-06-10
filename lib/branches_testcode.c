@@ -4,6 +4,11 @@
 #include "perf_event.h"
 #include "branches_testcode.h"
 
+
+/* This code has 1,500,000 total branches       */
+/*                 500,000 not-taken branches   */
+/*               1,000,000 taken branches       */
+/*               XXXX    conditional branches */
 int branches_testcode(void) {
    
 #if defined(__i386__) || (defined __x86_64__)   

@@ -20,7 +20,6 @@ int main(int argc, char **argv) {
    int retval,quiet;
    int events[2];
    long long counts[2];
-   long long expected;
    double error;
    char test_string[]="Testing perf_event generalized instruction event...";
 
@@ -32,8 +31,6 @@ int main(int argc, char **argv) {
       test_fail(test_string);
    }
    
-   expected=naive_matrix_multiply_estimated_flops(quiet);
-
    retval=PAPI_event_name_to_code("perf::PERF_COUNT_HW_INSTRUCTIONS",&events[0]);
    if (retval!=PAPI_OK) {
       if (!quiet) printf("ERROR PAPI_event_name_to_code: %d\n", retval);      

@@ -1,11 +1,13 @@
 #include <stdio.h>
 
-#include "cache_test.h"
+#include "papi_cache_info.h"
 
 #include "papi.h"
-#include "papi_test.h"
 
-const PAPI_hw_info_t *hw_info=NULL;
+#include "test_utils.h"
+
+
+static const PAPI_hw_info_t *hw_info=NULL;
 
 struct cache_info_t {
        int wpolicy;
@@ -19,13 +21,14 @@ struct cache_info_t {
 static struct cache_info_t cache_info[MAX_CACHE];
 
 
-static void check_if_cache_info_available() {
+static void check_if_cache_info_available(int quiet, char *test_string) {
 
    int cache_type,i,j;
 
    hw_info=PAPI_get_hardware_info();
    if (hw_info==NULL) {
-      test_fail(__FILE__,__LINE__,"hardware info not available",0);
+      if (!quiet) printf("hardware cache info not available\n");
+      test_fail(test_string);
    }
 
    for(i=0;i<hw_info->mem_hierarchy.levels;i++) {
@@ -76,39 +79,39 @@ static void check_if_cache_info_available() {
    }
 }
 
-long long get_cachesize(int type) {
+long long get_cachesize(int type, int quiet, char *test_string) {
 
-   check_if_cache_info_available();
+   check_if_cache_info_available(quiet,test_string);
 
    if (type>MAX_CACHE) {
-      printf("Errror!\n");
-      return -1;
+      if (!quiet) printf("Errror cache %d not available\n",type);
+      test_fail(test_string);
    }
 
    return cache_info[type].size;
 }
 
 
-long long get_entries(int type) {
+long long get_entries(int type, int quiet, char *test_string) {
 
-   check_if_cache_info_available();
+   check_if_cache_info_available(quiet,test_string);
 
    if (type>MAX_CACHE) {
-      printf("Errror!\n");
-      return -1;
+      if (!quiet) printf("Errror cache %d not available\n",type);
+      test_fail(test_string);
    }
 
    return cache_info[type].entries;
 }
 
 
-long long get_linesize(int type) {
+long long get_linesize(int type,int quiet,char *test_string) {
 
-   check_if_cache_info_available();
+   check_if_cache_info_available(quiet,test_string);
 
    if (type>MAX_CACHE) {
-      printf("Errror!\n");
-      return -1;
+      if (!quiet) printf("Errror cache %d not available\n",type);
+      test_fail(test_string);
    }
 
    return cache_info[type].linesize;

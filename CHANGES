@@ -1,3 +1,8 @@
+9 June 2011
++ Update more PAPI tests to compile with new setup.
++ Other minor fixes.
++ Release version 0.11
+
 8 June 2011
 + Import the PAPI vvtests.  Why not.
 + Add validation/branch-misses test

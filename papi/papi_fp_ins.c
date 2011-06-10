@@ -13,118 +13,52 @@
 #include "papiStdEventDefs.h"
 #include "papi.h"
 
-#include "papi_test.h"
+#include "test_utils.h"
+#include "matrix_multiply.h"
 
 #define NUM_RUNS 3
 
-#define MATRIX_SIZE 512
-double a[MATRIX_SIZE][MATRIX_SIZE];
-double b[MATRIX_SIZE][MATRIX_SIZE];
-double c[MATRIX_SIZE][MATRIX_SIZE];
-
-long long estimated_flops() {
-
-  long long muls,divs,adds;
-
-  /* setup */
-  muls=MATRIX_SIZE*MATRIX_SIZE;
-  divs=MATRIX_SIZE*MATRIX_SIZE;
-  adds=MATRIX_SIZE*MATRIX_SIZE;
-
-  /* multiply */
-  muls+=MATRIX_SIZE*MATRIX_SIZE*MATRIX_SIZE;
-  adds+=MATRIX_SIZE*MATRIX_SIZE*MATRIX_SIZE;
-
-  /* sum */
-  adds+=MATRIX_SIZE*MATRIX_SIZE;
-
-  printf("adds: %lld muls: %lld divs: %lld\n",adds,muls,divs);
-
-  return adds+muls+divs;
-}
-
-void matrix_multiply() {
-
-  double s;
-  int i,j,k;
-
-  for(i=0;i<MATRIX_SIZE;i++) {
-    for(j=0;j<MATRIX_SIZE;j++) {
-      a[i][j]=(double)i*(double)j;
-      b[i][j]=(double)i/(double)(j+5);
-    }
-  }
-
-  for(j=0;j<MATRIX_SIZE;j++) {
-     for(i=0;i<MATRIX_SIZE;i++) {
-        s=0;
-        for(k=0;k<MATRIX_SIZE;k++) {
-	   s+=a[i][k]*b[k][j];
-	}
-        c[i][j] = s;
-     }
-  }
-
-  s=0.0;
-  for(i=0;i<MATRIX_SIZE;i++) {
-    for(j=0;j<MATRIX_SIZE;j++) {
-      s+=c[i][j];
-    }
-  }
-
-    printf("Validation: s=%lf\n",s);
-
-  return;
-}
-
 int main(int argc, char **argv) {
-   
-   int retval;
-   double mhz;
-   const PAPI_hw_info_t *info;
 
-   retval = PAPI_library_init(PAPI_VER_CURRENT);
-   if (retval != PAPI_VER_CURRENT) {
-      test_fail( __FILE__, __LINE__, "PAPI_library_init", retval);
-   }
-
-   retval = PAPI_query_event(PAPI_FP_INS);
-   if (retval != PAPI_OK) {
-      test_fail( __FILE__, __LINE__ ,"PAPI_FP_INS not supported", retval);
-   }
-
-   printf("\n");   
-
-   if ( (info=PAPI_get_hardware_info())==NULL) {
-      test_fail( __FILE__, __LINE__ ,"cannot obtain hardware info", retval);
-   }
-   mhz=info->mhz;
-   printf("System MHZ = %f\n",mhz);
-
-
-   /* Test a simple loop of 1 million instructions             */
-   /* Most implementations should count be correct within 1%   */
-   /* This loop in in assembly language, as compiler generated */
-   /* code varies too much.                                    */
+   int retval,quiet;
 
    int i;
 
    int events[1];
    long long counts[1],high=0,low=0,total=0,average=0;
-   double error,highd=-1e6,lowd=1e6;
+   double error;
    long long expected;
+
+   char test_string[]="Testing PAPI_FP_INS predefined event...";
+
+   quiet=test_quiet();
+
+   retval = PAPI_library_init(PAPI_VER_CURRENT);
+   if (retval != PAPI_VER_CURRENT) {
+      if (!quiet) printf("Error: PAPI_library_init %d\n", retval);
+      test_fail(test_string);
+   }
+
+   retval = PAPI_query_event(PAPI_FP_INS);
+   if (retval != PAPI_OK) {
+      if (!quiet) printf("PAPI_FP_INS not supported");
+      test_skip(test_string);
+   }
 
    events[0]=PAPI_FP_INS;
 
-   printf("Testing a sleep of 1 second (%d times):\n",
-          NUM_RUNS);
+   if (!quiet) {
+      printf("\n");
+      printf("Testing a sleep of 1 second (%d times):\n", NUM_RUNS);
+      printf("Result should be close to 0.\n");
+   }
+
 
    for(i=0;i<NUM_RUNS;i++) {
 
       PAPI_start_counters(events,1);
 
       sleep(1);
-     
       PAPI_stop_counters(counts,1);
 
       if (counts[0]>high) high=counts[0];
@@ -133,61 +67,60 @@ int main(int argc, char **argv) {
    }
 
    average=total/NUM_RUNS;
- 
-   expected=0;
-
-   printf("   Expected: %lld\n", expected);
-   printf("   High: %lld   Low:  %lld   Average:  %lld\n",
-          high,low,average);
-
-   printf("   ( note, a small value above %lld may be expected due\n",expected);
-   printf("     to PAPI overhead and interrupt noise, among other reasons)\n");
-
-   error=((double)average-expected);
-   printf("   Average Error = %.2f\n",error);
-
-   if (error > 500.0) {
-
-      test_fail( __FILE__, __LINE__, "Instruction count higher than expected", 0);
+   if (!quiet) {
+      printf("Counted an average of %lld FP_INS during sleep\n\n",
+              average);
    }
-   printf("\n");
+
+   if (average > 500) {
+      if (!quiet) printf("More PAPI_FP_INS than expected\n");
+      test_fail(test_string);
+   }
 
 
    /* busy spin */
-#define NUM_MATRIX_RUNS 5
-   printf("Testing a busy loop (%d times):\n",
-          NUM_MATRIX_RUNS);
 
-   for(i=0;i<NUM_MATRIX_RUNS;i++) {
+   high=0; low=0; total=0;
+
+   if (!quiet) {
+      printf("\n");
+      printf("Testing a busy loop (%d times):\n",NUM_RUNS);
+   }
+
+   for(i=0;i<NUM_RUNS;i++) {
 
       PAPI_start_counters(events,1);
 
-      matrix_multiply();
+      naive_matrix_multiply(quiet);
 
       PAPI_stop_counters(counts,1);
 
-      expected=estimated_flops();
-      error=(((double)counts[0]-(double)expected)/(double)expected)*100.0;
-      printf("   Expected: %lld  Actual: %lld   Error: %.2lf\n", 
-             expected, counts[0],error);
+      if (counts[0]>high) high=counts[0];
+      if ((low==0) || (counts[0]<low)) low=counts[0];
+      total+=counts[0];
 
-      if (error>highd) highd=error;
-      if (error<lowd) lowd=error;
    }
- 
-   printf("   High: %lf   Low:  %lf\n",
-          highd,lowd);
 
+   average=total/NUM_RUNS;
 
-   printf("\n");
+   expected=naive_matrix_multiply_estimated_flops(quiet);
 
-   if (highd > 1.0) {
-      test_fail( __FILE__, __LINE__, "FP error higher than expected", 0);
+   error=display_error(average,high,low,expected,quiet);
+
+   if (error > 1.0) {
+      if (!quiet) printf("FP error higher than expected\n");
+      test_fail(test_string);
    }
+
+   if (average < 1000 ) {
+      if (!quiet) printf("Floating Point count too small.\n");
+      test_fail(test_string);
+   }
+
 
    PAPI_shutdown();
 
-   test_pass( __FILE__ , NULL, 0);
+   test_pass(test_string);
 
    return 0;
 }

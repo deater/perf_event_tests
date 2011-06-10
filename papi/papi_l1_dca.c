@@ -10,25 +10,33 @@
 #include "papiStdEventDefs.h"
 #include "papi.h"
 
-#include "papi_test.h"
+#include "test_utils.h"
+
 
 #define NUM_RUNS 100
 
 int main(int argc, char **argv) {
 
+   int quiet;
    int events[1],i;
    long long counts[1];
-   
+
    int retval,num_counters;
-   
+
+   char test_string[]="Testing PAPI_L1_DCA predefined event...";
+
+   quiet=test_quiet();
+
    retval = PAPI_library_init(PAPI_VER_CURRENT);
    if (retval != PAPI_VER_CURRENT) {
-      test_fail(__FILE__,__LINE__,"PAPI_library_init",retval);
+      if (!quiet) printf("Error PAPI_library_init: %d\n",retval);
+      test_fail(test_string);
    }
 
    retval = PAPI_query_event(PAPI_L1_DCA);
    if (retval != PAPI_OK) {
-      test_fail(__FILE__,__LINE__,"PAPI_L1_DCA not available",retval);
+      if (!quiet) printf("PAPI_L1_DCA not available\n");
+      test_fail(test_string);
    }
 
 
@@ -72,6 +80,8 @@ int main(int argc, char **argv) {
    printf("\tShould be roughly: %d\n",ARRAYSIZE);
 
    PAPI_shutdown();
-   
+
+   test_pass(test_string);
+
    return 0;
 }
