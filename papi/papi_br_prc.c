@@ -73,6 +73,8 @@ int main(int argc, char **argv) {
      total+=counts[0];
    }
 
+   average=total/num_runs;
+
    error=display_error(average,high,low,expected,quiet);
 
    if ((error > 1.0) || (error<-1.0)) {
@@ -133,20 +135,21 @@ int main(int argc, char **argv) {
 
    if (!quiet) {
 
-      printf("\nOut of %lld branches, %lld were mispredicted\n",expected,average);
+      printf("\nOut of %lld branches, %lld predicted correctly\n",expected,average);
       printf("Assuming a good random number generator and no freaky luck\n");
-      printf("The correc predictions should be roughly between %d and %d\n",
+      printf("The TOTAL - CORRECT value is %lld\n",expected-average);
+      printf("This value should be roughly between %d and %d\n",
              num_random_branches/4,(num_random_branches/4)*3);
    }
 
-   if ( average < (num_random_branches/4)) {
-     if (!quiet) printf("Mispredicts too low\n");
+   if ( (expected-average) < (num_random_branches/4)) {
+     if (!quiet) printf("Correct predicts too low\n");
      test_fail(test_string);
    }
 
-   if (average > (num_random_branches/4)*3) { 
+   if ( (expected-average) > (num_random_branches/4)*3) { 
 
-     if (!quiet) printf("Mistpredicts too high\n");
+     if (!quiet) printf("Correct predicts too high\n");
      test_fail(test_string);
    }
    if (!quiet) printf("\n");

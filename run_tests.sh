@@ -17,6 +17,7 @@ echo "* Checking basic perf_event functionality"
 ./validation/simple_overflow_leader
 ./validation/simple_overflow_sibling
 ./validation/format_id_support
+./validation/non-existent
 
 echo
 echo "* Checking bugs that PAPI has to work around"

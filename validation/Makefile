@@ -6,6 +6,7 @@ all:	branches branch-misses \
 	l1-dcache-loads l1-dcache-stores instructions \
 	offcore_response \
 	check_constraints format_id_support \
+	non-existent \
 	simple_overflow_leader simple_overflow_sibling
 
 ###
@@ -110,6 +111,20 @@ check_constraints:	check_constraints.o ../lib/test_utils.o \
 check_constraints.o:	check_constraints.c
 	$(CC) $(CFLAGS) -c check_constraints.c
 
+###
+
+non-existent:	non-existent.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o non-existent non-existent.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+non-existent.o:	non-existent.c
+	$(CC) $(CFLAGS) -c non-existent.c
+
+
 ###                                                                            
 
 format_id_support:	format_id_support.o \
@@ -155,6 +170,7 @@ clean:
 	rm -f *~ *.o branches branch-misses \
 		l1-dcache-loads l1-dcache-stores instructions \
 		offcore_response \
+		non-existent \
 		check_constraints format_id_support \
 		simple_overflow_leader simple_overflow_sibling
 

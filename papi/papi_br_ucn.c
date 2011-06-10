@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
    int events[1];
    long long counts[1],total=0;
 
-   char test_string[]="Testing PAPI_BR_CN predefined event...";
+   char test_string[]="Testing PAPI_BR_UCN predefined event...";
 
    quiet=test_quiet();
 
