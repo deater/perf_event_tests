@@ -2,14 +2,15 @@ CC	= gcc
 CC_R	= $(CC) -pthread
 CFLAGS	= -g -O2 -Wall -I../include
 
-PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
-PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
+#PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
+#PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
 
-#PAPI_INCLUDE = -I/usr/local/lib
-#PAPI_LIB = /usr/local/lib/libpapi.a
+PAPI_INCLUDE = -I/usr/local/lib
+PAPI_LIB = /usr/local/lib/libpapi.a
 
 
-all:	core2_constraints \
+all:	check_papi_latency \
+	core2_constraints \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
@@ -187,7 +188,14 @@ papi_tot_ins:	papi_tot_ins.o
 papi_tot_ins.o:	papi_tot_ins.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_tot_ins.c
 
+###
 
+check_papi_latency:	check_papi_latency.o ../lib/test_utils.o ../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o check_papi_latency check_papi_latency.o \
+		../lib/test_utils.o ../lib/instructions_testcode.o $(PAPI_LIB) -lrt
+
+check_papi_latency.o:	check_papi_latency.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c check_papi_latency.c
 
 ####
 
@@ -250,6 +258,7 @@ clean:
 	papi_tot_ins \
 	papi_fp_ins \
 	papi_fp_ops \
+	check_papi_latency \
 	core2_constraints \
 	nhm_offcore_response \
 	perfevent_sw_events \

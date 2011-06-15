@@ -60,15 +60,24 @@ int main(int argc, char **argv) {
 
    events[1]=PAPI_TOT_INS;
 
-   PAPI_start_counters(events,2);
+   retval=PAPI_start_counters(events,2);
 
    naive_matrix_multiply(quiet);
 
    PAPI_stop_counters(counts,2);
-
    
+   if (retval!=PAPI_OK) {
+     if (!quiet) printf("Error starting!\n");
+     test_fail(test_string);
+   }
+  
+   if (counts[0]==0) {
+      if (!quiet) printf("Error!  Counted 0!\n");
+      test_fail(test_string);
+   }
+
    error=(((double)counts[0]-(double)expected)/(double)expected)*100.0;
-   printf("   Expected: %lld  Actual: %lld   Error: %.2lf\n", 
+   if (!quiet) printf("   Expected: %lld  Actual: %lld   Error: %.2lf\n", 
              expected, counts[0],error);
 
    if (error > 1.0) {

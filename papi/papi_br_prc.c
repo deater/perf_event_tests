@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
       test_fail(test_string);
 
    }
-   printf("\n");
+   if (!quiet) printf("\n");
 
    /*******************/
 

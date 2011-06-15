@@ -1,3 +1,8 @@
+10 June 2011
++ Some minor cleanups after running on a Istanbul and a Nehalem.
++ Work on some timing measurements.
++ Release version 0.12
+
 9 June 2011
 + Update more PAPI tests to compile with new setup.
 + Other minor fixes.
