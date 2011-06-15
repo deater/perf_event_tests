@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
    double array[ARRAYSIZE];
    double aSumm = 0.0;
 
-   printf("Write test:\n");
+   if (!quiet) printf("Write test:\n");
    PAPI_start_counters(events,1);
    
    for(i=0; i<ARRAYSIZE; i++) { 
@@ -63,9 +63,10 @@ int main(int argc, char **argv) {
      
    PAPI_stop_counters(counts,1);
 
-
-   printf("\tL1 D accesseses: %lld\n",counts[0]);
-   printf("\tShould be roughly: %d\n",ARRAYSIZE);
+   if (!quiet) {
+      printf("\tL1 D accesseses: %lld\n",counts[0]);
+      printf("\tShould be roughly: %d\n",ARRAYSIZE);
+   }
 
    PAPI_start_counters(events,1);
    
@@ -75,9 +76,11 @@ int main(int argc, char **argv) {
      
    PAPI_stop_counters(counts,1);
 
-   printf("Read test (%lf):\n",aSumm);
-   printf("\tL1 D accesseses: %lld\n",counts[0]);
-   printf("\tShould be roughly: %d\n",ARRAYSIZE);
+   if (!quiet) {
+      printf("Read test (%lf):\n",aSumm);
+      printf("\tL1 D accesseses: %lld\n",counts[0]);
+      printf("\tShould be roughly: %d\n",ARRAYSIZE);
+   }
 
    PAPI_shutdown();
 

@@ -14,6 +14,14 @@ echo "* Checking PAPI predefined events"
 ./papi/papi_fp_ins
 ./papi/papi_fp_ops
 ./papi/papi_hw_int
+./papi/papi_l1_dca
+./papi/papi_l2_dca
+./papi/papi_l2_dcm
+./papi/papi_l2_dcr
+./papi/papi_l2_tcm
+./papi/papi_l2_tcr
+./papi/papi_tot_cyc
+./papi/papi_tot_ins
 
 echo
 echo "* Checking bugs that can silently produce wrong results"

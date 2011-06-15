@@ -2,11 +2,11 @@ CC	= gcc
 CC_R	= $(CC) -pthread
 CFLAGS	= -g -O2 -Wall -I../include
 
-#PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
-#PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
+PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
+PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
 
-PAPI_INCLUDE = -I/usr/local/lib
-PAPI_LIB = /usr/local/lib/libpapi.a
+#PAPI_INCLUDE = -I/usr/local/lib
+#PAPI_LIB = /usr/local/lib/libpapi.a
 
 
 all:	check_papi_latency \
@@ -136,54 +136,72 @@ papi_l1_dca:	papi_l1_dca.o papi_cache_info.o ../lib/test_utils.o
 papi_l1_dca.o:	papi_l1_dca.c
 	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_l1_dca.c
 
+###
 
-papi_l2_dca:	papi_l2_dca.o cache_test.o
-	$(CC) $(LFLAGS) -o papi_l2_dca papi_l2_dca.o cache_test.o $(PAPILIB) $(UTILS)
+papi_l2_dca:	papi_l2_dca.o papi_cache_info.o ../lib/test_utils.o
+	$(CC) $(LFLAGS) -o papi_l2_dca papi_l2_dca.o papi_cache_info.o \
+		../lib/test_utils.o $(PAPI_LIB)
 
 papi_l2_dca.o:	papi_l2_dca.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_l2_dca.c
 
+###
 
-papi_l2_dcm:	papi_l2_dcm.o cache_test.o
-	$(CC) $(LFLAGS) -o papi_l2_dcm papi_l2_dcm.o cache_test.o $(PAPILIB) $(UTILS)
+papi_l2_dcm:	papi_l2_dcm.o papi_cache_info.o ../lib/test_utils.o
+	$(CC) $(LFLAGS) -o papi_l2_dcm papi_l2_dcm.o \
+		papi_cache_info.o ../lib/test_utils.o $(PAPI_LIB)
 
 papi_l2_dcm.o:	papi_l2_dcm.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_l2_dcm.c
 
+###
 
-papi_l2_dcr:	papi_l2_dcr.o cache_test.o
-	$(CC) $(LFLAGS) -o papi_l2_dcr papi_l2_dcr.o cache_test.o $(PAPILIB) $(UTILS)
+papi_l2_dcr:	papi_l2_dcr.o papi_cache_info.o ../lib/test_utils.o
+	$(CC) $(LFLAGS) -o papi_l2_dcr papi_l2_dcr.o \
+		papi_cache_info.o ../lib/test_utils.o $(PAPI_LIB)
 
 papi_l2_dcr.o:	papi_l2_dcr.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_l2_dcr.c
 
+###
 
-papi_l2_tcm:	papi_l2_tcm.o cache_test.o
-	$(CC) $(LFLAGS) -o papi_l2_tcm papi_l2_tcm.o cache_test.o $(PAPILIB) $(UTILS)
+papi_l2_tcm:	papi_l2_tcm.o papi_cache_info.o ../lib/test_utils.o
+	$(CC) $(LFLAGS) -o papi_l2_tcm papi_l2_tcm.o \
+		papi_cache_info.o ../lib/test_utils.o $(PAPI_LIB)
 
 papi_l2_tcm.o:	papi_l2_tcm.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_l2_tcm.c
 
 
-papi_l2_tcr:	papi_l2_tcr.o cache_test.o
-	$(CC) $(LFLAGS) -o papi_l2_tcr papi_l2_tcr.o cache_test.o $(PAPILIB) $(UTILS)
+###
+
+papi_l2_tcr:	papi_l2_tcr.o papi_cache_info.o ../lib/test_utils.o
+	$(CC) $(LFLAGS) -o papi_l2_tcr papi_l2_tcr.o \
+		papi_cache_info.o ../lib/test_utils.o $(PAPI_LIB)
 
 papi_l2_tcr.o:	papi_l2_tcr.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_l2_tcr.c
 
+####
 
 papi_cache_info.o:	papi_cache_info.c
 	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_cache_info.c
 
+###
 
-papi_tot_cyc:	papi_tot_cyc.o
-	$(CC) $(LFLAGS) -o papi_tot_cyc papi_tot_cyc.o $(PAPILIB) $(UTILS)
+papi_tot_cyc:	papi_tot_cyc.o ../lib/test_utils.o ../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o papi_tot_cyc papi_tot_cyc.o \
+		../lib/test_utils.o ../lib/matrix_multiply.o $(PAPI_LIB)
 
 papi_tot_cyc.o:	papi_tot_cyc.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_tot_cyc.c
 
-papi_tot_ins:	papi_tot_ins.o
-	$(CC) $(LFLAGS) -o papi_tot_ins papi_tot_ins.o $(PAPILIB) $(UTILS)
+###
+
+papi_tot_ins:	papi_tot_ins.o \
+		../lib/test_utils.o ../lib/instructions_testcode.o 
+	$(CC) $(LFLAGS) -o papi_tot_ins papi_tot_ins.o \
+		../lib/test_utils.o ../lib/instructions_testcode.o $(PAPI_LIB)
 
 papi_tot_ins.o:	papi_tot_ins.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c papi_tot_ins.c

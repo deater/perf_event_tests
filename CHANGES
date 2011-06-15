@@ -1,3 +1,7 @@
+15 June 2011
++ Got all PAPI tests compiling
++ Release version 0.13
+
 10 June 2011
 + Some minor cleanups after running on a Istanbul and a Nehalem.
 + Work on some timing measurements.
