@@ -49,6 +49,7 @@ void test_caution(char *string) {
   else {
     fprintf( stdout, "%-*s USE CAUTION\n", 60, string);
   }
+  exit(1);
 }
 
 void test_skip(char *string) {
@@ -110,6 +111,19 @@ void test_unexplained(char *string) {
   }
   else {
     fprintf( stdout, "%-*s UNEXPLAINED\n", 60, string);
+  }
+
+  exit(1);
+}
+
+void test_unimplemented(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sUNIMPLEMENTED%s\n", 60, string, 
+	   BLUE, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s UNIMPLEMENTED\n", 60, string);
   }
 
   exit(1);

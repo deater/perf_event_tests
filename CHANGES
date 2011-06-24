@@ -1,3 +1,7 @@
+24 June 2011
++ Added more PAPI tests.  Most are placeholders.
++ Release version 0.14
+
 15 June 2011
 + Got all PAPI tests compiling
 + Release version 0.13

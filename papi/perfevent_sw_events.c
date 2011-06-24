@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
       test_fail(test_string);
    }
 
-   /* Needs to be kernel as context switches is a kernel event */
-   PAPI_set_domain(PAPI_DOM_KERNEL);
+   /* On some kernels this seems to be user only, on some kernel only? */
+   PAPI_set_domain(PAPI_DOM_KERNEL | PAPI_DOM_USER);
    
    if (PAPI_create_eventset(&EventSet)!=PAPI_OK) {
       if (!quiet) printf("PAPI_create_eventset %d\n",retval);

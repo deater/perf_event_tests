@@ -17,14 +17,25 @@
 #include "test_utils.h"
 
 #include "matrix_multiply.h"
+#include "nops_testcode.h"
+
+
+#define SLEEP_RUNS 3
 
 int main(int argc, char **argv) {
    
    int retval,quiet;
-   double mhz;
+   double mhz,nop_mhz,mmm_mhz;
    const PAPI_hw_info_t *info;
 
    double error;
+
+   int i,result;
+   int events[1];
+   long long counts[1],high=0,low=0,total=0,average=0;
+   long long total_usecs,usecs,usec_start,usec_end;
+   long long nop_count,mmm_count;
+   long long expected;
 
    char test_string[]="Testing PAPI_TOT_CYC predefined event...";
 
@@ -49,23 +60,19 @@ int main(int argc, char **argv) {
       test_fail(test_string);
    }
    mhz=info->mhz;
-   if (!quiet) printf("System MHZ = %f\n",mhz);
+   if (!quiet) printf("System MHZ reported by PAPI = %f\n\n",mhz);
 
-#define NUM_RUNS 3
 
-   int i;
-   int events[1];
-   long long counts[1],high=0,low=0,total=0,average=0;
-   long long total_usecs,avg_usecs,usecs,usec_start,usec_end;
-   long long expected;
+
+
 
    events[0]=PAPI_TOT_CYC;
 
    if (!quiet) printf("Testing a sleep of 1 second (%d times):\n",
-          NUM_RUNS);
+          SLEEP_RUNS);
 
 
-   for(i=0;i<NUM_RUNS;i++) {
+   for(i=0;i<SLEEP_RUNS;i++) {
 
       PAPI_start_counters(events,1);
 
@@ -78,12 +85,12 @@ int main(int argc, char **argv) {
       total+=counts[0];
    }
 
-   average=total/NUM_RUNS;
+   average=total/SLEEP_RUNS;
 
    if (!quiet) {
 
-     printf("Average should be low, as no user cycles when sleeping\n");
-     printf("Measured average: %lld\n",average);
+     printf("\tAverage should be low, as no user cycles when sleeping\n");
+     printf("\tMeasured average: %lld\n",average);
 
    }
 
@@ -93,45 +100,110 @@ int main(int argc, char **argv) {
      test_fail(test_string);
    }
 
+   /********************/
+   /* testing nops MHz */
+   /********************/
 
-
-   /* busy spin */
-#define NUM_MATRIX_RUNS 5
-
-   if (!quiet) printf("Testing a busy loop (%d times):\n",
-          NUM_MATRIX_RUNS);
-
-   high=0; low=0; total=0;
+   if (!quiet) printf("\nTesting MHz with nops\n");
    total_usecs=0;
 
-   for(i=0;i<NUM_MATRIX_RUNS;i++) {
+   usec_start=PAPI_get_real_usec();
+   PAPI_start_counters(events,1);
 
+   result=nops_testcode();
 
-      usec_start=PAPI_get_real_usec();
-      PAPI_start_counters(events,1);
+   PAPI_stop_counters(counts,1);
+   usec_end=PAPI_get_real_usec();
 
+   usecs=usec_end-usec_start;
+      
+   expected=(long long)(mhz*usecs);
+
+   if (!quiet) {
+     printf("\tExpected cycles = %.2lfMHz * %lld usecs = %lld\n",
+	    mhz,usecs,expected);
+     printf("\tActual measured cycles = %lld\n",counts[0]);
+     printf("\tEstimated actual MHz = %.2lfMHz\n",
+	    (double)counts[0]/(double)usecs);
+   }
+
+   error=  100.0 * (double)(counts[0]-expected) / (double)expected;
+
+   if ((error>10.0) || (error<-10.0)) {
+
+     if (!quiet) printf("\tWarning: %.2lf%% variation from expected!\n",error);
+   }
+
+   if (!quiet) printf("\n");
+
+   nop_mhz=(double)counts[0]/(double)usecs;
+   nop_count=counts[0];
+
+   /*****************************/
+   /* testing Matrix Matrix MHz */
+   /*****************************/
+
+   if (!quiet) printf("\nTesting MHz with matrix matrix multiply\n");
+   total_usecs=0;
+
+   usec_start=PAPI_get_real_usec();
+   PAPI_start_counters(events,1);
+
+   naive_matrix_multiply(quiet);
+
+   PAPI_stop_counters(counts,1);
+   usec_end=PAPI_get_real_usec();
+
+   usecs=usec_end-usec_start;
+      
+   expected=(long long)(mhz*usecs);
+
+   if (!quiet) {
+     printf("\tExpected cycles = %.2lfMHz * %lld usecs = %lld\n",
+	    mhz,usecs,expected);
+     printf("\tActual measured cycles = %lld\n",counts[0]);
+     printf("\tEstimated actual MHz = %.2lfMHz\n",
+	    (double)counts[0]/(double)usecs);
+   }
+
+   error=  100.0 * (double)(counts[0]-expected) / (double)expected;
+
+   if ((error>10.0) || (error<-10.0)) {
+
+     if (!quiet) printf("\tWarning: Error %.2lf%% too high!\n",error);
+   }
+
+   if (!quiet) printf("\n");
+
+   mmm_mhz=(double)counts[0]/(double)usecs;
+   mmm_count=counts[0];
+
+   /* Linear Speedup */
+
+   if (!quiet) printf("Testing for a linear cycle increase\n");
+
+#define REPITITIONS 2
+
+   usec_start=PAPI_get_real_usec();
+   PAPI_start_counters(events,1);
+
+   for(i=0;i<REPITITIONS;i++) {
       naive_matrix_multiply(quiet);
+   }
 
-      PAPI_stop_counters(counts,1);
-      usec_end=PAPI_get_real_usec();
+   PAPI_stop_counters(counts,1);
+   usec_end=PAPI_get_real_usec();
 
-      usecs=usec_end-usec_start;
-      total_usecs+=usecs;
+   usecs=usec_end-usec_start;
+      
+   expected=mmm_count*REPITITIONS;
 
-      total+=counts[0];
+   error=  100.0 * (double)(counts[0]-expected) / (double)expected;
 
-      if (counts[0]>high) high=counts[0];
-      if ((counts[0]<low) || (low==0)) low=counts[0];
+   if (!quiet) {
+     printf("\tExpected %lld, got %lld\n",expected,counts[0]);
 
    }
- 
-   avg_usecs=total_usecs/NUM_MATRIX_RUNS;
-   
-   expected=(long long)(mhz*avg_usecs);
-
-   average=total/NUM_MATRIX_RUNS;
-
-   error=display_error(average,high,low,expected,quiet);
 
    if ((error>10.0) || (error<-10.0)) {
 
