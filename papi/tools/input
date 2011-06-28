@@ -1,0 +1,124 @@
+PAPI_MEM_SCY
+Cycles Stalled Waiting for memory accesses
+PAPI_MEM_RCY
+Cycles Stalled Waiting for memory Reads
+PAPI_MEM_WCY
+Cycles Stalled Waiting for memory writes
+PAPI_STL_ICY
+Cycles with no instruction issue
+PAPI_FUL_ICY
+Cycles with maximum instruction issue
+PAPI_STL_CCY
+Cycles with no instructions completed
+PAPI_FUL_CCY
+Cycles with maximum instructions completed
+PAPI_FMA_INS
+Fused Multiply-Add instructions completed
+PAPI_TOT_IIS
+Instructions issued
+PAPI_INT_INS
+Integer instructions
+PAPI_LD_INS
+Load instructions
+PAPI_SR_INS
+Store instructions
+PAPI_VEC_INS
+Vector/SIMD instructions
+PAPI_RES_STL
+Cycles stalled on any resource
+PAPI_FP_STAL
+Cycles the FP units are stalled
+PAPI_LST_INS
+Load/store instructions completed
+PAPI_SYC_INS
+Synchronization instructions completed
+PAPI_L1_DCH
+Level 1 data cache hits
+PAPI_L2_DCH
+Level 2 data cache hits
+PAPI_L3_DCA
+Level 3 data cache accesses
+PAPI_L1_DCR
+Level 1 data cache reads
+PAPI_L3_DCR
+Level 3 data cache reads
+PAPI_L1_DCW
+Level 1 data cache writes
+PAPI_L2_DCW
+Level 2 data cache writes
+PAPI_L3_DCW
+Level 3 data cache writes
+PAPI_L1_ICH
+Level 1 instruction cache hits
+PAPI_L2_ICH
+Level 2 instruction cache hits
+PAPI_L3_ICH
+Level 3 instruction cache hits
+PAPI_L1_ICA
+Level 1 instruction cache accesses
+PAPI_L2_ICA
+Level 2 instruction cache accesses
+PAPI_L3_ICA
+Level 3 instruction cache accesses
+PAPI_L1_ICR
+Level 1 instruction cache reads
+PAPI_L2_ICR
+Level 2 instruction cache reads
+PAPI_L3_ICR
+Level 3 instruction cache reads
+PAPI_L1_ICW
+Level 1 instruction cache writes
+PAPI_L2_ICW
+Level 2 instruction cache writes
+PAPI_L3_ICW
+Level 3 instruction cache writes
+PAPI_L1_TCH
+Level 1 total cache hits
+PAPI_L2_TCH
+Level 2 total cache hits
+PAPI_L3_TCH
+Level 3 total cache hits
+PAPI_L1_TCA
+Level 1 total cache accesses
+PAPI_L2_TCA
+Level 2 total cache accesses
+PAPI_L3_TCA
+Level 3 total cache accesses
+PAPI_L1_TCR
+Level 1 total cache reads
+PAPI_L3_TCR
+Level 3 total cache reads
+PAPI_L1_TCW
+Level 1 total cache writes
+PAPI_L2_TCW
+Level 2 total cache writes
+PAPI_L3_TCW
+Level 3 total cache writes
+PAPI_FML_INS
+Floating point multiply instructions
+PAPI_FAD_INS
+Floating point add instructions
+PAPI_FDV_INS
+Floating point divide instructions
+PAPI_FSQ_INS
+Floating point square root instructions
+PAPI_FNV_INS
+Floating point inverse instructions
+PAPI_SP_OPS
+Single-precision floating point operations
+PAPI_DP_OPS
+Double-precision floating point operations
+PAPI_VEC_SP
+Single precision vector/SIMD instructions
+PAPI_VEC_DP
+Double precision vector/SIMD instructions
+PAPI_BGL_OED
+BlueGene Oedipus operations
+PAPI_BGL_TS_32B
+BlueGene Torus 32B chunks sent
+PAPI_BGL_TS_FULL
+BlueGene Torus no token UPC cycles
+PAPI_BGL_TR_DPKT
+BlueGene Tree 256 byte packets
+PAPI_BGL_TR_FULL
+BlueGene PC cycles (CLOCKx2) tree rcv is full
