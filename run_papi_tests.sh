@@ -124,6 +124,7 @@ echo "* Checking general PAPI functionality"
 echo
 echo "* Checking bugs that can silently produce wrong results"
 ./papi/core2_constraints
+./papi/cpufreq_scaling
 
 echo
 echo "* Checking perf_event / libpfm4 features"

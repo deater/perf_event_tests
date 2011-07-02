@@ -5,7 +5,7 @@ LFLAGS =
 all:	sampled_notleader_refresh overflow_requires_mmap \
 	read_group_attached check_schedulability \
 	check_papi_multiplexing sync_read_required \
-	ioctl_refresh_0
+	ioctl_refresh_0 context_switch_user_kernel
 
 #
 
@@ -86,6 +86,20 @@ check_papi_multiplexing.o:	check_papi_multiplexing.c
 
 ###
 
+context_switch_user_kernel:	context_switch_user_kernel.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o context_switch_user_kernel context_switch_user_kernel.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+context_switch_user_kernel.o:	context_switch_user_kernel.c
+	$(CC) $(CFLAGS) -c context_switch_user_kernel.c
+
+###
+
 sync_read_required:	sync_read_required.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
@@ -120,6 +134,6 @@ clean:
 	rm -f *~ *.o sampled_notleader_refresh overflow_requires_mmap \
 	read_group_attached check_schedulability \
 	check_papi_multiplexing sync_read_required \
-	ioctl_refresh_0
+	ioctl_refresh_0 context_switch_user_kernel
 
 

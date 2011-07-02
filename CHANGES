@@ -1,3 +1,9 @@
+1 July 2011
++ Add cycles test
++ Fix non-existent test to skip if not supported
++ Add test to check if context-switches is kernel only
++ Release version 0.16
+
 28 June 2011
 + Now includes stubs for *all* PAPI predefined events.
 + Release version 0.15

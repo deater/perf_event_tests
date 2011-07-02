@@ -23,9 +23,28 @@ int fd;
 int main(int argc, char **argv) {
 
    struct perf_event_attr pe;
-   int fails=0,expected_fails=0;
+   int fails=0,expected_fails=0,cpu;
+   int zero_event,negone_event;
 
    quiet=test_quiet();
+
+   cpu=detect_processor();
+   
+   if ( (cpu==PROCESSOR_K7) ||
+        (cpu==PROCESSOR_K8) ||
+        (cpu==PROCESSOR_AMD_FAM10H) ||
+        (cpu==PROCESSOR_AMD_FAM11H) ||
+        (cpu==PROCESSOR_AMD_FAM14H)) {
+
+     zero_event=PERF_COUNT_HW_BUS_CYCLES;
+     negone_event= PERF_COUNT_HW_CACHE_BPU |
+                   ( PERF_COUNT_HW_CACHE_OP_PREFETCH <<8) |
+                   (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
+   }
+   else {
+     test_skip(test_string);
+   }
+
    
    if (!quiet) {
       printf("This test checks if non-existent events fail\n\n");
@@ -35,7 +54,7 @@ int main(int argc, char **argv) {
    memset(&pe,0,sizeof(struct perf_event_attr));
    pe.type=PERF_TYPE_HARDWARE;
    pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_BUS_CYCLES;
+   pe.config=zero_event;
    pe.disabled=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
@@ -61,9 +80,7 @@ int main(int argc, char **argv) {
    pe.type=PERF_TYPE_HARDWARE;
    pe.size=sizeof(struct perf_event_attr);
 
-   pe.config=PERF_COUNT_HW_CACHE_BPU |
-             ( PERF_COUNT_HW_CACHE_OP_PREFETCH <<8) |
-             (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
+   pe.config=negone_event;
    pe.disabled=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;

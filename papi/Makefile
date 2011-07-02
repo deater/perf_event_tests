@@ -12,6 +12,7 @@ PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
 all:	check_mhz_value \
 	check_papi_latency \
 	core2_constraints \
+	cpufreq_scaling \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
@@ -1205,6 +1206,17 @@ core2_constraints.o:	core2_constraints.c
 
 ###
 
+cpufreq_scaling:	cpufreq_scaling.o ../lib/test_utils.o \
+		../lib/matrix_multiply.o ../lib/nops_testcode.o
+	$(CC) $(LFLAGS) -o cpufreq_scaling cpufreq_scaling.o \
+		../lib/test_utils.o \
+		../lib/matrix_multiply.o ../lib/nops_testcode.o $(PAPI_LIB)
+
+cpufreq_scaling.o:	cpufreq_scaling.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c cpufreq_scaling.c
+
+###
+
 nhm_offcore_response:	nhm_offcore_response.o ../lib/test_utils.o ../lib/matrix_multiply.o
 	$(CC) $(LFLAGS) -o nhm_offcore_response nhm_offcore_response.o ../lib/test_utils.o ../lib/matrix_multiply.o $(PAPI_LIB)
 
@@ -1350,6 +1362,7 @@ clean:
 	check_mhz_value \
 	check_papi_latency \
 	core2_constraints \
+	cpufreq_scaling \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events

@@ -14,4 +14,4 @@ clean:
 	cd crashes && make clean
 	cd validation && make clean
 	cd papi && make clean
-	cd lib && make clean
+	cd include && make clean

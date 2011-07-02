@@ -129,6 +129,30 @@ void test_unimplemented(char *string) {
   exit(1);
 }
 
+void test_yellow_no(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sNO%s\n", 60, string, 
+	   YELLOW, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s NO\n", 60, string);
+  }
+  exit(1);
+}
+
+void test_green_yes(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sYES%s\n", 60, string, 
+	   GREEN, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s YES\n", 60, string);
+  }
+
+  exit(1);
+}
 
 
 double display_error(long long average,

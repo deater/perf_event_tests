@@ -6,6 +6,7 @@ echo
 echo "* Checking generalized events"
 ./validation/branches
 ./validation/branch-misses
+./validation/cycles
 ./validation/instructions
 ./validation/l1-dcache-stores
 ./validation/l1-dcache-loads
@@ -29,6 +30,7 @@ echo "* Checking bugs that PAPI has to work around"
 echo
 echo "* Checking bugs that can silently produce wrong results"
 ./validation/check_constraints
+./bugs/context_switch_user_kernel
 
 echo
 echo "* Checking for unintended ABI behavior"

@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
-all:	branches branch-misses \
+all:	branches branch-misses cycles \
 	l1-dcache-loads l1-dcache-stores instructions \
 	offcore_response \
 	check_constraints format_id_support \
@@ -47,6 +47,19 @@ branch-misses:	branch-misses.o ../lib/test_utils.o \
 
 branch-misses.o:	branch-misses.c
 	$(CC) $(CFLAGS) -c branch-misses.c
+
+###
+
+cycles:	cycles.o ../lib/test_utils.o \
+			../lib/matrix_multiply.o \
+			../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o cycles cycles.o \
+			../lib/test_utils.o \
+			../lib/matrix_multiply.o \
+			../lib/perf_helpers.o -lrt
+
+cycles.o:	cycles.c
+	$(CC) $(CFLAGS) -c cycles.c
 
 ###
 
@@ -167,7 +180,7 @@ simple_overflow_sibling.o:	simple_overflow_sibling.c
 
 
 clean:	
-	rm -f *~ *.o branches branch-misses \
+	rm -f *~ *.o branches branch-misses cycles \
 		l1-dcache-loads l1-dcache-stores instructions \
 		offcore_response \
 		non-existent \

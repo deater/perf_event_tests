@@ -1,6 +1,5 @@
-/* This file attempts to test the cycles              */
-/* performance counter on various architectures, as   */
-/* implemented by the PAPI_TOT_CYC counter.           */
+/* This file attempts to test if the cpu frequency is */
+/* changing, as noticed by PAPI_TOT_CYC               */
 
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu        */
 
@@ -25,19 +24,19 @@
 int main(int argc, char **argv) {
    
    int retval,quiet;
-   double mhz,mmm_mhz;
+   double mhz,nop_mhz,mmm_mhz;
    const PAPI_hw_info_t *info;
 
    double error;
 
-   int i;
+   int i,result;
    int events[1];
    long long counts[1],high=0,low=0,total=0,average=0;
    long long total_usecs,usecs,usec_start,usec_end;
-   long long mmm_count;
+   long long nop_count,mmm_count;
    long long expected;
 
-   char test_string[]="Testing PAPI_TOT_CYC predefined event...";
+   char test_string[]="Testing for CPU frequency scaling...";
 
    quiet=test_quiet();
 
@@ -61,6 +60,10 @@ int main(int argc, char **argv) {
    }
    mhz=info->mhz;
    if (!quiet) printf("System MHZ reported by PAPI = %f\n\n",mhz);
+
+
+
+
 
    events[0]=PAPI_TOT_CYC;
 
@@ -90,10 +93,50 @@ int main(int argc, char **argv) {
 
    }
 
+
    if (average>1000000) {
      if (!quiet) printf("Average cycle count too high!\n");
      test_fail(test_string);
    }
+
+   /********************/
+   /* testing nops MHz */
+   /********************/
+
+   if (!quiet) printf("\nTesting MHz with nops\n");
+   total_usecs=0;
+
+   usec_start=PAPI_get_real_usec();
+   PAPI_start_counters(events,1);
+
+   result=nops_testcode();
+
+   PAPI_stop_counters(counts,1);
+   usec_end=PAPI_get_real_usec();
+
+   usecs=usec_end-usec_start;
+      
+   expected=(long long)(mhz*usecs);
+
+   if (!quiet) {
+     printf("\tExpected cycles = %.2lfMHz * %lld usecs = %lld\n",
+	    mhz,usecs,expected);
+     printf("\tActual measured cycles = %lld\n",counts[0]);
+     printf("\tEstimated actual MHz = %.2lfMHz\n",
+	    (double)counts[0]/(double)usecs);
+   }
+
+   error=  100.0 * (double)(counts[0]-expected) / (double)expected;
+
+   if ((error>10.0) || (error<-10.0)) {
+
+     if (!quiet) printf("\tWarning: %.2lf%% variation from expected!\n",error);
+   }
+
+   if (!quiet) printf("\n");
+
+   nop_mhz=(double)counts[0]/(double)usecs;
+   nop_count=counts[0];
 
    /*****************************/
    /* testing Matrix Matrix MHz */
