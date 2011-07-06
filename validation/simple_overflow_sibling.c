@@ -32,6 +32,7 @@ static int count=0;
 static int fd1,fd2;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
+
   int ret;
 
   ret=ioctl(fd2, PERF_EVENT_IOC_DISABLE, 0);

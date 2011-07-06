@@ -2,11 +2,11 @@ CC	= gcc
 CC_R	= $(CC) -pthread
 CFLAGS	= -g -O2 -Wall -I../include
 
-PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
-PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
+#PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
+#PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
 
-#PAPI_INCLUDE = -I/usr/local/lib
-#PAPI_LIB = /usr/local/lib/libpapi.a
+PAPI_INCLUDE = -I/usr/local/lib
+PAPI_LIB = /usr/local/lib/libpapi.a
 
 
 all:	check_mhz_value \

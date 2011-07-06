@@ -3,6 +3,10 @@
 export TESTS_QUIET=y
 
 echo
+echo "* Checking infrastructure"
+./validation/get_cache_info
+
+echo
 echo "* Checking generalized events"
 ./validation/branches
 ./validation/branch-misses

@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
    quiet=test_quiet();
 
    if (!quiet) {
-      printf("\n");   
+      printf("\nPart 1\n");   
 
       printf("Testing a loop with %lld branches (%d times):\n",
           expected,num_runs);
@@ -90,15 +90,14 @@ int main(int argc, char **argv) {
      if (!quiet) printf("Branch miss rate too high\n");
      test_fail(test_string);
    }
-   if (!quiet) printf("\n");
 
-
-   if (!quiet) {
-     printf("Phase 2\n");
-   }
    close(fd);
 
    /*******************/
+
+   if (!quiet) {
+     printf("\nPart 2\n");
+   }
 
    high=0; low=0; total=0;
 
@@ -164,7 +163,7 @@ int main(int argc, char **argv) {
       ioctl(fd, PERF_EVENT_IOC_RESET, 0);
       ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-     result=random_branches_testcode(num_random_branches,1);
+      result=random_branches_testcode(num_random_branches,1);
 
       ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
       read_result=read(fd,&count,sizeof(long long));
@@ -190,7 +189,7 @@ int main(int argc, char **argv) {
    }
 
    if (average > (num_random_branches/4)*3) { 
-     if (!quiet) printf("Mistpredicts too high\n");
+     if (!quiet) printf("Mispredicts too high\n");
      test_fail(test_string);
    }
    if (!quiet) printf("\n");

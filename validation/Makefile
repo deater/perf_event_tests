@@ -5,6 +5,7 @@ LFLAGS =
 all:	branches branch-misses cycles \
 	l1-dcache-loads l1-dcache-stores instructions \
 	offcore_response \
+	get_cache_info \
 	check_constraints format_id_support \
 	non-existent \
 	simple_overflow_leader simple_overflow_sibling
@@ -21,6 +22,9 @@ all:	branches branch-misses cycles \
 	cd ../lib && make
 
 ../lib/perf_helpers.o:	../lib/perf_helpers.c
+	cd ../lib && make
+
+../lib/detect_cache.o:	../lib/detect_cache.c
 	cd ../lib && make
 
 ###
@@ -123,6 +127,19 @@ check_constraints:	check_constraints.o ../lib/test_utils.o \
 
 check_constraints.o:	check_constraints.c
 	$(CC) $(CFLAGS) -c check_constraints.c
+
+###
+
+get_cache_info:	get_cache_info.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/detect_cache.o
+	$(CC) $(LFLAGS) -o get_cache_info get_cache_info.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/detect_cache.o
+
+get_cache_info.o:	get_cache_info.c
+	$(CC) $(CFLAGS) -c get_cache_info.c
 
 ###
 
