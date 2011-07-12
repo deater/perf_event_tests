@@ -154,6 +154,20 @@ void test_green_yes(char *string) {
   exit(1);
 }
 
+void test_yellow_yes(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sYES%s\n", 60, string, 
+	   YELLOW, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s YES\n", 60, string);
+  }
+
+  exit(1);
+}
+
+
 
 double display_error(long long average,
 		     long long high,

@@ -5,7 +5,8 @@ LFLAGS =
 all:	sampled_notleader_refresh overflow_requires_mmap \
 	read_group_attached check_schedulability \
 	check_papi_multiplexing sync_read_required \
-	ioctl_refresh_0 context_switch_user_kernel
+	ioctl_refresh_0 context_switch_user_kernel \
+	wrong_size_enospc
 
 #
 
@@ -100,6 +101,21 @@ context_switch_user_kernel.o:	context_switch_user_kernel.c
 
 ###
 
+wrong_size_enospc:	wrong_size_enospc.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o wrong_size_enospc wrong_size_enospc.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+wrong_size_enospc.o:	wrong_size_enospc.c
+	$(CC) $(CFLAGS) -c wrong_size_enospc.c
+
+
+###
+
 sync_read_required:	sync_read_required.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
@@ -134,6 +150,7 @@ clean:
 	rm -f *~ *.o sampled_notleader_refresh overflow_requires_mmap \
 	read_group_attached check_schedulability \
 	check_papi_multiplexing sync_read_required \
-	ioctl_refresh_0 context_switch_user_kernel
+	ioctl_refresh_0 context_switch_user_kernel \
+	wrong_size_enospc
 
 

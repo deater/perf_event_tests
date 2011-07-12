@@ -14,9 +14,11 @@ echo "* Checking generalized events"
 ./validation/instructions
 ./validation/l1-dcache-stores
 ./validation/l1-dcache-loads
+
 echo
 echo "* Checking offcore response events"
 ./validation/offcore_response
+
 echo
 echo "* Checking basic perf_event functionality"
 ./validation/simple_overflow_leader
@@ -37,9 +39,10 @@ echo "* Checking bugs that can silently produce wrong results"
 ./bugs/context_switch_user_kernel
 
 echo
-echo "* Checking for unintended ABI behavior"
+echo "* Checking for corner-cases in the ABI"
 ./bugs/sampled_notleader_refresh
 ./bugs/ioctl_refresh_0
+./bugs/wrong_size_enospc
 
 echo
 echo "* Checking missing functionality (not really errors)"
