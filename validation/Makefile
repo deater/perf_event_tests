@@ -202,7 +202,8 @@ clean:
 		offcore_response \
 		non-existent \
 		check_constraints format_id_support \
-		simple_overflow_leader simple_overflow_sibling
+		simple_overflow_leader simple_overflow_sibling \
+		get_cache_info
 
 
 

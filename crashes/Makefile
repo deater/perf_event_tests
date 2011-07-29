@@ -6,7 +6,7 @@ LFLAGS_PTHREAD = -lpthread
 PAPI_INCLUDE = -I/usr/local/include
 PAPI_LIB = /usr/local/lib/libpapi.a
 
-all:	pe_inherit_memleak pe_task_schedule_panic
+all:	pe_inherit_memleak pe_task_schedule_panic oflo_sw_cpu_clock_crash
 
 ####
 
@@ -33,8 +33,15 @@ pe_task_schedule_panic.o:	pe_task_schedule_panic.c
 
 ####
 
+oflo_sw_cpu_clock_crash:	oflo_sw_cpu_clock_crash.o
+	$(CC) $(LFLAGS) -o oflo_sw_cpu_clock_crash oflo_sw_cpu_clock_crash.o
+
+
+oflo_sw_cpu_clock_crash.o:	oflo_sw_cpu_clock_crash.c
+	$(CC) $(CFLAGS) -c oflo_sw_cpu_clock_crash.c
+
 
 clean:	
-	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic
+	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic oflo_sw_cpu_clock_crash
 
 

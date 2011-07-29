@@ -1,3 +1,7 @@
+28 July 2011
++ Add oflo_sw_cpu_clock_crash crash code
++ Release version 0.19
+
 12 July 2011
 + Add check for ENOSPC being returned when buffers are too small
 + Release version 0.18
