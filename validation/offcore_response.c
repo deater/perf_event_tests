@@ -117,6 +117,8 @@ int main(int argc, char **argv) {
       if (!quiet) fprintf(stderr,"Error disabling events\n");
       test_fail(test_string);
    }
+
+   if (!quiet) printf("Config1 after: %llx\n",pe.config1);
    
    ret=read(fd1,&counts[0],sizeof(long long));
    if (ret!=sizeof(long long)) {

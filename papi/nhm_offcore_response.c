@@ -50,9 +50,7 @@ int main(int argc, char **argv) {
      test_skip(test_string);
    }
 
-   expected=naive_matrix_multiply_estimated_flops(quiet);
-
-   retval=PAPI_event_name_to_code("OFFCORE_RESPONSE_0:DMND_DATA_RD:LOCAL_DRAM",&events[0]);
+   retval=PAPI_event_name_to_code("OFFCORE_RESPONSE_0:DMND_DATA_RD:LOCAL_DRAM",                                  &events[0]);
    if (retval!=PAPI_OK) {
       if (!quiet) printf("Error: PAPI_event_name_to_code %d\n", retval);      
       test_fail(test_string);
@@ -76,13 +74,9 @@ int main(int argc, char **argv) {
       test_fail(test_string);
    }
 
-   error=(((double)counts[0]-(double)expected)/(double)expected)*100.0;
-   if (!quiet) printf("   Expected: %lld  Actual: %lld   Error: %.2lf\n", 
-             expected, counts[0],error);
-
-   if (error > 1.0) {
-     if (!quiet) printf("FP error higher than expected\n");
-      test_fail(test_string);
+   if (!quiet) {
+     printf("Found %lld offcore events\n",counts[0]);
+     printf("Found %lld cycles\n",counts[1]);
    }
 
    PAPI_shutdown();

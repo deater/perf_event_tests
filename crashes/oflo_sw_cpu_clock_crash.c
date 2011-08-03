@@ -95,6 +95,10 @@ int main( int argc, char **argv ) {
 
 	struct sigaction sa;
 
+	printf("\nOn unpatched kernels this test may become unkillable\n");
+	printf("Or may totally lock your machine (sometimes with a\n");
+	printf("WARN_ON message first.  This was fixed in 3.1\n\n");
+
 	memset(&sa, 0, sizeof(struct sigaction));
 	sa.sa_sigaction=our_handler;
 	sa.sa_flags=SA_SIGINFO;

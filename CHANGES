@@ -1,3 +1,9 @@
+3 August 2011
++ Minor fixes to crashes/oflo_sw_cpu_clock_crash
++ Some minor changes to OFFCORE_EVENTS while testing
+  some kernel patches.
++ Release version 0.21
+
 2 August 2011
 + Add ARM instruction test code
 + Add code to set the domain properly (exclude_kernel,user,hv all 0)

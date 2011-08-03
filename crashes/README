@@ -34,4 +34,17 @@ Included tests
      http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab711fe08297de1485fff0a366e6db8828cafd6a
 
 
++ oflo_sw_cpu_clock_crash 
+
+  Error with overflows and perf::perf_count_sw_cpu_clock and probably
+  any software event.
+
+  This test will either become unkillable, or else hard lock your system
+  (maybe with a WARN_ON error) on Linux 2.6.32 - 3.0.0
+
+  It was fixed in 3.1, a8b0ca17b80e92faab46ee7179ba9e99ccb61233
+  and is gradually making its way into the stable trees.
+
 #############################################################
+
+
