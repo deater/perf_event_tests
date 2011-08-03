@@ -51,6 +51,8 @@ int main(int argc, char** argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd1=perf_event_open(&pe,0,-1,-1,0);
    if (fd1<0) {
       if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
@@ -65,6 +67,8 @@ int main(int argc, char** argv) {
    pe.read_format=PERF_FORMAT_ID;   
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+
+   arch_adjust_domain(&pe,quiet);
 
    fd2=perf_event_open(&pe,0,-1,fd1,0);
    if (fd2<0) {

@@ -1,5 +1,7 @@
 /* Error with overflows and perf::perf_count_sw_cpu_clock                    */
-/* This test will crash Linux 3.0.0                                          */
+/* This test will have unpleasant consequences from Linux 2.6.32 - 3.0.0     */
+/* It was fixed with 3.1, a8b0ca17b80e92faab46ee7179ba9e99ccb61233           */
+/*                                                                           */
 /* compile with gcc -O2 -o oflo_sw_cpu_clock_crash oflo_sw_cpu_clock_crash.c */
 
 /* by Vince Weaver <vweaver1 _at_ eecs.utk.edu>                              */

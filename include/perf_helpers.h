@@ -1,7 +1,7 @@
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
 		    pid_t pid, int cpu, int group_fd, unsigned long flags);
 int detect_processor(void);
-
+void arch_adjust_domain(struct perf_event_attr *pe,int quiet);
 
 #define PROCESSOR_UNKNOWN     -1
 #define PROCESSOR_PENTIUM_PRO  1

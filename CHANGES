@@ -1,3 +1,9 @@
+2 August 2011
++ Add ARM instruction test code
++ Add code to set the domain properly (exclude_kernel,user,hv all 0)
+  on ARMv7
++ Release version 0.20
+
 28 July 2011
 + Add oflo_sw_cpu_clock_crash crash code
 + Release version 0.19

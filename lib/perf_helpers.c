@@ -143,3 +143,20 @@ int detect_processor(void) {
    
    return PROCESSOR_UNKNOWN;
 }
+
+void arch_adjust_domain(struct perf_event_attr *pe,int quiet) {
+
+#ifdef __arm__
+  /* currently ARM.  FIXME: when Cortex A15 comes out */
+  pe->exclude_user=0;
+  pe->exclude_kernel=0;
+  pe->exclude_hv=0;
+
+  if (!quiet) {
+     printf("Adjusting domain to 0,0,0 for ARM\n");
+  }
+
+#endif
+
+
+}

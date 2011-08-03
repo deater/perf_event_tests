@@ -88,10 +88,12 @@ int main(int argc, char** argv) {
    pe.exclude_hv=1;
    pe.wakeup_events=1;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd1=perf_event_open(&pe,0,-1,-1,0);
    if (fd1<0) {
       fprintf(stderr,"Error opening leader %llx\n",pe.config);
-      exit(1);
+      test_fail(test_string);
    }
 
    /* setup second event, which samples */
@@ -104,10 +106,12 @@ int main(int argc, char** argv) {
    pe.exclude_hv=1;
    pe.wakeup_events=1;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd2=perf_event_open(&pe,0,-1,fd1,0);
    if (fd2<0) {
       fprintf(stderr,"Error opening %llx\n",pe.config);
-      exit(1);
+      test_fail(test_string);
    }
 
 

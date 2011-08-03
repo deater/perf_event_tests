@@ -81,6 +81,8 @@ int main(int argc, char** argv) {
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
 
+      arch_adjust_domain(&pe,quiet);
+
       fd[i]=perf_event_open(&pe,0,-1,fd[0],0);
       if (fd[i]<0) {
 	if (!quiet) fprintf(stderr,"Stopped at event %d %s\n",i,strerror(errno));

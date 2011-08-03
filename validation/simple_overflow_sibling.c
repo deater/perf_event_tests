@@ -93,10 +93,12 @@ int main(int argc, char** argv) {
    pe.exclude_hv=1;
    pe.wakeup_events=0;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd1=perf_event_open(&pe,0,-1,-1,0);
    if (fd1<0) {
       fprintf(stderr,"Error opening leader %llx\n",pe.config);
-      exit(1);
+      test_fail(test_string);
    }
 
    pe.type=PERF_TYPE_HARDWARE;
@@ -110,10 +112,12 @@ int main(int argc, char** argv) {
    pe.exclude_hv=1;
    pe.wakeup_events=1;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd2=perf_event_open(&pe,0,-1,fd1,0);
    if (fd2<0) {
       fprintf(stderr,"Error opening %llx\n",pe.config);
-      exit(1);
+      test_fail(test_string);
    }
 
    /* you have to have a mmap'd ring-buffer                        */
@@ -182,10 +186,12 @@ int main(int argc, char** argv) {
    pe.exclude_hv=1;
    pe.wakeup_events=0;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd1=perf_event_open(&pe,0,-1,-1,0);
    if (fd1<0) {
-      fprintf(stderr,"Error opening leader %llx\n",pe.config);
-      exit(1);
+      if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+      test_fail(test_string);
    }
 
    pe.type=PERF_TYPE_HARDWARE;
@@ -199,10 +205,12 @@ int main(int argc, char** argv) {
    pe.exclude_hv=1;
    pe.wakeup_events=3;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd2=perf_event_open(&pe,0,-1,fd1,0);
    if (fd2<0) {
-      fprintf(stderr,"Error opening %llx\n",pe.config);
-      exit(1);
+      if (!quiet) fprintf(stderr,"Error opening %llx\n",pe.config);
+      test_fail(test_string);
    }
 
    /* you have to have a mmap'd ring-buffer                        */

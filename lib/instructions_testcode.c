@@ -56,6 +56,21 @@ int instructions_million(void) {
        : "cc", "l0" /* clobbered */
     );
     return 0;
+#elif defined(__arm__)
+    asm("\tldr     r2,count                    @ set count\n"
+        "\tb       test_loop\n"
+        "count:       .word 333332\n"
+        "test_loop:\n"
+        "\tadd     r2,r2,#-1\n"
+        "\tcmp     r2,#0\n"
+        "\tbne     test_loop                    @ repeat till zero\n"
+       : /* no output registers */
+       : /* no inputs */
+       : "cc", "r2" /* clobbered */
+	);
+
+    return 0;
+
 #endif
    
     return CODE_UNIMPLEMENTED;

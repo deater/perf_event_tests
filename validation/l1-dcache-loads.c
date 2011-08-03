@@ -52,9 +52,11 @@ int main(int argc, char **argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
+   arch_adjust_domain(&pe,quiet);
+
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     fprintf(stderr,"Error opening leader %llx\n",pe.config);
+     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
      test_fail(test_string);
    }
 

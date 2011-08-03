@@ -54,6 +54,8 @@ int main(int argc, char **argv)
 	pe.type = PERF_TYPE_HARDWARE;
 	pe.config = PERF_COUNT_HW_CPU_CYCLES;
 
+	arch_adjust_domain(&pe,quiet);
+
 	/* open group leader */
 	fd = perf_event_open(&pe, 0, -1, -1, 0);
 	if (fd<0) {
