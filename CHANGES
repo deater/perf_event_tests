@@ -1,3 +1,8 @@
+5 August 2011
++ Add a PAPI test that looks for a race condition when
+  we lookup/add events from multiple threads at once.
++ Release version 0.22
+
 3 August 2011
 + Minor fixes to crashes/oflo_sw_cpu_clock_crash
 + Some minor changes to OFFCORE_EVENTS while testing

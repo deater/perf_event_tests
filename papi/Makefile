@@ -5,14 +5,18 @@ CFLAGS	= -g -O2 -Wall -I../include
 #PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
 #PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
 
-PAPI_INCLUDE = -I/usr/local/lib
-PAPI_LIB = /usr/local/lib/libpapi.a
+PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.libpfm4/src
+PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.libpfm4/src/libpapi.a
+
+#PAPI_INCLUDE = -I/usr/local/lib
+#PAPI_LIB = /usr/local/lib/libpapi.a
 
 
 all:	check_mhz_value \
 	check_papi_latency \
 	core2_constraints \
 	cpufreq_scaling \
+	event_create_race \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
@@ -1204,6 +1208,18 @@ core2_constraints.o:	core2_constraints.c
 	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c core2_constraints.c
 
 
+####
+
+event_create_race:	event_create_race.o ../lib/test_utils.o 
+	$(CC) $(LFLAGS) -o event_create_race event_create_race.o \
+		../lib/test_utils.o \
+		$(PAPI_LIB) -lpthread
+
+
+event_create_race.o:	event_create_race.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c event_create_race.c
+
+
 ###
 
 cpufreq_scaling:	cpufreq_scaling.o ../lib/test_utils.o \
@@ -1363,6 +1379,7 @@ clean:
 	check_papi_latency \
 	core2_constraints \
 	cpufreq_scaling \
+	event_create_race \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events
