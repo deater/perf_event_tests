@@ -1,3 +1,8 @@
+10 August 2011
++ Add branches ARM assembly thanks to sam wang.
+  This turned up a bug in Cortex A9 kernel generalized event.
++ Release version 0.23
+
 5 August 2011
 + Add a PAPI test that looks for a race condition when
   we lookup/add events from multiple threads at once.
