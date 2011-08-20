@@ -6,7 +6,7 @@ all:	sampled_notleader_refresh overflow_requires_mmap \
 	read_group_attached check_schedulability \
 	check_papi_multiplexing sync_read_required \
 	ioctl_refresh_0 context_switch_user_kernel \
-	wrong_size_enospc
+	wrong_size_enospc signal_after_exec
 
 #
 
@@ -101,6 +101,21 @@ context_switch_user_kernel.o:	context_switch_user_kernel.c
 
 ###
 
+signal_after_exec:	signal_after_exec.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o signal_after_exec signal_after_exec.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+signal_after_exec.o:	signal_after_exec.c
+	$(CC) $(CFLAGS) -c signal_after_exec.c
+
+
+###
+
 wrong_size_enospc:	wrong_size_enospc.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
@@ -151,6 +166,6 @@ clean:
 	read_group_attached check_schedulability \
 	check_papi_multiplexing sync_read_required \
 	ioctl_refresh_0 context_switch_user_kernel \
-	wrong_size_enospc
+	wrong_size_enospc signal_after_exec
 
 
