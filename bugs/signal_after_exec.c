@@ -21,7 +21,13 @@
 #include <asm/unistd.h>
 #include <sys/prctl.h>
 #include "perf_event.h"
-#include "perf_helpers.h"
+
+int perf_event_open(struct perf_event_attr *hw_event_uptr,
+                    pid_t pid, int cpu, int group_fd, unsigned long flags) {
+   
+  return syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,
+		 group_fd, flags);
+}
 
 
 static int count=0;
@@ -50,6 +56,12 @@ int main(int argc, char** argv) {
 
    struct perf_event_attr pe;
    struct sigaction sa;
+
+   if (argc>1) {
+      result=busywork(10000000);
+      printf("Count in execed=%d\n",count);
+      exit(0);
+   }
 
    /* set up signal handler */
    memset(&sa, 0, sizeof(struct sigaction));
@@ -97,16 +109,16 @@ int main(int argc, char** argv) {
       
    pid=fork();
    
-   if (pid==0) {
-     /* in the child */
-     result=busywork(10000000);
+   if (pid!=0) {
+     /* in the parent */
 
-     printf("Count in child=%d\n",count);
-     exit(0);
+     /* exec ourselves, but call a busy function */
+     execl(argv[0],argv[0],"busy",NULL);
+
    }
    result=busywork(10000000);
 
-   printf("Count in parent=%d\n",count);
+   printf("Count in child=%d\n",count);
 
    return 0;
 }
