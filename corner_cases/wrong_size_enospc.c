@@ -105,10 +105,10 @@ int main(int argc, char** argv) {
 		result,errno,strerror(errno));
      }
      if (errno==ENOSPC) {
-        test_yellow_yes(test_string);
+        test_yellow_old_behavior(test_string);
      }
      else {
-        test_yellow_no(test_string);
+        test_green_new_behavior(test_string);
      }
 
      test_kernel_fail(test_string);

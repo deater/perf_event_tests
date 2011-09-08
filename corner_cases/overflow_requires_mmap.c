@@ -146,10 +146,10 @@ int main(int argc, char** argv) {
    
    /* if overflows, then we pass */
    if (count>0) {
-      test_pass(test_string);
+      test_green_new_behavior(test_string);
    }
    else {
-      test_kernel_fail(test_string);
+      test_yellow_old_behavior(test_string);
    }
    
    return 0;

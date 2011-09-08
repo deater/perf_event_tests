@@ -11,6 +11,10 @@ void test_unimplemented(char *string);
 void test_green_yes(char *string);
 void test_yellow_no(char *string);
 void test_yellow_yes(char *string);
+void test_yellow_old_behavior(char *string);
+void test_green_new_behavior(char *string);
+
+
 
 double display_error(long long average,
 		     long long high,

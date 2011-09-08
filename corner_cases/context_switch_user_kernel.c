@@ -123,12 +123,12 @@ int main(int argc, char **argv) {
 
    /* expected before 2.6.34 */
    if ((kernel_count==0) && (user_count!=0)) {
-      test_yellow_no(test_string);
+      test_yellow_old_behavior(test_string);
    }
 
    /* expected as of 2.6.34 */
    if ((kernel_count!=0) && (user_count==0)) {
-      test_green_yes(test_string);
+      test_green_new_behavior(test_string);
    }
 
    if (!quiet) {

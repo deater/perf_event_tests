@@ -1,6 +1,7 @@
 all:
 	cd lib && make	
 	cd bugs && make
+	cd corner_cases && make
 	cd crashes && make
 	cd generalized_events && make
 	cd validation && make
@@ -12,6 +13,7 @@ clean:
 	rm -rf *~
 	cd lib && make clean
 	cd bugs && make clean
+	cd corner_cases && make clean
 	cd crashes && make clean
 	cd generalized_events && make clean
 	cd validation && make clean

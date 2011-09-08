@@ -6,6 +6,9 @@
 /* On 2.6.39 and earlier the execd process gets no signals               */
 /* On 3.0 and normal it does, which quickly kills the program with SIGIO */
 
+/* Commit that caused the problem f506b3dc0ec454a16d40cab9ee5d75435b39dc50 */
+/* Both before and after behavior are apparently unintentional             */
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -65,7 +68,7 @@ int main(int argc, char** argv) {
    struct sigaction sa;
    pid_t child;
 
-   char test_string[]="Testing to see if overflow signals happen after exec.";
+   char test_string[]="Testing if overflow signals survive exec...";
 
    quiet=test_quiet();
 
@@ -87,10 +90,10 @@ int main(int argc, char** argv) {
      }
 
      if (status==0) {
-        test_pass(test_string);
+        test_yellow_old_behavior(test_string);
      }
      else {
-       test_fail(test_string);
+        test_green_new_behavior(test_string);
      }
      exit(0);
    }
@@ -127,6 +130,7 @@ int main(int argc, char** argv) {
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
       fprintf(stderr,"Error opening\n");
+      test_fail(test_string);
       exit(1);
    }
 

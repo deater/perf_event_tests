@@ -38,8 +38,6 @@ int detect_processor(void) {
    int vendor=VENDOR_UNKNOWN,cpu_family=0,model=0;
    char string[BUFSIZ];
    
-   /* FIXME: x86 only for now */
-   
    fff=fopen("/proc/cpuinfo","r");
    if (fff==NULL) {
       fprintf(stderr,"ERROR!  Can't open /proc/cpuinfo\n");
@@ -48,6 +46,18 @@ int detect_processor(void) {
    
    while(1) {
       if (fgets(string,BUFSIZ,fff)==NULL) break;
+
+      /* Power6 */
+      if (strstr(string,"POWER6")) {
+	return PROCESSOR_POWER6;
+      }
+
+      /* ARM Cortex A9 */
+      if (strstr(string,"CPU part")) {
+	if (strstr(string,"0xc09")) {
+	  return PROCESSOR_CORTEX_A9;
+	}
+      }
       
       /* vendor */
       if (strstr(string,"vendor_id")) {
@@ -159,4 +169,175 @@ void arch_adjust_domain(struct perf_event_attr *pe,int quiet) {
 #endif
 
 
+}
+
+
+static int core2_events[MAX_TEST_EVENTS]={
+  0x53003c, //"UNHALTED_CORE_CYCLES",         /* PAPI_TOT_CYC */
+  0x5300c0, //"INSTRUCTIONS_RETIRED",         /* PAPI_TOT_INS */
+  0x5300c4, //"BRANCH_INSTRUCTIONS_RETIRED",  /* PAPI_BR_INS  */
+  0x5300c5, //"MISPREDICTED_BRANCH_RETIRED",  /* PAPI_BR_MSP  */
+  0x531282, //"ITLB:MISSES",                  /* PAPI_TLB_IM  */
+  0x530108, //"DTLB_MISSES:ANY",              /* PAPI_TLB_DM  */
+  0x530080, //"L1I_READS",                    /* PAPI_L1_ICA  */
+  0x530081, //"L1I_MISSES",                   /* PAPI_L1_ICM  */
+  0x530143, //"L1D_ALL_REF",                  /* PAPI_L1_DCA  */
+  0x530f45, //"L1D_REPL",                     /* PAPI_L1_DCM  */
+  0x5300c8, //"HW_INT_RCV",                   /* PAPI_HW_INT  */
+  0x530010, //"FP_COMP_OPS_EXE",              /* PAPI_FP_OPS  */
+  0x5301c0, //"INST_RETIRED:LOADS",           /* PAPI_LD_INS  */
+  0x5302c0, //"INST_RETIRED:STORES",          /* PAPI_SR_INS  */
+  0x537f2e, //"L2_RQSTS:SELF:ANY:MESI",       /* PAPI_L2_TCA  */
+  0x537024, //"L2_LINES_IN:SELF:ANY",         /* PAPI_L2_TCM  */
+};
+
+static int atom_events[MAX_TEST_EVENTS]={
+  0x53003c, //"UNHALTED_CORE_CYCLES",         /* PAPI_TOT_CYC */
+  0x5300c0, // "INSTRUCTIONS_RETIRED",         /* PAPI_TOT_INS */
+  0x5300c4, // "BRANCH_INSTRUCTIONS_RETIRED",  /* PAPI_BR_INS  */
+  0x5300c5, // "MISPREDICTED_BRANCH_RETIRED",  /* PAPI_BR_MSP  */
+  0x530282, // "ITLB:MISSES",                  /* PAPI_TLB_IM  */
+  0x530708, // "DATA_TLB_MISSES:DTLB_MISS",    /* PAPI_TLB_DM  */
+  0x530380, //"ICACHE:ACCESSES",              /* PAPI_L1_ICA  */
+  0x530280, // "ICACHE:MISSES",                /* PAPI_L1_ICM  */
+  0x532140, // "L1D_CACHE:LD",                 /* PAPI_L1_DCA  */
+  0x537f2e, // "L2_RQSTS:SELF",                /* PAPI_L1_DCM  */
+  0x5301c8, //"HW_INT_RCV",                   /* PAPI_HW_INT  */
+  0x531fc7, // "SIMD_INST_RETIRED:ANY",        /* PAPI_FP_OPS  */
+  0x537f29, //"L2_LD:SELF:ANY:MESI",          /* PAPI_LD_INS  */
+  0x534f2a, //"L2_ST:SELF:MESI",              /* PAPI_SR_INS  */
+  0x537f29, //"L2_LD:SELF:ANY:MESI",          /* PAPI_L2_TCA  */
+  0x537024, //"L2_LINES_IN:SELF:ANY",         /* PAPI_L2_TCM  */
+};
+
+static int amd10h_events[MAX_TEST_EVENTS]={
+  0x530076, // "CPU_CLK_UNHALTED",                         /* PAPI_TOT_CYC */
+  0x5300c0, // "RETIRED_INSTRUCTIONS",                     /* PAPI_TOT_INS */
+  0x5300c2, // "RETIRED_BRANCH_INSTRUCTIONS",              /* PAPI_BR_INS  */
+  0x5300c3, // "RETIRED_MISPREDICTED_BRANCH_INSTRUCTIONS", /* PAPI_BR_MSP  */
+  0x530385, // "L1_ITLB_MISS_AND_L2_ITLB_MISS:ALL",        /* PAPI_TLB_IM  */
+  0x530746, // "L1_DTLB_AND_L2_DTLB_MISS",                 /* PAPI_TLB_DM  */
+  0x530080, // "INSTRUCTION_CACHE_FETCHES",                /* PAPI_L1_ICA  */
+  0x530081, // "INSTRUCTION_CACHE_MISSES",                 /* PAPI_L1_ICM  */
+  0x530040, // "DATA_CACHE_ACCESSES",                      /* PAPI_L1_DCA  */
+  0x530041, // "DATA_CACHE_MISSES",                        /* PAPI_L1_DCM  */
+  0x5300cf, // "INTERRUPTS_TAKEN",                         /* PAPI_HW_INT  */
+  0x530300, // "DISPATCHED_FPU:OPS_MULTIPLY:OPS_ADD",      /* PAPI_FP_OPS  */
+  0x5300d0, // "DECODER_EMPTY",                            /* PAPI_LD_INS  */ /* nope */
+  0x5300d1, // "DISPATCH_STALLS",                          /* PAPI_SR_INS  */ /* nope */
+  0x533f7d, // "REQUESTS_TO_L2:ALL",                       /* PAPI_L2_TCA  */
+  0x53037e, // "L2_CACHE_MISS:INSTRUCTIONS:DATA",          /* PAPI_L2_TCM  */
+};
+
+static int nehalem_events[MAX_TEST_EVENTS]={
+  0x53003c, // "UNHALTED_CORE_CYCLES",         /* PAPI_TOT_CYC */
+  0x5300c0, // "INSTRUCTIONS_RETIRED",         /* PAPI_TOT_INS */
+  0x537f88, // "BR_INST_EXEC:ANY",             /* PAPI_BR_INS  */
+  0x537f89, // "BR_MISP_EXEC:ANY",             /* PAPI_BR_MSP  */
+  0x530185, // "ITLB_MISSES:ANY",              /* PAPI_TLB_IM  */
+  0x530149, // "DTLB_MISSES:ANY",              /* PAPI_TLB_DM  */
+  0x530380, // "L1I:READS",                    /* PAPI_L1_ICA  */
+  0x530280, // "L1I:MISSES",                   /* PAPI_L1_ICM  */
+  0x530143, // "L1D_ALL_REF:ANY",              /* PAPI_L1_DCA  */
+  0x530151, // "L1D:REPL",                     /* PAPI_L1_DCM  */
+  0x53011d, // "HW_INT:RCV",                   /* PAPI_HW_INT  */
+  0x530410, // "FP_COMP_OPS_EXE:SSE_FP",       /* PAPI_FP_OPS  */
+  0x53010b, // "MEM_INST_RETIRED:LOADS",       /* PAPI_LD_INS  */
+  0x53020b, // "MEM_INST_RETIRED:STORES",      /* PAPI_SR_INS  */
+  0x53ff24, // "L2_RQSTS:REFERENCES",          /* PAPI_L2_TCA  */
+  0x53c024, // "L2_RQSTS:PREFETCHES",          /* PAPI_L2_TCM  */
+};
+
+static int power6_events[MAX_TEST_EVENTS]={
+  0x10000a, // "PM_RUN_CYC",         	/* PAPI_TOT_CYC */
+  0x2,      // "PM_INST_CMPL",         	/* PAPI_TOT_INS */
+  0x430e6,  // "PM_BRU_FIN",             	/* PAPI_BR_INS  */
+  0x400052, // "PM_BR_MPRED",             	/* PAPI_BR_MSP  */
+  0x2000fe, // "PM_DATA_FROM_L2MISS",        /* PAPI_TLB_IM  */  /* nope */
+  0x2000fe, // "PM_DATA_FROM_L2MISS",        /* PAPI_TLB_DM  */  /* nope */
+  0x80086,  // "PM_ST_REF_L1",               /* PAPI_L1_ICA  */ /* nope */
+  0x100056, // "PM_L1_ICACHE_MISS",          /* PAPI_L1_ICM  */
+  0x80082,  // "PM_LD_REF_L1",               /* PAPI_L1_DCA  */  /* nope */
+  0x80080, // "PM_LD_MISS_L1",              /* PAPI_L1_DCM  */  /* nope */
+  0x2000f8, // "PM_EXT_INT",                 /* PAPI_HW_INT  */
+  0x1c0032, // "PM_FPU_FLOP",       		/* PAPI_FP_OPS  */
+  0x80082,  // "PM_LD_REF_L1",       	/* PAPI_LD_INS  */
+  0x80086,   // "PM_ST_REF_L1",      		/* PAPI_SR_INS  */
+  0x80082,  // "PM_LD_REF_L1",          	/* PAPI_L2_TCA  */ /* nope */
+  0x2000fe, // "PM_DATA_FROM_L2MISS",        /* PAPI_L2_TCM  */ /* nope */
+};
+
+static int cortexA9_events[MAX_TEST_EVENTS]={
+  0xff, // "CPU_CYCLES",                    /* PAPI_TOT_CYC */
+  0x68, // "INST_OUT_OF_RENAME_STAGE",      /* PAPI_TOT_INS */
+  0xc,  //"PC_WRITE",                      /* PAPI_BR_INS  */
+  0x10, // "PC_BRANCH_MIS_PRED",            /* PAPI_BR_MSP  */
+  0x2,  // "ITLB_MISS",                     /* PAPI_TLB_IM  */
+  0x5,  // "DTLB_REFILL",                   /* PAPI_TLB_DM  */
+  0x70, // "MAIN_UNIT_EXECUTED_INST",       /* PAPI_L1_ICA  */ /* nope */
+  0x1,  //"IFETCH_MISS",                   /* PAPI_L1_ICM  */
+  0x4,  //"DCACHE_ACCESS",                  /* PAPI_L1_DCA  */
+  0x3,  //"DCACHE_REFILL",                 /* PAPI_L1_DCM  */
+  0x93, //"EXT_INTERRUPTS",                /* PAPI_HW_INT  */
+  0x73, //"FP_EXECUTED_INST",              /* PAPI_FP_OPS  */
+  0x6,  //"DREAD",                         /* PAPI_LD_INS  */
+  0x7,  //"DWRITE",                        /* PAPI_SR_INS  */
+  0x4,  //"DCACHE_ACCESS",                 /* PAPI_L2_TCA  */  /* nope */
+  0x3,  //"DCACHE_REFILL",                 /* PAPI_L2_TCM  */  /* nope */
+};
+
+
+int copy_events(int *eventset) {
+
+  int processor,processor_notfound=0;
+
+  processor=detect_processor();
+
+  switch(processor) {
+  case PROCESSOR_CORE2:
+      memcpy(eventset,core2_events,MAX_TEST_EVENTS*sizeof(int));
+      break;
+  case PROCESSOR_NEHALEM:
+     memcpy(eventset,nehalem_events,MAX_TEST_EVENTS*sizeof(int));
+     break;
+  case PROCESSOR_ATOM:
+     memcpy(eventset,atom_events,MAX_TEST_EVENTS*sizeof(int));
+     break;
+  case PROCESSOR_K7:
+  case PROCESSOR_K8:
+  case PROCESSOR_AMD_FAM10H:
+  case PROCESSOR_AMD_FAM11H:
+  case PROCESSOR_AMD_FAM14H:
+  case PROCESSOR_AMD_FAM15H:
+     memcpy(eventset,amd10h_events,MAX_TEST_EVENTS*sizeof(int));
+     break;
+  case PROCESSOR_POWER6:
+     memcpy(eventset,power6_events,MAX_TEST_EVENTS*sizeof(int));
+     break;
+  case PROCESSOR_CORTEX_A8:
+     memcpy(eventset,cortexA9_events,MAX_TEST_EVENTS*sizeof(int));
+     break;
+  default:
+    processor_notfound=1;
+  }
+
+  return processor_notfound;
+
+}
+
+
+int detect_nmi_watchdog(void) {
+
+  int watchdog_detected=0,watchdog_value=0;
+  FILE *fff;
+
+  fff=fopen("/proc/sys/kernel/nmi_watchdog","r");
+  if (fff!=NULL) {
+    if (fscanf(fff,"%d",&watchdog_value)==1) {
+      if (watchdog_value>0) watchdog_detected=1;
+    }
+    fclose(fff);
+  }
+
+  return watchdog_detected;
 }

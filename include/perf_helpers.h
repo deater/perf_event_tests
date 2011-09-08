@@ -2,6 +2,8 @@ int perf_event_open(struct perf_event_attr *hw_event_uptr,
 		    pid_t pid, int cpu, int group_fd, unsigned long flags);
 int detect_processor(void);
 void arch_adjust_domain(struct perf_event_attr *pe,int quiet);
+int copy_events(int *eventset);
+int detect_nmi_watchdog(void);
 
 #define PROCESSOR_UNKNOWN     -1
 #define PROCESSOR_PENTIUM_PRO  1
@@ -24,3 +26,14 @@ void arch_adjust_domain(struct perf_event_attr *pe,int quiet);
 #define PROCESSOR_AMD_FAM14H  18
 #define PROCESSOR_AMD_FAM15H  19
 
+#define PROCESSOR_POWER3      103
+#define PROCESSOR_POWER4      104
+#define PROCESSOR_POWER5      105
+#define PROCESSOR_POWER6      106
+#define PROCESSOR_POWER7      107
+
+#define PROCESSOR_CORTEX_A8   200
+#define PROCESSOR_CORTEX_A9   201
+
+
+#define MAX_TEST_EVENTS 16

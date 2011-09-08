@@ -167,6 +167,34 @@ void test_yellow_yes(char *string) {
   exit(1);
 }
 
+void test_yellow_old_behavior(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sOLD BEHAVIOR%s\n", 60, string, 
+	   YELLOW, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s OLD BEHAVIOR\n", 60, string);
+  }
+
+  exit(1);
+}
+
+void test_green_new_behavior(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sNEW BEHAVIOR%s\n", 60, string, 
+	   GREEN, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s NEW BEHAVIOR\n", 60, string);
+  }
+
+  exit(1);
+}
+
+
+
 
 
 double display_error(long long average,
