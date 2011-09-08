@@ -8,12 +8,12 @@ echo "* Checking infrastructure"
 
 echo
 echo "* Checking generalized events"
-./validation/branches
-./validation/branch-misses
-./validation/cycles
-./validation/instructions
-./validation/l1-dcache-stores
-./validation/l1-dcache-loads
+./generalized_events/branches
+./generalized_events/branch-misses
+./generalized_events/cycles
+./generalized_events/instructions
+./generalized_events/l1-dcache-stores
+./generalized_events/l1-dcache-loads
 
 echo
 echo "* Checking offcore response events"
@@ -36,16 +36,14 @@ echo "* Checking bugs that PAPI has to work around"
 echo
 echo "* Checking bugs that can silently produce wrong results"
 ./validation/check_constraints
-./bugs/context_switch_user_kernel
+./corner_cases/context_switch_user_kernel
 
 echo
-echo "* Checking for corner-cases in the ABI"
-./bugs/sampled_notleader_refresh
-./bugs/ioctl_refresh_0
-./bugs/wrong_size_enospc
-
-echo
-echo "* Checking missing functionality (not really errors)"
-./bugs/overflow_requires_mmap
+echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
+./corner_cases/sampled_notleader_refresh
+./corner_cases/ioctl_refresh_0
+./corner_cases/wrong_size_enospc
+./corner_cases/overflow_requires_mmap
+./corner_cases/signal_after_exec
 
 echo

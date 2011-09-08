@@ -15,7 +15,7 @@ static int max_level=0;
 
 int gather_cache_info(int quiet, char *test_string) {
 
-  int type,level,i,j;
+   int type,level,i,j,result;
    int size,line_size,associativity,sets;
    DIR *dir;
    FILE *fff;
@@ -58,7 +58,7 @@ int gather_cache_info(int quiet, char *test_string) {
      if (fff==NULL) {
        printf("Ugh\n");
      }
-     fscanf(fff,"%d",&level);
+     result=fscanf(fff,"%d",&level);
      fclose(fff);
 
      /* type */
@@ -68,7 +68,7 @@ int gather_cache_info(int quiet, char *test_string) {
      if (fff==NULL) {
        printf("Ugh\n");
      }
-     fscanf(fff,"%s",type_string);
+     result=fscanf(fff,"%s",type_string);
      fclose(fff);
 
      /* Size */
@@ -78,7 +78,7 @@ int gather_cache_info(int quiet, char *test_string) {
      if (fff==NULL) {
        printf("Ugh\n");
      }
-     fscanf(fff,"%d",&size);
+     result=fscanf(fff,"%d",&size);
      fclose(fff);
 
      /* Line Size */
@@ -88,7 +88,7 @@ int gather_cache_info(int quiet, char *test_string) {
      if (fff==NULL) {
        printf("Ugh\n");
      }
-     fscanf(fff,"%d",&line_size);
+     result=fscanf(fff,"%d",&line_size);
      fclose(fff);
 
      /* Associativity */
@@ -98,7 +98,7 @@ int gather_cache_info(int quiet, char *test_string) {
      if (fff==NULL) {
        printf("Ugh\n");
      }
-     fscanf(fff,"%d",&associativity);
+     result=fscanf(fff,"%d",&associativity);
      fclose(fff);
 
      /* Sets */
@@ -108,7 +108,7 @@ int gather_cache_info(int quiet, char *test_string) {
      if (fff==NULL) {
        printf("Ugh\n");
      }
-     fscanf(fff,"%d",&sets);
+     result=fscanf(fff,"%d",&sets);
      fclose(fff);
 
      if (((size*1024)/line_size/associativity)!=sets) {

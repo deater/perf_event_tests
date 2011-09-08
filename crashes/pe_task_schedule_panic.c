@@ -37,7 +37,7 @@ double busywork(int count) {
 void *thread_work(void *blah) {
    
    int fd1,fd2;
-   int ret;
+   int ret,result;
    unsigned char buffer[16384];
    
    struct perf_event_attr pe;
@@ -56,7 +56,7 @@ void *thread_work(void *blah) {
      fprintf(stderr,"Error opening master\n");
    }
    /* read */
-   read(fd1,buffer,16384);
+   result=read(fd1,buffer,16384);
 
    pe.type=PERF_TYPE_HARDWARE;
    pe.config=PERF_COUNT_HW_CPU_CYCLES;
@@ -71,7 +71,7 @@ void *thread_work(void *blah) {
      fprintf(stderr,"Error opening sub\n");
    }
    /* read */
-   read(fd2,buffer,16384);
+   result=read(fd2,buffer,16384);
 
    busywork(10000000);
    
