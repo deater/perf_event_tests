@@ -2,21 +2,16 @@ CC	= gcc
 CC_R	= $(CC) -pthread
 CFLAGS	= -g -O2 -Wall -I../include
 
-#PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.perfctr/src
-#PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.perfctr/src/libpapi.a
-
-PAPI_INCLUDE = -I/home/vweaver1/research/papi/papi.cvs.libpfm4/src
-PAPI_LIB = /home/vweaver1/research/papi/papi.cvs.libpfm4/src/libpapi.a
-
-#PAPI_INCLUDE = -I/usr/local/lib
-#PAPI_LIB = /usr/local/lib/libpapi.a
+include ../Makefile.papi.inc
 
 
 all:	check_mhz_value \
 	check_papi_latency \
 	core2_constraints \
 	cpufreq_scaling \
+	unregister \
 	event_create_race \
+	mpx_oflo \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
@@ -1210,6 +1205,17 @@ core2_constraints.o:	core2_constraints.c
 
 ####
 
+unregister:	unregister.o ../lib/test_utils.o 
+	$(CC) $(LFLAGS) -o unregister unregister.o \
+		../lib/test_utils.o \
+		$(PAPI_LIB) -lpthread
+
+
+unregister.o:	unregister.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c unregister.c
+
+####
+
 event_create_race:	event_create_race.o ../lib/test_utils.o 
 	$(CC) $(LFLAGS) -o event_create_race event_create_race.o \
 		../lib/test_utils.o \
@@ -1218,6 +1224,18 @@ event_create_race:	event_create_race.o ../lib/test_utils.o
 
 event_create_race.o:	event_create_race.c
 	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c event_create_race.c
+
+
+####
+
+mpx_oflo:	mpx_oflo.o ../lib/test_utils.o  ../lib/matrix_multiply.o ../lib/papi_helpers.o
+	$(CC) $(LFLAGS) -o mpx_oflo mpx_oflo.o \
+		../lib/test_utils.o ../lib/matrix_multiply.o \
+		$(PAPI_LIB) ../lib/papi_helpers.o
+
+
+mpx_oflo.o:	mpx_oflo.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c mpx_oflo.c
 
 
 ###
@@ -1379,7 +1397,9 @@ clean:
 	check_papi_latency \
 	core2_constraints \
 	cpufreq_scaling \
+	unregister \
 	event_create_race \
+	mpx_oflo \
 	nhm_offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events

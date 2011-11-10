@@ -121,6 +121,7 @@ echo
 echo "* Checking general PAPI functionality"
 ./papi/check_mhz_value
 ./papi/event_create_race
+./papi/unregister
 
 echo
 echo "* Checking bugs that can silently produce wrong results"

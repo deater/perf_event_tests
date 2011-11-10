@@ -1,10 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -O2 -I../include
 
+include ../Makefile.papi.inc
+
 all:	branches_testcode.o instructions_testcode.o nops_testcode.o \
 	matrix_multiply.o \
 	detect_cache.o \
-	perf_helpers.o test_utils.o
+	papi_helpers.o \
+	perf_helpers.o \
+	test_utils.o
 
 branches_testcode.o:	branches_testcode.c
 	$(CC) $(CFLAGS) -c branches_testcode.c
@@ -21,6 +25,9 @@ matrix_multiply.o:	matrix_multiply.c
 
 detect_cache.o:	detect_cache.c
 	$(CC) $(CFLAGS) -c detect_cache.c
+
+papi_helpers.o:	papi_helpers.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_helpers.c
 
 perf_helpers.o:	perf_helpers.c
 	$(CC) $(CFLAGS) -c perf_helpers.c
