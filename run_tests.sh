@@ -48,3 +48,8 @@ echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
 ./corner_cases/signal_after_exec
 
 echo
+echo "* Checking for experimental new functionality"
+./validation/rdpmc_support
+./validation/rdpmc_validation
+
+echo

@@ -8,6 +8,8 @@ all:	\
 	check_constraints \
 	format_id_support \
 	non-existent \
+	rdpmc_support \
+	rdpmc_validation \
 	simple_overflow_leader \
 	simple_overflow_sibling
 
@@ -98,6 +100,32 @@ format_id_support.o:	format_id_support.c
 
 ###
 
+rdpmc_support:	rdpmc_support.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o rdpmc_support rdpmc_support.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+rdpmc_support.o:	rdpmc_support.c
+	$(CC) $(CFLAGS) -c rdpmc_support.c
+
+###
+
+rdpmc_validation:	rdpmc_validation.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o rdpmc_validation rdpmc_validation.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+rdpmc_validation.o:	rdpmc_validation.c
+	$(CC) $(CFLAGS) -c rdpmc_validation.c
+
+###
+
 simple_overflow_leader:	simple_overflow_leader.o ../lib/test_utils.o \
 					../lib/perf_helpers.o \
 					../lib/matrix_multiply.o
@@ -130,6 +158,8 @@ clean:
 	check_constraints \
 	format_id_support \
 	non-existent \
+	rdpmc_support \
+	rdpmc_validation \
 	simple_overflow_leader \
 	simple_overflow_sibling
 

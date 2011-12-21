@@ -1,3 +1,7 @@
+21 December 2011
++ Add some rdpmc() tests
++ Release version 0.25
+
 8 September 2011
 + Re-arrange directory structure a bit
 + Add the corner_cases/signal_after_exec test
