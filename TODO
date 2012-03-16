@@ -15,3 +15,48 @@ perf tests:
 PAPI tests:
  + Invert flag
  + Max number of SW events
+
+
+From Phil:
+Do you guys have a test for:
+
+a) grouped, non-multiplexed counters (where you can read/start/stop on one FD)
+b) multiplexed, grouped counters
+c) the portion of perf_events that uses counter indexing (returns a [5] array).
+   (I'm not sure what this is useful for yet...sampling?)
+
+
+Will Deacon:
+
+If I try using perf with event groups on a mainline kernel, only the group
+leader counts:
+
+
+linaro@mashed-potato:~$ perf stat --no-scale -g -e task-clock -e cpu-clock -e cs
++-- ls
+hwb  linux
+
+ Performance counter stats for 'ls':
+
+         17.545541 task-clock                #    0.634 CPUs utilized
+          0.000000 cpu-clock
+                 0 cs                        #    0.000 M/sec
+
+       0.027684984 seconds time elapsed
+
+
+This is fixed by b79387ef ("perf: Fix enable_on_exec for sibling events")
+in -next (20111222) but I can't see this queued anywhere for 3.2 (I thought
+I might see it in -rc7).
+
+Is this going in for the final cut, or will groups just be borked until 3.3?
+
+How can this be a regression? Its always been like that. At worst its a
+broken new feature.
+
+Also, you really shouldn't set enable_on_exec on non group leaders,
+that's just daft. But yes that patch sorts it. Something like the below
+should too.
+
++ test guest exclude support
+  attr.exclude_{guest,host}
