@@ -8,7 +8,8 @@ all:	\
 	ioctl_refresh_0 \
 	context_switch_user_kernel \
 	wrong_size_enospc \
-	signal_after_exec
+	signal_after_exec \
+	multiple_active
 
 #
 
@@ -61,6 +62,21 @@ context_switch_user_kernel.o:	context_switch_user_kernel.c
 
 ###
 
+multiple_active:	multiple_active.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o multiple_active multiple_active.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/matrix_multiply.o
+
+multiple_active.o:	multiple_active.c
+	$(CC) $(CFLAGS) -c multiple_active.c
+
+###
+
+
 signal_after_exec:	signal_after_exec.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o 
@@ -112,4 +128,5 @@ clean:
 	ioctl_refresh_0 \
 	context_switch_user_kernel \
 	wrong_size_enospc \
-	signal_after_exec
+	signal_after_exec \
+	multiple_active
