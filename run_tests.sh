@@ -47,6 +47,7 @@ echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
 ./corner_cases/overflow_requires_mmap
 ./corner_cases/signal_after_exec
 ./corner_cases/multiple_active
+./corner_cases/max_multiplex
 
 echo
 echo "* Checking for experimental new functionality"

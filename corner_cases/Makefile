@@ -9,7 +9,8 @@ all:	\
 	context_switch_user_kernel \
 	wrong_size_enospc \
 	signal_after_exec \
-	multiple_active
+	multiple_active \
+	max_multiplex
 
 #
 
@@ -76,6 +77,21 @@ multiple_active.o:	multiple_active.c
 
 ###
 
+max_multiplex:	max_multiplex.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o max_multiplex max_multiplex.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+
+max_multiplex.o:	max_multiplex.c
+	$(CC) $(CFLAGS) -c max_multiplex.c
+
+###
+
+
 
 signal_after_exec:	signal_after_exec.o \
 				../lib/perf_helpers.o \
@@ -129,4 +145,5 @@ clean:
 	context_switch_user_kernel \
 	wrong_size_enospc \
 	signal_after_exec \
-	multiple_active
+	multiple_active \
+	max_multiplex
