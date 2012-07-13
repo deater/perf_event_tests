@@ -1,3 +1,8 @@
+13 July 2012
++ Fix rdpmc tests to not segfault if support not in kernel
++ Add a few tests
++ Release version 0.26
+
 21 December 2011
 + Add some rdpmc() tests
 + Release version 0.25
