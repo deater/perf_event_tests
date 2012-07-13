@@ -119,6 +119,8 @@ int main(int argc, char **argv) {
    void *addr[MAX_EVENTS];
 
    struct perf_event_attr pe;
+   struct perf_event_mmap_page *our_mmap;
+
    int fd[MAX_EVENTS],ret1,ret2;
 
    unsigned long long stamp[MAX_EVENTS],stamp2[MAX_EVENTS],
@@ -176,6 +178,12 @@ int main(int argc, char **argv) {
        fprintf(stderr,"Error mmap()ing event %d!\n",i);
        test_fail(test_string);
      }
+     our_mmap=(struct perf_event_mmap_page *)addr[i];
+     if (our_mmap->cap_usr_rdpmc==0) {
+       if (!quiet) printf("rdpmc support not detected\n");
+       test_skip(test_string);
+     }
+
    }
 
 
