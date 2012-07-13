@@ -13,7 +13,7 @@ int quiet=0;
 #include <string.h>
 #include <sys/ioctl.h>
 
-#include "perf_event_rdpmc.h"
+#include "perf_event.h"
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
