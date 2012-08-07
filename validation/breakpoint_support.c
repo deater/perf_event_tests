@@ -1,5 +1,7 @@
 /* This file attempts to test the hardware breakpoint support */
 
+/* This was not added until 2.6.33 */
+
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu        */
 
 
@@ -74,8 +76,10 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
+      if (!quiet) {
+         printf("\t\tError opening leader %llx\n",pe.config);
+      }
+      goto skip_execs;
    }
 
    ioctl(fd, PERF_EVENT_IOC_RESET, 0);
@@ -105,6 +109,7 @@ int main(int argc, char **argv) {
 
    close(fd);
    passes++;
+skip_execs:
 
    /*******************************/
    /* Test write breakpoint       */
@@ -130,8 +135,10 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
+     if (!quiet) {
+        printf("\t\tError opening leader %llx\n",pe.config);
+     }
+     goto skip_writes;
    }
 
    ioctl(fd, PERF_EVENT_IOC_RESET, 0);
@@ -161,6 +168,7 @@ int main(int argc, char **argv) {
 
    close(fd);
    passes++;
+skip_writes:
 
    /*******************************/
    /* Test read breakpoint        */
