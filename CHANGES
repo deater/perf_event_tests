@@ -1,5 +1,6 @@
 7 August 2012
 + Add breakpoint test
++ Add some inherit tests
 
 13 July 2012
 + Fix rdpmc tests to not segfault if support not in kernel

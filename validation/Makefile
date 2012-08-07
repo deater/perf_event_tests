@@ -7,6 +7,8 @@ all:	\
 	check_constraints \
 	format_id_support \
 	get_cache_info \
+	inherit \
+	inherit_stat \
 	non-existent \
 	offcore_response \
 	rdpmc_support \
@@ -47,7 +49,6 @@ offcore_response.o:	offcore_response.c
 
 ###
 
-
 breakpoint_support:	breakpoint_support.o ../lib/test_utils.o \
 					../lib/perf_helpers.o 
 	$(CC) $(LFLAGS) -o breakpoint_support breakpoint_support.o \
@@ -82,6 +83,30 @@ get_cache_info:	get_cache_info.o ../lib/test_utils.o \
 
 get_cache_info.o:	get_cache_info.c
 	$(CC) $(CFLAGS) -c get_cache_info.c
+
+###
+
+inherit:	inherit.o ../lib/test_utils.o \
+					../lib/perf_helpers.o 
+	$(CC) $(LFLAGS) -o inherit inherit.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o -lpthread
+
+inherit.o:	inherit.c
+	$(CC) $(CFLAGS) -c inherit.c
+
+###
+
+inherit_stat:	inherit_stat.o ../lib/test_utils.o \
+					../lib/perf_helpers.o 
+	$(CC) $(LFLAGS) -o inherit_stat inherit_stat.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o -lpthread
+
+inherit_stat.o:	inherit_stat.c
+	$(CC) $(CFLAGS) -c inherit_stat.c
+
+
 
 ###
 
@@ -170,6 +195,8 @@ clean:
 	check_constraints \
 	format_id_support \
 	get_cache_info \
+	inherit \
+	inherit_stat \
 	non-existent \
 	offcore_response \
 	rdpmc_support \

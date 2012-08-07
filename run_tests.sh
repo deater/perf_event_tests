@@ -26,6 +26,8 @@ echo "* Checking basic perf_event functionality"
 ./validation/format_id_support
 ./validation/non-existent
 ./validation/breakpoint_support
+./validation/inherit
+./validation/inherit_stat
 
 echo
 echo "* Checking bugs that PAPI has to work around"
