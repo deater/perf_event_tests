@@ -3,11 +3,12 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	\
-	offcore_response \
-	get_cache_info \
+	breakpoint_support \
 	check_constraints \
 	format_id_support \
+	get_cache_info \
 	non-existent \
+	offcore_response \
 	rdpmc_support \
 	rdpmc_validation \
 	simple_overflow_leader \
@@ -43,6 +44,18 @@ offcore_response:	offcore_response.o ../lib/test_utils.o \
 offcore_response.o:	offcore_response.c
 	$(CC) $(CFLAGS) -c offcore_response.c
 
+
+###
+
+
+breakpoint_support:	breakpoint_support.o ../lib/test_utils.o \
+					../lib/perf_helpers.o 
+	$(CC) $(LFLAGS) -o breakpoint_support breakpoint_support.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o 
+
+breakpoint_support.o:	breakpoint_support.c
+	$(CC) $(CFLAGS) -c breakpoint_support.c
 
 ###
 
@@ -153,11 +166,12 @@ simple_overflow_sibling.o:	simple_overflow_sibling.c
 
 clean:	
 	rm -f *~ *.o \
-	offcore_response \
-	get_cache_info \
+	breakpoint_support \
 	check_constraints \
 	format_id_support \
+	get_cache_info \
 	non-existent \
+	offcore_response \
 	rdpmc_support \
 	rdpmc_validation \
 	simple_overflow_leader \
