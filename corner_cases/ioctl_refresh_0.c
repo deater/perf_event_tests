@@ -33,17 +33,18 @@ static int count=0;
 static int fd1;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
+
   int ret;
 
   count++;
 
   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
+  (void) ret;
 }
 
 int main(int argc, char** argv) {
    
-  int ret,quiet;   
-   double result;
+   int ret,quiet;   
 
    struct perf_event_attr pe;
 
@@ -110,7 +111,7 @@ int main(int argc, char** argv) {
    
    ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
     
-   if (!quiet) printf("Count: %d %lf %p\n",count,result,blargh);
+   if (!quiet) printf("Count: %d %p\n",count,blargh);
 
    if (count==1) {
      if (!quiet) fprintf(stderr,"Only counted one overflow.\n");
