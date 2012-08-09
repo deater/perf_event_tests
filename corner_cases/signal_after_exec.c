@@ -44,6 +44,8 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
    count++;
    
    ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
+
+   (void)ret;
 }
 
 double busywork(int count) {
@@ -134,12 +136,6 @@ int main(int argc, char** argv) {
       exit(1);
    }
 
-   void *blargh;
-   
-   blargh=mmap(NULL, (1+1)*4096, 
-	       PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-
-
    /* setup event 2 to have overflow signals */
    fcntl(fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
    fcntl(fd, F_SETSIG, SIGIO);
@@ -158,6 +154,8 @@ int main(int argc, char** argv) {
 
    /* exec ourselves, but call a busy function */
    execl(argv[0],argv[0],"busy",NULL);
+
+   (void) ret;
 
    return 0;
 }
