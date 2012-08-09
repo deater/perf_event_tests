@@ -1,3 +1,6 @@
+9 August 2012
++ Add enable_on_exec test
+
 7 August 2012
 + Add breakpoint test
 + Add some inherit tests

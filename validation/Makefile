@@ -5,6 +5,7 @@ LFLAGS =
 all:	\
 	breakpoint_support \
 	check_constraints \
+	enable_on_exec \
 	format_id_support \
 	get_cache_info \
 	inherit \
@@ -121,6 +122,19 @@ non-existent:	non-existent.o ../lib/test_utils.o \
 non-existent.o:	non-existent.c
 	$(CC) $(CFLAGS) -c non-existent.c
 
+###
+
+enable_on_exec:	enable_on_exec.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o enable_on_exec enable_on_exec.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+enable_on_exec.o:	enable_on_exec.c
+	$(CC) $(CFLAGS) -c enable_on_exec.c
+
 
 ###                                                                            
 
@@ -193,6 +207,7 @@ clean:
 	rm -f *~ *.o \
 	breakpoint_support \
 	check_constraints \
+	enable_on_exec \
 	format_id_support \
 	get_cache_info \
 	inherit \
