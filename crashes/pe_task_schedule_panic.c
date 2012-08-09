@@ -83,6 +83,8 @@ void *thread_work(void *blah) {
    close(fd2);
    close(fd1);
 
+   (void) result;
+
    pthread_exit(NULL);
 }
 
@@ -119,6 +121,8 @@ int main(int argc, char** argv) {
 	 fprintf(stderr,"Could not join thread %i\n",j);
       }
    }
+
+   (void) ret;
    
    return 0;
 }
