@@ -40,7 +40,8 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
   count++;
 
   ret=ioctl(fd2, PERF_EVENT_IOC_REFRESH,1);
-  
+
+  (void) ret;
 }
 
 
@@ -53,6 +54,7 @@ static void our_handler2(int signum,siginfo_t *oh, void *blah) {
 
   ret=ioctl(fd2, PERF_EVENT_IOC_REFRESH,3);
   
+  (void) ret;
 }
 
 
