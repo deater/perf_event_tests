@@ -194,6 +194,7 @@ int main(int argc, char **argv) {
    ret1=ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
 
    result=instructions_million();
+   if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
 
    /* read */
 
@@ -287,6 +288,7 @@ int main(int argc, char **argv) {
    }
 
    result=instructions_million();
+   if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
 
    /* read */
 
