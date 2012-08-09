@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
    int i,fd,read_result;
    long long count,high=0,low=0,total=0,average=0;
-   long long total_usecs,nsecs;
+   long long nsecs;
    long long mmm_count;
    long long expected;
 
@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
      
       ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
       read_result=read(fd,&count,sizeof(long long));
+      if (read_result!=sizeof(long long)) printf("Read wrong size\n");
 
       if (count>high) high=count;
       if ((low==0) || (count<low)) low=count;
@@ -116,7 +117,6 @@ int main(int argc, char **argv) {
    if (!quiet) {
       printf("\nEstimating GHz with matrix matrix multiply\n");
    }
-   total_usecs=0;
 
    clock_gettime(CLOCK_REALTIME,&before);
 
@@ -127,18 +127,20 @@ int main(int argc, char **argv) {
 
    ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
    read_result=read(fd,&count,sizeof(long long));
+   if (read_result!=sizeof(long long)) printf("Read wrong size\n");
 
    clock_gettime(CLOCK_REALTIME,&after);
 
    nsecs=convert_to_ns(&before,&after);
+
+   mmm_ghz=(double)count/(double)nsecs;
       
    if (!quiet) {
      printf("\tActual measured cycles = %lld\n",count);
-     printf("\tEstimated actual GHz = %.2lfGHz\n",
-	    (double)count/(double)nsecs);
+     printf("\tEstimated actual GHz = %.2lfGHz\n",mmm_ghz);
    }
 
-   mmm_ghz=(double)count/(double)nsecs;
+
    mmm_count=count;
 
    /************************************/
@@ -159,6 +161,7 @@ int main(int argc, char **argv) {
 
    ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
    read_result=read(fd,&count,sizeof(long long));
+   if (read_result!=sizeof(long long)) printf("Read wrong size\n");
 
    clock_gettime(CLOCK_REALTIME,&after);
 
