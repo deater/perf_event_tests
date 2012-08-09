@@ -60,7 +60,8 @@ int gather_cache_info(int quiet, char *test_string) {
      }
      result=fscanf(fff,"%d",&level);
      fclose(fff);
-
+     if (result!=1) printf("Could not read cache level\n");
+ 
      /* type */
 
      sprintf(filename,"/sys/devices/system/cpu/cpu0/cache/%s/type",d->d_name);
@@ -70,6 +71,7 @@ int gather_cache_info(int quiet, char *test_string) {
      }
      result=fscanf(fff,"%s",type_string);
      fclose(fff);
+     if (result!=1) printf("Could not read cache type\n");
 
      /* Size */
 
@@ -80,6 +82,7 @@ int gather_cache_info(int quiet, char *test_string) {
      }
      result=fscanf(fff,"%d",&size);
      fclose(fff);
+     if (result!=1) printf("Could not read cache size\n");
 
      /* Line Size */
 
@@ -90,6 +93,7 @@ int gather_cache_info(int quiet, char *test_string) {
      }
      result=fscanf(fff,"%d",&line_size);
      fclose(fff);
+     if (result!=1) printf("Could not read cache line-size\n");
 
      /* Associativity */
 
@@ -100,6 +104,7 @@ int gather_cache_info(int quiet, char *test_string) {
      }
      result=fscanf(fff,"%d",&associativity);
      fclose(fff);
+     if (result!=1) printf("Could not read cache associativity\n");
 
      /* Sets */
 
@@ -110,6 +115,7 @@ int gather_cache_info(int quiet, char *test_string) {
      }
      result=fscanf(fff,"%d",&sets);
      fclose(fff);
+     if (result!=1) printf("Could not read cache sets\n");
 
      if (((size*1024)/line_size/associativity)!=sets) {
        printf("Assert!  sets %d != expected %d\n",
@@ -164,6 +170,7 @@ int gather_cache_info(int quiet, char *test_string) {
    cache_info_initialized=1;
 
    return 0;
+
 }
 
 void print_cache_info(int quiet, struct cache_info_t *cache_entry) {
