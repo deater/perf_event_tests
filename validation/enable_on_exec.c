@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 
    quiet=test_quiet();
 
-   /* Firxt exec, without enable_on_exec */
+   /* First exec, without enable_on_exec */
    if (argc==2) {
 
       fd=atoi(argv[1]);
