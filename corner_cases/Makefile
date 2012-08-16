@@ -3,14 +3,16 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	\
-	sampled_notleader_refresh \
-	overflow_requires_mmap \
-	ioctl_refresh_0 \
 	context_switch_user_kernel \
-	wrong_size_enospc \
-	signal_after_exec \
+	ioctl_refresh_0 \
+	max_multiplex \
 	multiple_active \
-	max_multiplex
+	overflow_requires_mmap \
+	reset_leader \
+	sampled_notleader_refresh \
+	signal_after_exec \
+	wrong_size_enospc \
+
 
 #
 
@@ -46,6 +48,20 @@ sampled_notleader_refresh:	sampled_notleader_refresh.o \
 
 sampled_notleader_refresh.o:	sampled_notleader_refresh.c
 	$(CC) $(CFLAGS) -c sampled_notleader_refresh.c
+
+###
+
+reset_leader:	reset_leader.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o reset_leader reset_leader.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+
+reset_leader.o:	reset_leader.c
+	$(CC) $(CFLAGS) -c reset_leader.c
 
 ###
 
@@ -139,11 +155,12 @@ ioctl_refresh_0.o:	ioctl_refresh_0.c
 
 clean:	
 	rm -f *~ *.o \
-	sampled_notleader_refresh \
-	overflow_requires_mmap \
-	ioctl_refresh_0 \
 	context_switch_user_kernel \
-	wrong_size_enospc \
-	signal_after_exec \
+	ioctl_refresh_0 \
+	max_multiplex \
 	multiple_active \
-	max_multiplex
+	overflow_requires_mmap \
+	reset_leader \
+	sampled_notleader_refresh \
+	signal_after_exec \
+	wrong_size_enospc
