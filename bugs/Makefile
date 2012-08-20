@@ -3,11 +3,13 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	\
-	read_group_attached \
-	check_schedulability \
+	check_multiplexing \
 	check_papi_multiplexing \
+	check_schedulability \
+	nmi_watchdog_group_leader \
+	read_group_attached \
 	sync_read_required \
-	nmi_watchdog_group_leader
+
 
 #
 
@@ -62,6 +64,21 @@ check_papi_multiplexing:	check_papi_multiplexing.o \
 check_papi_multiplexing.o:	check_papi_multiplexing.c
 	$(CC) $(CFLAGS) -c check_papi_multiplexing.c
 
+###	
+
+check_multiplexing:	check_multiplexing.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o check_multiplexing check_multiplexing.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+
+check_multiplexing.o:	check_multiplexing.c
+	$(CC) $(CFLAGS) -c check_multiplexing.c
+
+
 ###
 
 sync_read_required:	sync_read_required.o \
@@ -92,10 +109,12 @@ nmi_watchdog_group_leader.o:	nmi_watchdog_group_leader.c
 
 clean:	
 	rm -f *~ *.o \
-	read_group_attached \
-	check_schedulability \
+	check_multiplexing \
 	check_papi_multiplexing \
+	check_schedulability \
+	nmi_watchdog_group_leader \
+	read_group_attached \
 	sync_read_required \
-	nmi_watchdog_group_leader
+
 
 

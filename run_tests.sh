@@ -37,6 +37,7 @@ echo "* Checking bugs that PAPI has to work around"
 ./bugs/check_schedulability
 ./bugs/check_papi_multiplexing
 ./bugs/nmi_watchdog_group_leader
+./bugs/check_multiplexing
 
 echo
 echo "* Checking bugs that can silently produce wrong results"
