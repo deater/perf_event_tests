@@ -41,7 +41,7 @@ long long events[NUM_EVENTS]={
 };
 
 long long base_results[NUM_EVENTS][3];
-long long mpx_results[NUM_EVENTS][3];
+long long mpx_results[NUM_EVENTS][5];
 long long scaled_results[NUM_EVENTS];
 long long scale;
 double error[NUM_EVENTS];
@@ -73,9 +73,10 @@ int main(int argc, char** argv) {
       printf("  were not reliable and could result in wrong results.\n");
    }
 
-   /* setup all 10 counters */
+   /*************************************************/
+   /* Collect results for each counter individually */
+   /*************************************************/
 
-   fd[0]=-1;
    for(i=0;i<NUM_EVENTS;i++) {
 
       memset(&pe,0,sizeof(struct perf_event_attr));
@@ -97,10 +98,6 @@ int main(int argc, char** argv) {
 	 return -1;
       }
    }
-
-   /*************************************************/
-   /* Collect results for each counter individually */
-   /*************************************************/
 
    for(i=0;i<NUM_EVENTS;i++) {
       ret=ioctl(fd[i], PERF_EVENT_IOC_ENABLE,0);
@@ -128,14 +125,35 @@ int main(int argc, char** argv) {
 
    }
 
+   /* we have to close, because PERF_EVENT_IOC_RESET */
+   /* does not clear multiplexing informatio.        */
+   for(i=0;i<NUM_EVENTS;i++) {
+     close(fd[i]);
+   }
+
    /*************************************************/
    /* Collect multiplexed results                   */
    /*************************************************/
 
    for(i=0;i<NUM_EVENTS;i++) {
-      ret=ioctl(fd[i], PERF_EVENT_IOC_RESET,0);
-      if (ret<0) {
-	 fprintf(stderr,"Error starting event %d\n",i);
+
+      memset(&pe,0,sizeof(struct perf_event_attr));
+      pe.type=PERF_TYPE_HARDWARE;
+      pe.size=sizeof(struct perf_event_attr);
+      pe.config=events[i];
+      pe.disabled=1;
+      pe.exclude_kernel=1;
+      pe.exclude_hv=1;
+      pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED | 
+	             PERF_FORMAT_TOTAL_TIME_RUNNING;
+
+      arch_adjust_domain(&pe,quiet);
+
+      fd[i]=perf_event_open(&pe,0,-1,-1,0);
+      if (fd[i]<0) {
+	 fprintf(stderr,"Failed adding mpx event %d %s\n",i,strerror(errno));
+         test_fail(test_string);
+	 return -1;
       }
    }
 
@@ -158,7 +176,7 @@ int main(int argc, char** argv) {
 
      
    for(i=0;i<NUM_EVENTS;i++) {
-      ret=read(fd[i],&mpx_results[i],3*sizeof(long long));
+      ret=read(fd[i],&mpx_results[i],5*sizeof(long long));
       if (ret<3*sizeof(long long)) {
 	fprintf(stderr,"Event %d unexpected read size %d\n",i,ret);
         test_fail(test_string);
@@ -182,12 +200,15 @@ int main(int argc, char** argv) {
    }
 
    if (!quiet) {
-      printf("Event\tTotalCount\tRawCount\tScaledCount\tError\n");
+      printf("Event\tTotalCount\tRawCount\tScale\tScaledCount\tError\n");
       for(i=0;i<NUM_EVENTS;i++) {
 
-         printf("%d\t%lld\t%lld\t%lld\t%.2f%%\n",i,
-	    base_results[i][0],mpx_results[i][0],scaled_results[i],
-	    error[i]);
+         printf("%d\t%lld\t%lld\t%.2f\t%lld\t%.2f%%\n",i,
+		base_results[i][0],
+		mpx_results[i][0],
+		(double)mpx_results[i][1]/(double)mpx_results[i][2],
+		scaled_results[i],
+		error[i]);
 
       }
    }
