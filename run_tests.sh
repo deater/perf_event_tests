@@ -54,6 +54,7 @@ echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
 ./corner_cases/multiple_active
 ./corner_cases/max_multiplex
 ./corner_cases/reset_leader
+./corner_cases/check_reset_mpx
 
 echo
 echo "* Checking for experimental new functionality"

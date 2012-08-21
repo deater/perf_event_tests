@@ -3,6 +3,7 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	\
+	check_reset_mpx \
 	context_switch_user_kernel \
 	ioctl_refresh_0 \
 	max_multiplex \
@@ -64,6 +65,21 @@ reset_leader.o:	reset_leader.c
 	$(CC) $(CFLAGS) -c reset_leader.c
 
 ###
+
+check_reset_mpx:	check_reset_mpx.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o check_reset_mpx check_reset_mpx.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+
+check_reset_mpx.o:	check_reset_mpx.c
+	$(CC) $(CFLAGS) -c check_reset_mpx.c
+
+###
+
 
 context_switch_user_kernel:	context_switch_user_kernel.o \
 				../lib/perf_helpers.o \
@@ -155,6 +171,7 @@ ioctl_refresh_0.o:	ioctl_refresh_0.c
 
 clean:	
 	rm -f *~ *.o \
+	check_reset_mpx \
 	context_switch_user_kernel \
 	ioctl_refresh_0 \
 	max_multiplex \
