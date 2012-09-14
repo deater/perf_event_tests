@@ -29,6 +29,7 @@ echo "* Checking basic perf_event functionality"
 ./validation/inherit
 ./validation/inherit_stat
 ./validation/enable_on_exec
+./validation/simultaneous_group_overflow
 
 echo
 echo "* Checking bugs that PAPI has to work around"
