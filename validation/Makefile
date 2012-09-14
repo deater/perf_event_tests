@@ -12,11 +12,13 @@ all:	\
 	inherit_stat \
 	non-existent \
 	offcore_response \
-	simultaneous_group_overflow \
 	rdpmc_support \
 	rdpmc_validation \
 	simple_overflow_leader \
-	simple_overflow_sibling
+	simple_overflow_sibling \
+	simultaneous_group_overflow \
+	simultaneous_overflow
+
 
 ###
 
@@ -193,6 +195,21 @@ simultaneous_group_overflow.o:	simultaneous_group_overflow.c
 
 ###
 
+
+simultaneous_overflow:	simultaneous_overflow.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o simultaneous_overflow simultaneous_overflow.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+simultaneous_overflow.o:	simultaneous_overflow.c
+	$(CC) $(CFLAGS) -c simultaneous_overflow.c
+
+
+###
+
 simple_overflow_leader:	simple_overflow_leader.o ../lib/test_utils.o \
 					../lib/perf_helpers.o \
 					../lib/matrix_multiply.o
@@ -231,9 +248,11 @@ clean:
 	inherit_stat \
 	non-existent \
 	offcore_response \
-	simultaneous_group_overflow \
 	rdpmc_support \
 	rdpmc_validation \
 	simple_overflow_leader \
-	simple_overflow_sibling
+	simple_overflow_sibling \
+	simultaneous_group_overflow \
+	simultaneous_overflow 
+
 
