@@ -1,4 +1,4 @@
-/* overflow_two_events.c  */
+/* simultaneous_group_overflow.c  */
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
 /* Test to see if we can sample on two events at once */
@@ -60,7 +60,7 @@ static void our_handler(int signum,siginfo_t *info, void *uc) {
   int ret,i;
   int fd = info->si_fd;
    
-  //  ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+  ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
    
   for(i=0;i<NUM_EVENTS;i++) {
      if (events[i].fd==fd) {
