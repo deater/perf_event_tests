@@ -68,8 +68,8 @@ int main( int argc, char **argv ) {
     num_events = 0;
 
     for(cid=0; cid<numcmp; cid++ ) {
-       i = 0 | PAPI_NATIVE_MASK | PAPI_COMPONENT_MASK( cid );
-       PAPI_enum_event( &i, PAPI_ENUM_FIRST );
+       i = 0 | PAPI_NATIVE_MASK;
+       PAPI_enum_cmp_event( &i, PAPI_ENUM_FIRST, cid );
 
        do {
           memset( &info, 0, sizeof ( info ) );
