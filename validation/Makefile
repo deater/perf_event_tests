@@ -99,9 +99,11 @@ inherit.o:	inherit.c
 ###
 
 inherit_stat:	inherit_stat.o ../lib/test_utils.o \
-					../lib/perf_helpers.o 
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
 	$(CC) $(LFLAGS) -o inherit_stat inherit_stat.o \
 				../lib/test_utils.o \
+				../lib/instructions_testcode.o \
 				../lib/perf_helpers.o -lpthread
 
 inherit_stat.o:	inherit_stat.c

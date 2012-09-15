@@ -17,10 +17,24 @@
 #include "perf_helpers.h"
 #include "test_utils.h"
 
+#include "instructions_testcode.h"
+
 int fd;
 
 
 void *thread_work(void *blah) {
+
+   int read_result,result;
+   long long count_before,count_after;
+
+   read_result=read(fd,&count_before,sizeof(long long));
+
+   result=instructions_million();
+
+   read_result=read(fd,&count_after,sizeof(long long));
+
+   printf("In thread %lld %lld %lld\n",count_before,count_after,
+	  count_after-count_before);
 
    return NULL;
 }
@@ -49,11 +63,14 @@ int main(int argc, char** argv) {
    /* With inherit_stat set */
    /*************************/
 
+   if (!quiet) printf("Starting with inherit_stat\n");
+
    memset(&pe,0,sizeof(struct perf_event_attr));
 
    pe.type=PERF_TYPE_HARDWARE;
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
    pe.disabled=1;
+   pe.inherit=1;
    pe.inherit_stat=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
@@ -91,11 +108,15 @@ int main(int argc, char** argv) {
    /* Without inherit_stat set */
    /****************************/
 
+   fflush(stdout);
+   if (!quiet) printf("Starting w/o inherit_stat\n");
+
    memset(&pe,0,sizeof(struct perf_event_attr));
 
    pe.type=PERF_TYPE_HARDWARE;
    pe.config=PERF_COUNT_HW_INSTRUCTIONS;
    pe.disabled=1;
+   pe.inherit=1;
    pe.inherit_stat=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
