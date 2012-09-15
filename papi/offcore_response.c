@@ -14,17 +14,27 @@
 #include "test_utils.h"
 #include "matrix_multiply.h"
 
+#define CPU_UNKNOWN 0
+#define CPU_NEHALEM 1
+#define CPU_SANDYBRIDGE     2
+
 int main(int argc, char **argv) {
    
    int retval,quiet;
    const PAPI_hw_info_t *info;
 
+   int our_cpu=CPU_UNKNOWN;
+
    int events[2];
    long long counts[2];
-   double error;
-   long long expected;
 
    char test_string[]="Testing if offcore events are supported...";
+
+   char event_names[3][BUFSIZ]={
+     "PAPI_TOT_CYC",                            /* Unknown */
+     "OFFCORE_RESPONSE_0:DMND_DATA_RD:LOCAL_DRAM", /* Nehalem */
+     "OFFCORE_RESPONSE_0:DMND_DATA_RD:LLC_HITS",   /* SandyBridge */
+   };
 
    quiet=test_quiet();
 
@@ -40,17 +50,23 @@ int main(int argc, char **argv) {
    }
 
    if ((info->vendor==PAPI_VENDOR_INTEL) && (info->cpuid_family==6) && 
-			((info->cpuid_model==30) || (info->cpuid_model==46) || 
-			 (info->cpuid_model==30))) {
+			((info->cpuid_model==30) || (info->cpuid_model==46))) {
 
      if (!quiet) printf("Found Nehalem!\n");
+     our_cpu=CPU_NEHALEM;
+   }
+   else if ((info->vendor==PAPI_VENDOR_INTEL) && (info->cpuid_family==6) && 
+	    ((info->cpuid_model==45))) {
+
+     if (!quiet) printf("Found SandyBridge!\n");
+     our_cpu=CPU_SANDYBRIDGE;
    }
    else {
-     if (!quiet) printf("Not a Nehalem.\n");
+     if (!quiet) printf("No Offcore support expected.\n");
      test_skip(test_string);
    }
 
-   retval=PAPI_event_name_to_code("OFFCORE_RESPONSE_0:DMND_DATA_RD:LOCAL_DRAM",                                  &events[0]);
+   retval=PAPI_event_name_to_code(event_names[our_cpu],&events[0]);
    if (retval!=PAPI_OK) {
       if (!quiet) printf("Error: PAPI_event_name_to_code %d\n", retval);      
       test_fail(test_string);

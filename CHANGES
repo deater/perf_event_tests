@@ -1,3 +1,7 @@
+14 September 2012
++ Add simultaneous_group_overflow test
++ Add simultaneous_overflow
+
 21 August 2012
 + Add check_reset_mpx test
 

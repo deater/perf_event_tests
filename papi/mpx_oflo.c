@@ -1,7 +1,6 @@
-/* This code tests simultaenous multiplex and overflow  */
+/* This code tests simultaneous multiplex and overflow  */
 
-
-/* by Vince Weaver, vweaver1 _at_ eecs.utk.edu           */
+/* by Vince Weaver, vweaver1 _at_ eecs.utk.edu          */
 
 #include <stdio.h>
 #include <stdlib.h>

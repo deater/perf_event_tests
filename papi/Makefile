@@ -12,7 +12,7 @@ all:	check_mhz_value \
 	unregister \
 	event_create_race \
 	mpx_oflo \
-	nhm_offcore_response \
+	offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
 	papi_br_cn \
@@ -1251,11 +1251,11 @@ cpufreq_scaling.o:	cpufreq_scaling.c
 
 ###
 
-nhm_offcore_response:	nhm_offcore_response.o ../lib/test_utils.o ../lib/matrix_multiply.o
-	$(CC) $(LFLAGS) -o nhm_offcore_response nhm_offcore_response.o ../lib/test_utils.o ../lib/matrix_multiply.o $(PAPI_LIB)
+offcore_response:	offcore_response.o ../lib/test_utils.o ../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o offcore_response offcore_response.o ../lib/test_utils.o ../lib/matrix_multiply.o $(PAPI_LIB)
 
-nhm_offcore_response.o:	nhm_offcore_response.c
-	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c nhm_offcore_response.c	
+offcore_response.o:	offcore_response.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c offcore_response.c	
 
 
 ###
@@ -1400,7 +1400,7 @@ clean:
 	unregister \
 	event_create_race \
 	mpx_oflo \
-	nhm_offcore_response \
+	offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events
 
