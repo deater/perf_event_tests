@@ -3,6 +3,7 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	\
+	breakpoint_overflow \
 	breakpoint_support \
 	check_constraints \
 	enable_on_exec \
@@ -50,6 +51,17 @@ offcore_response:	offcore_response.o ../lib/test_utils.o \
 offcore_response.o:	offcore_response.c
 	$(CC) $(CFLAGS) -c offcore_response.c
 
+
+###
+
+breakpoint_overflow:	breakpoint_overflow.o ../lib/test_utils.o \
+					../lib/perf_helpers.o 
+	$(CC) $(LFLAGS) -o breakpoint_overflow breakpoint_overflow.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o 
+
+breakpoint_overflow.o:	breakpoint_overflow.c
+	$(CC) $(CFLAGS) -c breakpoint_overflow.c
 
 ###
 
@@ -241,6 +253,7 @@ simple_overflow_sibling.o:	simple_overflow_sibling.c
 
 clean:	
 	rm -f *~ *.o \
+	breakpoint_overflow \
 	breakpoint_support \
 	check_constraints \
 	enable_on_exec \
