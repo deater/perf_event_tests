@@ -6,9 +6,10 @@ include ../Makefile.papi.inc
 all:	branches_testcode.o instructions_testcode.o nops_testcode.o \
 	matrix_multiply.o \
 	detect_cache.o \
-	papi_helpers.o \
 	perf_helpers.o \
 	test_utils.o
+
+papi:	papi_helpers.o
 
 branches_testcode.o:	branches_testcode.c
 	$(CC) $(CFLAGS) -c branches_testcode.c
