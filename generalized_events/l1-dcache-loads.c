@@ -115,9 +115,9 @@ int main(int argc, char **argv) {
 
    error=display_error(average,high,low,ARRAYSIZE,quiet);
 
-   if ((error > 1.0) || (error<-1.0)) {
+   if ((error > 5.0) || (error<-5.0)) {
      if (!quiet) {
-        printf("\nInstruction count off by more than 1%%\n");
+        printf("\nInstruction count off by more than 5%%\n");
       	printf("This test is known to be a factor of 3 too much with gcc 4.1\n\n");
      }
      test_fail(test_string);
