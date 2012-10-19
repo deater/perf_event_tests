@@ -3,7 +3,7 @@
 /* implemented by the perf_events generalized event            */
 /*    L1-dcache-loads                                          */
 
-/* by Vince Weaver, vweaver1 _at_ eecs.utk.edu                 */
+/* by Vince Weaver, vincent.weaver _at_ maine.edu                 */
 
 /* Sometimes the C compiler doesn't help us, we should use asm */
 
@@ -16,6 +16,7 @@ int fd;
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "test_utils.h"
@@ -24,25 +25,25 @@ int fd;
 #define ARRAYSIZE 1000
 
 int main(int argc, char **argv) {
-   
+
   int num_runs=100,i,j,read_result;
    long long high=0,low=0,average=0;
    double error,total_sum=0.0;
    struct perf_event_attr pe;
-   
+
    long long count,total=0;
-     
+
    quiet=test_quiet();
 
    if (!quiet) {
-      printf("\n");   
+      printf("\n");
 
       printf("Testing a loop writing %d doubles %d times\n",
           ARRAYSIZE,num_runs);
    }
 
    memset(&pe,0,sizeof(struct perf_event_attr));
-   
+
    pe.type=PERF_TYPE_HW_CACHE;
    pe.size=sizeof(struct perf_event_attr);
    pe.config=PERF_COUNT_HW_CACHE_L1D |
@@ -56,12 +57,19 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
+     if (!quiet) {
+       fprintf(stderr,"Error opening leader %llx %d: %s\n",
+		pe.config,errno,strerror(errno));
+     }
+     if (errno==2) {
+        test_skip(test_string);
+     } else {
+        test_fail(test_string);
+     }
    }
 
    for(i=0;i<num_runs;i++) {
- 
+
       /*******************************************************************/
       /* Test if the C compiler uses a sane number of data cache acceess */
       /*******************************************************************/
@@ -69,17 +77,17 @@ int main(int argc, char **argv) {
       double array[ARRAYSIZE];
       double aSumm = 0.0;
 
-      for(j=0; j<ARRAYSIZE; j++) { 
+      for(j=0; j<ARRAYSIZE; j++) {
 	array[j]=(double)j;
       }
 
       ioctl(fd, PERF_EVENT_IOC_RESET, 0);
       ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-      for(j=0; j<ARRAYSIZE; j++) { 
+      for(j=0; j<ARRAYSIZE; j++) {
 	aSumm+=array[j];
-      }   
-     
+      }
+
       ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
       read_result=read(fd,&count,sizeof(long long));
 
@@ -90,12 +98,12 @@ int main(int argc, char **argv) {
       //	 test_skip(test_string);
       //	 fprintf(stdout,"\tNo test code for this architecture\n");
       // }
-      
+
       if (read_result!=sizeof(long long)) {
 	 test_fail(test_string);
-         fprintf(stdout,"Error extra data in read %d\n",read_result);	 
+         fprintf(stdout,"Error extra data in read %d\n",read_result);
       }
-      
+
       if (count>high) high=count;
       if ((low==0) || (count<low)) low=count;
       total+=count;
@@ -117,6 +125,6 @@ int main(int argc, char **argv) {
    if (!quiet) printf("\n");
 
    test_pass( test_string );
-   
+
    return 0;
 }
