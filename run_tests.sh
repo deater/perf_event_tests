@@ -20,6 +20,10 @@ echo "* Checking offcore response events"
 ./validation/offcore_response
 
 echo
+echo "* Checking uncore events"
+./validation/uncore_events
+
+echo
 echo "* Checking basic perf_event functionality"
 ./validation/simple_overflow_leader
 ./validation/simple_overflow_sibling

@@ -18,7 +18,8 @@ all:	\
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
-	simultaneous_overflow
+	simultaneous_overflow \
+	uncore_events
 
 
 ###
@@ -250,6 +251,19 @@ simple_overflow_sibling:	simple_overflow_sibling.o ../lib/test_utils.o \
 simple_overflow_sibling.o:	simple_overflow_sibling.c
 	$(CC) $(CFLAGS) -c simple_overflow_sibling.c
 
+###
+
+uncore_events:	uncore_events.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o uncore_events uncore_events.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+uncore_events.o:	uncore_events.c
+	$(CC) $(CFLAGS) -c uncore_events.c
+
 
 clean:	
 	rm -f *~ *.o \
@@ -268,6 +282,7 @@ clean:
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
-	simultaneous_overflow 
+	simultaneous_overflow \
+	uncore_events
 
 
