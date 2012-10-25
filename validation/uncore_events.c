@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
    int fd1;
    long long counts[2];
 
-   int pmu_type,cbox0_type=-1;
+   int pmu_type,imc0_type=-1;
 
    DIR *sys_devices;
    struct dirent *dir;
@@ -41,13 +41,13 @@ int main(int argc, char **argv) {
    
    //   cpu=detect_processor();
    
-   sys_devices=opendir("/sys/devices");
+   sys_devices=opendir("/sys/bus/event_source/devices/");
    if (sys_devices==NULL) {
-      fprintf(stderr,"Couldn't open /sys/devices\n");
+      fprintf(stderr,"Couldn't open /sys/bus_event/source/devices/\n");
       test_skip(test_string);
    }
 
-   printf("Looking for PMUs:\n");
+   //printf("Looking for PMUs:\n");
    while (1) {
      dir=readdir(sys_devices);
      if (dir==NULL) break;
@@ -61,31 +61,34 @@ int main(int argc, char **argv) {
 
      fscanf(fff,"%d",&pmu_type);
      
-     printf("\tFound %s = %d\n",dir->d_name, pmu_type);
+     //printf("\tFound %s = %d\n",dir->d_name, pmu_type);
 
      fclose(fff);
-     if (!strncmp(dir->d_name,"uncore_cbox_0",13)) cbox0_type=pmu_type;
+     if (!strncmp(dir->d_name,"uncore_imc_0",13)) imc0_type=pmu_type;
 
    }
 
    closedir(sys_devices);
 
-   if (cbox0_type==-1) {
-      fprintf(stderr,"Could not find CBOX0\n");
+   if (imc0_type==-1) {
+      fprintf(stderr,"Could not find IMC0\n");
       test_skip(test_string);
    }
 
-   printf("Found cbox0 at type %d\n",cbox0_type);
+   if (!quiet) {
+      printf("Found imc0 at type %d\n",imc0_type);
+   }
 
    memset(&pe,0,sizeof(struct perf_event_attr));
-   pe.type=cbox0_type;
+   pe.type=imc0_type;
    pe.size=sizeof(struct perf_event_attr);
-   pe.config=0; /* UNC_C_CLOCKTICKS */
+   pe.config=0xff;
    pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+   pe.exclude_user=0;
+   pe.exclude_kernel=0;
+   pe.exclude_hv=0;
 
-   fd1=perf_event_open(&pe,0,-1,-1,0);
+   fd1=perf_event_open(&pe,-1,0,-1,0);
    if (fd1<0) {
      fprintf(stderr,"Error opening leader %llx, %d : %s\n",
 	     pe.config,errno,strerror(errno));
@@ -115,7 +118,7 @@ int main(int argc, char **argv) {
    }
    
    if (!quiet) {
-      printf("Retired instructions: %lld\n",counts[0]);
+      printf("uncore_imc0:UNC_M_CLOCKTICKS %lld\n",counts[0]);
    }
    if (counts[0]<1) {
       fprintf(stderr,"Retired instruction count too low\n");
@@ -126,5 +129,3 @@ int main(int argc, char **argv) {
 
    return 0;
 }
-
-
