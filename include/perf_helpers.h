@@ -25,6 +25,8 @@ int detect_nmi_watchdog(void);
 #define PROCESSOR_AMD_FAM11H  17
 #define PROCESSOR_AMD_FAM14H  18
 #define PROCESSOR_AMD_FAM15H  19
+#define PROCESSOR_IVYBRIDGE   20
+#define PROCESSOR_KNIGHTSCORNER 21
 
 #define PROCESSOR_POWER3      103
 #define PROCESSOR_POWER4      104

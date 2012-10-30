@@ -143,9 +143,14 @@ int detect_processor(void) {
 	    return PROCESSOR_SANDYBRIDGE;
 	  case 46:
 	    return PROCESSOR_NEHALEM_EX;
-	    
+	  case 58:
+	    return PROCESSOR_IVYBRIDGE;  
 	 }
       }
+      if (cpu_family==11) {
+	 return PROCESSOR_KNIGHTSCORNER;
+      }
+
       if (cpu_family==15) {
 	 return PROCESSOR_PENTIUM_4;
       }
@@ -248,23 +253,42 @@ static int nehalem_events[MAX_TEST_EVENTS]={
   0x53c024, // "L2_RQSTS:PREFETCHES",          /* PAPI_L2_TCM  */
 };
 
+static int ivybridge_events[MAX_TEST_EVENTS]={
+  0x53003c, // "UNHALTED_CORE_CYCLES",         /* PAPI_TOT_CYC */
+  0x5300c0, // "INSTRUCTIONS_RETIRED",         /* PAPI_TOT_INS */
+  0x5304c4, // "BRANCH_INSTRUCTIONS_RETIRED",  /* PAPI_BR_INS  */
+  0x5304c5, // "MISPREDICTED_BRANCH_RETIRED",  /* PAPI_BR_MSP  */
+  0x530185, // "ITLB_MISSES:CAUSES_A_WALK",    /* PAPI_TLB_IM  */
+  0x538108, // "DTLB_LOAD_MISSES:MISS_CAUSES_A_WALK", /* PAPI_TLB_DM  */
+  0x531024, // "L2_RQSTS:CODE_RD_HIT",         /* PAPI_L1_ICA  */ /* nope */
+  0x530280, // "ICACHE:MISSES",                /* PAPI_L1_ICM  */
+  0x532024, // "L2_RQSTS:CODE_RD_MISS"         /* PAPI_L1_DCA  */ /* nope */
+  0x530151, // "L1D:REPLACEMENT",              /* PAPI_L1_DCM  */
+  0x5301cb, // "HW_INTERRUPTS",                /* PAPI_HW_INT  */
+  0x531eca, // "FP_ASSIST:ANY",                /* PAPI_FP_OPS  */ /* nope */
+  0x5381d0, // "MEM_UOP_RETIRED:ANY_LOADS",    /* PAPI_LD_INS  */
+  0x5382d0, // "MEM_UOP_RETIRED:ANY_STORES",   /* PAPI_SR_INS  */
+  0x533024, // "L2_RQSTS:ALL_CODE_RD",         /* PAPI_L2_TCA  */ /*not quite*/
+  0x534f2e, // "LAST_LEVEL_CACHE_REFERENCES",  /* PAPI_L2_TCM  */
+};
+
 static int power6_events[MAX_TEST_EVENTS]={
-  0x10000a, // "PM_RUN_CYC",         	/* PAPI_TOT_CYC */
-  0x2,      // "PM_INST_CMPL",         	/* PAPI_TOT_INS */
-  0x430e6,  // "PM_BRU_FIN",             	/* PAPI_BR_INS  */
-  0x400052, // "PM_BR_MPRED",             	/* PAPI_BR_MSP  */
-  0x2000fe, // "PM_DATA_FROM_L2MISS",        /* PAPI_TLB_IM  */  /* nope */
-  0x2000fe, // "PM_DATA_FROM_L2MISS",        /* PAPI_TLB_DM  */  /* nope */
-  0x80086,  // "PM_ST_REF_L1",               /* PAPI_L1_ICA  */ /* nope */
-  0x100056, // "PM_L1_ICACHE_MISS",          /* PAPI_L1_ICM  */
-  0x80082,  // "PM_LD_REF_L1",               /* PAPI_L1_DCA  */  /* nope */
-  0x80080, // "PM_LD_MISS_L1",              /* PAPI_L1_DCM  */  /* nope */
-  0x2000f8, // "PM_EXT_INT",                 /* PAPI_HW_INT  */
-  0x1c0032, // "PM_FPU_FLOP",       		/* PAPI_FP_OPS  */
-  0x80082,  // "PM_LD_REF_L1",       	/* PAPI_LD_INS  */
-  0x80086,   // "PM_ST_REF_L1",      		/* PAPI_SR_INS  */
-  0x80082,  // "PM_LD_REF_L1",          	/* PAPI_L2_TCA  */ /* nope */
-  0x2000fe, // "PM_DATA_FROM_L2MISS",        /* PAPI_L2_TCM  */ /* nope */
+  0x10000a, // "PM_RUN_CYC",         	       /* PAPI_TOT_CYC */
+  0x2,      // "PM_INST_CMPL",         	       /* PAPI_TOT_INS */
+  0x430e6,  // "PM_BRU_FIN",                   /* PAPI_BR_INS  */
+  0x400052, // "PM_BR_MPRED",                  /* PAPI_BR_MSP  */
+  0x2000fe, // "PM_DATA_FROM_L2MISS",          /* PAPI_TLB_IM  */  /* nope */
+  0x2000fe, // "PM_DATA_FROM_L2MISS",          /* PAPI_TLB_DM  */  /* nope */
+  0x80086,  // "PM_ST_REF_L1",                 /* PAPI_L1_ICA  */ /* nope */
+  0x100056, // "PM_L1_ICACHE_MISS",            /* PAPI_L1_ICM  */
+  0x80082,  // "PM_LD_REF_L1",                 /* PAPI_L1_DCA  */  /* nope */
+  0x80080, // "PM_LD_MISS_L1",                 /* PAPI_L1_DCM  */  /* nope */
+  0x2000f8, // "PM_EXT_INT",                   /* PAPI_HW_INT  */
+  0x1c0032, // "PM_FPU_FLOP",       	       /* PAPI_FP_OPS  */
+  0x80082,  // "PM_LD_REF_L1",       	       /* PAPI_LD_INS  */
+  0x80086,   // "PM_ST_REF_L1",      	       /* PAPI_SR_INS  */
+  0x80082,  // "PM_LD_REF_L1",                 /* PAPI_L2_TCA  */ /* nope */
+  0x2000fe, // "PM_DATA_FROM_L2MISS",          /* PAPI_L2_TCM  */ /* nope */
 };
 
 static int cortexA9_events[MAX_TEST_EVENTS]={
@@ -299,6 +323,9 @@ int copy_events(int *eventset) {
       break;
   case PROCESSOR_NEHALEM:
      memcpy(eventset,nehalem_events,MAX_TEST_EVENTS*sizeof(int));
+     break;
+  case PROCESSOR_IVYBRIDGE:
+     memcpy(eventset,ivybridge_events,MAX_TEST_EVENTS*sizeof(int));
      break;
   case PROCESSOR_ATOM:
      memcpy(eventset,atom_events,MAX_TEST_EVENTS*sizeof(int));
