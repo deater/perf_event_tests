@@ -43,7 +43,6 @@ echo "* Checking bugs that PAPI has to work around"
 ./bugs/read_group_attached
 ./bugs/check_schedulability
 ./bugs/check_papi_multiplexing
-./bugs/nmi_watchdog_group_leader
 ./bugs/check_multiplexing
 
 echo
@@ -70,8 +69,12 @@ echo "* Checking for fast RDPMC support"
 ./validation/rdpmc_validation
 
 echo
-echo "* Checking proposed updates to the interface"
+echo "* Checking proposed interface updates (not in any released kernel)"
 ./corner_cases/ioctl_refresh_0
 ./corner_cases/wrong_size_enospc
+
+echo
+echo "* Checking for major bugs that are unlikely to ever be fixed"
+./bugs/nmi_watchdog_group_leader
 
 echo

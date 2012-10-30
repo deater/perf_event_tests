@@ -41,8 +41,7 @@ int main(int argc, char **argv) {
   struct perf_event_attr pe;
 
   int quiet,nmi_enabled;
-  char test_string[]="Testing if NMI watchdog breaks event groups "
-                     "of max size...";
+  char test_string[]="Testing if we can determine maximum events despite NMI watchdog...";
 
   quiet=test_quiet();
 
