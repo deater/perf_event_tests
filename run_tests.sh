@@ -52,20 +52,26 @@ echo "* Checking bugs that can silently produce wrong results"
 ./corner_cases/context_switch_user_kernel
 
 echo
-echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
-./corner_cases/sampled_notleader_refresh
-./corner_cases/ioctl_refresh_0
-./corner_cases/wrong_size_enospc
+echo "* Checking interfaces that have changed over the years"
 ./corner_cases/overflow_requires_mmap
 ./corner_cases/signal_after_exec
+./corner_cases/sampled_notleader_refresh
+
+echo
+echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
 ./corner_cases/multiple_active
 ./corner_cases/max_multiplex
 ./corner_cases/reset_leader
 ./corner_cases/check_reset_mpx
 
 echo
-echo "* Checking for experimental new functionality"
+echo "* Checking for fast RDPMC support"
 ./validation/rdpmc_support
 ./validation/rdpmc_validation
+
+echo
+echo "* Checking proposed updates to the interface"
+./corner_cases/ioctl_refresh_0
+./corner_cases/wrong_size_enospc
 
 echo
