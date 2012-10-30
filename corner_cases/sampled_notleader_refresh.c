@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
          fprintf(stderr,"Proper error returned with PERF_EVENT_IOC_REFRESH "
 		        "of group leader: %d %s\n",errno,strerror(errno));
       }
-      test_pass(test_string);
+      test_green_new_behavior(test_string);
       exit(1);
    }
 
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
    
    if (count>0) {
       if (!quiet) printf("Unsupported enabling of sibling events\n");
-      test_caution(test_string);
+      test_yellow_old_behavior(test_string);
    }
    else {
       if (!quiet) printf("No overflow events generated.\n");
