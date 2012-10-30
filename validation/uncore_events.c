@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
    closedir(sys_devices);
 
    if (imc0_type==-1) {
-      fprintf(stderr,"Could not find IMC0\n");
+      if (!quiet) fprintf(stderr,"Could not find IMC0\n");
       test_skip(test_string);
    }
 
