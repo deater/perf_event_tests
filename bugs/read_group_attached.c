@@ -163,14 +163,14 @@ int main(int argc, char** argv) {
    result=read(fd1,buffer,BUFFER_SIZE*sizeof(long long));
    if (result<0) {
      if (!quiet) fprintf(stderr,"Unexpected read result %d\n",result);
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    /* should be 1 + 2*num_events */
    /* which is 5 in our case     */
    if (result!=(5)*sizeof(long long)) {
      if (!quiet) fprintf(stderr,"Unexpected read result %d\n",result);
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    if (!quiet) {
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
       }
    }
       
-   test_kernel_pass(test_string);
+   test_pass(test_string);
       
    return 0;
 }

@@ -97,9 +97,9 @@ int main(int argc, char **argv)
 
 	if (!buffer[TIME_ENABLED_IDX] || !buffer[TIME_RUNNING_IDX]) {
 	   if (!quiet) fprintf(stderr,"test failed!\n");
-	   test_kernel_fail(test_string);
+	   test_fail(test_string);
 	}
 	
-	test_kernel_pass(test_string);
+	test_pass(test_string);
 	return 0;
 }

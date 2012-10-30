@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
       fd[i]=perf_event_open(&pe,0,-1,fd[0],0);
       if (fd[i]<0) {
 	if (!quiet) fprintf(stderr,"Stopped at event %d %s\n",i,strerror(errno));
-         test_kernel_pass(test_string);
+         test_pass(test_string);
 	 exit(1);
       }
    }
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
      result=read(fd[i],&buffer,sizeof(long long));
       if (result<=0) {
          if (!quiet) fprintf(stderr,"Test failed at read time\n");
-         test_kernel_fail(test_string);
+         test_fail(test_string);
       }
       
       if (buffer==0) zeros++;
@@ -124,11 +124,10 @@ int main(int argc, char** argv) {
 
    if (zeros==NUM_EVENTS) {
      if (!quiet) fprintf(stderr,"All counters were zero.\n");
-     test_kernel_fail(test_string);
+     test_fail(test_string);
    }
 
-   test_kernel_pass(test_string);
+   test_pass(test_string);
       
    return 0;
 }
-
