@@ -114,7 +114,6 @@ int main(int argc, char** argv) {
       test_fail(test_string);
    }
 
-
    /* before at least 2.6.40 you have to have a mmap'd ring-buffer */
    /* or you won't get any samples.                                */
    /* This took me 6 hours to figure out.                          */
@@ -139,7 +138,7 @@ int main(int argc, char** argv) {
          fprintf(stderr,"Proper error returned with PERF_EVENT_IOC_REFRESH "
 		        "of group leader: %d %s\n",errno,strerror(errno));
       }
-      test_kernel_pass(test_string);
+      test_pass(test_string);
       exit(1);
    }
 
@@ -158,7 +157,7 @@ int main(int argc, char** argv) {
    }
    else {
       if (!quiet) printf("No overflow events generated.\n");
-      test_kernel_fail(test_string);
+      test_fail(test_string);
    }
    
    return 0;
