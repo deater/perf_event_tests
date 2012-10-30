@@ -33,9 +33,10 @@ void *thread_work(void *blah) {
 
    read_result=read(fd,&count_after,sizeof(long long));
 
-   printf("In thread %lld %lld %lld\n",count_before,count_after,
-	  count_after-count_before);
+   printf("In thread %lld %lld %lld, %d\n",count_before,count_after,
+	  count_after-count_before,result);
 
+   (void)read_result;
    return NULL;
 }
 

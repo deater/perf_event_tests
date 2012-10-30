@@ -295,6 +295,8 @@ int main(int argc, char** argv) {
 
    
    test_pass(test_string);
+
+   (void)our_mmap;
    
    return 0;
 }
