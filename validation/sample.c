@@ -36,6 +36,12 @@ int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
    //                  PERF_SAMPLE_BRANCH_STACK;
 
 
+int read_format=
+                PERF_FORMAT_GROUP |
+                PERF_FORMAT_ID |
+                PERF_FORMAT_TOTAL_TIME_ENABLED |
+                PERF_FORMAT_TOTAL_TIME_RUNNING;
+
 
 static struct signal_counts {
   int in,out,msg,err,pri,hup,unknown,total;
@@ -46,10 +52,78 @@ static int fd1,fd2;
 void *our_mmap;
 
 
+/* Urgh who designed this interface */
+int handle_struct_read_format(unsigned char *sample, int read_format) {
+  
+  int offset=0,i;
+
+  if (read_format & PERF_FORMAT_GROUP) {
+     long long nr,time_enabled,time_running;
+
+     memcpy(&nr,&sample[offset],sizeof(long long));
+     printf("\t\tNumber: %lld ",nr);
+     offset+=8;
+
+     if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
+        memcpy(&time_enabled,&sample[offset],sizeof(long long));
+        printf("enabled: %lld ",time_enabled);
+        offset+=8;
+     }
+     if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
+        memcpy(&time_running,&sample[offset],sizeof(long long));
+        printf("running: %lld ",time_running);
+        offset+=8;
+     }
+
+     printf("\n");
+
+     for(i=0;i<nr;i++) {
+        long long value, id;
+        memcpy(&value,&sample[offset],sizeof(long long));
+        printf("\t\t\tValue: %lld ",value);
+	offset+=8;
+
+        if (read_format & PERF_FORMAT_ID) {
+           memcpy(&id,&sample[offset],sizeof(long long));
+           printf("id: %lld ",id);
+           offset+=8;
+	}
+
+        printf("\n");
+     }
+  }
+  else {
+    long long value,time_enabled,time_running,id;
+    memcpy(&value,&sample[offset],sizeof(long long));
+    printf("\t\tValue: %lld ",value);
+    offset+=8;
+
+    if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
+       memcpy(&time_enabled,&sample[offset],sizeof(long long));
+       printf("enabled: %lld ",time_enabled);
+       offset+=8;
+    }
+    if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
+       memcpy(&time_running,&sample[offset],sizeof(long long));
+       printf("running: %lld ",time_running);
+       offset+=8;
+    }
+    if (read_format & PERF_FORMAT_ID) {
+       memcpy(&id,&sample[offset],sizeof(long long));
+       printf("id: %lld ",id);
+       offset+=8;
+    }
+    printf("\n");
+  }
+
+  return offset;
+}
+
 int perf_mmap_read(void) {
 
    struct perf_event_mmap_page *control_page = our_mmap;
    int head,tail,offset;
+   int i;
 
    unsigned char *data;
 
@@ -93,7 +167,95 @@ int perf_mmap_read(void) {
 	      printf("\tpid: %d  tid %d\n",pid,tid);
 	      offset+=8;
 	   }
-                               break;
+	   if (sample_type & PERF_SAMPLE_TIME) {
+	      long long time;
+              memcpy(&time,&data[offset],sizeof(long long));
+	      printf("\ttime: %lld\n",time);
+	      offset+=8;
+	   }
+	   if (sample_type & PERF_SAMPLE_ADDR) {
+	      long long addr;
+              memcpy(&addr,&data[offset],sizeof(long long));
+	      printf("\taddr: %llx\n",addr);
+	      offset+=8;
+	   }
+	   if (sample_type & PERF_SAMPLE_ID) {
+	      long long sample_id;
+              memcpy(&sample_id,&data[offset],sizeof(long long));
+	      printf("\tsample_id: %lld\n",sample_id);
+	      offset+=8;
+	   }
+	   if (sample_type & PERF_SAMPLE_STREAM_ID) {
+	      long long sample_stream_id;
+              memcpy(&sample_stream_id,&data[offset],sizeof(long long));
+	      printf("\tsample_stream_id: %lld\n",sample_stream_id);
+	      offset+=8;
+	   }
+	   if (sample_type & PERF_SAMPLE_CPU) {
+	     int cpu, res;
+              memcpy(&cpu,&data[offset],sizeof(int));
+              memcpy(&res,&data[offset+4],sizeof(int));
+	      printf("\tcpu: %d  res %d\n",cpu,res);
+	      offset+=8;
+	   }
+	   if (sample_type & PERF_SAMPLE_PERIOD) {
+	      long long period;
+              memcpy(&period,&data[offset],sizeof(long long));
+	      printf("\tperiod: %lld\n",period);
+	      offset+=8;
+	   }
+	   if (sample_type & PERF_SAMPLE_READ) {
+	      int length;
+
+	      printf("\tread_format\n");
+	      length=handle_struct_read_format(&data[offset],read_format);
+	      
+	      if (length>=0) offset+=length;
+	   }
+	   if (sample_type & PERF_SAMPLE_CALLCHAIN) {
+	     long long nr,ip;
+	      memcpy(&nr,&data[offset],sizeof(long long));
+	      printf("\tcallchain length: %lld\n",nr);
+	      offset+=8;
+	      
+	      for(i=0;i<nr;i++) {
+	         memcpy(&ip,&data[offset],sizeof(long long));
+	         printf("\t\t ip[%d]: %llx\n",i,ip);
+	         offset+=8;
+	      }
+	   }
+	   if (sample_type & PERF_SAMPLE_RAW) {
+	      int size;
+	     
+	      memcpy(&size,&data[offset],sizeof(int));
+	      printf("\tRaw length: %d\n",size);
+	      offset+=4;
+
+	      printf("\t\t");
+	      for(i=0;i<size;i++) {	         
+	         printf("%d ",data[offset]);
+	         offset+=1;
+	      }
+	      printf("\n");
+	   }
+	   if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
+	      long long bnr;
+	      memcpy(&bnr,&data[offset],sizeof(long long));
+	      printf("\tbranch_stack entries: %lld\n",bnr);
+	      offset+=8;
+	      
+	      for(i=0;i<bnr;i++) {
+		 long long from,to,flags;
+		 memcpy(&from,&data[offset],sizeof(long long));
+	         offset+=8;
+		 memcpy(&to,&data[offset],sizeof(long long));
+	         offset+=8;
+		 memcpy(&flags,&data[offset],sizeof(long long));
+	         offset+=8;
+	         printf("\t\t lbr[%d]: %llx %llx %llx\n",i,from,to,flags);
+	      }
+	   }
+           break;
          default:printf("Unknown type %d\n",event->type);
       }
       tail+=event->size;
@@ -164,7 +326,7 @@ int main(int argc, char** argv) {
    pe.sample_period=SAMPLE_FREQUENCY;
    pe.sample_type=sample_type;
 
-   pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+   pe.read_format=read_format;
    pe.disabled=1;
    pe.pinned=1;
    pe.exclude_kernel=1;
