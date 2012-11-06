@@ -15,6 +15,7 @@ all:	\
 	offcore_response \
 	rdpmc_support \
 	rdpmc_validation \
+	sample \
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
@@ -224,6 +225,19 @@ simultaneous_overflow.o:	simultaneous_overflow.c
 
 ###
 
+sample:	sample.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample sample.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+sample.o:	sample.c
+	$(CC) $(CFLAGS) -c sample.c
+
+###
+
 simple_overflow_leader:	simple_overflow_leader.o ../lib/test_utils.o \
 					../lib/perf_helpers.o \
 					../lib/matrix_multiply.o
@@ -265,6 +279,7 @@ clean:
 	offcore_response \
 	rdpmc_support \
 	rdpmc_validation \
+	sample \
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
