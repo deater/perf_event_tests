@@ -38,6 +38,10 @@ echo "* Checking basic perf_event functionality"
 ./validation/simultaneous_overflow
 
 echo
+echo "* Checking mmap record sample functionality"
+./record_sample/sample
+
+echo
 echo "* Checking bugs that PAPI has to work around"
 ./bugs/sync_read_required
 ./bugs/read_group_attached
