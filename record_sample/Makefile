@@ -3,7 +3,8 @@ CFLAGS = -Wall -O2 -I../include
 LFLAGS =
 
 all:	\
-	sample 
+	print_record_sample \
+	validate_record_sample
 
 ###
 
@@ -24,19 +25,48 @@ all:	\
 
 ###
 
-sample:	sample.o ../lib/test_utils.o \
+parse_record.o:		parse_record.c
+	$(CC) $(CFLAGS) -c parse_record.c
+
+###
+
+print_record_sample:	print_record_sample.o \
+					parse_record.o \
+					../lib/test_utils.o \
 					../lib/perf_helpers.o \
 					../lib/instructions_testcode.o
-	$(CC) $(LFLAGS) -o sample sample.o \
+	$(CC) $(LFLAGS) -o print_record_sample \
+				print_record_sample.o \
+				parse_record.o \
 				../lib/test_utils.o \
 				../lib/perf_helpers.o \
 				../lib/instructions_testcode.o
 
-sample.o:	sample.c
-	$(CC) $(CFLAGS) -c sample.c
+print_record_sample.o:	print_record_sample.c
+	$(CC) $(CFLAGS) -c print_record_sample.c
 
+###
+
+validate_record_sample:	validate_record_sample.o \
+					parse_record.o \
+					../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o validate_record_sample \
+				validate_record_sample.o \
+				parse_record.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+validate_record_sample.o:	validate_record_sample.c
+	$(CC) $(CFLAGS) -c validate_record_sample.c
+
+
+###
 
 clean:	
 	rm -f *~ *.o \
-	sample 
+	print_record_sample \
+	validate_record_sample
 
