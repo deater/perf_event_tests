@@ -20,8 +20,8 @@ echo "* Checking offcore response events"
 ./validation/offcore_response
 
 echo
-echo "* Checking uncore events"
-./validation/uncore_events
+echo "* Checking events that require special permissions"
+./validation_privileged/uncore_events
 
 echo
 echo "* Checking basic perf_event functionality"

@@ -5,6 +5,7 @@ all:
 	cd crashes && make
 	cd generalized_events && make
 	cd validation && make
+	cd validation_privileged && make
 
 papi:
 	cd papi && make
@@ -17,5 +18,6 @@ clean:
 	cd crashes && make clean
 	cd generalized_events && make clean
 	cd validation && make clean
+	cd validation_privileged && make clean
 	cd papi && make clean
 	cd include && make clean
