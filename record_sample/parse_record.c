@@ -30,6 +30,7 @@
 /* Urgh who designed this interface */
 static int handle_struct_read_format(unsigned char *sample, 
 				     int read_format,
+				     struct validate_values *validation,
 				     int quiet) {
   
   int offset=0,i;
@@ -40,6 +41,13 @@ static int handle_struct_read_format(unsigned char *sample,
      memcpy(&nr,&sample[offset],sizeof(long long));
      if (!quiet) printf("\t\tNumber: %lld ",nr);
      offset+=8;
+
+     if (validation) {
+        if (validation->events!=nr) {
+	  fprintf(stderr,"Error!  Wrong number of events %d != %lld\n",
+		  validation->events,nr);
+        }
+     }
 
      if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
         memcpy(&time_enabled,&sample[offset],sizeof(long long));
@@ -235,7 +243,8 @@ int perf_mmap_read( void *our_mmap, int sample_type,
 
 	      if (!quiet) printf("\tread_format\n");
 	      length=handle_struct_read_format(&data[offset],
-					       read_format,quiet);
+					       read_format,
+					       validate,quiet);
 	      
 	      if (length>=0) offset+=length;
 	   }

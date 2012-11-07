@@ -1,6 +1,7 @@
 struct validate_values {
   int pid;
   int tid;
+  int events;
 };
 
 int perf_mmap_read( void *our_mmap, int sample_type, 

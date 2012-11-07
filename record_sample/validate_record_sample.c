@@ -98,6 +98,7 @@ int main(int argc, char** argv) {
    /* set up validation */
    validate.pid=getpid();
    validate.tid=mygettid();
+   validate.events=2;
 
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
