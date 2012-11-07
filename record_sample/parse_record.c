@@ -95,7 +95,8 @@ static int handle_struct_read_format(unsigned char *sample,
 }
 
 int perf_mmap_read( void *our_mmap, int sample_type, 
-		    int read_format, int quiet ) {
+		    int read_format, 
+		    int quiet ) {
 
    struct perf_event_mmap_page *control_page = our_mmap;
    int head,tail,offset;
@@ -126,7 +127,41 @@ int perf_mmap_read( void *our_mmap, int sample_type,
       event = ( struct perf_event_header * ) & data[tail];
 
       if (!quiet) {
-	 printf("Header: %d %d %d\n",event->type,event->misc,event->size);
+	 switch(event->type) {
+	 case 1: printf("PERF_RECORD_MMAP"); break;
+	 case 2: printf("PERF_RECORD_LOST"); break;
+	 case 3: printf("PERF_RECORD_COMM"); break;
+	 case 4: printf("PERF_RECORD_EXIT"); break;
+	 case 5: printf("PERF_RECORD_THROTTLE"); break;
+	 case 6: printf("PERF_RECORD_UNTHROTTLE"); break;
+	 case 7: printf("PERF_RECORD_FORK"); break;
+	 case 8: printf("PERF_RECORD_READ"); break;
+	 case 9: printf("PERF_RECORD_SAMPLE"); break;
+	 default: printf("UNKNOWN"); break;
+	 }
+	 printf(", MISC=%d (",event->misc);
+	 switch(event->misc & PERF_RECORD_MISC_CPUMODE_MASK) {
+	 case PERF_RECORD_MISC_CPUMODE_UNKNOWN: 
+              printf("PERF_RECORD_MISC_CPUMODE_UNKNOWN"); break; 
+         case PERF_RECORD_MISC_KERNEL: 
+              printf("PERF_RECORD_MISC_KERNEL"); break;
+	 case PERF_RECORD_MISC_USER:
+	      printf("PERF_RECORD_MISC_USER"); break;
+         case PERF_RECORD_MISC_HYPERVISOR:
+	      printf("PERF_RECORD_MISC_HYPERVISOR"); break;
+	 case PERF_RECORD_MISC_GUEST_KERNEL:
+	      printf("PERF_RECORD_MISC_GUEST_KERNEL"); break;
+	 case PERF_RECORD_MISC_GUEST_USER:
+              printf("PERF_RECORD_MISC_GUEST_USER"); break;
+	 default:
+	   printf("Unknown!\n"); break;
+	 }
+
+	 if (event->misc & PERF_RECORD_MISC_EXACT_IP)
+            printf(",PERF_RECORD_MISC_EXACT_IP ");
+	 if (event->misc & PERF_RECORD_MISC_EXT_RESERVED) 
+            printf(",PERF_RECORD_MISC_EXT_RESERVED ");
+         printf("), Size=%d\n",event->size);
       }
       offset=tail+8; /* skip header */
       switch(event->type) {
