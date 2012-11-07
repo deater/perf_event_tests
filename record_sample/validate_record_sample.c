@@ -45,6 +45,8 @@ int read_format=
                 PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 
+struct validate_values validate;
+
 static struct signal_counts {
   int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
@@ -58,7 +60,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  perf_mmap_read(our_mmap,sample_type,read_format,1); 
+  perf_mmap_read(our_mmap,sample_type,read_format,&validate,1); 
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -92,7 +94,11 @@ int main(int argc, char** argv) {
    quiet=test_quiet();
 
    if (!quiet) printf("This validates the sampling records.\n");
-   
+
+   /* set up validation */
+   validate.pid=getpid();
+   validate.tid=mygettid();
+
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
    sa.sa_flags = SA_SIGINFO;

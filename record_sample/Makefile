@@ -25,7 +25,7 @@ all:	\
 
 ###
 
-parse_record.o:		parse_record.c
+parse_record.o:		parse_record.c parse_record.h
 	$(CC) $(CFLAGS) -c parse_record.c
 
 ###

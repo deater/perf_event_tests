@@ -25,6 +25,8 @@
 #include "perf_event.h"
 #include "perf_helpers.h"
 
+#include "parse_record.h"
+
 /* Urgh who designed this interface */
 static int handle_struct_read_format(unsigned char *sample, 
 				     int read_format,
@@ -96,6 +98,7 @@ static int handle_struct_read_format(unsigned char *sample,
 
 int perf_mmap_read( void *our_mmap, int sample_type, 
 		    int read_format, 
+		    struct validate_values *validate,
 		    int quiet ) {
 
    struct perf_event_mmap_page *control_page = our_mmap;
@@ -177,6 +180,14 @@ int perf_mmap_read( void *our_mmap, int sample_type,
 	      int pid, tid;
               memcpy(&pid,&data[offset],sizeof(int));
               memcpy(&tid,&data[offset+4],sizeof(int));
+
+	      if (validate) {
+		 if (validate->pid!=pid) {
+		    fprintf(stderr,"Error, pid %d != %d\n",
+			   validate->pid,pid);
+		 }
+	      }
+
 	      if (!quiet) printf("\tpid: %d  tid %d\n",pid,tid);
 	      offset+=8;
 	   }
