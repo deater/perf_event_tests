@@ -4,6 +4,7 @@ int detect_processor(void);
 void arch_adjust_domain(struct perf_event_attr *pe,int quiet);
 int copy_events(int *eventset);
 int detect_nmi_watchdog(void);
+pid_t mygettid( void );
 
 #define PROCESSOR_UNKNOWN     -1
 #define PROCESSOR_PENTIUM_PRO  1

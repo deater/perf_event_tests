@@ -28,6 +28,18 @@ int perf_event_open(struct perf_event_attr *hw_event_uptr,
 		  group_fd, flags);
 }
 
+pid_t mygettid( void )
+{
+#ifdef SYS_gettid
+  return syscall( SYS_gettid );
+#elif defined(__NR_gettid)
+  return syscall( __NR_gettid );
+#else
+#error "cannot find gettid"
+#endif
+}
+
+
 #define VENDOR_UNKNOWN -1
 #define VENDOR_INTEL    1
 #define VENDOR_AMD      2
