@@ -4,8 +4,8 @@ struct validate_values {
   int events;
 };
 
-int perf_mmap_read( void *our_mmap, int sample_type, 
-		    int read_format, 
+long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
+		    int sample_type, int read_format, 
 		    struct validate_values *validate,
 		    int quiet );
 

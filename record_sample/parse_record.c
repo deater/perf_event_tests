@@ -104,16 +104,19 @@ static int handle_struct_read_format(unsigned char *sample,
   return offset;
 }
 
-int perf_mmap_read( void *our_mmap, int sample_type, 
-		    int read_format, 
+long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
+		    int sample_type, int read_format, 
 		    struct validate_values *validate,
 		    int quiet ) {
 
    struct perf_event_mmap_page *control_page = our_mmap;
-   int head,tail,offset;
-   int i;
+   long long head,offset;
+   int i,size;
+   long long bytesize,prev_head_wrap;
 
    unsigned char *data;
+
+   void *data_mmap=our_mmap+getpagesize();
 
    if (control_page==NULL) {
       fprintf(stderr,"ERROR mmap page NULL\n");
@@ -121,21 +124,46 @@ int perf_mmap_read( void *our_mmap, int sample_type,
    }
    
    head=control_page->data_head;
-   tail=control_page->data_tail;
+   rmb(); /* Must always follow read of data_head */
 
-   //printf("Head: %d %d\n",head,tail);
-   rmb();
+   size=head-prev_head;
 
-   /* data starts one page after control */
-   data=((unsigned char*)our_mmap) + getpagesize(  );
+   //printf("Head: %lld Prev_head=%lld\n",head,prev_head);
+   //printf("%d new bytes\n",size);   
 
-   /*FIXME..crosspage boundary?*/
+   bytesize=mmap_size*getpagesize();
+
+   if (size>bytesize) {
+     printf("error!  we overflowed the mmap buffer %d>%lld!\n",
+	    size,bytesize);
+   }
+
+   data=malloc(bytesize);
+   if (data==NULL) {
+      return -1;
+   }
+
+   prev_head_wrap=prev_head%bytesize;
+
+   //   printf("Copying %d bytes from %d to %d\n",
+   //	  bytesize-prev_head_wrap,prev_head_wrap,0);
+   memcpy(data,(unsigned char*)data_mmap + prev_head_wrap, 
+	  bytesize-prev_head_wrap);
+
+   //printf("Copying %d bytes from %d to %d\n",
+   //	  prev_head_wrap,0,bytesize-prev_head_wrap);
+
+   memcpy(data+(bytesize-prev_head_wrap),(unsigned char *)data_mmap,
+	  prev_head_wrap);
 
    struct perf_event_header *event;
 
-   while(tail!=head) {
 
-      event = ( struct perf_event_header * ) & data[tail];
+   offset=0;
+   while(offset<size) {
+
+     //printf("Offset %d Size %d\n",offset,size);
+      event = ( struct perf_event_header * ) & data[offset];
 
       if (!quiet) {
 	 switch(event->type) {
@@ -174,8 +202,19 @@ int perf_mmap_read( void *our_mmap, int sample_type,
             printf(",PERF_RECORD_MISC_EXT_RESERVED ");
          printf("), Size=%d\n",event->size);
       }
-      offset=tail+8; /* skip header */
+      offset+=8; /* skip header */
       switch(event->type) {
+
+      case PERF_RECORD_LOST: {
+	     long long id,lost;
+	     memcpy(&id,&data[offset],sizeof(long long));
+	     if (!quiet) printf("\tID: %lld\n",id);
+	     offset+=8;
+	     memcpy(&lost,&data[offset],sizeof(long long));
+	     if (!quiet) printf("\tLOST: %lld\n",lost);
+	     offset+=8;
+      }
+	   break;
 
          case PERF_RECORD_SAMPLE:
 	   if (sample_type & PERF_SAMPLE_IP) {
@@ -296,12 +335,13 @@ int perf_mmap_read( void *our_mmap, int sample_type,
            break;
          default:printf("Unknown type %d\n",event->type);
       }
-      tail+=event->size;
    }
 
    control_page->data_tail=head;
+
+   free(data);
    
-   return 0;
+   return head;
 
 }
 

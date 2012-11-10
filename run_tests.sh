@@ -41,6 +41,7 @@ echo
 echo "* Checking mmap record sample functionality"
 ./record_sample/print_record_sample
 ./record_sample/validate_record_sample
+./record_sample/lost_record_sample
 
 echo
 echo "* Checking bugs that PAPI has to work around"

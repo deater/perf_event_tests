@@ -29,6 +29,8 @@
 
 #include "parse_record.h"
 
+#define MMAP_DATA_SIZE 8
+
 #define SAMPLE_FREQUENCY 100000
 
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
@@ -55,12 +57,15 @@ static int fd1,fd2;
 
 void *our_mmap;
 
+long long prev_head=0;
+
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   int ret;
 
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  perf_mmap_read(our_mmap,sample_type,read_format,&validate,1); 
+  prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
+		 sample_type,read_format,&validate,1); 
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -84,7 +89,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 int main(int argc, char** argv) {
    
    int ret,quiet;
-   int mmap_pages=1+8;
+   int mmap_pages=1+MMAP_DATA_SIZE;
 
    struct perf_event_attr pe;
 

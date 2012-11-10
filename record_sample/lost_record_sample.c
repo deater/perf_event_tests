@@ -1,7 +1,7 @@
-/* print_record_sample.c  */
+/* lost_record_sample.c  */
 /* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
-/* This just tests perf_event sampling */
+/* Try to overflow so that we get lost records */
 
 #define _GNU_SOURCE 1
 
@@ -29,9 +29,8 @@
 
 #include "parse_record.h"
 
-#define SAMPLE_FREQUENCY 100000
-
-#define MMAP_DATA_SIZE 8
+#define SAMPLE_FREQUENCY 10000
+#define MMAP_DATA_SIZE 1
 
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
                   PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
@@ -47,7 +46,7 @@ int read_format=
                 PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 
-int quiet=0;
+struct validate_values validate;
 
 static struct signal_counts {
   int in,out,msg,err,pri,hup,unknown,total;
@@ -57,15 +56,20 @@ static int fd1,fd2;
 
 void *our_mmap;
 
+int num_oflos=0;
+
 long long prev_head=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   int ret;
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, quiet);
+  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-			   sample_type,read_format,NULL,0); 
+  if (num_oflos%100==0) 
+     prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
+		   sample_type,read_format,NULL,0); 
+
+  num_oflos++;
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -88,18 +92,23 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
 int main(int argc, char** argv) {
    
-   int ret;
+   int ret,quiet,i;
    int mmap_pages=1+MMAP_DATA_SIZE;
 
    struct perf_event_attr pe;
 
    struct sigaction sa;
-   char test_string[]="Testing record sampling...";
+   char test_string[]="Checking behavior on mmap overflow...";
    
    quiet=test_quiet();
 
-   if (!quiet) printf("This tests the record sampling interface.\n");
-   
+   if (!quiet) printf("This checks behavior on mmap buffer being full.\n");
+
+   /* set up validation */
+   validate.pid=getpid();
+   validate.tid=mygettid();
+   validate.events=2;
+
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
    sa.sa_flags = SA_SIGINFO;
@@ -164,25 +173,17 @@ int main(int argc, char** argv) {
    ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
 
    if (ret<0) {
-     if (!quiet) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
+     if (!quiet) {
+        fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
 	     "%d %s\n",errno,strerror(errno));
+     }
      exit(1);
    }
 
-   instructions_million();
+   for(i=0;i<100;i++)
+      instructions_million();
    
    ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
-
-   if (!quiet) {
-     printf("Counts, using mmap buffer %p\n",our_mmap);
-      printf("\tPOLL_IN : %d\n",count.in);
-      printf("\tPOLL_OUT: %d\n",count.out);
-      printf("\tPOLL_MSG: %d\n",count.msg);
-      printf("\tPOLL_ERR: %d\n",count.err);
-      printf("\tPOLL_PRI: %d\n",count.pri);
-      printf("\tPOLL_HUP: %d\n",count.hup);
-      printf("\tUNKNOWN : %d\n",count.unknown);
-   }
 
    if (count.total==0) {
       if (!quiet) printf("No overflow events generated.\n");
@@ -198,4 +199,3 @@ int main(int argc, char** argv) {
    
    return 0;
 }
-
