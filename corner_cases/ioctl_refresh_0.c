@@ -3,7 +3,9 @@
 
 /* Currently (as of 2.6.39) you can send a PERF_EVENT_IOC_REFRESH */
 /*   ioctl with a "0" argument and that will arm refresh          */
+/*   for all events in a group.                                   */
 /* This is apparently undocumented/undefined behavior.            */
+/* See https://lkml.org/lkml/2011/5/24/337                        */
 
 #define _GNU_SOURCE 1
 
