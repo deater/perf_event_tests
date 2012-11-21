@@ -33,8 +33,8 @@ pe_task_schedule_panic.o:	pe_task_schedule_panic.c
 
 ####
 
-oflo_sw_cpu_clock_crash:	oflo_sw_cpu_clock_crash.o
-	$(CC) $(LFLAGS) -o oflo_sw_cpu_clock_crash oflo_sw_cpu_clock_crash.o
+oflo_sw_cpu_clock_crash:	oflo_sw_cpu_clock_crash.o ../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o oflo_sw_cpu_clock_crash oflo_sw_cpu_clock_crash.o ../lib/perf_helpers.o
 
 
 oflo_sw_cpu_clock_crash.o:	oflo_sw_cpu_clock_crash.c
