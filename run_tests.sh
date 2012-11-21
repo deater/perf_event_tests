@@ -39,6 +39,7 @@ echo "* Checking overflow functionality"
 ./validation/simultaneous_group_overflow
 ./validation/simultaneous_overflow
 ./validation/single_shot_overflow
+./validation/single_shot_w_enable
 
 echo
 echo "* Checking mmap record sample functionality"

@@ -19,7 +19,8 @@ all:	\
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
 	simultaneous_overflow  \
-	single_shot_overflow
+	single_shot_overflow \
+	single_shot_w_enable
 
 
 ###
@@ -265,6 +266,19 @@ single_shot_overflow:	single_shot_overflow.o ../lib/test_utils.o \
 single_shot_overflow.o:	single_shot_overflow.c
 	$(CC) $(CFLAGS) -c single_shot_overflow.c
 
+###
+
+single_shot_w_enable:	single_shot_w_enable.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o single_shot_w_enable single_shot_w_enable.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+single_shot_w_enable.o:	single_shot_w_enable.c
+	$(CC) $(CFLAGS) -c single_shot_w_enable.c
+
 
 
 clean:	
@@ -285,5 +299,6 @@ clean:
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
 	simultaneous_overflow \
-	single_shot_overflow
+	single_shot_overflow \
+	single_shot_w_enable 
 
