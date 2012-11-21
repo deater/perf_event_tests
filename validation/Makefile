@@ -18,7 +18,8 @@ all:	\
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
-	simultaneous_overflow 
+	simultaneous_overflow  \
+	single_shot_overflow
 
 
 ###
@@ -251,6 +252,21 @@ simple_overflow_sibling.o:	simple_overflow_sibling.c
 	$(CC) $(CFLAGS) -c simple_overflow_sibling.c
 
 
+###
+
+single_shot_overflow:	single_shot_overflow.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o single_shot_overflow single_shot_overflow.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+single_shot_overflow.o:	single_shot_overflow.c
+	$(CC) $(CFLAGS) -c single_shot_overflow.c
+
+
+
 clean:	
 	rm -f *~ *.o \
 	breakpoint_overflow \
@@ -268,5 +284,6 @@ clean:
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
-	simultaneous_overflow 
+	simultaneous_overflow \
+	single_shot_overflow
 

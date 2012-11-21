@@ -25,8 +25,6 @@ echo "* Checking events that require special permissions"
 
 echo
 echo "* Checking basic perf_event functionality"
-./validation/simple_overflow_leader
-./validation/simple_overflow_sibling
 ./validation/format_id_support
 ./validation/non-existent
 ./validation/breakpoint_support
@@ -34,8 +32,13 @@ echo "* Checking basic perf_event functionality"
 ./validation/inherit
 ./validation/inherit_stat
 ./validation/enable_on_exec
+
+echo "* Checking overflow functionality"
+./validation/simple_overflow_leader
+./validation/simple_overflow_sibling
 ./validation/simultaneous_group_overflow
 ./validation/simultaneous_overflow
+./validation/single_shot_overflow
 
 echo
 echo "* Checking mmap record sample functionality"
