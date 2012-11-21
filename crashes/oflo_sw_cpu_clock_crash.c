@@ -15,7 +15,8 @@
 #include <fcntl.h>
 
 
-#include <linux/perf_event.h>
+//#include <linux/perf_event.h>
+#include "perf_event.h"
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <asm/unistd.h>
