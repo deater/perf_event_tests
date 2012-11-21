@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
    
       ret=ioctl(events[i].fd, PERF_EVENT_IOC_ENABLE,0);
 
-      printf("\t");
+      if (!quiet) printf("\t");
       naive_matrix_multiply(quiet);   
    
       ret=ioctl(events[i].fd, PERF_EVENT_IOC_DISABLE,0);
@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
      test_fail(test_string);
    }
 
-   printf("\t");   
+   if (!quiet) printf("\t");   
    naive_matrix_multiply(quiet);
 
    for(i=0;i<NUM_EVENTS;i++) { 

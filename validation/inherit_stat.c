@@ -20,6 +20,7 @@
 #include "instructions_testcode.h"
 
 int fd;
+int quiet;
 
 
 void *thread_work(void *blah) {
@@ -33,8 +34,10 @@ void *thread_work(void *blah) {
 
    read_result=read(fd,&count_after,sizeof(long long));
 
-   printf("In thread %lld %lld %lld, %d\n",count_before,count_after,
+   if (!quiet) {
+      printf("In thread %lld %lld %lld, %d\n",count_before,count_after,
 	  count_after-count_before,result);
+   }
 
    (void)read_result;
    return NULL;
@@ -46,7 +49,6 @@ char test_string[]="Testing inherit_stat...";
 int main(int argc, char** argv) {
    
    int j;
-   int quiet;
    pthread_t our_thread[8];
    int read_result;
    long long inherit_count,count;

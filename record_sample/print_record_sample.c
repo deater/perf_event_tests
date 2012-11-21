@@ -65,7 +65,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, quiet);
 
   prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-			   sample_type,read_format,NULL,0); 
+			   sample_type,read_format,NULL,quiet);
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
    ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
 
    if (!quiet) {
-     printf("Counts, using mmap buffer %p\n",our_mmap);
+      printf("Counts, using mmap buffer %p\n",our_mmap);
       printf("\tPOLL_IN : %d\n",count.in);
       printf("\tPOLL_OUT: %d\n",count.out);
       printf("\tPOLL_MSG: %d\n",count.msg);

@@ -60,6 +60,8 @@ int num_oflos=0;
 
 long long prev_head=0;
 
+int quiet=0;
+
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   int ret;
 
@@ -67,7 +69,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
   if (num_oflos%100==0) 
      prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-		   sample_type,read_format,NULL,0); 
+		   sample_type,read_format,NULL,quiet); 
 
   num_oflos++;
 
@@ -92,7 +94,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
 int main(int argc, char** argv) {
    
-   int ret,quiet,i;
+   int ret,i;
    int mmap_pages=1+MMAP_DATA_SIZE;
 
    struct perf_event_attr pe;

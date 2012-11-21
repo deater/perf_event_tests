@@ -333,7 +333,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
 	      }
 	   }
            break;
-         default:printf("Unknown type %d\n",event->type);
+           default: if (!quiet) printf("Unknown type %d\n",event->type);
       }
    }
 
