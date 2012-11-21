@@ -1,5 +1,5 @@
 /* simple_overflow_leader.c  */
-/* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
+/* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
 /* Just does some tests of the overflow infrastructure */
 /*  on event group leaders.                            */
@@ -26,7 +26,7 @@
 #include "perf_event.h"
 #include "test_utils.h"
 #include "perf_helpers.h"
-#include "matrix_multiply.h"
+#include "instructions_testcode.h"
 
 static struct signal_counts {
   int in,out,msg,err,pri,hup,unknown,total;
@@ -74,7 +74,8 @@ static void our_handler2(int signum,siginfo_t *oh, void *blah) {
 
   count.total++;
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,3);
+  //  ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+  //  ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,3);
 
   (void) ret;
  
@@ -84,12 +85,13 @@ static void our_handler2(int signum,siginfo_t *oh, void *blah) {
 
 int main(int argc, char** argv) {
    
-  int ret,quiet,first_count,second_count;   
+   int ret,quiet,first_count,second_count;   
+   int i;
 
    struct perf_event_attr pe;
 
    struct sigaction sa;
-   void *blargh;
+   void *our_mmap;
    char test_string[]="Testing overflow on leaders...";
    
    quiet=test_quiet();
@@ -127,7 +129,7 @@ int main(int argc, char** argv) {
      test_fail(test_string);
    }
 
-   blargh=mmap(NULL, (1+1)*4096, 
+   our_mmap=mmap(NULL, (1+1)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 
    
@@ -137,7 +139,7 @@ int main(int argc, char** argv) {
    
    ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
 
-   ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
 
    if (ret<0) {
      if (!quiet) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
@@ -145,12 +147,12 @@ int main(int argc, char** argv) {
      exit(1);
    }
 
-   naive_matrix_multiply(quiet);
+   for (i=0;i<100;i++) {
+       instructions_million();
+   }
    
-   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
-    
    if (!quiet) {
-      printf("Counts, using mmap buffer %p\n",blargh);
+      printf("Counts, using mmap buffer %p\n",our_mmap);
       printf("\tPOLL_IN : %d\n",count.in);
       printf("\tPOLL_OUT: %d\n",count.out);
       printf("\tPOLL_MSG: %d\n",count.msg);
@@ -170,7 +172,9 @@ int main(int argc, char** argv) {
 
    close(fd1);
 
+   /****************************/
    /* re set-up, but count / 3 */
+   /****************************/
 
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler2;
@@ -203,7 +207,7 @@ int main(int argc, char** argv) {
       test_fail(test_string);
    }
 
-   blargh=mmap(NULL, (1+1)*4096, 
+   our_mmap=mmap(NULL, (1+1)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 
    
@@ -213,7 +217,9 @@ int main(int argc, char** argv) {
    
    ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
 
-   ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+   //   ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE, 0);
+
+   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 10);
 
    if (ret<0) {
      if (!quiet) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
@@ -221,12 +227,12 @@ int main(int argc, char** argv) {
      exit(1);
    }
 
-   naive_matrix_multiply(quiet);
-   
-   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
+   for (i=0;i<100;i++) {
+       instructions_million();
+   }
     
    if (!quiet) {
-      printf("Counts, using mmap buffer %p\n",blargh);
+      printf("Counts, using mmap buffer %p\n",our_mmap);
       printf("\tPOLL_IN : %d\n",count.in);
       printf("\tPOLL_OUT: %d\n",count.out);
       printf("\tPOLL_MSG: %d\n",count.msg);
@@ -246,16 +252,14 @@ int main(int argc, char** argv) {
    close(fd1);
 
    if (!quiet) printf("Count1: %d  Count2: %d Expected count2: %d\n",
-		      first_count,second_count,first_count/3);
+		      first_count,second_count,10);
 
-   int diff = (second_count - (first_count/3));
-
-   if ( (diff > 2) || (diff<-2) ) {
-       if (!quiet) fprintf(stderr,"Error, wakeup_events diff > 2\n");
+   if (second_count!=10) {
+       if (!quiet) fprintf(stderr,"Error, unexpected count\n");
        test_fail(test_string);     
    }
 
-     test_pass(test_string);
+   test_pass(test_string);
    
    return 0;
 }
