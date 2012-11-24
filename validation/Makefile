@@ -20,7 +20,8 @@ all:	\
 	simultaneous_group_overflow \
 	simultaneous_overflow  \
 	single_shot_overflow \
-	single_shot_w_enable
+	single_shot_w_enable \
+	wakeup_events_overflow
 
 
 ###
@@ -279,6 +280,18 @@ single_shot_w_enable:	single_shot_w_enable.o ../lib/test_utils.o \
 single_shot_w_enable.o:	single_shot_w_enable.c
 	$(CC) $(CFLAGS) -c single_shot_w_enable.c
 
+###
+
+wakeup_events_overflow:	wakeup_events_overflow.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o wakeup_events_overflow wakeup_events_overflow.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+wakeup_events_overflow.o:	wakeup_events_overflow.c
+	$(CC) $(CFLAGS) -c wakeup_events_overflow.c
 
 
 clean:	
@@ -300,5 +313,6 @@ clean:
 	simultaneous_group_overflow \
 	simultaneous_overflow \
 	single_shot_overflow \
-	single_shot_w_enable 
+	single_shot_w_enable \
+	wakeup_events_overflow
 
