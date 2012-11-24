@@ -244,11 +244,11 @@ simple_overflow_leader.o:	simple_overflow_leader.c
 
 simple_overflow_sibling:	simple_overflow_sibling.o ../lib/test_utils.o \
 					../lib/perf_helpers.o \
-					../lib/matrix_multiply.o
+					../lib/instructions_testcode.o
 	$(CC) $(LFLAGS) -o simple_overflow_sibling simple_overflow_sibling.o \
 				../lib/test_utils.o \
 				../lib/perf_helpers.o \
-				../lib/matrix_multiply.o
+				../lib/instructions_testcode.o
 
 simple_overflow_sibling.o:	simple_overflow_sibling.c
 	$(CC) $(CFLAGS) -c simple_overflow_sibling.c
