@@ -29,13 +29,46 @@
 
 static struct signal_counts {
   int in,out,msg,err,pri,hup,unknown,total;
-} count = {0,0,0,0,0,0,0,0};
+} count;
+
+static void reset_count(void) {
+   count.in=0;
+   count.out=0;
+   count.msg=0;
+   count.err=0;
+   count.pri=0;
+   count.hup=0;
+   count.unknown=0;
+   count.total=0;
+}
 
 static int fd1;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   int ret;
+   
+   printf("1");
 
+  switch(oh->si_code) {
+     case POLL_IN:  count.in++;  break;
+     case POLL_OUT: count.out++; break;
+     case POLL_MSG: count.msg++; break;
+     case POLL_ERR: count.err++; break;
+     case POLL_PRI: count.pri++; break;
+     case POLL_HUP: count.hup++; break;
+     default: count.unknown++; break;
+  }
+
+  count.total++;
+
+  (void) ret;
+  
+}
+
+static void our_handler2(int signum,siginfo_t *oh, void *blah) {
+  int ret;
+
+   printf("2");
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
      case POLL_OUT: count.out++; break;
@@ -65,6 +98,14 @@ int main(int argc, char** argv) {
    quiet=test_quiet();
 
    if (!quiet) printf("This tests wakeup event overflows.\n");
+
+   /*******************/
+   /* Wakeup Events 1 */
+   /*******************/
+
+   reset_count();
+   
+   if (!quiet) printf("Testing with wakeup_events=1.\n");
    
    memset(&sa, 0, sizeof(struct sigaction));
    sa.sa_sigaction = our_handler;
@@ -89,7 +130,102 @@ int main(int argc, char** argv) {
 
    pe.sample_period=100000;
    pe.watermark=0;
-   pe.wakeup_events=1;
+   pe.wakeup_events=10;
+   
+   arch_adjust_domain(&pe,quiet);
+
+   fd1=perf_event_open(&pe,0,-1,-1,0);
+   if (fd1<0) {
+     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+     test_fail(test_string);
+   }
+
+   our_mmap=mmap(NULL, (1+8)*4096, 
+         PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
+
+   fcntl(fd1, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+   fcntl(fd1, F_SETSIG, SIGIO);
+   fcntl(fd1, F_SETOWN,getpid());
+   
+   ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
+
+   ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+
+   if (ret<0) {
+      if (!quiet) {
+         fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
+	     "%d %s\n",errno,strerror(errno));
+         test_fail(test_string);
+      }
+   }
+
+   instructions_million();
+       
+   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);   
+   
+   if (!quiet) {
+      printf("Counts, using mmap buffer %p\n",our_mmap);
+      printf("\tPOLL_IN : %d\n",count.in);
+      printf("\tPOLL_OUT: %d\n",count.out);
+      printf("\tPOLL_MSG: %d\n",count.msg);
+      printf("\tPOLL_ERR: %d\n",count.err);
+      printf("\tPOLL_PRI: %d\n",count.pri);
+      printf("\tPOLL_HUP: %d\n",count.hup);
+      printf("\tUNKNOWN : %d\n",count.unknown);
+   }
+
+   if (count.total==0) {
+      if (!quiet) printf("No overflow events generated.\n");
+      test_fail(test_string);
+   }
+
+   if (count.hup!=0) {
+      if (!quiet) printf("Unexpected POLL_HUP signal.\n");
+      test_fail(test_string);
+   }
+
+   if (count.in!=10) {
+      if (!quiet) printf("POLL_IN value %d, expected %d.\n",
+			count.in,10);
+      test_fail(test_string);
+   }
+
+   close(fd1);
+#if 0   
+   /* Try again, this time with a count of 3 */
+
+   /*******************/
+   /* Wakeup Events 3 */
+   /*******************/
+
+   reset_count();
+     
+   if (!quiet) printf("Testing with wakeup_events=3.\n");
+   
+   memset(&sa, 0, sizeof(struct sigaction));
+   sa.sa_sigaction = our_handler2;
+   sa.sa_flags = SA_SIGINFO;
+
+   if (sigaction( SIGIO, &sa, NULL) < 0) {
+     fprintf(stderr,"Error setting up signal handler\n");
+     exit(1);
+   }
+   
+   memset(&pe,0,sizeof(struct perf_event_attr));
+
+   pe.type=PERF_TYPE_HARDWARE;
+   pe.size=sizeof(struct perf_event_attr);
+   pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+   pe.sample_type=PERF_SAMPLE_IP;
+   pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+   pe.disabled=1;
+   pe.pinned=1;
+   pe.exclude_kernel=1;
+   pe.exclude_hv=1;
+
+   pe.sample_period=100000;
+   pe.watermark=0;
+   pe.wakeup_events=3;
    
    arch_adjust_domain(&pe,quiet);
 
@@ -119,7 +255,7 @@ int main(int argc, char** argv) {
    }
 
    instructions_million();
-       
+          
    if (!quiet) {
       printf("Counts, using mmap buffer %p\n",our_mmap);
       printf("\tPOLL_IN : %d\n",count.in);
@@ -147,6 +283,7 @@ int main(int argc, char** argv) {
       test_fail(test_string);
    }
 
+#endif   
    test_pass(test_string);
    
    return 0;

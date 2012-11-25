@@ -91,7 +91,6 @@ int main(int argc, char** argv) {
    pe.pinned=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
-   pe.wakeup_events=1;
 
    arch_adjust_domain(&pe,quiet);
 
