@@ -15,6 +15,7 @@ all:	\
 	offcore_response \
 	rdpmc_support \
 	rdpmc_validation \
+	overflow_requires_wakeup \
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
@@ -227,6 +228,20 @@ simultaneous_overflow.o:	simultaneous_overflow.c
 
 ###
 
+overflow_requires_wakeup:	overflow_requires_wakeup.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o overflow_requires_wakeup overflow_requires_wakeup.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+overflow_requires_wakeup.o:	overflow_requires_wakeup.c
+	$(CC) $(CFLAGS) -c overflow_requires_wakeup.c
+
+
+###
+
 simple_overflow_leader:	simple_overflow_leader.o ../lib/test_utils.o \
 					../lib/perf_helpers.o \
 					../lib/instructions_testcode.o
@@ -237,6 +252,7 @@ simple_overflow_leader:	simple_overflow_leader.o ../lib/test_utils.o \
 
 simple_overflow_leader.o:	simple_overflow_leader.c
 	$(CC) $(CFLAGS) -c simple_overflow_leader.c
+
 
 
 
@@ -308,6 +324,7 @@ clean:
 	offcore_response \
 	rdpmc_support \
 	rdpmc_validation \
+	overflow_requires_wakeup \
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \

@@ -1,3 +1,6 @@
+26 November 2012
++ Add overflow_requires_wakeup test
+
 23 November 2012
 + Add wakeup_events_overflow test
 
