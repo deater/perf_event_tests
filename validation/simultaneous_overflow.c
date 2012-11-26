@@ -37,9 +37,9 @@ struct {
    int individual_overflow;
 } events[NUM_EVENTS];
 
-#define SNB_TEST 1
+#define SNB_TEST 0
 
-#ifdef SNB_TEST
+#if SNB_TEST
 struct {
    char name[BUFSIZ];
    int type;
