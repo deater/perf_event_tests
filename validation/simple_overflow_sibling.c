@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
    pe.pinned=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
-   pe.wakeup_events=0;
+   pe.wakeup_events=1;
 
    arch_adjust_domain(&pe,quiet);
 
@@ -104,7 +104,8 @@ int main(int argc, char** argv) {
       test_fail(test_string);
    }
 
-   our_mmap=mmap(NULL, (1+1)*4096, 
+   /* large enough that threshold not a problem */
+   our_mmap=mmap(NULL, (1+4)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
    
    fcntl(fd2, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);

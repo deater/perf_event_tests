@@ -91,6 +91,8 @@ int main(int argc, char** argv) {
    pe.pinned=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+
+   /* Not needed on 3.2? */
    pe.wakeup_events=1;
 
    arch_adjust_domain(&pe,quiet);
@@ -101,7 +103,7 @@ int main(int argc, char** argv) {
      test_fail(test_string);
    }
 
-   our_mmap=mmap(NULL, (1+1)*4096, 
+   our_mmap=mmap(NULL, (1+4)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 
    fcntl(fd1, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);

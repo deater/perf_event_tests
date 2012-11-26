@@ -47,7 +47,7 @@ static int fd1;
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   int ret;
    
-   printf("1");
+  //   printf("1");
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
 
    pe.sample_period=100000;
    pe.watermark=0;
-   pe.wakeup_events=10;
+   pe.wakeup_events=1;
    
    arch_adjust_domain(&pe,quiet);
 

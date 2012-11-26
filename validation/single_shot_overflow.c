@@ -92,6 +92,9 @@ int main(int argc, char** argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
+   /* not needed on 3.2?*/
+   pe.wakeup_events=1;
+
    arch_adjust_domain(&pe,quiet);
 
    fd1=perf_event_open(&pe,0,-1,-1,0);
