@@ -96,6 +96,8 @@ int main(int argc, char** argv) {
    struct sigaction sa;
    void *our_mmap;
    char test_string[]="Testing multiple event overflow...";
+
+   long long counts[NUM_EVENTS];
    
    for(i=0;i<NUM_EVENTS;i++) {
       events[i].fd=-1;
@@ -138,7 +140,7 @@ int main(int argc, char** argv) {
       pe.pinned=0;
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
-      pe.wakeup_events=0;
+      pe.wakeup_events=1;
 
       events[i].fd=perf_event_open(&pe,0,-1,-1,0);
       if (events[i].fd<0) {
@@ -147,7 +149,7 @@ int main(int argc, char** argv) {
       }
    
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+1)*4096, 
+      our_mmap=mmap(NULL, (1+8)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -211,13 +213,13 @@ int main(int argc, char** argv) {
       pe.size=sizeof(struct perf_event_attr);
       pe.config=event_values[i].config;
       pe.sample_period=event_values[i].period;
-      pe.sample_type=PERF_SAMPLE_ID;
-      pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+      //xpe.sample_type=PERF_SAMPLE_ID;
+      //      pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
       pe.disabled=1;
       pe.pinned=1;
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
-      pe.wakeup_events=0;
+      pe.wakeup_events=1;
 
       events[i].fd=perf_event_open(&pe,0,-1,-1,0);
       if (events[i].fd<0) {
@@ -226,7 +228,7 @@ int main(int argc, char** argv) {
       }
 
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+1)*4096, 
+      our_mmap=mmap(NULL, (1+8)*4096, 
            PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -267,6 +269,11 @@ int main(int argc, char** argv) {
          test_fail(test_string);
       }
    }
+   
+   for(i=0;i<NUM_EVENTS;i++) {
+      read(events[i].fd,&counts[i],8);
+      if (!quiet) printf("\tRead %d %lld\n",events[i].fd,counts[i]);
+   }
 
    for(i=0;i<NUM_EVENTS;i++) {
       close(events[i].fd);
@@ -276,12 +283,12 @@ int main(int argc, char** argv) {
    /* test validity */
    for(i=0;i<NUM_EVENTS;i++) {
 
-      if (!quiet) fprintf(stderr,"Event %s/%d Expected %d Got %d\n",
+      if (!quiet) fprintf(stderr,"Event %s/%d Expected %lld Got %d\n",
 		event_values[i].name, event_values[i].period,
-		events[i].individual_overflow,events[i].overflows);
+		counts[i]/event_values[i].period,events[i].overflows);
       
 
-      if (events[i].individual_overflow!=events[i].overflows) {
+      if (counts[i]/event_values[i].period!=events[i].overflows) {
       }
       else{
 	matches++;
