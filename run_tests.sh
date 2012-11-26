@@ -33,6 +33,7 @@ echo "* Checking basic perf_event functionality"
 ./validation/inherit_stat
 ./validation/enable_on_exec
 
+echo
 echo "* Checking overflow functionality"
 ./validation/simple_overflow_leader
 ./validation/simple_overflow_sibling
