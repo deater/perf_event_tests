@@ -1,8 +1,8 @@
-/* simultaneous_group_overflow.c  */
+/* simultaneous_group_overflow.c              */
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
 /* Test to see if we can sample on two events at once */
-/* within the same group.  */
+/* within the same group.                             */
 
 /* the answer seems to be no, but it's complicated    */
 /* this test tries a PAPI-esque way of doing things   */
@@ -126,12 +126,12 @@ int main(int argc, char** argv) {
       pe.config=event_values[i].config;
       pe.sample_period=event_values[i].period;
       pe.sample_type=0;
-      pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+      pe.read_format=PERF_FORMAT_GROUP;
       pe.disabled=1;
       pe.pinned=0;
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
-      pe.wakeup_events=0;
+      pe.wakeup_events=1;
 
       events[i].fd=perf_event_open(&pe,0,-1,-1,0);
       if (events[i].fd<0) {
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
       }
    
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+1)*4096, 
+      our_mmap=mmap(NULL, (1+8)*4096, 
          PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -204,13 +204,13 @@ int main(int argc, char** argv) {
       pe.size=sizeof(struct perf_event_attr);
       pe.config=event_values[i].config;
       pe.sample_period=event_values[i].period;
-      pe.sample_type=PERF_SAMPLE_ID;
-      pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+      pe.sample_type=0;
+      pe.read_format=PERF_FORMAT_GROUP;
       pe.disabled=(i==0)?1:0;
       pe.pinned=(i==0)?1:0;
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
-      pe.wakeup_events=0;
+      pe.wakeup_events=1;
 
       events[i].fd=perf_event_open(&pe,0,-1,(i==0)?-1:events[0].fd,0);
       if (events[i].fd<0) {
@@ -219,7 +219,7 @@ int main(int argc, char** argv) {
       }
 
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+1)*4096, 
+      our_mmap=mmap(NULL, (1+8)*4096, 
            PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -250,6 +250,24 @@ int main(int argc, char** argv) {
       }
    }
    
+   int result;
+   long long values[1+1*NUM_EVENTS],counts[NUM_EVENTS];
+   result=read(events[0].fd,&values,8*(1+1*NUM_EVENTS));
+   if (result!=8*(1+1*NUM_EVENTS)) {
+      if (!quiet) printf("error reading\n");
+      test_fail(test_string);
+   }
+
+   if (values[0]!=NUM_EVENTS) {
+      if (!quiet) printf("error reading\n");
+      test_fail(test_string);
+   }
+   for(i=0;i<NUM_EVENTS;i++) {
+      counts[i]=values[i+1];
+      if (!quiet) printf("\tCount %d: %lld\n",i,counts[i]);
+
+   }
+
    for(i=0;i<NUM_EVENTS;i++) {
       if (events[i].overflows==0) {
          if (!quiet) printf("No overflow events generated.\n");
@@ -269,12 +287,16 @@ int main(int argc, char** argv) {
 		event_values[i].name, event_values[i].period,
 		events[i].individual_overflow,events[i].overflows);
       
-
       if (events[i].individual_overflow!=events[i].overflows) {
       }
       else{
 	matches++;
       }
+   }
+
+   if (counts[0]!=counts[1]) {
+      if (!quiet) fprintf(stderr,"Counts should be the same\n");
+      test_fail(test_string);
    }
 
    if (matches==NUM_EVENTS) {
@@ -283,7 +305,6 @@ int main(int argc, char** argv) {
      test_fail(test_string);
    }
 
-   
    test_pass(test_string);
 
    (void)our_mmap;
