@@ -37,8 +37,9 @@ echo "* Checking overflow functionality"
 ./overflow/breakpoint_overflow
 ./overflow/simple_overflow_leader
 ./overflow/simple_overflow_sibling
-./overflow/simultaneous_group_overflow
 ./overflow/simultaneous_overflow
+./overflow/simultaneous_group_overflow
+./overflow/simul_oneshot_group_overflow
 ./overflow/single_shot_overflow
 ./overflow/single_shot_w_enable
 ./overflow/wakeup_events_overflow

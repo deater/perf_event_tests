@@ -1,8 +1,15 @@
-/* simultaneous_group_overflow.c              */
-/* by Vince Weaver   vincent.weaver@maine.edu */
+/* simul_oneshot_group_overflow.c              */
+/* by Vince Weaver   vincent.weaver@maine.edu  */
 
 /* Test to see if we can sample on two events at once */
-/* within the same group.                             */
+/* within the same group in oneshot fashion.          */
+
+/* the answer seems to be no, but it's complicated    */
+/* this test tries a PAPI-esque way of doing things   */
+/* in this case we disable the event in the handler   */
+/* but in the group case if it's the group leader     */
+/* everything gets disabled, but refresh only         */
+/* restarts the one event.                            */
 
 #define _GNU_SOURCE 1
 
@@ -55,7 +62,7 @@ static void our_handler(int signum,siginfo_t *info, void *uc) {
   int ret,i;
   int fd = info->si_fd;
    
-  //  ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+  ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
    
   for(i=0;i<NUM_EVENTS;i++) {
      if (events[i].fd==fd) {
@@ -67,7 +74,7 @@ static void our_handler(int signum,siginfo_t *info, void *uc) {
   if (i==NUM_EVENTS) printf("fd %d not found\n",fd);
    
   //printf("fd: %d overflowed\n",fd);
-  //ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
+  ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
 
   (void) ret;
    
@@ -83,7 +90,7 @@ int main(int argc, char** argv) {
 
    struct sigaction sa;
    void *our_mmap;
-   char test_string[]="Testing multiple event overflow within group...";
+   char test_string[]="Testing simultaneous one-shot group overflow...";
    
    for(i=0;i<NUM_EVENTS;i++) {
       events[i].fd=-1;
@@ -93,7 +100,7 @@ int main(int argc, char** argv) {
    quiet=test_quiet();
 
    /*********************************************************************/
-   if (!quiet) printf("This tests simultaneous overflow within group.\n");
+   if (!quiet) printf("This tests simultaneous overflow within group in one-shot mode.\n");
    /*********************************************************************/   
    
    /*****************************/
@@ -151,7 +158,7 @@ int main(int argc, char** argv) {
 	     event_values[i].period);
       }
    
-      ret=ioctl(events[i].fd, PERF_EVENT_IOC_ENABLE,0);
+      ret=ioctl(events[i].fd, PERF_EVENT_IOC_REFRESH,1);
 
       if (!quiet) printf("\t");
       naive_matrix_multiply(quiet);   
@@ -224,10 +231,10 @@ int main(int argc, char** argv) {
       ioctl(events[i].fd, PERF_EVENT_IOC_RESET, 0);   
    }
 
-   ret=ioctl(events[0].fd, PERF_EVENT_IOC_ENABLE,0);
+   ret=ioctl(events[0].fd, PERF_EVENT_IOC_REFRESH,1);
 
    if (ret<0) {
-     if (!quiet) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
+     if (!quiet) fprintf(stderr,"Error with PERF_EVENT_IOC_REFRESH of group leader: "
 	     "%d %s\n",errno,strerror(errno));
      test_fail(test_string);
    }
@@ -289,10 +296,13 @@ int main(int argc, char** argv) {
       }
    }
 
-   if (counts[0]!=counts[1]) {
-      if (!quiet) fprintf(stderr,"Counts should be the same\n");
-      test_fail(test_string);
-   }
+   /* Counts will be slightly different because they will count */
+   /* while signal handler running.                             */
+
+   //   if (counts[0]!=counts[1]) {
+   //   if (!quiet) fprintf(stderr,"Counts should be the same\n");
+   //   test_fail(test_string);
+   //}
 
    if (matches!=NUM_EVENTS) {
 

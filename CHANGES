@@ -1,3 +1,7 @@
+27 November 2012
++ Add simul_oneshot_group_overflow test
++ Release version 0.27
+
 26 November 2012
 + Add overflow_requires_wakeup test
 

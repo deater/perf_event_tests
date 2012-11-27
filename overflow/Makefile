@@ -8,6 +8,7 @@ all:	\
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
+	simul_oneshot_group_overflow \
 	simultaneous_overflow  \
 	single_shot_overflow \
 	single_shot_w_enable \
@@ -58,6 +59,21 @@ simultaneous_group_overflow.o:	simultaneous_group_overflow.c
 
 
 ###
+
+simul_oneshot_group_overflow:	simul_oneshot_group_overflow.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o simul_oneshot_group_overflow simul_oneshot_group_overflow.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+simul_oneshot_group_overflow.o:	simul_oneshot_group_overflow.c
+	$(CC) $(CFLAGS) -c simul_oneshot_group_overflow.c
+
+
+###
+
 
 
 simultaneous_overflow:	simultaneous_overflow.o ../lib/test_utils.o \
@@ -163,6 +179,7 @@ clean:
 	simple_overflow_leader \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
+	simul_oneshot_group_overflow \
 	simultaneous_overflow \
 	single_shot_overflow \
 	single_shot_w_enable \
