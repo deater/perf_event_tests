@@ -4,6 +4,7 @@ all:
 	cd corner_cases && make
 	cd crashes && make
 	cd generalized_events && make
+	cd overflow && make
 	cd record_sample && make
 	cd validation && make
 	cd validation_privileged && make
@@ -18,6 +19,7 @@ clean:
 	cd corner_cases && make clean
 	cd crashes && make clean
 	cd generalized_events && make clean
+	cd overflow && make clean
 	cd record_sample && make clean
 	cd validation && make clean
 	cd validation_privileged && make clean

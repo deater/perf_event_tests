@@ -28,21 +28,21 @@ echo "* Checking basic perf_event functionality"
 ./validation/format_id_support
 ./validation/non-existent
 ./validation/breakpoint_support
-./validation/breakpoint_overflow
 ./validation/inherit
 ./validation/inherit_stat
 ./validation/enable_on_exec
 
 echo
 echo "* Checking overflow functionality"
-./validation/simple_overflow_leader
-./validation/simple_overflow_sibling
-./validation/simultaneous_group_overflow
-./validation/simultaneous_overflow
-./validation/single_shot_overflow
-./validation/single_shot_w_enable
-./validation/wakeup_events_overflow
-./validation/overflow_requires_wakeup
+./overflow/breakpoint_overflow
+./overflow/simple_overflow_leader
+./overflow/simple_overflow_sibling
+./overflow/simultaneous_group_overflow
+./overflow/simultaneous_overflow
+./overflow/single_shot_overflow
+./overflow/single_shot_w_enable
+./overflow/wakeup_events_overflow
+./overflow/overflow_requires_wakeup
 
 
 echo
