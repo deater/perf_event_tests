@@ -299,10 +299,17 @@ int main(int argc, char** argv) {
    /* Counts will be slightly different because they will count */
    /* while signal handler running.                             */
 
-   //   if (counts[0]!=counts[1]) {
-   //   if (!quiet) fprintf(stderr,"Counts should be the same\n");
-   //   test_fail(test_string);
-   //}
+   double error;
+
+   error=(double)counts[0]/(double)counts[1];
+   error/=(double)counts[0];
+   error*=100.0;
+
+   if (error > 1.0) {
+      if (!quiet) fprintf(stderr,"Counts should be roughly the same "
+			  "but found %lf%% error\n",error);
+      test_fail(test_string);
+   }
 
    if (matches!=NUM_EVENTS) {
 
