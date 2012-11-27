@@ -29,6 +29,8 @@
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+#define MMAP_PAGES 8
+
 static struct signal_counts {
   int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
@@ -105,7 +107,7 @@ int main(int argc, char** argv) {
      test_fail(test_string);
    }
 
-   our_mmap=mmap(NULL, (1+8)*4096, 
+   our_mmap=mmap(NULL, (1+MMAP_PAGES)*getpagesize(), 
          PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 
    

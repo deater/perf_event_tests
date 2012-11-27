@@ -27,6 +27,7 @@ int fd;
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+#define MMAP_PAGES 8
 
 int test_function(int a, int b) {
 
@@ -115,7 +116,7 @@ int main(int argc, char **argv) {
       goto skip_execs;
    }
 
-   blargh=mmap(NULL, (1+1)*4096,
+   blargh=mmap(NULL, (1+MMAP_PAGES)*getpagesize(),
 	       PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
    fcntl(fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
