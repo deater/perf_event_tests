@@ -146,13 +146,13 @@ int main(int argc, char **argv) {
    }
 
    if (count!=EXECUTIONS) {
-      fprintf(stderr,"\tWrong number of executions "
+      if (!quiet) fprintf(stderr,"\tWrong number of executions "
 	      "%lld != %d\n",count,EXECUTIONS);
       fails++;
    }
 
    if (num_overflows!=EXECUTIONS/THRESHOLD) {
-      fprintf(stderr,"\tWrong number of overflows "
+      if (!quiet) fprintf(stderr,"\tWrong number of overflows "
 	      "%d != %d\n",num_overflows,EXECUTIONS/THRESHOLD);
       fails++;
    }

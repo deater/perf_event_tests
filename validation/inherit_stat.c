@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
    }
 
    if ((inherit_count < 6*count) || (inherit_count > 9*count)) {
-      fprintf(stderr,"\tInherit count unexpected.\n");
+      if (!quiet) fprintf(stderr,"\tInherit count unexpected.\n");
       test_fail(test_string);
    }
 
