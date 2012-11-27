@@ -35,6 +35,8 @@
 #include "perf_helpers.h"
 #include "matrix_multiply.h"
 
+#define MMAP_PAGES 8
+
 #define NUM_EVENTS 2
 
 struct {
@@ -60,7 +62,7 @@ static void our_handler(int signum,siginfo_t *info, void *uc) {
   int ret,i;
   int fd = info->si_fd;
    
-  ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+  //  ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
    
   for(i=0;i<NUM_EVENTS;i++) {
      if (events[i].fd==fd) {
@@ -72,7 +74,7 @@ static void our_handler(int signum,siginfo_t *info, void *uc) {
   if (i==NUM_EVENTS) printf("fd %d not found\n",fd);
    
   //printf("fd: %d overflowed\n",fd);
-  ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
+  //ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
 
   (void) ret;
    
@@ -109,7 +111,7 @@ int main(int argc, char** argv) {
    sa.sa_sigaction = our_handler;
    sa.sa_flags = SA_SIGINFO;
 
-   if (sigaction( SIGIO, &sa, NULL) < 0) {
+   if (sigaction( SIGRTMIN+2, &sa, NULL) < 0) {
      fprintf(stderr,"Error setting up signal handler\n");
      exit(1);
    }
@@ -140,11 +142,11 @@ int main(int argc, char** argv) {
       }
    
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+8)*4096, 
+      our_mmap=mmap(NULL, (1+MMAP_PAGES)*getpagesize(), 
          PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
-      fcntl(events[i].fd, F_SETSIG, SIGIO);
+      fcntl(events[i].fd, F_SETSIG, SIGRTMIN+2);
       fcntl(events[i].fd, F_SETOWN,getpid());
    
       ioctl(events[i].fd, PERF_EVENT_IOC_RESET, 0);   
@@ -219,11 +221,11 @@ int main(int argc, char** argv) {
       }
 
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+8)*4096, 
+      our_mmap=mmap(NULL, (1+MMAP_PAGES)*getpagesize(), 
            PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
-      fcntl(events[i].fd, F_SETSIG, SIGIO);
+      fcntl(events[i].fd, F_SETSIG, SIGRTMIN+2);
       fcntl(events[i].fd, F_SETOWN,getpid());
    
       ioctl(events[i].fd, PERF_EVENT_IOC_RESET, 0);   
@@ -283,11 +285,11 @@ int main(int argc, char** argv) {
    /* test validity */
    for(i=0;i<NUM_EVENTS;i++) {
 
-      if (!quiet) fprintf(stderr,"Event %s/%d Expected %d Got %d\n",
+      if (!quiet) fprintf(stderr,"Event %s/%d Expected %lld Got %d\n",
 		event_values[i].name, event_values[i].period,
-		events[i].individual_overflow,events[i].overflows);
+		counts[i]/event_values[i].period,events[i].overflows);
       
-      if (events[i].individual_overflow!=events[i].overflows) {
+      if (counts[i]/event_values[i].period!=events[i].overflows) {
       }
       else{
 	matches++;
@@ -299,9 +301,9 @@ int main(int argc, char** argv) {
       test_fail(test_string);
    }
 
-   if (matches==NUM_EVENTS) {
+   if (matches!=NUM_EVENTS) {
 
-     fprintf(stderr,"Test unexpectedly worked!\n");
+     if (!quiet) fprintf(stderr,"Unexpected event count!\n");
      test_fail(test_string);
    }
 
