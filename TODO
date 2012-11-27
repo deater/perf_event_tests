@@ -1,3 +1,7 @@
++ single-shot RT counts
+
++ the bug with overflow even after event closed
+
 
 PERF_FLAG_FD_OUTPUT
 PERF_FLAG_FD_NO_GROUP
