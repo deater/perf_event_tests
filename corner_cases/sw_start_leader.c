@@ -7,8 +7,9 @@
 /* Andreas Hollmann reported this as a problem on the           */
 /*    linux-perf-users list                                     */
 
-/* Bug exists through at least Linux 3.7 */
-
+/* Bug not present through at least 2.6.36 */
+/* Bug exists in 2.6.38 through at least Linux 3.7 */
+/* Need to do a proper git bisect          */
 
 #define _GNU_SOURCE 1
 
