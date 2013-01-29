@@ -61,6 +61,10 @@ echo "* Checking bugs that PAPI has to work around"
 ./bugs/check_multiplexing
 
 echo
+echo "* Checking other bugs"
+./corner_cases/sw_start_leader
+
+echo
 echo "* Checking bugs that can silently produce wrong results"
 ./validation/check_constraints
 ./corner_cases/context_switch_user_kernel

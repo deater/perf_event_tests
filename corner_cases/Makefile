@@ -12,6 +12,7 @@ all:	\
 	reset_leader \
 	sampled_notleader_refresh \
 	signal_after_exec \
+	sw_start_leader \
 	wrong_size_enospc \
 
 
@@ -136,6 +137,21 @@ signal_after_exec:	signal_after_exec.o \
 signal_after_exec.o:	signal_after_exec.c
 	$(CC) $(CFLAGS) -c signal_after_exec.c
 
+###
+
+sw_start_leader:	sw_start_leader.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sw_start_leader sw_start_leader.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+
+sw_start_leader.o:	sw_start_leader.c
+	$(CC) $(CFLAGS) -c sw_start_leader.c
+
+
 
 ###
 
@@ -179,5 +195,6 @@ clean:
 	overflow_requires_mmap \
 	reset_leader \
 	sampled_notleader_refresh \
+	sw_start_leader \
 	signal_after_exec \
 	wrong_size_enospc

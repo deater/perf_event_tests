@@ -1,3 +1,6 @@
+29 January 2012
++ Add sw_start_leader test
+
 27 November 2012
 + Add simul_oneshot_group_overflow test
 + Release version 0.27
