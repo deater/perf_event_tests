@@ -9,7 +9,10 @@
 
 /* Bug not present through at least 2.6.36 */
 /* Bug exists in 2.6.38 through at least Linux 3.7 */
-/* Need to do a proper git bisect          */
+
+/* Jiri Olsa reports it was introduced in 2.6.37         */
+/* With commit b04243ef7006cda301819f54ee7ce0a3632489e3  */
+/* A patch has been sent which hopefully will get in 3.8 */
 
 #define _GNU_SOURCE 1
 
@@ -48,7 +51,7 @@ int main(int argc, char** argv) {
    quiet=test_quiet();
 
    if (!quiet) {
-      printf("Testing if starting a group works in the group leader "
+      printf("Testing if starting a group works if the group leader "
 	     "is a software event.\n");
    }
 
@@ -131,7 +134,7 @@ int main(int argc, char** argv) {
 
    for(i=0;i<EVENTS;i++) {
       if (count[i]==0) {
-         fprintf(stderr,"Counter %d did not start as expected\n",i);
+         if (!quiet) fprintf(stderr,"Counter %d did not start as expected\n",i);
          test_fail(test_string);
       }   
    }
@@ -224,7 +227,7 @@ int main(int argc, char** argv) {
 
    for(i=0;i<EVENTS;i++) {
       if (count[i]==0) {
-         fprintf(stderr,"Counter %d did not start as expected\n",i);
+         if (!quiet) fprintf(stderr,"Counter %d did not start as expected\n",i);
          test_fail(test_string);
       }   
    }
