@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
    if (!quiet) {
       printf("Testing if starting a group works if the group leader "
 	     "is a software event.\n");
+      printf("This is known to be broken from 2.6.37 through 3.8\n");
    }
 
    
