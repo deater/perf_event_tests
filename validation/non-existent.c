@@ -5,7 +5,7 @@
 /*   are implicitly set to 0 and sometimes set to -1.            */
 /*   This test makes sure both fail properly.                    */
 
-/* by Vince Weaver, vweaver1 _at_ eecs.utk.edu        */
+/* by Vince Weaver, vincent.weaver _at_ maine.edu                */
 
 
 char test_string[]="Testing if non-existent events fail...";
@@ -17,6 +17,7 @@ int fd;
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "test_utils.h"
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
        ( cpu==PROCESSOR_CORTEX_A9)) {
 
      /* ARM does things a bit differently; it has HW_OP_UNSUPPORTED, */
-     /* and CACHE_OP_UNSUPPORTED, bot set to 0xffff                  */
+     /* and CACHE_OP_UNSUPPORTED, both set to 0xffff                 */
 
      /* HW_OP_UNSUPPORTED */
      zero_type=PERF_TYPE_HARDWARE;
@@ -70,6 +71,7 @@ int main(int argc, char **argv) {
    }
 
    else if (( cpu==PROCESSOR_SANDYBRIDGE) ||
+       ( cpu==PROCESSOR_IVYBRIDGE) ||
        ( cpu==PROCESSOR_WESTMERE) ||
        ( cpu==PROCESSOR_WESTMERE_EX) ||
        ( cpu==PROCESSOR_NEHALEM) ||
@@ -108,10 +110,12 @@ int main(int argc, char **argv) {
      test_skip(test_string);
    }
 
-   
+
+   /* FIXME should be ENOENT */   
    if (!quiet) {
       printf("This test checks if non-existent events fail\n\n");
       printf("First testing non-existent (set to 0) events\n");
+      printf("Should return ENOENT\n");
    }
 
    memset(&pe,0,sizeof(struct perf_event_attr));
@@ -124,7 +128,8 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     if (!quiet) printf("\tCorrectly failed!\n");
+     if (!quiet) printf("\tCorrectly failed with error %d %d %s!\n",
+			fd,errno,strerror(errno));
      fails++;
    }
    else {
@@ -135,8 +140,10 @@ int main(int argc, char **argv) {
 
    close(fd);
 
+   /* FIXME: should be EINVAL */
    if (!quiet) {
       printf("\nNow testing non-existent (set to -1) events\n");
+      printf("Should return EINVAL\n");
    }
 
    memset(&pe,0,sizeof(struct perf_event_attr));
@@ -150,7 +157,8 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     if (!quiet) printf("\tCorrectly failed!\n");
+     if (!quiet) printf("\tCorrectly failed with error %d %d %s!\n",
+			fd,errno,strerror(errno));
      fails++;
    }
    else {
