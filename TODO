@@ -1,3 +1,9 @@
++ Add test for ring-buffer size of 0 or 1
+  (possibly causes kernel bug?)
+  
++ Add test for IVB constraints
+
+
 + Wakeup events not equal to 1
 
 + single-shot RT counts
