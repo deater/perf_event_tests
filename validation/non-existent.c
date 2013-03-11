@@ -29,9 +29,10 @@ int fd;
 int main(int argc, char **argv) {
 
    struct perf_event_attr pe;
-   int fails=0,expected_fails=0,cpu;
+   int correct_fails=0,expected_fails=0,cpu;
    int zero_event=0,negone_event=0;
    int zero_type=0,negone_type=0;
+   char zero_name[BUFSIZ],negone_name[BUFSIZ];
 
    quiet=test_quiet();
 
@@ -61,13 +62,15 @@ int main(int argc, char **argv) {
      /* HW_OP_UNSUPPORTED */
      zero_type=PERF_TYPE_HARDWARE;
      zero_event=PERF_COUNT_HW_BUS_CYCLES;
-
+     strncpy(zero_name,"bus-cycles",BUFSIZ);
+      
      /* CACHE_OP_UNSUPPORTED */
      negone_type=PERF_TYPE_HW_CACHE;
      negone_event= PERF_COUNT_HW_CACHE_BPU |
                    ( PERF_COUNT_HW_CACHE_OP_PREFETCH <<8) |
                    (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
-
+     strncpy(negone_name,"branch-prefetches",BUFSIZ);
+      
    }
 
    else if (( cpu==PROCESSOR_SANDYBRIDGE) ||
@@ -83,11 +86,13 @@ int main(int argc, char **argv) {
       zero_event= PERF_COUNT_HW_CACHE_DTLB |
                    ( PERF_COUNT_HW_CACHE_OP_PREFETCH <<8) |
                    (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
-
+      strncpy(zero_name,"dTLB-prefetches",BUFSIZ);
+      
       negone_type=PERF_TYPE_HW_CACHE;
       negone_event= PERF_COUNT_HW_CACHE_BPU |
                    ( PERF_COUNT_HW_CACHE_OP_PREFETCH <<8) |
                    (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
+      strncpy(negone_name,"branch-prefetches",BUFSIZ);
    }
    
    else if ( (cpu==PROCESSOR_K7) ||
@@ -99,22 +104,23 @@ int main(int argc, char **argv) {
      /* event implicitly set to 0 */ 
      zero_type=PERF_TYPE_HARDWARE;
      zero_event=PERF_COUNT_HW_BUS_CYCLES;
-
+     strncpy(zero_name,"bus-cycles",BUFSIZ);
+      
      /* event set to -1 in linux-2.6/arch/x86/kernel/cpu/perf_event_amd.h */
      negone_type=PERF_TYPE_HW_CACHE;
      negone_event= PERF_COUNT_HW_CACHE_BPU |
                    ( PERF_COUNT_HW_CACHE_OP_PREFETCH <<8) |
                    (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
+     strncpy(negone_name,"branch-prefetches",BUFSIZ);
    }
    else {
      test_skip(test_string);
    }
 
-
-   /* FIXME should be ENOENT */   
    if (!quiet) {
       printf("This test checks if non-existent events fail\n\n");
-      printf("First testing non-existent (set to 0) events\n");
+      printf("First testing non-existent (set to 0) event: ");
+      printf("%s\n",zero_name);
       printf("Should return ENOENT\n");
    }
 
@@ -128,9 +134,17 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     if (!quiet) printf("\tCorrectly failed with error %d %d %s!\n",
-			fd,errno,strerror(errno));
-     fails++;
+      if (errno==ENOENT) {
+         if (!quiet) {
+	    printf("\tCorrectly failed with fd=%d error %d == %d %s!\n",
+			fd,ENOENT,errno,strerror(errno));
+	    correct_fails++;
+
+	}
+     } else {
+	printf("\tFailed with wrong error fd=%d error %d != %d %s!\n",
+			fd,errno,ENOENT,strerror(errno));
+     }
    }
    else {
      if (!quiet) printf("\tERROR: we succeded!\n");
@@ -140,9 +154,9 @@ int main(int argc, char **argv) {
 
    close(fd);
 
-   /* FIXME: should be EINVAL */
    if (!quiet) {
-      printf("\nNow testing non-existent (set to -1) events\n");
+      printf("\nNow testing non-existent (set to -1) event: ");
+      printf("%s\n",negone_name);
       printf("Should return EINVAL\n");
    }
 
@@ -157,9 +171,17 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     if (!quiet) printf("\tCorrectly failed with error %d %d %s!\n",
-			fd,errno,strerror(errno));
-     fails++;
+      if (errno==EINVAL) {
+         if (!quiet) {
+	    printf("\tCorrectly failed with fd=%d error %d == %d %s!\n",
+			fd,errno,EINVAL,strerror(errno));
+	 }
+         correct_fails++;
+      }
+      else {
+	 printf("\tFailed with wrong error fd=%d error %d != %d %s!\n",
+			fd,errno,EINVAL,strerror(errno));
+      }
    }
    else {
      if (!quiet) printf("\tERROR: we succeded!\n");
@@ -171,7 +193,7 @@ int main(int argc, char **argv) {
 
    if (!quiet) printf("\n");
 
-   if (fails!=expected_fails) {
+   if (correct_fails!=expected_fails) {
       if (!quiet) printf("Not enough failures!\n");
       test_fail(test_string);
    }
