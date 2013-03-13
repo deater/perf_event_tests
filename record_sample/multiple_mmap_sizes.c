@@ -3,8 +3,9 @@
 
 /* Try to overflow a variety of mmap sizes */
 
-/* There's been discussion of a possible kernel bug in the */
-/* pages=1 case?                                           */
+/* There's been discussion of a possible kernel bug in the           */
+/* pages=1 case causing memory corruption if CONFIG_PERF_USE_VMALLOC */
+/* see lkml perf: Fix vmalloc ring buffer free function              */
 
 #define _GNU_SOURCE 1
 
