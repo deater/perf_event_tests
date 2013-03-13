@@ -5,6 +5,7 @@ LFLAGS =
 all:	\
 	check_reset_mpx \
 	context_switch_user_kernel \
+	hw_sw_mix \
 	ioctl_refresh_0 \
 	max_multiplex \
 	multiple_active \
@@ -139,6 +140,21 @@ signal_after_exec.o:	signal_after_exec.c
 
 ###
 
+hw_sw_mix:	hw_sw_mix.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o hw_sw_mix hw_sw_mix.o \
+				../lib/perf_helpers.o \
+				../lib/test_utils.o \
+				../lib/instructions_testcode.o
+
+hw_sw_mix.o:	hw_sw_mix.c
+	$(CC) $(CFLAGS) -c hw_sw_mix.c
+
+
+###
+
 sw_start_leader:	sw_start_leader.o \
 				../lib/perf_helpers.o \
 				../lib/test_utils.o \
@@ -189,6 +205,7 @@ clean:
 	rm -f *~ *.o \
 	check_reset_mpx \
 	context_switch_user_kernel \
+	hw_sw_mix \
 	ioctl_refresh_0 \
 	max_multiplex \
 	multiple_active \

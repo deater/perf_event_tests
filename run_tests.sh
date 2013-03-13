@@ -63,6 +63,7 @@ echo "* Checking bugs that PAPI has to work around"
 echo
 echo "* Checking other bugs"
 ./corner_cases/sw_start_leader
+./corner_cases/hw_sw_mix
 
 echo
 echo "* Checking bugs that can silently produce wrong results"
