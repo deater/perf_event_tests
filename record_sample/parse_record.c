@@ -104,8 +104,9 @@ static int handle_struct_read_format(unsigned char *sample,
   return offset;
 }
 
-long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
-		    int sample_type, int read_format, 
+long long perf_mmap_read( void *our_mmap, int mmap_size,
+                    long long prev_head,
+		    int sample_type, int read_format,
 		    struct validate_values *validate,
 		    int quiet ) {
 
@@ -118,18 +119,20 @@ long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
 
    void *data_mmap=our_mmap+getpagesize();
 
+   if (mmap_size==0) return 0;
+
    if (control_page==NULL) {
       fprintf(stderr,"ERROR mmap page NULL\n");
       return -1;
    }
-   
+
    head=control_page->data_head;
    rmb(); /* Must always follow read of data_head */
 
    size=head-prev_head;
 
    //printf("Head: %lld Prev_head=%lld\n",head,prev_head);
-   //printf("%d new bytes\n",size);   
+   //printf("%d new bytes\n",size);
 
    bytesize=mmap_size*getpagesize();
 

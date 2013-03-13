@@ -4,6 +4,7 @@ LFLAGS =
 
 all:	\
 	lost_record_sample \
+	multiple_mmap_sizes \
 	print_record_sample \
 	validate_record_sample
 
@@ -46,6 +47,24 @@ lost_record_sample:	lost_record_sample.o \
 lost_record_sample.o:	lost_record_sample.c
 	$(CC) $(CFLAGS) -c lost_record_sample.c
 
+
+###
+
+multiple_mmap_sizes:	multiple_mmap_sizes.o \
+					parse_record.o \
+					../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o multiple_mmap_sizes \
+				multiple_mmap_sizes.o \
+				parse_record.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+multiple_mmap_sizes.o:	multiple_mmap_sizes.c
+	$(CC) $(CFLAGS) -c multiple_mmap_sizes.c
+
 ###
 
 print_record_sample:	print_record_sample.o \
@@ -86,6 +105,7 @@ validate_record_sample.o:	validate_record_sample.c
 clean:	
 	rm -f *~ *.o \
 	lost_record_sample \
+	multiple_mmap_sizes \
 	print_record_sample \
 	validate_record_sample
 
