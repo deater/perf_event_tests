@@ -17,3 +17,5 @@ sleep 5
 ./crashes/pe_task_schedule_panic
 ./crashes/pe_inherit_memleak
 ./crashes/oflo_sw_cpu_clock_crash
+./crashes/sw_event_config_overflow
+

@@ -45,6 +45,12 @@ Included tests
   It was fixed in 3.1, a8b0ca17b80e92faab46ee7179ba9e99ccb61233
   and is gradually making its way into the stable trees.
 
++ sw_event_config_overflow
+
+  Panic caused by setting attr.config too high on software events,
+  and it wasn't caught due to a 32/64-bit check?
+
+
 #############################################################
 
 
