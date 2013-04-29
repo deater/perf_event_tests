@@ -10,7 +10,7 @@
 
 /* Patch that fixes is:                                                */
 /* [PATCH] perf: treat attr.config as u64 in perf_swevent_init()       */
-/* vulnerable through at least 3.8.7                                   */
+/* vulnerable through 3.9                                              */
 
 
 #include <stdio.h>
