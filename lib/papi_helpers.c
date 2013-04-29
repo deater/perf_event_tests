@@ -87,12 +87,17 @@ int detect_processor(void) {
 	  case 44:
 	    return PROCESSOR_WESTMERE;
 	  case 42:
-	  case 45:
 	    return PROCESSOR_SANDYBRIDGE;
+	  case 45:
+	    return PROCESSOR_SANDYBRIDGE_EP;
 	  case 46:
 	    return PROCESSOR_NEHALEM_EX;
-	    
+	  case 58:
+            return PROCESSOR_IVYBRIDGE;
 	 }
+      }
+      if (hwinfo->cpuid_family==11) {
+	 return PROCESSOR_KNIGHTSCORNER;
       }
       if (hwinfo->cpuid_family==15) {
 	 return PROCESSOR_PENTIUM_4;

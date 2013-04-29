@@ -151,8 +151,9 @@ int detect_processor(void) {
 	  case 44:
 	    return PROCESSOR_WESTMERE;
 	  case 42:
-	  case 45:
 	    return PROCESSOR_SANDYBRIDGE;
+	  case 45:
+	    return PROCESSOR_SANDYBRIDGE_EP;
 	  case 46:
 	    return PROCESSOR_NEHALEM_EX;
 	  case 58:
