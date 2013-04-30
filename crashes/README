@@ -72,3 +72,15 @@ issues but I was unable to reproduce a crash.
   I have not been able to cause one with a 3.8 kernel.
 
   Fixed in f1923820c447e986a9da0fc6bf60c1dccdf0408e
+
+
+################################################
+
+Panics I have no test for
+
++ perf,x86: fix kernel crash with PEBS/BTS after suspend/resume
+  
+  Fixed in 1d9d8639c063caf6efc2447f5f26aa637f844ff6
+
+  The test involves suspending/resuming while perf is being used,
+  and there's not a good way to automate such a test.
