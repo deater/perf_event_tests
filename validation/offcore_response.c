@@ -50,6 +50,20 @@ int main(int argc, char **argv) {
       events[0]=0x5301b7;
       events[1]=0x10001;                  
    }
+   else if (cpu==PROCESSOR_SANDYBRIDGE_EP) {
+      if (!quiet) printf("Found Sandybridge EP!\n");      
+      /* try OFFCORE_RESPONSE_0:DMND_DATA_RD:ANY_RESPONSE */
+      /* libpfm4 reports 0x5301b7 0x10001 */
+      events[0]=0x5301b7;
+      events[1]=0x10001;                  
+   }
+   else if (cpu==PROCESSOR_IVYBRIDGE) {
+      if (!quiet) printf("Found IvyBridge!\n");      
+      /* try OFFCORE_RESPONSE_0:DMND_DATA_RD:ANY_RESPONSE */
+      /* libpfm4 reports 0x5301b7 0x10001 */
+      events[0]=0x5301b7;
+      events[1]=0x10001;                  
+   }
    else if (cpu==PROCESSOR_NEHALEM_EX) {
       if (!quiet) printf("Found Nehalem EX!\n");            
       /* try OFFCORE_RESPONSE_0:DMND_DATA_RD:LOCAL_DRAM */
