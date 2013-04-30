@@ -90,9 +90,6 @@ int main(int argc, char **argv) {
    // OFFCORE_RESPONSE_0:DMND_DATA_RD:LOCAL_DRAM"
    // as well as PAPI_TOT_INS;
 
-   events[0]=0x5301b7;
-   events[1]=0x4001;
-
    memset(&pe,0,sizeof(struct perf_event_attr));
    pe.type=PERF_TYPE_HARDWARE;
    pe.size=sizeof(struct perf_event_attr);
@@ -117,7 +114,8 @@ int main(int argc, char **argv) {
 
    fd2=perf_event_open(&pe,0,-1,fd1,0);
    if (fd2<0) {
-      fprintf(stderr,"Error opening %llx\n",pe.config);
+     fprintf(stderr,"Error opening %llx %llx %s\n",
+             pe.config,pe.config1,strerror(errno));
       test_fail(test_string);
    }
    
@@ -182,9 +180,10 @@ int main(int argc, char **argv) {
 
    fd1=perf_event_open(&pe,0,-1,-1,0);
    if (fd1<0) {
-     if (!quiet) fprintf(stderr,"Expected error opening %llx %s\n",
-	      pe.config,strerror(errno));
+     if (!quiet) fprintf(stderr,"Expected error opening %llx %llx %s\n",
+			 pe.config,pe.config1,strerror(errno));
       test_pass(test_string);
+      exit(0);
    }
    
    if (!quiet) {
