@@ -138,9 +138,8 @@ int main(int argc, char **argv) {
          if (!quiet) {
 	    printf("\tCorrectly failed with fd=%d error %d == %d %s!\n",
 			fd,ENOENT,errno,strerror(errno));
-	    correct_fails++;
-
-	}
+         }
+	 correct_fails++;
      } else {
 	printf("\tFailed with wrong error fd=%d error %d != %d %s!\n",
 			fd,errno,ENOENT,strerror(errno));
