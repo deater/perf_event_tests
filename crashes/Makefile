@@ -7,6 +7,7 @@ PAPI_INCLUDE = -I/usr/local/include
 PAPI_LIB = /usr/local/lib/libpapi.a
 
 all:	pe_inherit_memleak pe_task_schedule_panic \
+	offcore_response_mask \
 	oflo_sw_cpu_clock_crash sw_event_config_overflow
 
 ####
@@ -34,6 +35,17 @@ pe_task_schedule_panic.o:	pe_task_schedule_panic.c
 
 ####
 
+offcore_response_mask:	offcore_response_mask.o ../lib/perf_helpers.o ../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o offcore_response_mask offcore_response_mask.o ../lib/perf_helpers.o ../lib/matrix_multiply.o
+
+
+
+offcore_response_mask.o:	offcore_response_mask.c
+	$(CC) $(CFLAGS) -c offcore_response_mask.c
+
+
+####
+
 oflo_sw_cpu_clock_crash:	oflo_sw_cpu_clock_crash.o ../lib/perf_helpers.o
 	$(CC) $(LFLAGS) -o oflo_sw_cpu_clock_crash oflo_sw_cpu_clock_crash.o ../lib/perf_helpers.o
 
@@ -53,6 +65,7 @@ sw_event_config_overflow.o:	sw_event_config_overflow.c
 
 clean:	
 	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic \
+		offcore_response_mask \
 		oflo_sw_cpu_clock_crash sw_event_config_overflow
 
 

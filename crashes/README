@@ -49,8 +49,25 @@ Included tests
 
   Panic caused by setting attr.config too high on software events,
   and it wasn't caught due to a 32/64-bit check?
+ 
+  Introduced in commit b0a873ebb ("perf: Register PMU implementations").
+ 
+  Patch that fixes is:                                                
+  [PATCH] perf: treat attr.config as u64 in perf_swevent_init()       
+  vulnerable through 3.9                                              
+
+  Fixed in 8176cced706b5e5d15887584150764894e94e02f
 
 
 #############################################################
 
+
+Potential tests.  These were reported to the kernel list as causing
+issues but I was unable to reproduce a crash.
+
++ offcore_response_mask
+
+  Prior to Linux 3.9 the offcore response registers were not properly
+  masked on SNB and IVB.  This could potentially cause a GPF but
+  I have not been able to cause one with a 3.8 kernel.
 
