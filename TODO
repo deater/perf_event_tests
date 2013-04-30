@@ -1,3 +1,7 @@
++ Add test for Fixed Counter 2 (retired instructions) being different.
+  Basically run 5 instructions events, compare results
+  
+
 + Add test for ring-buffer size of 0 or 1
   (possibly causes kernel bug?)
   
