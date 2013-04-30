@@ -71,3 +71,4 @@ issues but I was unable to reproduce a crash.
   masked on SNB and IVB.  This could potentially cause a GPF but
   I have not been able to cause one with a 3.8 kernel.
 
+  Fixed in f1923820c447e986a9da0fc6bf60c1dccdf0408e
