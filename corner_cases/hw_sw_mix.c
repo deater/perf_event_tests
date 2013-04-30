@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
    struct perf_event_attr pe[EVENTS];
 
-   char test_string[]="Testing mixes of HW an SW events...";
+   char test_string[]="Testing mixes of HW and SW events...";
 
    quiet=test_quiet();
 
