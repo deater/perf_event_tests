@@ -1,3 +1,6 @@
+30 April 2013
++ Added new offcore_response_mask test
++ Added crash test case for sw event overflow
 
 13 March 2013
 + Add multiple_mmap_sizes test

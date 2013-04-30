@@ -18,6 +18,7 @@ echo "* Checking generalized events"
 echo
 echo "* Checking offcore response events"
 ./validation/offcore_response
+./validation/offcore_response_mask
 
 echo
 echo "* Checking events that require special permissions"

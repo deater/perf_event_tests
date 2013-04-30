@@ -12,6 +12,7 @@ all:	\
 	inherit_stat \
 	non-existent \
 	offcore_response \
+	offcore_response_mask \
 	rdpmc_support \
 	rdpmc_validation 
 
@@ -44,6 +45,21 @@ offcore_response:	offcore_response.o ../lib/test_utils.o \
 
 offcore_response.o:	offcore_response.c
 	$(CC) $(CFLAGS) -c offcore_response.c
+
+
+
+###
+
+offcore_response_mask:	offcore_response_mask.o ../lib/test_utils.o \
+			../lib/matrix_multiply.o \
+			../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o offcore_response_mask offcore_response_mask.o \
+			../lib/test_utils.o \
+			../lib/matrix_multiply.o \
+			../lib/perf_helpers.o
+
+offcore_response_mask.o:	offcore_response_mask.c
+	$(CC) $(CFLAGS) -c offcore_response_mask.c
 
 
 ###
@@ -188,5 +204,6 @@ clean:
 	inherit_stat \
 	non-existent \
 	offcore_response \
+	offcore_response_mask \
 	rdpmc_support \
 	rdpmc_validation 
