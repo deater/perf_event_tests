@@ -37,6 +37,8 @@
 
 int mmap_data_size;
 
+int quiet=0;
+
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
                   PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
                   PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
@@ -72,7 +74,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
   if (num_oflos%100==0) {
      prev_head=perf_mmap_read(our_mmap,mmap_data_size,prev_head,
-		   sample_type,read_format,NULL,0);
+		   sample_type,read_format,NULL,quiet);
   }
   num_oflos++;
 
@@ -97,7 +99,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
 int main(int argc, char** argv) {
 
-   int ret,quiet;
+   int ret;
    int mmap_pages;
 
    struct perf_event_attr pe;
