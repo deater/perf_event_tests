@@ -113,8 +113,14 @@ int main(int argc, char **argv) {
 
    fd1=perf_event_open(&pe,-1,0,-1,0);
    if (fd1<0) {
-     fprintf(stderr,"Error opening leader %llx, %d : %s\n",
+     if (!quiet) fprintf(stderr,"Error opening leader %llx, %d : %s\n",
 	     pe.config,errno,strerror(errno));
+      if (errno==EACCES) {
+	 if (!quiet) {
+            fprintf(stderr,"Test skipped due to lack of permissions\n");
+	 }
+	 test_skip(test_string);
+      }
       test_fail(test_string);
    }
       
