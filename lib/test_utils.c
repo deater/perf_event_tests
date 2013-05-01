@@ -38,6 +38,7 @@ void test_needtest(char *string) {
   else {
     fprintf( stdout, "%-*s NEED TESTCASE\n", 60, string);
   }
+  exit(1);
 }
 
 void test_caution(char *string) {

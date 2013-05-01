@@ -72,12 +72,23 @@ int main(int argc, char **argv) {
       if (!quiet) printf("Found Sandybridge!\n");      
       test_needtest(test_string);
    } 
+   else if (cpu==PROCESSOR_SANDYBRIDGE_EP) {
+      if (!quiet) printf("Found Sandybridge EP!\n");      
+      test_needtest(test_string);
+   } 
+   else if (cpu==PROCESSOR_IVYBRIDGE) {
+      if (!quiet) printf("Found Sandybridge!\n");      
+      events[0]=0x530148; /* L1D_PEND_MISS:PENDING counter 2 only */
+      events[1]=0x85308a3; /* CYCLE_ACTIVITY:CYCLES_L1D_PENDING counter 2 only */
+      events[2]=0xc530ca3; /* CYCLE_ACTIVITY:STALLS_L1D_PENDING counter 2 only */
+      num_events=3; 
+   } 
    else if (cpu==PROCESSOR_AMD_FAM15H) {
       if (!quiet) printf("Found AMD Family 15h\n");
       test_needtest(test_string);
    }
    else {
-     if (!quiet) printf("No known offcore response hardware\n");
+     if (!quiet) printf("No known event constraints on this architecture\n");
      test_skip(test_string);
    }
 
