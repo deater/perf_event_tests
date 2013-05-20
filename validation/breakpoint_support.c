@@ -15,6 +15,7 @@ int fd;
 #include <string.h>
 #include <sys/ioctl.h>
 #include <time.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "hw_breakpoint.h"
@@ -77,7 +78,8 @@ int main(int argc, char **argv) {
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
       if (!quiet) {
-         printf("\t\tError opening leader %llx\n",pe.config);
+	printf("\t\tError opening leader %llx %s\n",pe.config,
+	       strerror(errno));
       }
       goto skip_execs;
    }
@@ -136,7 +138,8 @@ skip_execs:
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
      if (!quiet) {
-        printf("\t\tError opening leader %llx\n",pe.config);
+        printf("\t\tError opening leader %llx %s\n",
+	       pe.config,strerror(errno));
      }
      goto skip_writes;
    }
@@ -195,7 +198,8 @@ skip_writes:
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
      if (!quiet) {
-        printf("\t\tError opening leader %llx\n",pe.config);
+        printf("\t\tError opening leader %llx %s\n",
+	       pe.config,strerror(errno));
         printf("\t\tRead breakpoints probably not supported, skipping\n");
      }
      goto skip_reads;
