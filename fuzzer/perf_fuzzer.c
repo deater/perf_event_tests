@@ -166,7 +166,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 }
 
-
+#if 0
 static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
@@ -190,7 +190,7 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 	(void) ret;
 
 }
-
+#endif
 
 static int rand_refresh(void) {
 
@@ -253,6 +253,18 @@ static void open_random_event(void) {
 			event_data[i].group_fd,
 			event_data[i].flags);
 #endif
+
+		/* Randomly make part of a group */
+		if (rand()%4==2) {
+			int j;
+			j=find_random_active_event();
+			/* is it a master? */
+			if (event_data[j].group_fd==-1) {
+				event_data[i].group_fd=event_data[j].group_fd;
+			}
+
+		}
+
 		fd=perf_event_open(&event_data[i].attr,
 			event_data[i].pid,
 			event_data[i].cpu,
@@ -268,6 +280,10 @@ static void open_random_event(void) {
 	printf("Opening fd=%d Active=%d\n",fd,active_events);
 	event_data[i].fd=fd;
 	event_data[i].active=1;
+
+	if (event_data[i].group_fd!=-1) {
+		event_data[event_data[i].group_fd].number_in_group++;
+	}
 
 	/* Setup mmap buffer */
 
@@ -560,8 +576,8 @@ int main(int argc, char **argv) {
 				break;
 			case 6: access_random_file();
 				break;
-			case 7: fork_random_event();
-				break;
+//			case 7: fork_random_event();
+//				break;
 			default:
 				run_a_million_instructions();
 				break;
