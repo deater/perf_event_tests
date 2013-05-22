@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall
+CFLAGS = -O2 -Wall -g
 LFLAGS = 
 
 all:	perf_fuzzer
