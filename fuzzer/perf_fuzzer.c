@@ -260,7 +260,7 @@ static void open_random_event(void) {
 			j=find_random_active_event();
 			/* is it a master? */
 			if (event_data[j].group_fd==-1) {
-				event_data[i].group_fd=event_data[j].group_fd;
+				event_data[i].group_fd=event_data[j].fd;
 			}
 
 		}
@@ -283,6 +283,8 @@ static void open_random_event(void) {
 
 	if (event_data[i].group_fd!=-1) {
 		event_data[event_data[i].group_fd].number_in_group++;
+		printf("ADDING %d to GROUP %d\n",fd,
+			event_data[i].group_fd);
 	}
 
 	/* Setup mmap buffer */
