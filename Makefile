@@ -8,6 +8,7 @@ all:
 	cd record_sample && make
 	cd validation && make
 	cd validation_privileged && make
+	cd fuzzer && make
 
 papi:
 	cd papi && make
@@ -25,3 +26,4 @@ clean:
 	cd validation_privileged && make clean
 	cd papi && make clean
 	cd include && make clean
+	cd fuzzer && make clean
