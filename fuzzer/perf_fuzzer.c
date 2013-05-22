@@ -488,7 +488,27 @@ static void run_a_million_instructions(void) {
 }
 
 
+static int already_forked=0;
+static pid_t forked_pid;
 
+static void fork_random_event(void) {
+
+	if (already_forked) {
+		printf("FORK: KILLING pid %d\n",forked_pid);
+		kill(forked_pid,SIGKILL);
+		already_forked=0;
+	}
+	else {
+		printf("FORKING\n");
+		forked_pid=fork();
+
+		/* we're the child */
+		if (forked_pid==0) {
+			while(1) instructions_million();
+		}
+		already_forked=1;
+	}
+}
 
 
 int main(int argc, char **argv) {
@@ -508,7 +528,7 @@ int main(int argc, char **argv) {
 
 	/* Set up SIGIO handler */
 	memset(&sigio, 0, sizeof(struct sigaction));
-	sigio.sa_sigaction = sigio_handler;
+	sigio.sa_sigaction = SIG_IGN; //sigio_handler;
 	sigio.sa_flags = SA_SIGINFO;
 
 	if (sigaction( SIGIO, &sigio, NULL) < 0) {
@@ -540,10 +560,8 @@ int main(int argc, char **argv) {
 				break;
 			case 6: access_random_file();
 				break;
-#if 0
 			case 7: fork_random_event();
 				break;
-#endif
 			default:
 				run_a_million_instructions();
 				break;
