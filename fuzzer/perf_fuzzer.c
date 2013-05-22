@@ -350,10 +350,16 @@ static void open_random_event(void) {
 	}
 
 	event_data[i].mmap=NULL;
+	printf("MMAP: mmap(NULL, %d, PROT_READ|PROT_WRITE, MAP_SHARED, %d, 0);\n",
+	       event_data[i].mmap_size,event_data[i].fd);
+
 	event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
 		PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
-	if (event_data[i].mmap==MAP_FAILED) event_data[i].mmap=NULL;
+	printf("MMAP: RESULT %p\n",event_data[i].mmap);
 
+	if (event_data[i].mmap==MAP_FAILED) {
+	  event_data[i].mmap=NULL;
+	}
 
 	/* Setup overflow? */
 	if (rand()%2) {
