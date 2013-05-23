@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
 
 	struct perf_event_attr pe1,pe2;
 	int fd1,fd2;
+	char *mmap_value,*mmap_value2;
 
 	memset(&pe1,0,sizeof(struct perf_event_attr));
 	memset(&pe2,0,sizeof(struct perf_event_attr));
@@ -40,7 +41,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	mmap(NULL, 69632, PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
+	mmap_value=mmap(NULL, 69632, PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
+	printf("mmap1=%p\n",mmap_value);
 
 	ioctl(fd1,PERF_EVENT_IOC_RESET,0);
 
@@ -68,7 +70,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	mmap(NULL, 69632, PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
+	mmap_value2=mmap(NULL, 69632, PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
+	printf("mmap2=%p\n",mmap_value2);
 
 	ioctl(fd1,PERF_EVENT_IOC_ENABLE,0);
 
