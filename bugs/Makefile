@@ -7,7 +7,6 @@ all:	\
 	check_papi_multiplexing \
 	check_schedulability \
 	nmi_watchdog_group_leader \
-	perf_mmap_close_bug \
 	read_group_attached \
 	sync_read_required \
 
@@ -106,16 +105,6 @@ nmi_watchdog_group_leader:	nmi_watchdog_group_leader.o \
 nmi_watchdog_group_leader.o:	nmi_watchdog_group_leader.c
 	$(CC) $(CFLAGS) -c nmi_watchdog_group_leader.c
 
-###
-
-perf_mmap_close_bug:	perf_mmap_close_bug.o \
-			../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o perf_mmap_close_bug perf_mmap_close_bug.o \
-			../lib/perf_helpers.o
-
-perf_mmap_close_bug.o:	perf_mmap_close_bug.c
-	$(CC) $(CFLAGS) -c perf_mmap_close_bug.c
-
 ####
 
 clean:	
@@ -124,7 +113,6 @@ clean:
 	check_papi_multiplexing \
 	check_schedulability \
 	nmi_watchdog_group_leader \
-	perf_mmap_close_bug \
 	read_group_attached \
 	sync_read_required \
 
