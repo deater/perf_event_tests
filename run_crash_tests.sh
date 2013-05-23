@@ -19,3 +19,4 @@ sleep 5
 ./crashes/oflo_sw_cpu_clock_crash
 ./crashes/sw_event_config_overflow
 ./crashes/offcore_response_mask
+./crashes/perf_mmap_close_bug

@@ -31,6 +31,9 @@ There are various subdirectories:
                   kernel versions from userspace.
                   * USE CAUTION RUNNING THESE TESTS *
 
+   + fuzzer    -- a fuzzer tool that tries to hit the extremes of
+                  the perf_event interface and find bugs in the kernel
+
    + generalized_events -- tests that check the validity of the various
                   perf_event generalized events, such as "instructions"
                   or "cycles"
