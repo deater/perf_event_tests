@@ -428,7 +428,7 @@ static void open_random_event(void) {
 
 static void close_random_event(void) {
 
-	int i;
+	int i,result;
 
 	i=find_random_active_event();
 
@@ -446,7 +446,10 @@ static void close_random_event(void) {
 	if (event_data[i].mmap) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
 	}
-	close(event_data[i].fd);
+	close_attempts++;
+	result=close(event_data[i].fd);
+	if (result==0) close_successful++;
+
 	event_data[i].active=0;
 }
 
@@ -704,6 +707,7 @@ int main(int argc, char **argv) {
 			read_attempts=0; read_successful=0;
 			ioctl_attempts=0; ioctl_successful=0;
 			mmap_attempts=0; mmap_successful=0;
+			overflows=0;
 		}
 	}
 
