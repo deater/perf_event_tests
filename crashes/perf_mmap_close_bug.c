@@ -43,6 +43,9 @@ int main(int argc, char **argv) {
 
 	mmap_value=mmap(NULL, 69632, PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 	printf("mmap1=%p\n",mmap_value);
+	if (mmap_value==MAP_FAILED) {
+		printf("MMAP failed: %s\n",strerror(errno));
+	}
 
 	ioctl(fd1,PERF_EVENT_IOC_RESET,0);
 
