@@ -532,6 +532,12 @@ static void close_random_event(void) {
 
 	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
+		if (logging&DEBUG_MMAP) {
+			fprintf(logfile,"U %d %d %p\n",
+				event_data[i].fd,
+				event_data[i].mmap_size,
+				event_data[i].mmap);
+		}
 	}
 
 	close_attempts++;
