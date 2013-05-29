@@ -206,49 +206,71 @@ static void open_event(char *line) {
 
 
 	struct perf_event_attr pe;
-	int fd,orig_fd;
+	int fd,orig_fd,remapped_group_fd;
 	pid_t pid;
 	int cpu,group_fd;
 	long int flags;
 
+	/* I hate bitfields */
+	int disabled,inherit,pinned,exclusive;
+	int exclude_user,exclude_kernel,exclude_hv,exclude_idle;
+	int mmap,comm,freq,inherit_stat;
+	int enable_on_exec,task,watermark,precise_ip;
+	int mmap_data,sample_id_all,exclude_host,exclude_guest;
+
 	sscanf(line,
-		"%*c %d %d %d %d %ld "
+		"%*c %d %d %d %d %lx "
 		"%x %x "
-		"%llx %llx %llx %llx ",
+		"%llx %llx %llx %llx "
+		"%d %d %d %d "
+		"%d %d %d %d "
+		"%d %d %d %d "
+		"%d %d %d %d "
+		"%d %d %d %d "
+		"%d %d "
+		"%llx %llx %lld ",
 		&orig_fd,&pid,&cpu,&group_fd,&flags,
 		&pe.type,&pe.size,
-		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format);
+		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format,
+		&disabled,&inherit,&pinned,&exclusive,
+		&exclude_user,&exclude_kernel,&exclude_hv,&exclude_idle,
+		&mmap,&comm,&freq,&inherit_stat,
+		&enable_on_exec,&task,&watermark,&precise_ip,
+		&mmap_data,&sample_id_all,&exclude_host,&exclude_guest,
+		&pe.wakeup_events,&pe.bp_type,
+		&pe.config1,&pe.config2,&pe.branch_sample_type);
 
-#if 0
-	fprintf(logfile,"%d ",attr->disabled);
-	fprintf(logfile,"%d ",attr->inherit);
-	fprintf(logfile,"%d ",attr->pinned);
-	fprintf(logfile,"%d ",attr->exclusive);
-	fprintf(logfile,"%d ",attr->exclude_user);
-	fprintf(logfile,"%d ",attr->exclude_kernel);
-	fprintf(logfile,"%d ",attr->exclude_hv);
-	fprintf(logfile,"%d ",attr->exclude_idle);
-	fprintf(logfile,"%d ",attr->mmap);
-	fprintf(logfile,"%d ",attr->comm);
-	fprintf(logfile,"%d ",attr->freq);
-	fprintf(logfile,"%d ",attr->inherit_stat);
-	fprintf(logfile,"%d ",attr->enable_on_exec);
-	fprintf(logfile,"%d ",attr->task);
-	fprintf(logfile,"%d ",attr->watermark);
-	fprintf(logfile,"%d ",attr->precise_ip);
-	fprintf(logfile,"%d ",attr->mmap_data);
-	fprintf(logfile,"%d ",attr->sample_id_all);
-	fprintf(logfile,"%d ",attr->exclude_host);
-	fprintf(logfile,"%d ",attr->exclude_guest);
-	fprintf(logfile,"%d ",attr->wakeup_events);
-	fprintf(logfile,"%d ",attr->bp_type);
-	fprintf(logfile,"%llx ",attr->config1);
-	fprintf(logfile,"%llx ",attr->config2);
-	fprintf(logfile,"%lld ",attr->branch_sample_type);
-	fprintf(logfile,"\n");
-#endif
+	/* re-populate bitfields */
+	/* can't sscanf into them */
+	pe.disabled=disabled;
+	pe.inherit=inherit;
+	pe.pinned=pinned;
+	pe.exclusive=exclusive;
+	pe.exclude_user=exclude_user;
+	pe.exclude_kernel=exclude_kernel;
+	pe.exclude_hv=exclude_hv;
+	pe.exclude_idle=exclude_idle;
+	pe.mmap=mmap;
+	pe.comm=comm;
+	pe.freq=freq;
+	pe.inherit_stat=inherit_stat;
+	pe.enable_on_exec=enable_on_exec;
+	pe.task=task;
+	pe.watermark=watermark;
+	pe.precise_ip=precise_ip;
+	pe.mmap_data=mmap_data;
+	pe.sample_id_all=sample_id_all;
+	pe.exclude_host=exclude_host;
+	pe.exclude_guest=exclude_guest;
 
-	fd=perf_event_open(&pe,pid,cpu,fd_remap[group_fd],flags);
+
+	if (group_fd==-1) {
+		remapped_group_fd=-1;
+	} else {
+		remapped_group_fd=fd_remap[group_fd];
+	}
+
+	fd=perf_event_open(&pe,pid,cpu,remapped_group_fd,flags);
 	if (fd<0) {
 		fprintf(stderr,"Error opening %s",line);
 		error=1;
