@@ -2,7 +2,8 @@ CC = gcc
 CFLAGS = -O2 -Wall -g
 LFLAGS = 
 
-all:	perf_fuzzer replay_log
+all:	perf_fuzzer replay_log log_to_code
+
 
 replay_log:	replay_log.o \
 		../lib/perf_helpers.o
@@ -10,6 +11,15 @@ replay_log:	replay_log.o \
 
 replay_log.o:	replay_log.c
 	$(CC) $(CFLAGS) -c replay_log.c
+
+
+log_to_code:	log_to_code.o \
+		../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o log_to_code log_to_code.o ../lib/perf_helpers.o
+
+log_to_code.o:	log_to_code.c
+	$(CC) $(CFLAGS) -c log_to_code.c
+
 
 
 perf_fuzzer:	perf_fuzzer.o \
@@ -44,5 +54,5 @@ random-length.o:	random-length.c
 	$(CC) $(CFLAGS) -c random-length.c
 
 clean:	
-	rm -f *~ *.o perf_fuzzer replay_log
+	rm -f *~ *.o perf_fuzzer replay_log log_to_code
 
