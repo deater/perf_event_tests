@@ -583,8 +583,14 @@ static void open_event(char *line) {
 
 	pretty_print_attr(&pe,orig_fd);
 
-	printf("\tfd[%d]=perf_event_open(&pe[%d],%d,%d,%d,",
-		orig_fd,orig_fd,pid,cpu,group_fd==-1?-1:group_fd);
+	printf("\tfd[%d]=perf_event_open(&pe[%d],%d,%d,",
+		orig_fd,orig_fd,pid,cpu);
+	if (group_fd==-1) {
+		printf("-1,");
+	}
+	else {
+		printf("fd[%d],",group_fd);
+	}
 
 	pretty_print_flags(flags);
 	printf(" /*%lx*/ ",flags);
