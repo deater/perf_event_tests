@@ -563,48 +563,48 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,0);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d\n",
-					PERF_EVENT_IOC_ENABLE,0);
+				fprintf(logfile,"I %d %d %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_ENABLE,0);
 			}
 			break;
 		case 1:
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_DISABLE,0);\n",event_data[i].fd);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d\n",
-					PERF_EVENT_IOC_DISABLE,0);
+				fprintf(logfile,"I %d %d %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
 			}
 			break;
 		case 2: arg=rand_refresh();
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_REFRESH,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d\n",
-					PERF_EVENT_IOC_REFRESH,arg);
+				fprintf(logfile,"I %d %d %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
 			}
 			break;
 		case 3:
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_RESET,0);\n",event_data[i].fd);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_RESET,0);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d\n",
-					PERF_EVENT_IOC_RESET,0);
+				fprintf(logfile,"I %d %d %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_RESET,0);
 			}
 			break;
 		case 4: arg=rand_period();
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_PERIOD,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %ld %d\n",
-					PERF_EVENT_IOC_PERIOD,arg);
+				fprintf(logfile,"I %d %ld %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			}
 			break;
 		case 5: arg=event_data[find_random_active_event()].fd;
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_SET_OUTPUT,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d\n",
-					PERF_EVENT_IOC_SET_OUTPUT,arg);
+				fprintf(logfile,"I %d %d %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 			}
 			break;
 		case 6: arg=rand();
@@ -613,8 +613,8 @@ static void ioctl_random_event(void) {
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %ld %d\n",
-					PERF_EVENT_IOC_SET_FILTER,arg);
+				fprintf(logfile,"I %d %ld %d\n",
+					event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			}
 			break;
 		default:
@@ -623,8 +623,8 @@ static void ioctl_random_event(void) {
 			if (debug&DEBUG_IOCTL) printf("IOCTL: RANDOM ioctl(%d,%x,%x)\n",
 				event_data[i].fd,arg,arg2);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d\n",
-					arg,arg2);
+				fprintf(logfile,"I %d %d %d\n",
+					event_data[i].fd,arg,arg2);
 			}
 
 			break;
