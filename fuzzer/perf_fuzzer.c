@@ -30,8 +30,12 @@ int page_size=4096;
 #define DEBUG_WRITE	0x20
 #define DEBUG_IOCTL	0x40
 #define DEBUG_FORK	0x80
+#define DEBUG_MMAP_SUCCESS	0x100
 
-int debug=DEBUG_MMAP;
+int debug=0;
+int logging=0;
+
+FILE *logfile;
 
 struct shm_s *shm;
 
@@ -296,6 +300,43 @@ void perf_dump_attr(struct perf_event_attr *attr) {
 }
 
 
+void perf_log_attr(struct perf_event_attr *attr) {
+
+	fprintf(logfile,"%x ",attr->type);
+	fprintf(logfile,"%x ",attr->size);
+	fprintf(logfile,"%llx ",attr->config);
+	fprintf(logfile,"%llx ",attr->sample_period);
+	fprintf(logfile,"%llx ",attr->sample_type);
+	fprintf(logfile,"%llx ",attr->read_format);
+	fprintf(logfile,"%d ",attr->disabled);
+	fprintf(logfile,"%d ",attr->inherit);
+	fprintf(logfile,"%d ",attr->pinned);
+	fprintf(logfile,"%d ",attr->exclusive);
+	fprintf(logfile,"%d ",attr->exclude_user);
+	fprintf(logfile,"%d ",attr->exclude_kernel);
+	fprintf(logfile,"%d ",attr->exclude_hv);
+	fprintf(logfile,"%d ",attr->exclude_idle);
+	fprintf(logfile,"%d ",attr->mmap);
+	fprintf(logfile,"%d ",attr->comm);
+	fprintf(logfile,"%d ",attr->freq);
+	fprintf(logfile,"%d ",attr->inherit_stat);
+	fprintf(logfile,"%d ",attr->enable_on_exec);
+	fprintf(logfile,"%d ",attr->task);
+	fprintf(logfile,"%d ",attr->watermark);
+	fprintf(logfile,"%d ",attr->precise_ip);
+	fprintf(logfile,"%d ",attr->mmap_data);
+	fprintf(logfile,"%d ",attr->sample_id_all);
+	fprintf(logfile,"%d ",attr->exclude_host);
+	fprintf(logfile,"%d ",attr->exclude_guest);
+	fprintf(logfile,"%d ",attr->wakeup_events);
+	fprintf(logfile,"%d ",attr->bp_type);
+	fprintf(logfile,"%llx ",attr->config1);
+	fprintf(logfile,"%llx ",attr->config2);
+	fprintf(logfile,"%lld ",attr->branch_sample_type);
+	fprintf(logfile,"\n");
+}
+
+
 
 static void open_random_event(void) {
 
@@ -366,6 +407,15 @@ static void open_random_event(void) {
 		printf("PERF_EVENT_OPEN: SUCCESS fd=%d Active=%d\n",
 			fd,active_events);
 	}
+	if (logging&DEBUG_OPEN) {
+	   fprintf(logfile,"O %d %d %d %lx ",
+				event_data[i].pid,
+				event_data[i].cpu,
+				event_data[i].group_fd,
+				event_data[i].flags);
+	   perf_log_attr(&event_data[i].attr);
+	}
+
 	event_data[i].fd=fd;
 	event_data[i].active=1;
 
@@ -405,7 +455,13 @@ static void open_random_event(void) {
 		event_data[i].mmap=NULL;
 	}
 	else {
-	  mmap_successful++;
+		if (logging&DEBUG_MMAP_SUCCESS) {
+ 			fprintf(logfile,"M %d %d %p\n",
+				event_data[i].mmap_size,event_data[i].fd,
+				event_data[i].mmap);
+		}
+
+		mmap_successful++;
 	}
 
 	/* Setup overflow? */
@@ -481,6 +537,10 @@ static void close_random_event(void) {
 	result=close(event_data[i].fd);
 	if (result==0) close_successful++;
 
+	if (logging&DEBUG_CLOSE) {
+		fprintf(logfile,"C %d\n",event_data[i].fd);
+	}
+
 	event_data[i].active=0;
 }
 
@@ -501,38 +561,71 @@ static void ioctl_random_event(void) {
 				event_data[i].fd);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,0);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %d\n",
+					PERF_EVENT_IOC_ENABLE,0);
+			}
 			break;
 		case 1:
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_DISABLE,0);\n",event_data[i].fd);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %d\n",
+					PERF_EVENT_IOC_DISABLE,0);
+			}
 			break;
 		case 2: arg=rand_refresh();
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_REFRESH,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %d\n",
+					PERF_EVENT_IOC_REFRESH,arg);
+			}
 			break;
 		case 3:
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_RESET,0);\n",event_data[i].fd);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_RESET,0);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %d\n",
+					PERF_EVENT_IOC_RESET,0);
+			}
 			break;
 		case 4: arg=rand_period();
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_PERIOD,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %ld %d\n",
+					PERF_EVENT_IOC_PERIOD,arg);
+			}
 			break;
 		case 5: arg=event_data[find_random_active_event()].fd;
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_SET_OUTPUT,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %d\n",
+					PERF_EVENT_IOC_SET_OUTPUT,arg);
+			}
 			break;
 		case 6: arg=rand();
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_SET_FILTER,%d);\n",event_data[i].fd,arg);
 			/* FIXME -- read filters from file */
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %ld %d\n",
+					PERF_EVENT_IOC_SET_FILTER,arg);
+			}
 			break;
 		default:
 			arg=rand(); arg2=rand();
 			result=ioctl(event_data[i].fd,arg,arg2);
 			if (debug&DEBUG_IOCTL) printf("IOCTL: RANDOM ioctl(%d,%x,%x)\n",
 				event_data[i].fd,arg,arg2);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %d\n",
+					arg,arg2);
+			}
+
 			break;
 	}
 	if (debug&DEBUG_IOCTL) printf("IOCTL RESULT %d %s\n",result,result<0?strerror(errno):"OK");
@@ -584,9 +677,14 @@ static void read_random_event(void) {
 		result<0?strerror(errno):"OK");
 	if (result>0) {
 	        read_successful++;
-		if (debug&DEBUG_READ) printf("READ VALUES: ");
-		for(i=0;i<result/8;i++) if (debug&DEBUG_READ) printf("%lld ",data[i]);
-		if (debug&DEBUG_READ) printf("\n");
+		if (logging&DEBUG_READ) {
+			fprintf(logfile,"R %d %d\n",event_data[i].fd,read_size);
+		}
+		if (debug&DEBUG_READ) {
+			printf("READ VALUES: ");
+			for(i=0;i<result/8;i++) printf("%lld ",data[i]);
+			printf("\n");
+		}
 	}
 
 }
@@ -669,6 +767,14 @@ int main(int argc, char **argv) {
 
 	int i;
 
+	if (logging) {
+		logfile=fopen("out.log","w");
+		if (logfile==NULL) {
+			fprintf(stderr,"Error opening out.log\n");
+			exit(1);
+		}
+	}
+
 	/* Set up to match trinity setup, vaguely */
 
 	shm=calloc(1,sizeof(struct shm_s));
@@ -744,6 +850,7 @@ int main(int argc, char **argv) {
 			mmap_attempts=0; mmap_successful=0;
 			overflows=0;
 		}
+		fflush(logfile);
 	}
 
 	return 0;
