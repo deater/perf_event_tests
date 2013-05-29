@@ -763,15 +763,72 @@ static void fork_random_event(void) {
 	}
 }
 
+#define VERSION "0.1"
+
+static void usage(char *name,int help) {
+
+	printf("\nPerf Fuzzer version %s\n\n",VERSION);
+
+	if (help) {
+		printf("%s [-h] [-v] [-d] [-l filename]\n\n",name);
+		printf("\t-h\tdisplay help\n");
+		printf("\t-v\tdisplay version\n");
+		printf("\t-d\tenable debugging\n");
+		printf("\t-l logfile\tlog to file\n");
+		printf("\n");
+	}
+}
 
 int main(int argc, char **argv) {
 
 	int i;
+	char *logfile_name=NULL;
+
+	/* Parse command line parameters */
+
+	if (argc>1) {
+
+		if(argv[1][0]=='-') {
+			switch(argv[1][1]) {
+				case 'h':	usage(argv[0],1);
+						exit(0);
+						break;
+				case 'v':	usage(argv[0],0);
+						exit(0);
+						break;
+				case 'd':	debug=DEBUG_ALL;
+						break;
+				case 'l':	logging=DEBUG_ALL;
+						if (argc>2) {
+							logfile_name=strdup(argv[2]);
+						}
+						else {
+							logfile_name=strdup("out.log");
+						}
+						break;
+				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
+						usage(argv[0],1);
+						exit(1);
+						break;
+			}
+
+		}
+		else {
+			fprintf(stderr,"Unknown parameter %s\n",argv[1]);
+			usage(argv[0],1);
+			exit(1);
+		}
+
+	} else {
+		/* Use defaults */
+		logging=0;
+		debug=0;
+	}
 
 	if (logging) {
-		logfile=fopen("out.log","w");
+		logfile=fopen(logfile_name,"w");
 		if (logfile==NULL) {
-			fprintf(stderr,"Error opening out.log\n");
+			fprintf(stderr,"Error opening %s\n",logfile_name);
 			exit(1);
 		}
 	}
