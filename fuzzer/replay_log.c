@@ -22,7 +22,7 @@ static int error=0;
 #define FD_REMAP_SIZE 2048
 
 static int fd_remap[FD_REMAP_SIZE];
-
+static char *mmap_remap[FD_REMAP_SIZE];
 
 static void mmap_event(char *line) {
 
@@ -41,9 +41,28 @@ static void mmap_event(char *line) {
 		error=1;
 		return;
 	}
+	mmap_remap[fd_remap[fd]]=data;
+
 //		fcntl(event_data[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
 //		fcntl(event_data[i].fd, F_SETSIG, SIGRTMIN+2);
 //		fcntl(event_data[i].fd, F_SETOWN,getpid());
+
+}
+
+
+static void munmap_event(char *line) {
+
+	int fd,size,result;
+
+	sscanf(line,"%*c %d %d",&fd,&size);
+
+	result=munmap(mmap_remap[fd_remap[fd]], size);
+	if (result<0) {
+		fprintf(stderr,"Error with munmap of %p size %d of %d/%d\n",
+			mmap_remap[fd_remap[fd]],size,fd,fd_remap[fd]);
+		error=1;
+		return;
+	}
 
 }
 
@@ -234,6 +253,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'M':
 				mmap_event(line);
+				break;
+			case 'U':
+				munmap_event(line);
 				break;
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
