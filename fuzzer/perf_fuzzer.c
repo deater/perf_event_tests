@@ -408,7 +408,8 @@ static void open_random_event(void) {
 			fd,active_events);
 	}
 	if (logging&DEBUG_OPEN) {
-	   fprintf(logfile,"O %d %d %d %lx ",
+	   fprintf(logfile,"O %d %d %d %d %lx ",
+				fd,
 				event_data[i].pid,
 				event_data[i].cpu,
 				event_data[i].group_fd,
