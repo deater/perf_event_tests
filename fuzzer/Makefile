@@ -4,6 +4,8 @@ LFLAGS =
 
 all:	perf_fuzzer replay_log log_to_code
 
+perf_attr_print.o:	perf_attr_print.c perf_attr_print.h
+	$(CC) $(CFLAGS) -c perf_attr_print.c
 
 replay_log:	replay_log.o \
 		../lib/perf_helpers.o
@@ -14,10 +16,11 @@ replay_log.o:	replay_log.c
 
 
 log_to_code:	log_to_code.o \
+		perf_attr_print.o \
 		../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o log_to_code log_to_code.o ../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o log_to_code log_to_code.o perf_attr_print.o ../lib/perf_helpers.o
 
-log_to_code.o:	log_to_code.c
+log_to_code.o:	log_to_code.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c log_to_code.c
 
 
