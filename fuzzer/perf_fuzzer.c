@@ -196,33 +196,18 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 }
 
-#if 0
 static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
-	int i;
-	int ret;
-	char string[BUFSIZ];
 
+	/* This should never really trigger */
+	printf("SIGIO: fd=%d\n",fd);
 
-	if (debug&DEBUG_OVERFLOW) {
-		sprintf(string,"SIGIO: fd=%d\n",fd);
-		write(1,string,strlen(string));
-	}
+	//	i=lookup_event(fd);
 
-	i=lookup_event(fd);
-
-	if (i>=0) {
-
-	   prev_head=perf_mmap_read(event_data[i].mmap,
-					event_data[i].mmap_size,
-					prev_head);
-        }
-
-	(void) ret;
 
 }
-#endif
+
 
 static int rand_refresh(void) {
 
@@ -851,8 +836,9 @@ int main(int argc, char **argv) {
 	fprintf(stderr, "page_rand @ %p\n", page_rand);
 
 	/* Set up SIGIO handler */
+	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */
 	memset(&sigio, 0, sizeof(struct sigaction));
-	sigio.sa_sigaction = SIG_IGN; //sigio_handler;
+	sigio.sa_sigaction = sigio_handler;
 	sigio.sa_flags = SA_SIGINFO;
 
 	if (sigaction( SIGIO, &sigio, NULL) < 0) {
