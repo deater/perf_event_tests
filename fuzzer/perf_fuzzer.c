@@ -18,6 +18,8 @@
 #include "../include/perf_helpers.h"
 #include "../include/instructions_testcode.h"
 
+#include "perf_attr_print.h"
+
 int user_set_seed;
 int page_size=4096;
 
@@ -68,6 +70,7 @@ struct event_data_t{
 } event_data[NUM_EVENTS];
 
 static struct sigaction sigio;
+static struct sigaction sigquit;
 
 extern struct syscall syscall_perf_event_open;
 
@@ -207,6 +210,27 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 
 
 }
+
+static void sigquit_handler(int signum, siginfo_t *info, void *uc) {
+
+
+	int i;
+
+	for(i=0;i<NUM_EVENTS;i++) {
+		if (event_data[i].active) {
+			perf_pretty_print_event(
+				event_data[i].fd,
+				&event_data[i].attr,
+				event_data[i].pid,
+				event_data[i].cpu,
+				event_data[i].group_fd,
+				event_data[i].flags
+				);
+		}
+	}
+
+}
+
 
 
 static int rand_refresh(void) {
@@ -843,6 +867,16 @@ int main(int argc, char **argv) {
 
 	if (sigaction( SIGIO, &sigio, NULL) < 0) {
 		printf("Error setting up SIGIO signal handler\n");
+     	}
+
+
+	/* Set up SIGQUIT handler */
+	memset(&sigquit, 0, sizeof(struct sigaction));
+	sigquit.sa_sigaction = sigquit_handler;
+	sigquit.sa_flags = SA_SIGINFO;
+
+	if (sigaction( SIGQUIT, &sigquit, NULL) < 0) {
+		printf("Error setting up SIGQUIT signal handler\n");
      	}
 
 

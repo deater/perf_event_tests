@@ -25,16 +25,17 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 
 
 
-perf_fuzzer:	perf_fuzzer.o \
+perf_fuzzer:	perf_fuzzer.o perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		fds.o interesting-numbers.o perf_event_open.o pids.o \
 		random.o random-length.o
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
+		perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		fds.o interesting-numbers.o perf_event_open.o pids.o \
 		random.o random-length.o
 
-perf_fuzzer.o:	perf_fuzzer.c
+perf_fuzzer.o:	perf_fuzzer.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c perf_fuzzer.c
 
 
