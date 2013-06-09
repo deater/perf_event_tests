@@ -81,6 +81,12 @@ void reseed(void)
 
 }
 
+unsigned int rand_bool(void)
+{
+  return rand() % 2;
+}
+
+
 unsigned long rand64(void)
 {
 	unsigned long r = 0;
