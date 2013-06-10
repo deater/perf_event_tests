@@ -67,6 +67,7 @@ struct event_data_t{
 	struct sigaction sa;
 	char *mmap;
 	int mmap_size;
+	int last_refresh;
 } event_data[NUM_EVENTS];
 
 static struct sigaction sigio;
@@ -86,11 +87,11 @@ static int find_random_active_event(void) {
 
 	for(i=0;i<NUM_EVENTS;i++) {
 		if (event_data[i].active) {
-			if (j==x) break;
+			if (j==x) return i;
 			j++;
 		}
 	}
-	return i;
+	return -1;
 }
 
 
@@ -193,6 +194,10 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			write(1,string,strlen(string));
 		}
 		ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,next_refresh);
+		if (ret==0) {
+			event_data[i].last_refresh=next_refresh;
+		}
+
 	}
 
 	(void) ret;
@@ -203,10 +208,29 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
 
+
+	//	i=lookup_event(fd);
+
+	int i;
+
 	/* This should never really trigger */
 	printf("SIGIO: fd=%d\n",fd);
 
-	//	i=lookup_event(fd);
+	for(i=0;i<NUM_EVENTS;i++) {
+		if (event_data[i].active) {
+			printf("/* Last refresh %d */\n",
+				event_data[i].last_refresh);
+			perf_pretty_print_event(
+				event_data[i].fd,
+				&event_data[i].attr,
+				event_data[i].pid,
+				event_data[i].cpu,
+				event_data[i].group_fd,
+				event_data[i].flags
+				);
+		}
+	}
+
 
 
 }
@@ -529,8 +553,6 @@ static void close_random_event(void) {
 	/* Exit if no events */
 	if (i<0) return;
 
-	active_events--;
-
 	if (debug&DEBUG_CLOSE) {
 		printf("CLOSE, Active=%d, if %p munmap(%p,%x); close(%d);\n",
 			active_events,
@@ -558,6 +580,9 @@ static void close_random_event(void) {
 	}
 
 	event_data[i].active=0;
+	active_events--;
+
+
 }
 
 static void ioctl_random_event(void) {
@@ -593,6 +618,9 @@ static void ioctl_random_event(void) {
 		case 2: arg=rand_refresh();
 			if (debug&DEBUG_IOCTL) printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_REFRESH,%d);\n",event_data[i].fd,arg);
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
+			if (result>0) {
+				event_data[i].last_refresh=arg;
+			}
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
 				fprintf(logfile,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
