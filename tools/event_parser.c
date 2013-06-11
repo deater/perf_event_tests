@@ -20,7 +20,7 @@ struct format_type {
 	char *value;
 	int field;
 	int bits;
-	int mask;
+	unsigned long long mask;
 	int shift;
 };
 
@@ -331,8 +331,12 @@ int init_pmus(void) {
 						&pmus[pmu_num].formats[format_num].field,
 						&pmus[pmu_num].formats[format_num].shift,
 						&pmus[pmu_num].formats[format_num].bits);
-				pmus[pmu_num].formats[format_num].mask=
-					(1ULL<<pmus[pmu_num].formats[format_num].bits)-1;
+				if (pmus[pmu_num].formats[format_num].bits==64) {
+					pmus[pmu_num].formats[format_num].mask=0xffffffffffffffffULL;
+				} else {
+					pmus[pmu_num].formats[format_num].mask=
+						(1ULL<<pmus[pmu_num].formats[format_num].bits)-1;
+				}
 				format_num++;
 			}
 			closedir(format_dir);
@@ -419,10 +423,11 @@ void dump_pmus(void) {
 			for(j=0;j<pmus[i].num_formats;j++) {
 				printf("\t\t%s : ",pmus[i].formats[j].name);
 				printf("%s\n",pmus[i].formats[j].value);
-				printf("\t\t\tfield: %s shift: %d bits: %d\n",
+				printf("\t\t\tfield: %s shift: %d bits: %d mask: %llx\n",
 					field_to_name(pmus[i].formats[j].field),
 					pmus[i].formats[j].shift,
-					pmus[i].formats[j].bits);
+					pmus[i].formats[j].bits,
+					pmus[i].formats[j].mask);
 			}
 		}
 		if (pmus[i].num_generic_events) {
