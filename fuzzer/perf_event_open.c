@@ -6,7 +6,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
@@ -216,6 +215,7 @@ static int init_pmus(void) {
 		temp_name[BUFSIZ],format_name[BUFSIZ],format_value[BUFSIZ];
 	int type,pmu_num=0,format_num=0,generic_num=0;
 	FILE *fff;
+	int result;
 
 
 	/* Count number of PMUs */
@@ -267,7 +267,7 @@ static int init_pmus(void) {
 		if (fff==NULL) {
 		}
 		else {
-			fscanf(fff,"%d",&type);
+			result=fscanf(fff,"%d",&type);
 			pmus[pmu_num].type=type;
 			fclose(fff);
 		}
@@ -314,7 +314,7 @@ static int init_pmus(void) {
 					dir_name,format_entry->d_name);
 				fff=fopen(temp_name,"r");
 				if (fff!=NULL) {
-					fscanf(fff,"%s",format_value);
+					result=fscanf(fff,"%s",format_value);
 					pmus[pmu_num].formats[format_num].value=
 						strdup(format_value);
 					fclose(fff);
@@ -377,7 +377,7 @@ static int init_pmus(void) {
 					dir_name,event_entry->d_name);
 				fff=fopen(temp_name,"r");
 				if (fff!=NULL) {
-					fscanf(fff,"%s",event_value);
+					result=fscanf(fff,"%s",event_value);
 					pmus[pmu_num].generic_events[generic_num].value=
 						strdup(event_value);
 					fclose(fff);
@@ -393,6 +393,8 @@ static int init_pmus(void) {
 	}
 
 	closedir(dir);
+
+	(void)result;
 
 	return 0;
 
@@ -546,9 +548,9 @@ static int random_event_type(void)
 	return type;
 }
 
-static long long random_event_config(__u32 *event_type, __u64 *c1)
+static long long random_event_config(__u32 *event_type, __u64 *config1)
 {
-	unsigned long long config,config1;
+	unsigned long long config;
 
 	switch (*event_type) {
 	case PERF_TYPE_HARDWARE:
@@ -647,7 +649,7 @@ static long long random_event_config(__u32 *event_type, __u64 *c1)
 
 	case PERF_TYPE_READ_FROM_SYSFS:
 		if (pmus==NULL) init_pmus();
-		config = random_sysfs_config(event_type,&config1);
+		config = random_sysfs_config(event_type,config1);
 		break;
 
 	default:
@@ -988,4 +990,3 @@ struct syscall syscall_perf_event_open = {
 	.sanitise = sanitise_perf_event_open,
 	.flags = NEED_ALARM,
 };
-
