@@ -86,49 +86,93 @@ unsigned int rand_bool(void)
   return rand() % 2;
 }
 
+unsigned int rand_single_32bit(void)
+{
+  return (1L << (rand() % 32));
+}
+
+unsigned long rand_single_64bit(void)
+{
+  return (1L << (rand() % 64));
+}
+
+
+unsigned int rand32(void)
+{
+  unsigned long r = 0;
+
+  switch (rand() % 3) {
+
+    /* Just set one bit */
+  case 0: return rand_single_32bit();
+
+    /* 0 .. RAND_MAX */
+  case 1: r = rand();
+    if (rand_bool())
+      r |= (1L << 31);
+    break;
+
+  case 2: return get_interesting_32bit_value();
+
+  default:
+    break;
+  }
+  return r;
+}
+
+
 
 unsigned long rand64(void)
 {
-	unsigned long r = 0;
+  unsigned long r = 0;
 
-	switch (rand() % 5) {
+  switch (rand() % 7) {
 
-	/* Sometimes pick a not-so-random number. */
-	case 0:	return get_interesting_value();
+    /* Just set one bit */
+  case 0: return rand_single_32bit();
+  case 1: return rand_single_64bit();
 
-	/* limit to RAND_MAX (31 bits) */
-	case 1:	r = rand();
-		break;
+    /* Sometimes pick a not-so-random number. */
+  case 2: return get_interesting_value();
 
-	 /* do some gymnastics here to get > RAND_MAX
-	  * Based on very similar routine stolen from iknowthis. Thanks Tavis.
-	  */
-	case 2:
-		r = rand() & rand();
+    /* limit to RAND_MAX (31 bits) */
+  case 3: r = rand();
+    break;
+
+    /* do some gymnastics here to get > RAND_MAX
+     * Based on very similar routine stolen from iknowthis. Thanks Tavis.
+     */
+  case 4:
+    r = rand() & rand();
 #if __WORDSIZE == 64
-		r <<= 32;
-		r |= rand() & rand();
+    r <<= 32;
+    r |= rand() & rand();
 #endif
-		break;
+    break;
 
-	case 3:
-		r = rand() | rand();
+  case 5:
+    r = rand() | rand();
 #if __WORDSIZE == 64
-		r <<= 32;
-		r |= rand() | rand();
+    r <<= 32;
+    r |= rand() | rand();
 #endif
-		break;
+    break;
 
-	case 4:
-		r = rand();
+  case 6:
+    r = rand();
 #if __WORDSIZE == 64
-		r <<= 32;
-		r |= rand();
+    r <<= 32;
+    r |= rand();
 #endif
-		break;
+    break;
 
-	default:
-		break;
-	}
-	return r;
+  default:
+    break;
+  }
+
+  if (rand_bool())
+    r |= (1L << (__WORDSIZE - 1));
+
+  return r;
 }
+

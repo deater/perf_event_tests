@@ -28,12 +28,12 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		fds.o interesting-numbers.o perf_event_open.o pids.o \
-		random.o random-length.o
+		random.o random-address.o random-length.o
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		fds.o interesting-numbers.o perf_event_open.o pids.o \
-		random.o random-length.o
+		random.o random-address.o random-length.o
 
 perf_fuzzer.o:	perf_fuzzer.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c perf_fuzzer.c
@@ -53,6 +53,9 @@ pids.o:		pids.c
 
 random.o:	random.c
 	$(CC) $(CFLAGS) -c random.c
+
+random-address.o:	random-address.c
+	$(CC) $(CFLAGS) -c random-address.c
 
 random-length.o:	random-length.c
 	$(CC) $(CFLAGS) -c random-length.c
