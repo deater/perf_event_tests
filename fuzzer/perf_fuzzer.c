@@ -46,6 +46,7 @@ char *page_rand;
 
 static long long total_iterations=0;
 static long long overflows=0;
+static long long sigios=0;
 static long long open_attempts=0,open_successful=0;
 static long long close_attempts=0,close_successful=0;
 static long long mmap_attempts=0,mmap_successful=0;
@@ -162,7 +163,8 @@ long long perf_mmap_read( void *our_mmap,
 
 }
 
-
+/* The perf tool uses poll() and never sets signals */
+/* Thus they never have most of these problems      */
 static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
@@ -172,12 +174,22 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	overflows++;
 
+	/* disable the event for the time being */
+	/* we were having trouble with signal storms */
+	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
+
 	if (debug&DEBUG_OVERFLOW) {
 		sprintf(string,"OVERFLOW: fd=%d\n",fd);
 		write(1,string,strlen(string));
 	}
 
 	i=lookup_event(fd);
+
+	/* the sys_exit tracepoint causes us to get in */
+	/* a signal storm.                             */
+	if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
+	   if (event_data[i].attr.config==0x11) return;
+	}
 
 	if (i>=0) {
 
@@ -188,7 +200,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	/* cannot call rand() from signal handler! */
 	/* we re-enter and get stuck in a futex :( */
-	if (next_overflow_refresh) {
+	//	if (next_overflow_refresh) {
 		if (debug&DEBUG_OVERFLOW) {
 			sprintf(string,"OVERFLOW REFRESH: %d\n",next_refresh);
 			write(1,string,strlen(string));
@@ -198,7 +210,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			event_data[i].last_refresh=next_refresh;
 		}
 
-	}
+		//}
 
 	(void) ret;
 
@@ -206,33 +218,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 
-	int fd = info->si_fd;
-
-
-	//	i=lookup_event(fd);
-
-	int i;
-
-	/* This should never really trigger */
-	printf("SIGIO: fd=%d\n",fd);
-
-	for(i=0;i<NUM_EVENTS;i++) {
-		if (event_data[i].active) {
-			printf("/* Last refresh %d */\n",
-				event_data[i].last_refresh);
-			perf_pretty_print_event(
-				event_data[i].fd,
-				&event_data[i].attr,
-				event_data[i].pid,
-				event_data[i].cpu,
-				event_data[i].group_fd,
-				event_data[i].flags
-				);
-		}
-	}
-
-
-
+	sigios++;
 }
 
 static void sigquit_handler(int signum, siginfo_t *info, void *uc) {
@@ -889,6 +875,7 @@ int main(int argc, char **argv) {
 
 	/* Set up SIGIO handler */
 	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */
+	/* But if the RT queue overflows we will get a SIGIO */
 	memset(&sigio, 0, sizeof(struct sigaction));
 	sigio.sa_sigaction = sigio_handler;
 	sigio.sa_flags = SA_SIGINFO;
@@ -955,12 +942,15 @@ int main(int argc, char **argv) {
 			       mmap_attempts,mmap_successful);
 			printf("\tOverflows: %lld\n",
 			       overflows);
+			printf("\tSIGIOs due to RT signal queue full: %lld\n",
+				sigios);
 			open_attempts=0; open_successful=0;
 			close_attempts=0; close_successful=0;
 			read_attempts=0; read_successful=0;
 			ioctl_attempts=0; ioctl_successful=0;
 			mmap_attempts=0; mmap_successful=0;
 			overflows=0;
+			sigios=0;
 		}
 		fflush(logfile);
 	}
