@@ -185,12 +185,6 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	i=lookup_event(fd);
 
-	/* the sys_exit tracepoint causes us to get in */
-	/* a signal storm.                             */
-	if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
-	   if (event_data[i].attr.config==0x11) return;
-	}
-
 	if (i>=0) {
 
 	   prev_head=perf_mmap_read(event_data[i].mmap,
@@ -200,6 +194,10 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	/* cannot call rand() from signal handler! */
 	/* we re-enter and get stuck in a futex :( */
+
+	/* don't re-enable event if we're stuck in a signal-handler storm */
+	if (sigios) return;
+
 	//	if (next_overflow_refresh) {
 		if (debug&DEBUG_OVERFLOW) {
 			sprintf(string,"OVERFLOW REFRESH: %d\n",next_refresh);
