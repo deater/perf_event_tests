@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 
 #include <fcntl.h>
 
@@ -52,6 +53,7 @@ static long long close_attempts=0,close_successful=0;
 static long long mmap_attempts=0,mmap_successful=0;
 static long long read_attempts=0,read_successful=0;
 static long long ioctl_attempts=0,ioctl_successful=0;
+static long long prctl_attempts=0,prctl_successful=0;
 
 #define NUM_EVENTS 1024
 
@@ -664,8 +666,17 @@ static void ioctl_random_event(void) {
 
 static void prctl_random_event(void) {
 
+	int ret;
 
+	prctl_attempts++;
 
+	if (rand()%2) {
+		ret=prctl(PR_TASK_PERF_EVENTS_ENABLE);
+	}
+	else {
+		ret=prctl(PR_TASK_PERF_EVENTS_DISABLE);
+	}
+	if (ret==0) prctl_successful++;
 }
 
 #define MAX_READ_SIZE 65536
@@ -938,6 +949,8 @@ int main(int argc, char **argv) {
 			       ioctl_attempts,ioctl_successful);
 			printf("\tMmap attempts: %lld  Successful: %lld\n",
 			       mmap_attempts,mmap_successful);
+			printf("\tPrctl attempts: %lld  Successful: %lld\n",
+			       prctl_attempts,prctl_successful);
 			printf("\tOverflows: %lld\n",
 			       overflows);
 			printf("\tSIGIOs due to RT signal queue full: %lld\n",
@@ -947,6 +960,7 @@ int main(int argc, char **argv) {
 			read_attempts=0; read_successful=0;
 			ioctl_attempts=0; ioctl_successful=0;
 			mmap_attempts=0; mmap_successful=0;
+			prctl_attempts=0; prctl_successful=0;
 			overflows=0;
 			sigios=0;
 		}
