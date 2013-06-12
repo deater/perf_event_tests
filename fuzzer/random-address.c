@@ -1,3 +1,4 @@
+#include "random.h"
 
 void * get_address(void)
 {
