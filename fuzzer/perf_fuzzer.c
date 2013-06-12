@@ -1,3 +1,6 @@
+
+#define VERSION "0.2"
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -54,6 +57,7 @@ static long long mmap_attempts=0,mmap_successful=0;
 static long long read_attempts=0,read_successful=0;
 static long long ioctl_attempts=0,ioctl_successful=0;
 static long long prctl_attempts=0,prctl_successful=0;
+static long long fork_attempts=0,fork_successful=0;
 
 #define NUM_EVENTS 1024
 
@@ -787,6 +791,7 @@ static void fork_random_event(void) {
 	if (already_forked) {
 		if (debug&DEBUG_FORK) printf("FORK: KILLING pid %d\n",forked_pid);
 		kill(forked_pid,SIGKILL);
+		// wait()?
 		already_forked=0;
 	}
 	else {
@@ -797,11 +802,11 @@ static void fork_random_event(void) {
 		if (forked_pid==0) {
 			while(1) instructions_million();
 		}
+		fork_attempts++;
+		fork_successful++;
 		already_forked=1;
 	}
 }
-
-#define VERSION "0.1"
 
 static void usage(char *name,int help) {
 
@@ -928,8 +933,8 @@ int main(int argc, char **argv) {
 				break;
 			case 6: access_random_file();
 				break;
-//			case 7: fork_random_event();
-//				break;
+			case 7: fork_random_event();
+				break;
 			default:
 				run_a_million_instructions();
 				break;
@@ -951,6 +956,8 @@ int main(int argc, char **argv) {
 			       mmap_attempts,mmap_successful);
 			printf("\tPrctl attempts: %lld  Successful: %lld\n",
 			       prctl_attempts,prctl_successful);
+			printf("\tFork attempts: %lld  Successful: %lld\n",
+			       fork_attempts,fork_successful);
 			printf("\tOverflows: %lld\n",
 			       overflows);
 			printf("\tSIGIOs due to RT signal queue full: %lld\n",
@@ -961,6 +968,7 @@ int main(int argc, char **argv) {
 			ioctl_attempts=0; ioctl_successful=0;
 			mmap_attempts=0; mmap_successful=0;
 			prctl_attempts=0; prctl_successful=0;
+			fork_attempts=0; fork_successful=0;
 			overflows=0;
 			sigios=0;
 		}
