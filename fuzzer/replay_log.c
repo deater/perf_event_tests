@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 
 #include <fcntl.h>
 
@@ -214,6 +215,38 @@ static void read_event(char *line) {
 	}
 }
 
+static void prctl_event(char *line) {
+
+        int enable=0;
+
+        sscanf(line,"%*c %d",&enable);
+
+        if (enable) {
+                prctl(PR_TASK_PERF_EVENTS_ENABLE);
+        }
+        else {
+                prctl(PR_TASK_PERF_EVENTS_DISABLE);
+        }
+}
+
+static int forked_pid=0;
+
+static void fork_event(char *line) {
+
+        int enable=0;
+
+        sscanf(line,"%*c %d",&enable);
+
+        if (enable) {
+                forked_pid=fork();
+                if (forked_pid==0) while(1);
+        }
+        else {
+                kill(forked_pid,SIGKILL);
+        }
+
+}
+
 
 int main(int argc, char **argv) {
 
@@ -256,6 +289,12 @@ int main(int argc, char **argv) {
 				break;
 			case 'U':
 				munmap_event(line);
+				break;
+			case 'P':
+				prctl_event(line);
+				break;
+			case 'F':
+				fork_event(line);
 				break;
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
