@@ -27,16 +27,17 @@
 int user_set_seed;
 int page_size=4096;
 
-#define DEBUG_ALL	0xffffffff
-#define DEBUG_MMAP	0x01
-#define DEBUG_OVERFLOW	0x02
-#define DEBUG_OPEN	0x04
-#define DEBUG_CLOSE	0x08
-#define DEBUG_READ	0x10
-#define DEBUG_WRITE	0x20
-#define DEBUG_IOCTL	0x40
-#define DEBUG_FORK	0x80
+#define DEBUG_ALL		0xffffffff
+#define DEBUG_MMAP		0x001
+#define DEBUG_OVERFLOW		0x002
+#define DEBUG_OPEN		0x004
+#define DEBUG_CLOSE		0x008
+#define DEBUG_READ		0x010
+#define DEBUG_WRITE		0x020
+#define DEBUG_IOCTL		0x040
+#define DEBUG_FORK		0x080
 #define DEBUG_MMAP_SUCCESS	0x100
+#define DEBUG_PRCTL		0x200
 
 int debug=0;
 int logging=0;
@@ -676,9 +677,22 @@ static void prctl_random_event(void) {
 
 	if (rand()%2) {
 		ret=prctl(PR_TASK_PERF_EVENTS_ENABLE);
+		if (debug&DEBUG_PRCTL) {
+			printf("PRCTL: PR_TASK_PERF_EVENTS_ENABLE\n");
+		}
+		if ((ret==0)&&(logging&DEBUG_PRCTL)) {
+			fprintf(logfile,"P 1\n");
+		}
 	}
 	else {
 		ret=prctl(PR_TASK_PERF_EVENTS_DISABLE);
+		if (debug&DEBUG_PRCTL) {
+			printf("PRCTL: PR_TASK_PERF_EVENTS_DISABLE\n");
+		}
+		if ((ret==0)&&(logging&DEBUG_PRCTL)) {
+			fprintf(logfile,"P 0\n");
+		}
+
 	}
 	if (ret==0) prctl_successful++;
 }
@@ -789,13 +803,25 @@ static pid_t forked_pid;
 static void fork_random_event(void) {
 
 	if (already_forked) {
-		if (debug&DEBUG_FORK) printf("FORK: KILLING pid %d\n",forked_pid);
+		if (debug&DEBUG_FORK) {
+			printf("FORK: KILLING pid %d\n",forked_pid);
+		}
+		if (logging&DEBUG_FORK) {
+			fprintf(logfile,"F 0\n");
+		}
+
 		kill(forked_pid,SIGKILL);
 		// wait()?
 		already_forked=0;
 	}
 	else {
-		if (debug&DEBUG_FORK) printf("FORKING\n");
+		if (debug&DEBUG_FORK) {
+			printf("FORKING\n");
+		}
+		if (logging&DEBUG_FORK) {
+			fprintf(logfile,"F 1\n");
+		}
+
 		forked_pid=fork();
 
 		/* we're the child */
