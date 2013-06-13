@@ -143,6 +143,37 @@ static void read_event(char *line) {
 	printf("\tread(fd[%d],data,%d);\n",fd,read_size);
 }
 
+static void prctl_event(char *line) {
+
+	int enable=0;
+
+	sscanf(line,"%*c %d",&enable);
+
+	if (enable) {
+		printf("\tprctl(PR_TASK_PERF_EVENTS_ENABLE);\n");
+	}
+	else {
+		printf("\tprctl(PR_TASK_PERF_EVENTS_DISABLE);\n");
+	}
+}
+
+static void fork_event(char *line) {
+
+	int enable=0;
+
+	sscanf(line,"%*c %d",&enable);
+
+	if (enable) {
+		printf("\tforked_pid=fork();\n");
+                printf("\tif (forked_pid==0) while(1);\n");
+	}
+	else {
+		printf("\tkill(forked_pid,SIGKILL);\n");
+	}
+
+}
+
+
 #define NUM_VALUES 1024
 
 int main(int argc, char **argv) {
@@ -170,9 +201,11 @@ int main(int argc, char **argv) {
 	printf("#include <stdio.h>\n");
 	printf("#include <unistd.h>\n");
 	printf("#include <string.h>\n");
+	printf("#include <signal.h>\n");
 	printf("#include <sys/mman.h>\n");
 	printf("#include <sys/syscall.h>\n");
 	printf("#include <sys/ioctl.h>\n");
+	printf("#include <sys/prctl.h>\n");
 	printf("#include <linux/hw_breakpoint.h>\n");
 	printf("#include <linux/perf_event.h>\n");
 
@@ -180,7 +213,14 @@ int main(int argc, char **argv) {
 
 	printf("int fd[%d];\n",NUM_VALUES);
 	printf("struct perf_event_attr pe[%d];\n",NUM_VALUES);
-	printf("char *mmap_result[%d];\n\n",NUM_VALUES);
+	printf("char *mmap_result[%d];\n",NUM_VALUES);
+
+	printf("#define MAX_READ_SIZE 65536\n");
+	printf("static long long data[MAX_READ_SIZE];\n");
+
+	printf("\n");
+
+	printf("int forked_pid;\n\n");
 
 	printf("int perf_event_open(struct perf_event_attr *hw_event_uptr,\n");
 	printf("\tpid_t pid, int cpu, int group_fd, unsigned long flags) {\n");
@@ -213,6 +253,12 @@ int main(int argc, char **argv) {
 				break;
 			case 'U':
 				munmap_event(line);
+				break;
+			case 'P':
+				prctl_event(line);
+				break;
+			case 'F':
+				fork_event(line);
 				break;
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
