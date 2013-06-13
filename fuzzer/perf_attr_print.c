@@ -39,7 +39,7 @@ void perf_pretty_print_flags(long int flags) {
 		if (our_flags==0) return;
 		printf("|");
 	}
-	printf("%lx",our_flags);
+	printf("0x%lxULL",our_flags);
 }
 
 static void perf_pretty_print_type(int type) {
