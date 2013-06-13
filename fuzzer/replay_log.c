@@ -248,15 +248,31 @@ static void fork_event(char *line) {
 }
 
 
+#define REPLAY_OPEN	0x001
+#define REPLAY_CLOSE	0x002
+#define REPLAY_IOCTL	0x004
+#define REPLAY_READ	0x008
+#define REPLAY_MMAP	0x010
+#define REPLAY_MUNMAP	0x020
+#define REPLAY_PRCTL	0x040
+#define REPLAY_FORK	0x080
+#define REPLAY_ALL	0xfff
+
+
+
 int main(int argc, char **argv) {
 
 	FILE *logfile;
 	char line[BUFSIZ];
 	char *result;
-	long long total_syscalls=0;
+	long long total_syscalls=0,replay_syscalls=0;
+
+	int i;
+
+	int replay_which=REPLAY_ALL;
 
 	if (argc<2) {
-		fprintf(stderr,"\nUsage: %s logfile <replay_type>\n\n",
+		fprintf(stderr,"\nUsage: %s logfile <OCIRMUPF>\n\n",
 			argv[0]);
 		exit(1);
 	}
@@ -267,34 +283,85 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	if (argc==3) {
+		replay_which=0;
+		for(i=0;i<strlen(argv[2]);i++) {
+			switch(argv[2][i]) {
+			case 'O':	replay_which|=REPLAY_OPEN;
+					break;
+			case 'C':	replay_which|=REPLAY_CLOSE;
+					break;
+			case 'I':	replay_which|=REPLAY_IOCTL;
+					break;
+			case 'R':	replay_which|=REPLAY_READ;
+					break;
+			case 'M':	replay_which|=REPLAY_MMAP;
+					break;
+			case 'U':	replay_which|=REPLAY_MUNMAP;
+					break;
+			case 'P':	replay_which|=REPLAY_PRCTL;
+					break;
+			case 'F':	replay_which|=REPLAY_FORK;
+					break;
+			default:	fprintf(stderr,"Unknown replay %c\n",
+						argv[2][i]);
+
+			}
+		}
+	}
+
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
 		if (result==NULL) break;
 
 		switch(line[0]) {
 			case 'O':
-				open_event(line);
+				if (replay_which & REPLAY_OPEN) {
+					open_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'C':
-				close_event(line);
+				if (replay_which & REPLAY_CLOSE) {
+					close_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'I':
-				ioctl_event(line);
+				if (replay_which & REPLAY_IOCTL) {
+					ioctl_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'R':
-				read_event(line);
+				if (replay_which & REPLAY_READ) {
+					read_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'M':
-				mmap_event(line);
+				if (replay_which & REPLAY_MMAP) {
+					mmap_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'U':
-				munmap_event(line);
+				if (replay_which & REPLAY_MUNMAP) {
+					munmap_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'P':
-				prctl_event(line);
+				if (replay_which & REPLAY_PRCTL) {
+					prctl_event(line);
+					replay_syscalls++;
+				}
 				break;
 			case 'F':
-				fork_event(line);
+				if (replay_which & REPLAY_FORK) {
+					fork_event(line);
+					replay_syscalls++;
+				}
 				break;
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
@@ -305,7 +372,8 @@ int main(int argc, char **argv) {
 		total_syscalls++;
 	}
 
-	printf("Replayed %lld syscalls\n",total_syscalls);
+	printf("Replayed %lld of %lld syscalls\n",
+		replay_syscalls,total_syscalls);
 
 	return 0;
 
