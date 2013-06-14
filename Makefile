@@ -9,6 +9,7 @@ all:
 	cd validation && make
 	cd validation_privileged && make
 	cd fuzzer && make
+	cd tools && make
 
 papi:
 	cd papi && make
@@ -27,3 +28,4 @@ clean:
 	cd papi && make clean
 	cd include && make clean
 	cd fuzzer && make clean
+	cd tools && make clean
