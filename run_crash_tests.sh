@@ -20,3 +20,5 @@ sleep 5
 ./crashes/sw_event_config_overflow
 ./crashes/offcore_response_mask
 ./crashes/perf_mmap_close_bug
+./crashes/tracepoint_fork
+
