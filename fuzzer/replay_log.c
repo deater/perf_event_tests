@@ -363,12 +363,15 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+			case 'Q':
+				fprintf(stderr,"Quitting early\n");
+				exit(1);
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
 					line[0]);
 				break;
 		}
-		if (error) break;
+		//if (error) break;
 		total_syscalls++;
 	}
 
