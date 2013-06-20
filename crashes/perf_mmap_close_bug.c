@@ -3,6 +3,9 @@
 /* compile with "gcc -O2 -Wall -o perf_mmap_close_bug perf_mmap_close_bug.c  */
 /* This will reliably OOPS my core2 Linux 3.10-rc2 machine                   */
 
+/* The problem exists as far bacl as 3.2.  3.0 may or may not be affected */
+/* The fix was merged by 3.10, 9bb5d40cd93c9dd4b                          */
+
 #include <stdio.h>
 #include <linux/perf_event.h>
 #include <sys/mman.h>
