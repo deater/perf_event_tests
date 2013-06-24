@@ -895,10 +895,17 @@ int main(int argc, char **argv) {
 	}
 
 	if (logging) {
-		logfile=fopen(logfile_name,"w");
-		if (logfile==NULL) {
-			fprintf(stderr,"Error opening %s\n",logfile_name);
-			exit(1);
+
+		if (!strcmp(logfile_name,"-")) {
+			logfile=stdout;
+		}
+		else {
+			logfile=fopen(logfile_name,"w");
+			if (logfile==NULL) {
+				fprintf(stderr,"Error opening %s\n",
+					logfile_name);
+				exit(1);
+			}
 		}
 	}
 
