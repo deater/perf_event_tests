@@ -164,8 +164,6 @@ static void ioctl_event(char *line) {
 					"PERF_EVENT_IOC_SET_OUTPUT,fd[%d]);\n",
 					fd,arg2);
 			}
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_OUTPUT,%d);\n",
-				fd,arg2);
 			break;
 		case PERF_EVENT_IOC_SET_FILTER:
 			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_FILTER,%d);\n",
