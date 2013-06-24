@@ -186,6 +186,7 @@ static void ioctl_event(char *line) {
 			else {
 				result=ioctl(fd_remap[fd],arg,fd_remap[arg2]);
 			}
+			break;
 		default:
 			result=ioctl(fd_remap[fd],arg,arg2);
 			break;
