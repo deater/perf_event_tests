@@ -177,7 +177,20 @@ static void ioctl_event(char *line) {
 	int fd,arg,arg2,result;
 
 	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
-	result=ioctl(fd_remap[fd],arg,arg2);
+
+	switch(arg) {
+		case PERF_EVENT_IOC_SET_OUTPUT:
+			if (arg2==-1) {
+				result=ioctl(fd_remap[fd],arg,arg2);
+			}
+			else {
+				result=ioctl(fd_remap[fd],arg,fd_remap[arg2]);
+			}
+		default:
+			result=ioctl(fd_remap[fd],arg,arg2);
+			break;
+	}
+
 	if (result<0) {
 		fprintf(stderr,"Line %lld Error with ioctl %d %d on %d/%d\n",
 			line_num,arg,arg2,fd,fd_remap[fd]);
