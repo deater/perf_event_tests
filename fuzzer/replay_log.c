@@ -19,6 +19,7 @@
 #include "../include/perf_helpers.h"
 
 static int error=0;
+static unsigned long long line_num=0;
 
 #define FD_REMAP_SIZE 2048
 
@@ -37,8 +38,8 @@ static void mmap_event(char *line) {
 		fd_remap[fd], 0);
 
 	if (data==MAP_FAILED) {
-		fprintf(stderr,"Error with mmap of size %d of %d/%d\n",
-			size,fd,fd_remap[fd]);
+		fprintf(stderr,"Line %lld: Error with mmap of size %d of %d/%d\n",
+			line_num,size,fd,fd_remap[fd]);
 		error=1;
 		return;
 	}
@@ -59,8 +60,8 @@ static void munmap_event(char *line) {
 
 	result=munmap(mmap_remap[fd_remap[fd]], size);
 	if (result<0) {
-		fprintf(stderr,"Error with munmap of %p size %d of %d/%d\n",
-			mmap_remap[fd_remap[fd]],size,fd,fd_remap[fd]);
+		fprintf(stderr,"Line: %lld Error with munmap of %p size %d of %d/%d\n",
+			line_num,mmap_remap[fd_remap[fd]],size,fd,fd_remap[fd]);
 		error=1;
 		return;
 	}
@@ -138,7 +139,7 @@ static void open_event(char *line) {
 
 	fd=perf_event_open(&pe,pid,cpu,remapped_group_fd,flags);
 	if (fd<0) {
-		fprintf(stderr,"Error opening %s",line);
+		fprintf(stderr,"Line %lld Error opening %s",line_num,line);
 		error=1;
 		return;
 	}
@@ -163,8 +164,8 @@ static void close_event(char *line) {
 
 	result=close(fd_remap[fd]);
 	if (result<0) {
-		fprintf(stderr,"Error closing %d/%d\n",
-			fd,fd_remap[fd]);
+		fprintf(stderr,"Line %lld Error closing %d/%d\n",
+			line_num,fd,fd_remap[fd]);
 
 	}
 
@@ -178,8 +179,8 @@ static void ioctl_event(char *line) {
 	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
 	result=ioctl(fd_remap[fd],arg,arg2);
 	if (result<0) {
-		fprintf(stderr,"Error with ioctl %d %d on %d/%d\n",
-			arg,arg2,fd,fd_remap[fd]);
+		fprintf(stderr,"Line %lld Error with ioctl %d %d on %d/%d\n",
+			line_num,arg,arg2,fd,fd_remap[fd]);
 		error=1;
 		return;
 	}
@@ -199,8 +200,8 @@ static void read_event(char *line) {
 	sscanf(line,"%*c %d %d",&fd,&read_size);
 
 	if (read_size>MAX_READ_SIZE*sizeof(long long)) {
-		fprintf(stderr,"Read size of %d exceeds max of %ld\n",
-			read_size,MAX_READ_SIZE*sizeof(long long));
+		fprintf(stderr,"Line %lld Read size of %d exceeds max of %ld\n",
+			line_num,read_size,MAX_READ_SIZE*sizeof(long long));
 		error=1;
 		return;
 	}
@@ -208,8 +209,8 @@ static void read_event(char *line) {
 	result=read(fd_remap[fd],data,read_size);
 
 	if (result<0) {
-		fprintf(stderr,"Error reading %d bytes from %d/%d\n",
-			read_size,fd,fd_remap[fd]);
+		fprintf(stderr,"Line %lld Error reading %d bytes from %d/%d\n",
+			line_num,read_size,fd,fd_remap[fd]);
 		error=1;
 		return;
 	}
@@ -303,8 +304,8 @@ int main(int argc, char **argv) {
 					break;
 			case 'F':	replay_which|=REPLAY_FORK;
 					break;
-			default:	fprintf(stderr,"Unknown replay %c\n",
-						argv[2][i]);
+			default:	fprintf(stderr,"Line %lld Unknown replay %c\n",
+						line_num,argv[2][i]);
 
 			}
 		}
@@ -313,6 +314,8 @@ int main(int argc, char **argv) {
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
 		if (result==NULL) break;
+
+		line_num++;
 
 		switch(line[0]) {
 			case 'O':
@@ -367,8 +370,8 @@ int main(int argc, char **argv) {
 				fprintf(stderr,"Quitting early\n");
 				exit(1);
 			default:
-				fprintf(stderr,"Unknown log type \'%c\'\n",
-					line[0]);
+				fprintf(stderr,"Line %lld Unknown log type \'%c\'\n",
+					line_num,line[0]);
 				break;
 		}
 		//if (error) break;
