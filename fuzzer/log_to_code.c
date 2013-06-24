@@ -11,6 +11,7 @@
 #include "perf_attr_print.h"
 
 static int error=0;
+static unsigned long long line_num=0;
 
 static void mmap_event(char *line) {
 
@@ -130,7 +131,41 @@ static void ioctl_event(char *line) {
 	int fd,arg,arg2;
 
 	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
-	printf("\tioctl(fd[%d],%d,%d);\n",fd,arg,arg2);
+
+	switch(arg) {
+		case PERF_EVENT_IOC_ENABLE:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_ENABLE,%d);\n",
+				fd,arg2);
+			break;
+		case PERF_EVENT_IOC_DISABLE:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_DISABLE,%d);\n",
+				fd,arg2);
+			break;
+		case PERF_EVENT_IOC_REFRESH:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_REFRESH,%d);\n",
+				fd,arg2);
+			break;
+		case PERF_EVENT_IOC_RESET:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_RESET,%d);\n",
+				fd,arg2);
+			break;
+		case PERF_EVENT_IOC_PERIOD:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_PERIOD,%d);\n",
+				fd,arg2);
+			break;
+		case PERF_EVENT_IOC_SET_OUTPUT:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_OUTPUT,%d);\n",
+				fd,arg2);
+			break;
+		case PERF_EVENT_IOC_SET_FILTER:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_FILTER,%d);\n",
+				fd,arg2);
+			break;
+		default:
+			printf("\tioctl(fd[%d],%d,%d);\n",fd,arg,arg2);
+			break;
+	}
+
 }
 
 
@@ -234,6 +269,10 @@ int main(int argc, char **argv) {
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
 		if (result==NULL) break;
+
+		line_num++;
+
+		printf("/* %lld */\n",line_num);
 
 		switch(line[0]) {
 			case 'O':
