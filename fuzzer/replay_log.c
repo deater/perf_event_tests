@@ -107,6 +107,8 @@ static void open_event(char *line) {
 		&pe.wakeup_events,&pe.bp_type,
 		&pe.config1,&pe.config2,&pe.branch_sample_type);
 
+	errno=0;
+
 	/* re-populate bitfields */
 	/* can't sscanf into them */
 	pe.disabled=disabled;
@@ -139,7 +141,8 @@ static void open_event(char *line) {
 
 	fd=perf_event_open(&pe,pid,cpu,remapped_group_fd,flags);
 	if (fd<0) {
-		fprintf(stderr,"Line %lld Error opening %s",line_num,line);
+		fprintf(stderr,"Line %lld Error opening %s : %s\n",
+			line_num,line,strerror(errno));
 		error=1;
 		return;
 	}
@@ -178,6 +181,8 @@ static void ioctl_event(char *line) {
 
 	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
 
+	errno=0;
+
 	switch(arg) {
 		case PERF_EVENT_IOC_SET_OUTPUT:
 			if (arg2==-1) {
@@ -193,8 +198,8 @@ static void ioctl_event(char *line) {
 	}
 
 	if (result<0) {
-		fprintf(stderr,"Line %lld Error with ioctl %d %d on %d/%d\n",
-			line_num,arg,arg2,fd,fd_remap[fd]);
+		fprintf(stderr,"Line %lld Error with ioctl %d %d on %d/%d : %s\n",
+			line_num,arg,arg2,fd,fd_remap[fd],strerror(errno));
 		error=1;
 		return;
 	}
