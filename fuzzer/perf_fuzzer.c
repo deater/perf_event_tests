@@ -909,14 +909,15 @@ int main(int argc, char **argv) {
 				case 'd':	debug=DEBUG_ALL;
 						i++;
 						break;
-				case 'l':	logging=DEBUG_ALL;
+                                case 'l':       logging=DEBUG_ALL;
 						i++;
-						if (argc>2) {
-							logfile_name=strdup(argv[2]);
+						if (i<argc) {
+							logfile_name=strdup(argv[i]);
 						}
 						else {
 							logfile_name=strdup("out.log");
 						}
+						i++;
 						break;
 				case 'L':	log_only=1;
 						printf("Logging only\n");
