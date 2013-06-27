@@ -33,6 +33,12 @@ static void mmap_event(char *line) {
 
 	sscanf(line,"%*c %d %d",&size,&fd);
 
+	if (fd_remap[fd]==-1) {
+		fprintf(stderr,"Line %lld Skipping mmap as fd %d not valid\n",
+			line_num,fd);
+		return;
+	}
+
 	data=mmap(NULL, size,
 		PROT_READ|PROT_WRITE, MAP_SHARED,
 		fd_remap[fd], 0);
@@ -41,7 +47,6 @@ static void mmap_event(char *line) {
 		fprintf(stderr,"Line %lld: Error with mmap of size %d of %d/%d\n",
 			line_num,size,fd,fd_remap[fd]);
 		error=1;
-		return;
 	}
 	mmap_remap[fd_remap[fd]]=data;
 
@@ -57,6 +62,19 @@ static void munmap_event(char *line) {
 	int fd,size,result;
 
 	sscanf(line,"%*c %d %d",&fd,&size);
+
+	if (fd_remap[fd]==-1) {
+		fprintf(stderr,"Line: %lld Skipping munmap as fd %d is invalid\n",
+			line_num,fd);
+		return;
+	}
+
+	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) {
+		fprintf(stderr,"Line: %lld Skipping munmap as data is invalid\n",
+			line_num);
+		return;
+
+	}
 
 	result=munmap(mmap_remap[fd_remap[fd]], size);
 	if (result<0) {
@@ -165,12 +183,19 @@ static void close_event(char *line) {
 
 	sscanf(line,"%*c %d",&fd);
 
+	if (fd_remap[fd]==-1) {
+		fprintf(stderr,"Line %lld Skipping close as fd %d not valid\n",
+			line_num,fd);
+		return;
+	}
+
 	result=close(fd_remap[fd]);
 	if (result<0) {
 		fprintf(stderr,"Line %lld Error closing %d/%d\n",
 			line_num,fd,fd_remap[fd]);
 
 	}
+	fd_remap[fd]=-1;
 
 }
 
@@ -290,6 +315,10 @@ int main(int argc, char **argv) {
 	int i;
 
 	int replay_which=REPLAY_ALL;
+
+	/* init */
+
+	for(i=0;i<FD_REMAP_SIZE;i++) fd_remap[i]=-1;
 
 	if (argc<2) {
 		fprintf(stderr,"\nUsage: %s logfile <OCIRMUPF>\n\n",
