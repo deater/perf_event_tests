@@ -816,7 +816,7 @@ static void fork_random_event(void) {
 			fprintf(logfile,"F 0\n");
 		}
 
-		kill(forked_pid,SIGKILL);
+		if (!log_only) kill(forked_pid,SIGKILL);
 		// wait()?
 		already_forked=0;
 	}
@@ -828,11 +828,13 @@ static void fork_random_event(void) {
 			fprintf(logfile,"F 1\n");
 		}
 
-		forked_pid=fork();
+		if (!log_only) {
+			forked_pid=fork();
 
-		/* we're the child */
-		if (forked_pid==0) {
-			while(1) instructions_million();
+			/* we're the child */
+			if (forked_pid==0) {
+				while(1) instructions_million();
+			}
 		}
 		fork_attempts++;
 		fork_successful++;
@@ -875,12 +877,12 @@ static void usage(char *name,int help) {
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
 
 	if (help) {
-		printf("%s [-h] [-v] [-d] [-l filename] [-L] [-s num]\n\n",name);
+		printf("%s [-h] [-v] [-d] [-f] [-l filename] [-s num]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
 		printf("\t-d\tenable debugging\n");
 		printf("\t-l logfile\tlog to file\n");
-		printf("\t-L log only; do not run system calls\n");
+		printf("\t-f only log fork syscalls; do not run\n");
 		printf("\t-s num\tstop after num system calls\n");
 		printf("\n");
 	}
@@ -919,8 +921,8 @@ int main(int argc, char **argv) {
 						}
 						i++;
 						break;
-				case 'L':	log_only=1;
-						printf("Logging only\n");
+				case 'f':	log_only=1;
+						printf("Logging fork only\n");
 						i++;
 						break;
 				case 's':	if (i+1<argc) {
