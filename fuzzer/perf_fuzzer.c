@@ -1,5 +1,9 @@
+/* perf_fuzzer */
+/* by Vince Weaver */
+/* fuzzes the perf_event system call */
+/* Some code shared with the trinity fuzzer */
 
-#define VERSION "0.2"
+#define VERSION "0.3"
 
 #define _GNU_SOURCE 1
 
@@ -39,15 +43,17 @@ int page_size=4096;
 #define DEBUG_MMAP_SUCCESS	0x100
 #define DEBUG_PRCTL		0x200
 
-int debug=0;
-int logging=0;
+static int debug=0;
+static int logging=0;
+static int log_only=0;
+static int stop_after=0;
 
-FILE *logfile;
+
+static FILE *logfile;
 
 struct shm_s *shm;
 
 char *page_rand;
-
 
 static long long total_iterations=0;
 static long long overflows=0;
@@ -834,16 +840,48 @@ static void fork_random_event(void) {
 	}
 }
 
+
+static void dump_summary(void) {
+	printf("Iteration %lld\n",total_iterations);
+	printf("\tOpen attempts: %lld  Successful: %lld\n",
+	       open_attempts,open_successful);
+	printf("\tClose attempts: %lld  Successful: %lld\n",
+	       close_attempts,close_successful);
+	printf("\tRead attempts: %lld  Successful: %lld\n",
+	       read_attempts,read_successful);
+	printf("\tIoctl attempts: %lld  Successful: %lld\n",
+	       ioctl_attempts,ioctl_successful);
+	printf("\tMmap attempts: %lld  Successful: %lld\n",
+	       mmap_attempts,mmap_successful);
+	printf("\tPrctl attempts: %lld  Successful: %lld\n",
+	       prctl_attempts,prctl_successful);
+	printf("\tFork attempts: %lld  Successful: %lld\n",
+	       fork_attempts,fork_successful);
+	printf("\tOverflows: %lld\n", overflows);
+	printf("\tSIGIOs due to RT signal queue full: %lld\n",sigios);
+	open_attempts=0; open_successful=0;
+	close_attempts=0; close_successful=0;
+	read_attempts=0; read_successful=0;
+	ioctl_attempts=0; ioctl_successful=0;
+	mmap_attempts=0; mmap_successful=0;
+	prctl_attempts=0; prctl_successful=0;
+	fork_attempts=0; fork_successful=0;
+	overflows=0;
+	sigios=0;
+}
+
 static void usage(char *name,int help) {
 
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
 
 	if (help) {
-		printf("%s [-h] [-v] [-d] [-l filename]\n\n",name);
+		printf("%s [-h] [-v] [-d] [-l filename] [-L] [-s num]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
 		printf("\t-d\tenable debugging\n");
 		printf("\t-l logfile\tlog to file\n");
+		printf("\t-L log only; do not run system calls\n");
+		printf("\t-s num\tstop after num system calls\n");
 		printf("\n");
 	}
 }
@@ -856,9 +894,12 @@ int main(int argc, char **argv) {
 	/* Parse command line parameters */
 
 	if (argc>1) {
+		i=1;
+		while(1) {
+			if (i>=argc) break;
 
-		if(argv[1][0]=='-') {
-			switch(argv[1][1]) {
+			if(argv[i][0]=='-') {
+				switch(argv[i][1]) {
 				case 'h':	usage(argv[0],1);
 						exit(0);
 						break;
@@ -866,8 +907,10 @@ int main(int argc, char **argv) {
 						exit(0);
 						break;
 				case 'd':	debug=DEBUG_ALL;
+						i++;
 						break;
 				case 'l':	logging=DEBUG_ALL;
+						i++;
 						if (argc>2) {
 							logfile_name=strdup(argv[2]);
 						}
@@ -875,17 +918,29 @@ int main(int argc, char **argv) {
 							logfile_name=strdup("out.log");
 						}
 						break;
+				case 'L':	log_only=1;
+						printf("Logging only\n");
+						i++;
+						break;
+				case 's':	if (i+1<argc) {
+							stop_after=atoi(argv[i+1]);
+						}
+						printf("Stopping after %d\n",stop_after);
+						i+=2;
+						break;
 				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
 						usage(argv[0],1);
 						exit(1);
 						break;
+				}
+
+			}
+			else {
+				fprintf(stderr,"Unknown parameter %s\n",argv[1]);
+				usage(argv[0],1);
+				exit(1);
 			}
 
-		}
-		else {
-			fprintf(stderr,"Unknown parameter %s\n",argv[1]);
-			usage(argv[0],1);
-			exit(1);
 		}
 
 	} else {
@@ -975,35 +1030,14 @@ int main(int argc, char **argv) {
 		next_overflow_refresh=rand()%2;
 		next_refresh=rand_refresh();
 		total_iterations++;
+
+		if ((stop_after) && (total_iterations>=stop_after)) {
+			dump_summary();
+			return 0;
+		}
+
 		if (total_iterations%10000==0) {
-			printf("Iteration %lld\n",total_iterations);
-			printf("\tOpen attempts: %lld  Successful: %lld\n",
-			       open_attempts,open_successful);
-			printf("\tClose attempts: %lld  Successful: %lld\n",
-			       close_attempts,close_successful);
-			printf("\tRead attempts: %lld  Successful: %lld\n",
-			       read_attempts,read_successful);
-			printf("\tIoctl attempts: %lld  Successful: %lld\n",
-			       ioctl_attempts,ioctl_successful);
-			printf("\tMmap attempts: %lld  Successful: %lld\n",
-			       mmap_attempts,mmap_successful);
-			printf("\tPrctl attempts: %lld  Successful: %lld\n",
-			       prctl_attempts,prctl_successful);
-			printf("\tFork attempts: %lld  Successful: %lld\n",
-			       fork_attempts,fork_successful);
-			printf("\tOverflows: %lld\n",
-			       overflows);
-			printf("\tSIGIOs due to RT signal queue full: %lld\n",
-				sigios);
-			open_attempts=0; open_successful=0;
-			close_attempts=0; close_successful=0;
-			read_attempts=0; read_successful=0;
-			ioctl_attempts=0; ioctl_successful=0;
-			mmap_attempts=0; mmap_successful=0;
-			prctl_attempts=0; prctl_successful=0;
-			fork_attempts=0; fork_successful=0;
-			overflows=0;
-			sigios=0;
+			dump_summary();
 		}
 		fflush(logfile);
 	}
