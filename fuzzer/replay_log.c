@@ -304,15 +304,22 @@ static void fork_event(char *line) {
 #define REPLAY_ALL	0xfff
 
 
+void print_usage(char *exec_name) {
+
+	fprintf(stderr,"\nUsage: %s [-h] [-s lines] [-r OCIRMUPF] filename\n\n",
+		exec_name);
+}
 
 int main(int argc, char **argv) {
 
 	FILE *logfile;
+	char *logfile_name=NULL;
 	char line[BUFSIZ];
 	char *result;
 	long long total_syscalls=0,replay_syscalls=0;
+	long long skip_lines=0;
 
-	int i;
+	int i,j;
 
 	int replay_which=REPLAY_ALL;
 
@@ -321,43 +328,75 @@ int main(int argc, char **argv) {
 	for(i=0;i<FD_REMAP_SIZE;i++) fd_remap[i]=-1;
 
 	if (argc<2) {
-		fprintf(stderr,"\nUsage: %s logfile <OCIRMUPF>\n\n",
-			argv[0]);
+		print_usage(argv[0]);
 		exit(1);
 	}
 
-	logfile=fopen(argv[1],"r");
-	if (logfile==NULL) {
-		fprintf(stderr,"Error opening %s\n",argv[1]);
-		exit(1);
-	}
+	i=1;
+	while(1) {
+		if (i>=argc) break;
 
-	if (argc==3) {
-		replay_which=0;
-		for(i=0;i<strlen(argv[2]);i++) {
-			switch(argv[2][i]) {
-			case 'O':	replay_which|=REPLAY_OPEN;
+		if (argv[i][0]=='-') {
+			switch(argv[i][1]) {
+			case 'h':	print_usage(argv[0]);
+					exit(1);
 					break;
-			case 'C':	replay_which|=REPLAY_CLOSE;
+			case 's':	i++;
+					if (i<argc) {
+						skip_lines=atoll(argv[i]);
+						printf("skipping %lld lines\n",skip_lines);
+						i++;
+					}
 					break;
-			case 'I':	replay_which|=REPLAY_IOCTL;
-					break;
-			case 'R':	replay_which|=REPLAY_READ;
-					break;
-			case 'M':	replay_which|=REPLAY_MMAP;
-					break;
-			case 'U':	replay_which|=REPLAY_MUNMAP;
-					break;
-			case 'P':	replay_which|=REPLAY_PRCTL;
-					break;
-			case 'F':	replay_which|=REPLAY_FORK;
-					break;
-			default:	fprintf(stderr,"Line %lld Unknown replay %c\n",
-						line_num,argv[2][i]);
 
+			case 'r':	replay_which=0;
+					i++;
+					for(j=0;j<strlen(argv[i]);j++) {
+						switch(argv[i][j]) {
+						case 'O':	replay_which|=REPLAY_OPEN;
+								break;
+						case 'C':	replay_which|=REPLAY_CLOSE;
+								break;
+						case 'I':	replay_which|=REPLAY_IOCTL;
+								break;
+						case 'R':	replay_which|=REPLAY_READ;
+								break;
+						case 'M':	replay_which|=REPLAY_MMAP;
+								break;
+						case 'U':	replay_which|=REPLAY_MUNMAP;
+								break;
+						case 'P':	replay_which|=REPLAY_PRCTL;
+								break;
+						case 'F':	replay_which|=REPLAY_FORK;
+								break;
+						default:	fprintf(stderr,"Unknown replay %c\n",
+									argv[i][j]);
+						}
+					}
+					i+=2;
+					break;
+			default:	fprintf(stderr,"Unknown option -%c\n",argv[i][1]);
+					exit(1);
+					break;
 			}
 		}
+		else {
+			logfile_name=strdup(argv[i]);
+			i++;
+		}
 	}
+
+	if (logfile_name==NULL) {
+		fprintf(stderr,"Must specify logfile name\n");
+		exit(1);
+	}
+
+	logfile=fopen(logfile_name,"r");
+	if (logfile==NULL) {
+		fprintf(stderr,"Error opening %s\n",logfile_name);
+		exit(1);
+	}
+
 
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
