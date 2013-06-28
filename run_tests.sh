@@ -32,6 +32,7 @@ echo "* Checking basic perf_event functionality"
 ./validation/inherit
 ./validation/inherit_stat
 ./validation/enable_on_exec
+./validation/ioctl_flag_group
 
 echo
 echo "* Checking overflow functionality"
