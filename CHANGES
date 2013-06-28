@@ -1,3 +1,8 @@
+28 June 2013
++ Add nmi_soft_lockup_test
+
++ All the fuzzer stuff
+
 22 May 2013
 + Add perf_mmap_close_bug
 

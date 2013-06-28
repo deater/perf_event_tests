@@ -21,4 +21,7 @@ sleep 5
 ./crashes/offcore_response_mask
 ./crashes/perf_mmap_close_bug
 ./crashes/tracepoint_fork
+# Run twice, sometimes takes two runs
+./crashes/nmi_soft_lockup
+./crashes/nmi_soft_lockup
 

@@ -9,6 +9,7 @@ PAPI_LIB = /usr/local/lib/libpapi.a
 all:	pe_inherit_memleak pe_task_schedule_panic \
 	perf_mmap_close_bug offcore_response_mask \
 	oflo_sw_cpu_clock_crash sw_event_config_overflow \
+	nmi_soft_lockup \
 	tracepoint_fork
 
 ####
@@ -74,6 +75,15 @@ sw_event_config_overflow:	sw_event_config_overflow.o ../lib/perf_helpers.o
 sw_event_config_overflow.o:	sw_event_config_overflow.c
 	$(CC) $(CFLAGS) -c sw_event_config_overflow.c
 
+####
+
+nmi_soft_lockup:	nmi_soft_lockup.o
+	$(CC) $(LFLAGS) -o nmi_soft_lockup nmi_soft_lockup.o
+
+
+nmi_soft_lockup.o:	nmi_soft_lockup.c
+	$(CC) $(CFLAGS) -c nmi_soft_lockup.c
+
 
 ####
 
@@ -89,6 +99,6 @@ clean:
 	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic \
 		perf_mmap_close_bug offcore_response_mask \
 		oflo_sw_cpu_clock_crash sw_event_config_overflow \
-		tracepoint_fork
+		nmi_soft_lockup tracepoint_fork
 
 
