@@ -404,6 +404,8 @@ int main(int argc, char **argv) {
 
 		line_num++;
 
+		if (line_num<skip_lines) continue;
+
 		switch(line[0]) {
 			case 'O':
 				if (replay_which & REPLAY_OPEN) {
