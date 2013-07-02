@@ -6,6 +6,7 @@
 /* by Vince Weaver <vincent.weaver _at_ maine.edu */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -51,6 +52,11 @@ int main(int argc, char **argv) {
 
 	fd[29]=perf_event_open(&pe[29],0,0,-1,PERF_FLAG_FD_NO_GROUP /*1*/ );
 
+	if (fd[29]<0) {
+		printf("Open 29 failed\n");
+		exit(1);
+	}
+
 /* 2 */
 
 	memset(&pe[42],0,sizeof(struct perf_event_attr));
@@ -73,6 +79,12 @@ int main(int argc, char **argv) {
 	pe[42].bp_type=HW_BREAKPOINT_EMPTY;
 
 	fd[42]=perf_event_open(&pe[42],0,0,-1,0 /*0*/ );
+
+	if (fd[42]<0) {
+		printf("Open 42 failed\n");
+		exit(1);
+	}
+
 
 /* 3 */
 	forked_pid=fork();
@@ -106,6 +118,12 @@ int main(int argc, char **argv) {
 
 	fd[15]=perf_event_open(&pe[15],0,0,fd[29],0 /*0*/ );
 
+	if (fd[15]<0) {
+		printf("Open 15 failed\n");
+		exit(1);
+	}
+
+
 /* 8 */
 	close(fd[29]);
 /* 9 */
@@ -129,6 +147,12 @@ int main(int argc, char **argv) {
 	pe[12].bp_type=HW_BREAKPOINT_EMPTY;
 
 	fd[12]=perf_event_open(&pe[12],0,0,-1,PERF_FLAG_FD_NO_GROUP /*1*/ );
+
+	if (fd[12]<0) {
+		printf("Open 12 failed\n");
+		exit(1);
+	}
+
 
 /* 10 */
 	prctl(PR_TASK_PERF_EVENTS_DISABLE);
@@ -156,6 +180,12 @@ int main(int argc, char **argv) {
 
 	fd[4]=perf_event_open(&pe[4],0,0,-1,0 /*0*/ );
 
+	if (fd[4]<0) {
+		printf("Open 4 failed\n");
+		exit(1);
+	}
+
+
 /* 13 */
 
 	memset(&pe[7],0,sizeof(struct perf_event_attr));
@@ -177,6 +207,12 @@ int main(int argc, char **argv) {
 	pe[7].bp_type=HW_BREAKPOINT_EMPTY;
 
 	fd[7]=perf_event_open(&pe[7],0,0,-1,PERF_FLAG_FD_NO_GROUP /*1*/ );
+
+	if (fd[7]<0) {
+		printf("Open 7 failed\n");
+		exit(1);
+	}
+
 
 /* 14 */
 	forked_pid=fork();
@@ -209,6 +245,12 @@ int main(int argc, char **argv) {
 	pe[4].bp_type=HW_BREAKPOINT_EMPTY;
 
 	fd[4]=perf_event_open(&pe[4],0,0,-1,PERF_FLAG_FD_OUTPUT /*2*/ );
+
+	if (fd[4]<0) {
+		printf("Open 4*2 failed\n");
+		exit(1);
+	}
+
 
 /* 20 */
 	prctl(PR_TASK_PERF_EVENTS_DISABLE);
