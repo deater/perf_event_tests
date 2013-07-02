@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 	pe[42].watermark=1;
 	pe[42].precise_ip=3; /* must have zero skid */
 	pe[42].sample_id_all=1;
-	pe[42].exclude_host=1;
+	//pe[42].exclude_host=1;
 	pe[42].wakeup_watermark=0;
 	pe[42].bp_type=HW_BREAKPOINT_EMPTY;
 
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 	pe[15].precise_ip=2; /* request zero skid */
 	pe[15].mmap_data=1;
 	pe[15].sample_id_all=1;
-	pe[15].exclude_guest=1;
+	//pe[15].exclude_guest=1;
 	pe[15].wakeup_watermark=0;
 	pe[15].bp_type=HW_BREAKPOINT_EMPTY;
 
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
 	pe[12].watermark=1;
 	pe[12].precise_ip=0; /* arbitrary skid */
 	pe[12].mmap_data=1;
-	pe[12].exclude_guest=1;
+	//	pe[12].exclude_guest=1;
 	pe[12].wakeup_watermark=0;
 	pe[12].bp_type=HW_BREAKPOINT_EMPTY;
 
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
 	pe[7].comm=1;
 	pe[7].inherit_stat=1;
 	pe[7].precise_ip=1; /* constant skid */
-	pe[7].exclude_host=1;
+	//pe[7].exclude_host=1;
 	pe[7].wakeup_events=0;
 	pe[7].bp_type=HW_BREAKPOINT_EMPTY;
 
@@ -203,8 +203,8 @@ int main(int argc, char **argv) {
 	pe[4].enable_on_exec=1;
 	pe[4].precise_ip=0; /* arbitrary skid */
 	pe[4].mmap_data=1;
-	pe[4].exclude_host=1;
-	pe[4].exclude_guest=1;
+	//	pe[4].exclude_host=1;
+	//	pe[4].exclude_guest=1;
 	pe[4].wakeup_events=0;
 	pe[4].bp_type=HW_BREAKPOINT_EMPTY;
 
