@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 	pe[15].task=1;
 	pe[15].watermark=1;
 	pe[15].precise_ip=2; /* request zero skid */
-	pe[15].mmap_data=1;
+	//pe[15].mmap_data=1;
 	//pe[15].sample_id_all=1;
 	//pe[15].exclude_guest=1;
 	pe[15].wakeup_watermark=0;
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 	pe[12].enable_on_exec=1;
 	pe[12].watermark=1;
 	pe[12].precise_ip=0; /* arbitrary skid */
-	pe[12].mmap_data=1;
+	//pe[12].mmap_data=1;
 	//	pe[12].exclude_guest=1;
 	pe[12].wakeup_watermark=0;
 	pe[12].bp_type=HW_BREAKPOINT_EMPTY;
@@ -238,7 +238,7 @@ int main(int argc, char **argv) {
 	pe[4].exclude_idle=1;
 	pe[4].enable_on_exec=1;
 	pe[4].precise_ip=0; /* arbitrary skid */
-	pe[4].mmap_data=1;
+	//pe[4].mmap_data=1;
 	//	pe[4].exclude_host=1;
 	//	pe[4].exclude_guest=1;
 	pe[4].wakeup_events=0;
