@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 	pe[42].task=1;
 	pe[42].watermark=1;
 	pe[42].precise_ip=3; /* must have zero skid */
-	pe[42].sample_id_all=1;
+	//pe[42].sample_id_all=1;
 	//pe[42].exclude_host=1;
 	pe[42].wakeup_watermark=0;
 	pe[42].bp_type=HW_BREAKPOINT_EMPTY;
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
 	pe[15].watermark=1;
 	pe[15].precise_ip=2; /* request zero skid */
 	pe[15].mmap_data=1;
-	pe[15].sample_id_all=1;
+	//pe[15].sample_id_all=1;
 	//pe[15].exclude_guest=1;
 	pe[15].wakeup_watermark=0;
 	pe[15].bp_type=HW_BREAKPOINT_EMPTY;
