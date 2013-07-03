@@ -1,6 +1,9 @@
 /* Parses the events exported by the kernel */
 /* Under /sys/bus/event_source/devices      */
 
+//#define SYSFS "/sys/bus/event_source/devices/"
+#define SYSFS "./fakesys/bus/event_source/devices/"
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -124,16 +127,13 @@ char *field_to_name(int field) {
 	return fieldnames[field];
 }
 
-int update_configs(int pmu, char *field,
+static int update_configs(int pmu, char *field,
 			long long value, long long *c, long long *c1) {
 
 	int i;
 
-//	printf("VMW: looking for %s\n",field);
-
 	for(i=0;i<pmus[pmu].num_formats;i++) {
 		if (!strcmp(field,pmus[pmu].formats[i].name)) {
-//			printf("VMW: found %s\n",field);
 			if (pmus[pmu].formats[i].field==FIELD_CONFIG) {
 				*c|=( (value&pmus[pmu].formats[i].mask)
 					<<pmus[pmu].formats[i].shift);
@@ -151,13 +151,11 @@ int update_configs(int pmu, char *field,
 	return 0;
 }
 
-int parse_generic(int pmu,char *value, long long *config, long long *config1) {
+static int parse_generic(int pmu,char *value, long long *config, long long *config1) {
 
 	long long c=0,c1=0,temp;
 	char field[BUFSIZ];
 	int i,ptr=0;
-
-//	printf("VMW: parsing %s\n",value);
 
 	while(1) {
 		i=0;
@@ -205,7 +203,6 @@ int parse_generic(int pmu,char *value, long long *config, long long *config1) {
 				ptr++;
 			}
 		}
-//		printf("VMW: %s = %llx\n",field,temp);
 		update_configs(pmu,field,temp,&c,&c1);
 		if (value[ptr]==0) break;
 		ptr++;
@@ -216,7 +213,7 @@ int parse_generic(int pmu,char *value, long long *config, long long *config1) {
 }
 
 
-int init_pmus(void) {
+static int init_pmus(void) {
 
 	DIR *dir,*event_dir,*format_dir;
 	struct dirent *entry,*event_entry,*format_entry;
@@ -224,15 +221,16 @@ int init_pmus(void) {
 		temp_name[BUFSIZ],format_name[BUFSIZ],format_value[BUFSIZ];
 	int type,pmu_num=0,format_num=0,generic_num=0;
 	FILE *fff;
+	int result;
 
 
 	/* Count number of PMUs */
 	/* This may break if PMUs are ever added/removed on the fly? */
 
-	dir=opendir("/sys/bus/event_source/devices");
+	dir=opendir(SYSFS);
 	if (dir==NULL) {
 		fprintf(stderr,"Unable to opendir "
-			"/sys/bus/event_source/devices : %s\n",
+			SYSFS " : %s\n",
 			strerror(errno));
 		return -1;
 	}
@@ -266,7 +264,7 @@ int init_pmus(void) {
 
 		/* read name */
 		pmus[pmu_num].name=strdup(entry->d_name);
-		sprintf(dir_name,"/sys/bus/event_source/devices/%s",
+		sprintf(dir_name,SYSFS"/%s",
 			entry->d_name);
 
 		/* read type */
@@ -401,6 +399,8 @@ int init_pmus(void) {
 	}
 
 	closedir(dir);
+
+	(void) result;
 
 	return 0;
 
