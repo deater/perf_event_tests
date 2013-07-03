@@ -23,7 +23,7 @@ struct format_type {
 	char *value;
 	int field;
 	int bits;
-	unsigned long long mask;
+	unsigned long long  mask;
 	int shift;
 };
 
@@ -38,7 +38,7 @@ struct pmu_type {
 
 static int num_pmus=0;
 
-struct pmu_type *pmus;
+static struct pmu_type *pmus=NULL;
 
 
 #define FIELD_UNKNOWN	0
@@ -53,7 +53,7 @@ char fieldnames[MAX_FIELDS][20]={
 	"config1",
 };
 
-int parse_format(char *string, int *field_type, int *shift, int *bits) {
+static int parse_format(char *string, int *field_type, int *shift, int *bits) {
 
 	int i,firstnum,secondnum;
 	char format_string[BUFSIZ];
@@ -281,7 +281,7 @@ static int init_pmus(void) {
 		if (fff==NULL) {
 		}
 		else {
-			fscanf(fff,"%d",&type);
+			result=fscanf(fff,"%d",&type);
 			pmus[pmu_num].type=type;
 			fclose(fff);
 		}
@@ -328,7 +328,7 @@ static int init_pmus(void) {
 					dir_name,format_entry->d_name);
 				fff=fopen(temp_name,"r");
 				if (fff!=NULL) {
-					fscanf(fff,"%s",format_value);
+					result=fscanf(fff,"%s",format_value);
 					pmus[pmu_num].formats[format_num].value=
 						strdup(format_value);
 					fclose(fff);
@@ -391,7 +391,7 @@ static int init_pmus(void) {
 					dir_name,event_entry->d_name);
 				fff=fopen(temp_name,"r");
 				if (fff!=NULL) {
-					fscanf(fff,"%s",event_value);
+					result=fscanf(fff,"%s",event_value);
 					pmus[pmu_num].generic_events[generic_num].value=
 						strdup(event_value);
 					fclose(fff);
@@ -408,7 +408,7 @@ static int init_pmus(void) {
 
 	closedir(dir);
 
-	(void) result;
+	(void)result;
 
 	return 0;
 
