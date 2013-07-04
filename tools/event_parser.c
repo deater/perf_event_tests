@@ -183,7 +183,6 @@ static int parse_generic(int pmu,char *value, long long *config, long long *conf
 
 			ptr++;
 
-			printf("%c",value[ptr]);
 			if (value[ptr]=='0') {
 				if (value[ptr+1]=='x') {
 					ptr++;
