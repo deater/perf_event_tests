@@ -43,10 +43,13 @@ int main(int argc, char **argv) {
    int processor_type;
 
    quiet=test_quiet();
-   
+
    sys_devices=opendir("/sys/bus/event_source/devices/");
    if (sys_devices==NULL) {
-      fprintf(stderr,"Couldn't open /sys/bus_event/source/devices/\n");
+      	if (!quiet) {
+		fprintf(stderr,
+			"Couldn't open /sys/bus_event/source/devices/\n");
+	}
       test_skip(test_string);
    }
 
