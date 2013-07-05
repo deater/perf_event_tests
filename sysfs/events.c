@@ -255,10 +255,10 @@ static int init_pmus(void) {
 
 	dir=opendir(SYSFS);
 	if (dir==NULL) {
-		fprintf(stderr,"Unable to opendir "
+		if (!quiet) fprintf(stderr,"Unable to opendir "
 			SYSFS " : %s\n",
 			strerror(errno));
-		test_fail(test_string);
+		test_skip(test_string);
 	}
 
 	while(1) {
