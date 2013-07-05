@@ -1,3 +1,6 @@
+5 July 2013
++ Add sysfs test
+
 28 June 2013
 + Add ioctl_flag_group test
 + Add nmi_soft_lockup_test

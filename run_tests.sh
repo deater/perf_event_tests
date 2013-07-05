@@ -11,6 +11,9 @@ echo "* Checking infrastructure"
 echo "  + ./validation/get_cache_info"
 echo -n "    "
 ./validation/get_cache_info
+echo " + ./sysfs/events"
+echo -n "    "
+./sysfs/events
 
 echo
 echo "* Checking generalized events"
