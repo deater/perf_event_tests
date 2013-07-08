@@ -125,6 +125,12 @@ static void close_event(char *line) {
 	printf("\tclose(fd[%d]);\n",fd);
 }
 
+static void ioctl_arg_print(int arg) {
+	if (arg&PERF_IOC_FLAG_GROUP) {
+		printf("PERF_IOC_FLAG_GROUP | ");
+	}
+	printf("%d",arg);
+}
 
 static void ioctl_event(char *line) {
 
@@ -134,20 +140,23 @@ static void ioctl_event(char *line) {
 
 	switch(arg) {
 		case PERF_EVENT_IOC_ENABLE:
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_ENABLE,%d);\n",
-				fd,arg2);
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_ENABLE,",fd);
+			ioctl_arg_print(arg2);
+			printf(");\n");
 			break;
 		case PERF_EVENT_IOC_DISABLE:
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_DISABLE,%d);\n",
-				fd,arg2);
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_DISABLE,",fd);
+			ioctl_arg_print(arg2);
+			printf(");\n");
 			break;
 		case PERF_EVENT_IOC_REFRESH:
 			printf("\tioctl(fd[%d],PERF_EVENT_IOC_REFRESH,%d);\n",
 				fd,arg2);
 			break;
 		case PERF_EVENT_IOC_RESET:
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_RESET,%d);\n",
-				fd,arg2);
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_RESET,",fd);
+			ioctl_arg_print(arg2);
+			printf(");\n");
 			break;
 		case PERF_EVENT_IOC_PERIOD:
 			printf("\tioctl(fd[%d],PERF_EVENT_IOC_PERIOD,%d);\n",
