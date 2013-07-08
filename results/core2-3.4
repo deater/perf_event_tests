@@ -1,6 +1,6 @@
 
 **** RUNNING perf_event_tests ****
-Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
+Linux core2 3.4.0 #1 SMP Mon Jul 8 13:32:03 EDT 2013 x86_64 GNU/Linux
 
 * Checking infrastructure
   + ./validation/get_cache_info
@@ -38,7 +38,7 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
   + ./validation/non-existent
     Testing if non-existent events fail...                       PASSED
   + ./validation/breakpoint_support
-    Testing hardware breakpoints...                              PASSED
+    Testing hardware breakpoints...                              FAILED
   + ./validation/inherit
     Testing inherit...                                           PASSED
   + ./validation/inherit_stat
@@ -94,7 +94,7 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
 
 * Checking other bugs
   + ./corner_cases/sw_start_leader
-    Testing start with sw event group leader...                  PASSED
+    Testing start with sw event group leader...                  FAILED
   + ./corner_cases/hw_sw_mix
     Testing mixes of HW and SW events...                         FAILED
 

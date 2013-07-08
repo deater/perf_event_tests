@@ -1,12 +1,12 @@
 
 **** RUNNING perf_event_tests ****
-Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
+Linux core2 2.6.34 #1 SMP Thu Dec 8 14:26:57 EST 2011 x86_64 GNU/Linux
 
 * Checking infrastructure
   + ./validation/get_cache_info
     Seeing if cache info is provided by the kernel...            PASSED
  + ./sysfs/events
-    Testing format of event files under /sys/...                 PASSED
+    Testing format of event files under /sys/...                 SKIPPED
 
 * Checking generalized events
   + ./generalized_events/branches
@@ -38,7 +38,7 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
   + ./validation/non-existent
     Testing if non-existent events fail...                       PASSED
   + ./validation/breakpoint_support
-    Testing hardware breakpoints...                              PASSED
+    Testing hardware breakpoints...                              FAILED
   + ./validation/inherit
     Testing inherit...                                           PASSED
   + ./validation/inherit_stat
@@ -68,7 +68,7 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
   + ./overflow/wakeup_events_overflow
     Testing wakeup events overflow...                            PASSED
   + ./overflow/overflow_requires_wakeup
-    Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
+    Testing if we overflow w/o setting wakeup...                 OLD BEHAVIOR
 
 * Checking mmap record sample functionality
   + ./record_sample/print_record_sample
@@ -78,13 +78,13 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
   + ./record_sample/lost_record_sample
     Checking behavior on mmap overflow...                        PASSED
   + ./record_sample/multiple_mmap_sizes
-    Checking behavior of various mmap sizes...                   PASSED
+    Checking behavior of various mmap sizes...                   FAILED
 
 * Checking bugs that PAPI has to work around
   + ./bugs/sync_read_required
     Testing if time running is correct without DISABLE...        PASSED
   + ./bugs/read_group_attached
-    Testing if FORMAT_GROUP works on attached processes...       PASSED
+    Testing if FORMAT_GROUP works on attached processes...       FAILED
   + ./bugs/check_schedulability
     Testing if events checked for schedulability at read...      PASSED
   + ./bugs/check_papi_multiplexing
@@ -106,11 +106,11 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
 
 * Checking interfaces that have changed over the years
   + ./corner_cases/overflow_requires_mmap
-    Testing if overflow signals require ring buffer...           NEW BEHAVIOR
+    Testing if overflow signals require ring buffer...           OLD BEHAVIOR
   + ./corner_cases/signal_after_exec
-    Testing if overflow signals survive exec...                  NEW BEHAVIOR
+    Testing if overflow signals survive exec...                  OLD BEHAVIOR
   + ./corner_cases/sampled_notleader_refresh
-    Testing if refresh of group leader enables siblings...       NEW BEHAVIOR
+    Testing if refresh of group leader enables siblings...       OLD BEHAVIOR
 
 * Checking for corner-cases in the ABI (not necessarily bugs)
   + ./corner_cases/multiple_active
@@ -118,15 +118,15 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
   + ./corner_cases/max_multiplex
     Testing limit of multiplexing...                             PASSED
   + ./corner_cases/reset_leader
-    Testing reset on group leader...                             PASSED
+    Testing reset on group leader...                             FAILED
   + ./corner_cases/check_reset_mpx
     Testing if reset clears multiplex fields...                  PASSED
 
 * Checking for fast RDPMC support
   + ./validation/rdpmc_support
-    Testing if userspace rdpmc reads are supported...            PASSED
+    Testing if userspace rdpmc reads are supported...            SKIPPED
   + ./validation/rdpmc_validation
-    Testing if userspace rdpmc reads give expected results...    PASSED
+    Testing if userspace rdpmc reads give expected results...    SKIPPED
 
 * Checking proposed interface updates (not in any released kernel)
   + ./corner_cases/ioctl_refresh_0
@@ -136,5 +136,5 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
 
 * Checking for major bugs that are unlikely to ever be fixed
   + ./bugs/nmi_watchdog_group_leader
-    Testing if we can determine maximum events despite NMI watchdog... FAILED
+    Testing if we can determine maximum events despite NMI watchdog... SKIPPED
 
