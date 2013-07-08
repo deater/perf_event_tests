@@ -1,34 +1,53 @@
 /*
  * Routines to get randomness/set seeds.
  */
+#include <stdio.h>
+#include <sys/time.h>
 #include <syslog.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <sys/time.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <limits.h>
 #include "shm.h"
+//#include "params.h"	// 'user_set_seed'
+//#include "log.h"
 #include "sanitise.h"
 
-extern int user_set_seed;
-
-#define TRUE 1
+#define TRUE  1
 #define FALSE 0
 
 /* The actual seed lives in the shm. This variable is used
  * to store what gets passed in from the command line -s argument */
 unsigned int seed = 0;
 
+#if 0
+static void syslog_seed(int seedparam)
+{
+	fprintf(stderr, "Randomness reseeded to %u\n", seedparam);
+	openlog("trinity", LOG_CONS|LOG_PERROR, LOG_USER);
+	syslog(LOG_CRIT, "Randomness reseeded to %u\n", seedparam);
+	closelog();
+}
+#endif
+
 unsigned int new_seed(void)
 {
+	int fd;
 	struct timeval t;
 	unsigned int r;
 
-	r = rand();
-	if (!(rand() % 2)) {
-		gettimeofday(&t, 0);
-		r |= t.tv_usec;
+	if ((fd = open("/dev/urandom", O_RDONLY)) < 0 ||
+	    read(fd, &r, sizeof(r)) != sizeof(r)) {
+		r = rand();
+		if (!(rand() % 2)) {
+			gettimeofday(&t, 0);
+			r |= t.tv_usec;
+		}
 	}
+	if (fd >= 0)
+		close(fd);
 	return r;
 }
 
@@ -37,14 +56,18 @@ unsigned int new_seed(void)
  */
 unsigned int init_seed(unsigned int seedparam)
 {
+#if 0
 	if (user_set_seed == TRUE)
 		printf("[%d] Using user passed random seed: %u\n", getpid(), seedparam);
 	else {
 		seedparam = new_seed();
 
-		printf("Initial random seed from time of day: %u\n", seedparam);
+		printf("Initial random seed: %u\n", seedparam);
 	}
 
+	if (do_syslog == TRUE)
+		syslog_seed(seedparam);
+#endif
 	return seedparam;
 }
 
@@ -70,109 +93,237 @@ void reseed(void)
 	shm->need_reseed = FALSE;
 	shm->reseed_counter = 0;
 
+#if 0
+
+	if (getpid() != shm->parentpid) {
+		output(0, "Reseeding should only happen from parent!\n");
+		exit(EXIT_FAILURE);
+	}
 	/* don't change the seed if we passed -s */
 	if (user_set_seed == TRUE)
 		return;
-
+#endif
 	/* We are reseeding. */
 	shm->seed = new_seed();
 
-	fprintf(stderr,"[%d] Random reseed: %u\n", getpid(), shm->seed);
-
+//	output(0, "[%d] Random reseed: %u\n", getpid(), shm->seed);
+#if 0
+	if (do_syslog == TRUE)
+		syslog_seed(shm->seed);
+#endif
 }
 
 unsigned int rand_bool(void)
 {
-  return rand() % 2;
+	return rand() % 2;
 }
 
-unsigned int rand_single_32bit(void)
+unsigned int rand_single_bit(unsigned char size)
 {
-  return (1L << (rand() % 32));
+	return (1L << (rand() % size));
 }
 
-unsigned long rand_single_64bit(void)
+static unsigned long randbits(int limit)
 {
-  return (1L << (rand() % 64));
+	unsigned int num = rand() % limit / 2;
+	unsigned int i;
+	unsigned long r = 0;
+
+	for (i = 0; i < num; i++)
+		r |= (1 << (rand() % (limit - 1)));
+
+	return r;
 }
 
+/*
+ * Based on very similar routine stolen from iknowthis. Thanks Tavis.
+ */
+static unsigned long taviso(void)
+{
+	unsigned long r = 0;
+
+	switch (rand() % 3) {
+	case 0:	r = rand() & rand();
+#if __WORDSIZE == 64
+		r <<= 32;
+		r |= rand() & rand();
+#endif
+		break;
+
+	case 1:	r = rand() | rand();
+#if __WORDSIZE == 64
+		r <<= 32;
+		r |= rand() | rand();
+#endif
+		break;
+
+	case 2:	r = rand();
+#if __WORDSIZE == 64
+		r <<= 32;
+		r |= rand();
+#endif
+		break;
+
+	default:
+		break;
+	}
+
+	return r;
+}
+
+static unsigned long rand8x8(void)
+{
+	unsigned long r = 0UL;
+	unsigned int i;
+
+	for (i = (rand() % 7) + 1; i > 0; --i)
+		r = (r << 8) | rand() % 256;
+
+	return r;
+}
+
+static unsigned long rept8(unsigned int num)
+{
+	unsigned long r = 0UL;
+	unsigned int i;
+	unsigned char c;
+
+	c = rand() % 256;
+	for (i = rand() % (num - 1) ; i > 0; --i)
+		r = (r << 8) | c;
+
+	return r;
+}
+
+static unsigned int __rand32(void)
+{
+	unsigned long r = 0;
+
+	switch (rand() % 7) {
+	case 0: r = rand_single_bit(32);
+		break;
+	case 1:	r = randbits(32);
+		break;
+	case 2: r = rand();
+		break;
+	case 3:	r = taviso();
+		break;
+	case 4:	r = rand8x8();
+		break;
+	case 5:	r = rept8(4);
+		break;
+	case 6:	return get_interesting_32bit_value();
+	default:
+		break;
+	}
+
+	return r;
+}
 
 unsigned int rand32(void)
 {
-  unsigned long r = 0;
+	unsigned long r = 0;
 
-  switch (rand() % 3) {
+	r = __rand32();
 
-    /* Just set one bit */
-  case 0: return rand_single_32bit();
+	if (rand_bool()) {
+		unsigned int i;
+		unsigned int rounds;
 
-    /* 0 .. RAND_MAX */
-  case 1: r = rand();
-    if (rand_bool())
-      r |= (1L << 31);
-    break;
+		/* mangle it. */
+		rounds = rand() % 3;
+		for (i = 0; i < rounds; i++) {
+			switch (rand() % 2) {
+			case 0: r |= __rand32();
+				break;
+			case 1: r ^= __rand32();
+				break;
+			default:
+				break;
+			}
+		}
+	}
 
-  case 2: return get_interesting_32bit_value();
+	if (rand_bool())
+		r = INT_MAX - r;
 
-  default:
-    break;
-  }
-  return r;
+	if (rand_bool())
+		r |= (1L << 31);
+
+	/* limit the size */
+	switch (rand() % 4) {
+	case 0: r &= 0xff;
+		break;
+	case 1: r &= 0xffff;
+		break;
+	case 2: r &= 0xffffff;
+		break;
+	default:
+		break;
+	}
+
+	return r;
 }
-
-
 
 unsigned long rand64(void)
 {
-  unsigned long r = 0;
+	unsigned long r = 0;
 
-  switch (rand() % 7) {
+	if (rand_bool()) {
+		/* 32-bit ranges. */
+		r = rand32();
 
-    /* Just set one bit */
-  case 0: return rand_single_32bit();
-  case 1: return rand_single_64bit();
+	} else {
+		/* 33:64-bit ranges. */
+		switch (rand() % 7) {
+		case 0:	r = rand_single_bit(64);
+			break;
+		case 1:	r = randbits(64);
+			break;
+		case 2:	r = rand32() | rand32() << 31;
+			break;
+		case 3:	r = taviso();
+			break;
+		case 4:	r = rand8x8();
+			break;
+		case 5:	r = rept8(8);
+			break;
+		/* Sometimes pick a not-so-random number. */
+		case 6:	return get_interesting_value();
+		default:
+			break;
+		}
 
-    /* Sometimes pick a not-so-random number. */
-  case 2: return get_interesting_value();
+		/* limit the size */
+		switch (rand() % 4) {
+		case 0: r &= 0x000000ffffffffffULL;
+			break;
+		case 1: r &= 0x0000ffffffffffffULL;
+			break;
+		case 2: r &= 0x00ffffffffffffffULL;
+			break;
+		default:
+			break;
+		}
 
-    /* limit to RAND_MAX (31 bits) */
-  case 3: r = rand();
-    break;
+	}
 
-    /* do some gymnastics here to get > RAND_MAX
-     * Based on very similar routine stolen from iknowthis. Thanks Tavis.
-     */
-  case 4:
-    r = rand() & rand();
-#if __WORDSIZE == 64
-    r <<= 32;
-    r |= rand() & rand();
-#endif
-    break;
+	if (rand_bool())
+		r ^= r;
 
-  case 5:
-    r = rand() | rand();
-#if __WORDSIZE == 64
-    r <<= 32;
-    r |= rand() | rand();
-#endif
-    break;
+	/* increase distribution in MSB */
+	if ((rand() % 10)) {
+		unsigned int i;
+		unsigned int rounds;
 
-  case 6:
-    r = rand();
-#if __WORDSIZE == 64
-    r <<= 32;
-    r |= rand();
-#endif
-    break;
+		rounds = rand() % 4;
+		for (i = 0; i < rounds; i++)
+			r |= (1L << (__WORDSIZE - (rand() % 256)));
+	}
 
-  default:
-    break;
-  }
+	/* randomly flip sign bit. */
+	if (rand_bool())
+		r |= (1L << (__WORDSIZE - 1));
 
-  if (rand_bool())
-    r |= (1L << (__WORDSIZE - 1));
-
-  return r;
+	return r;
 }
-

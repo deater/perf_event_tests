@@ -969,6 +969,8 @@ int main(int argc, char **argv) {
 
 	/* Set up to match trinity setup, vaguely */
 
+	syscall_perf_event_open.init();
+
 	shm=calloc(1,sizeof(struct shm_s));
 
 	page_rand = memalign(page_size, page_size * 2);

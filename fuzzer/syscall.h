@@ -30,6 +30,7 @@ struct arglist {
 struct syscall {
 	void (*sanitise)(int childno);
 	void (*post)(int);
+	int (*init)(void);
 
 	unsigned int number;
 	const char name[80];
@@ -101,9 +102,6 @@ extern unsigned int max_nr_syscalls;
 extern unsigned int max_nr_32bit_syscalls;
 extern unsigned int max_nr_64bit_syscalls;
 
-extern int use_32bit;
-extern int use_64bit;
-
 #define CAPABILITY_CHECK (1<<0)
 #define AVOID_SYSCALL (1<<1)
 #define NI_SYSCALL (1<<2)
@@ -119,17 +117,16 @@ void toggle_syscall(const char *arg, unsigned char state);
 void dump_syscall_tables(void);
 int setup_syscall_group(unsigned int desired_group);
 int validate_syscall_tables(void);
-int no_syscalls_enabled(void);
 int validate_syscall_table_64(void);
 int validate_syscall_table_32(void);
 void sanity_check_tables(void);
-const char * print_syscall_name(unsigned int callno, int is32bit);
 void enable_random_syscalls(void);
 int validate_specific_syscall_silent(const struct syscalltable *table, int call);
 void deactivate_disabled_syscalls(void);
 void count_syscalls_enabled(void);
 void display_enabled_syscalls(void);
 void disable_non_net_syscalls(void);
+void init_syscalls(void);
 
 #define for_each_32bit_syscall(i) \
 	for (i = 0; i < max_nr_32bit_syscalls; i++)

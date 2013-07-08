@@ -16,6 +16,7 @@
 #include "maps.h"
 #include "shm.h"
 
+#define SYSFS "/sys/bus/event_source/devices/"
 
 struct generic_event_type {
 	char *name;
@@ -150,6 +151,7 @@ static int parse_generic(int pmu,char *value, long long *config, long long *conf
 	long long c=0,c1=0,temp;
 	char field[BUFSIZ];
 	int i,ptr=0;
+	int base=10;
 
 	while(1) {
 		i=0;
@@ -165,18 +167,24 @@ static int parse_generic(int pmu,char *value, long long *config, long long *conf
 		}
 
 		/* if at end, was parameter w/o value */
+		/* So it is a flag with a value of 1  */
 		if ((value[ptr]==',') || (value[ptr]==0)) {
 			temp=0x1;
 		}
 		else {
 			/* get number */
 
+			base=10;
+
 			ptr++;
 
-			if (value[ptr]!='0') fprintf(stderr,"Expected 0x\n");
-			ptr++;
-			if (value[ptr]!='x') fprintf(stderr,"Expected 0x\n");
-			ptr++;
+			if (value[ptr]=='0') {
+				if (value[ptr+1]=='x') {
+					ptr++;
+					ptr++;
+					base=16;
+				}
+			}
 			temp=0x0;
 			while(1) {
 
@@ -186,7 +194,7 @@ static int parse_generic(int pmu,char *value, long long *config, long long *conf
                    			|| ((value[ptr]>='a') && (value[ptr]<='f'))) ) {
 					fprintf(stderr,"Unexpected char %c\n",value[ptr]);
 				}
-				temp*=16;
+				temp*=base;
 				if ((value[ptr]>='0') && (value[ptr]<='9')) {
 					temp+=value[ptr]-'0';
 				}
@@ -211,21 +219,22 @@ static int init_pmus(void) {
 
 	DIR *dir,*event_dir,*format_dir;
 	struct dirent *entry,*event_entry,*format_entry;
-	char dir_name[BUFSIZ],event_name[BUFSIZ],event_value[BUFSIZ],
-		temp_name[BUFSIZ],format_name[BUFSIZ],format_value[BUFSIZ];
+	char dir_name[BUFSIZ] = "";
+	char event_name[BUFSIZ] = "";
+	char event_value[BUFSIZ] = "";
+	char temp_name[BUFSIZ] = "";
+	char format_name[BUFSIZ] = "";
+	char format_value[BUFSIZ] = "";
 	int type,pmu_num=0,format_num=0,generic_num=0;
 	FILE *fff;
-	int result;
+	int result = -1;
 
 
 	/* Count number of PMUs */
 	/* This may break if PMUs are ever added/removed on the fly? */
 
-	dir=opendir("/sys/bus/event_source/devices");
+	dir=opendir(SYSFS);
 	if (dir==NULL) {
-		fprintf(stderr,"Unable to opendir "
-			"/sys/bus/event_source/devices : %s\n",
-			strerror(errno));
 		return -1;
 	}
 
@@ -237,12 +246,12 @@ static int init_pmus(void) {
 		num_pmus++;
 	}
 
-	if (num_pmus<1) return -1;
+	if (num_pmus<1)
+		goto out;
 
 	pmus=calloc(num_pmus,sizeof(struct pmu_type));
-	if (pmus==NULL) {
-		return -1;
-	}
+	if (pmus==NULL)
+		goto out;
 
 	/****************/
 	/* Add each PMU */
@@ -258,7 +267,7 @@ static int init_pmus(void) {
 
 		/* read name */
 		pmus[pmu_num].name=strdup(entry->d_name);
-		sprintf(dir_name,"/sys/bus/event_source/devices/%s",
+		sprintf(dir_name,SYSFS"/%s",
 			entry->d_name);
 
 		/* read type */
@@ -295,6 +304,8 @@ static int init_pmus(void) {
 							sizeof(struct format_type));
 			if (pmus[pmu_num].formats==NULL) {
 				pmus[pmu_num].num_formats=0;
+				closedir(dir);
+				closedir(format_dir);
 				return -1;
 			}
 
@@ -318,18 +329,19 @@ static int init_pmus(void) {
 					pmus[pmu_num].formats[format_num].value=
 						strdup(format_value);
 					fclose(fff);
-				}
-				parse_format(format_value,
+
+					parse_format(format_value,
 						&pmus[pmu_num].formats[format_num].field,
 						&pmus[pmu_num].formats[format_num].shift,
 						&pmus[pmu_num].formats[format_num].bits);
-				if (pmus[pmu_num].formats[format_num].bits==64) {
-					pmus[pmu_num].formats[format_num].mask=0xffffffffffffffffULL;
-				} else {
-					pmus[pmu_num].formats[format_num].mask=
-						(1ULL<<pmus[pmu_num].formats[format_num].bits)-1;
+					if (pmus[pmu_num].formats[format_num].bits==64) {
+						pmus[pmu_num].formats[format_num].mask=0xffffffffffffffffULL;
+					} else {
+						pmus[pmu_num].formats[format_num].mask=
+							(1ULL<<pmus[pmu_num].formats[format_num].bits)-1;
+					}
+					format_num++;
 				}
-				format_num++;
 			}
 			closedir(format_dir);
 		}
@@ -359,6 +371,8 @@ static int init_pmus(void) {
 				sizeof(struct generic_event_type));
 			if (pmus[pmu_num].generic_events==NULL) {
 				pmus[pmu_num].num_generic_events=0;
+				closedir(dir);
+				closedir(event_dir);
 				return -1;
 			}
 
@@ -392,12 +406,12 @@ static int init_pmus(void) {
 		pmu_num++;
 	}
 
+	result = 0;
+
+out:
 	closedir(dir);
 
-	(void)result;
-
-	return 0;
-
+	return result;
 }
 
 
@@ -672,7 +686,6 @@ static long long random_event_config(__u32 *event_type, __u64 *config1)
 		break;
 
 	case PERF_TYPE_READ_FROM_SYSFS:
-		if (pmus==NULL) init_pmus();
 		config = random_sysfs_config(event_type,config1);
 		break;
 
@@ -1043,15 +1056,17 @@ static void sanitise_perf_event_open(int childno)
 	/* requires ROOT to select pid that doesn't belong to us */
 	/* pid of 0 means current process */
 	/* pid of -1 means all processes  */
-	pid = 0;
+
 	if (flags & PERF_FLAG_PID_CGROUP) {
 		/* In theory in this case we should pass in */
 		/* a file descriptor from /dev/cgroup       */
 		pid = get_random_fd();
-	} else if (rand() % 2) {
-		pid = 0;
 	} else {
-		pid = get_pid();
+		if (rand_bool()) {
+			pid = 0;
+		} else {
+			pid = get_pid();
+		}
 	}
 	shm->a2[childno] = pid;
 
@@ -1091,5 +1106,6 @@ struct syscall syscall_perf_event_open = {
 		},
 	},
 	.sanitise = sanitise_perf_event_open,
+	.init = init_pmus,
 	.flags = NEED_ALARM,
 };
