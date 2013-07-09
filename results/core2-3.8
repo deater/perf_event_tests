@@ -1,0 +1,140 @@
+
+**** RUNNING perf_event_tests ****
+Linux core2 3.8.0 #1 SMP Tue Jul 9 16:19:48 EDT 2013 x86_64 GNU/Linux
+
+* Checking infrastructure
+  + ./validation/get_cache_info
+    Seeing if cache info is provided by the kernel...            PASSED
+ + ./sysfs/events
+    Testing format of event files under /sys/...                 PASSED
+
+* Checking generalized events
+  + ./generalized_events/branches
+    Testing "branches" generalized event...                      PASSED
+  + ./generalized_events/branch-misses
+    Testing "branch-misses" generalized event...                 PASSED
+  + ./generalized_events/cycles
+    Testing "cycles" generalized event...                        PASSED
+  + ./generalized_events/instructions
+    Testing "instructions" generalized event...                  PASSED
+  + ./generalized_events/l1-dcache-stores
+    Testing "L1-dcache-stores" generalized event...              PASSED
+  + ./generalized_events/l1-dcache-loads
+    Testing "L1-dcache-loads" generalized event...               PASSED
+
+* Checking offcore response events
+  + ./validation/offcore_response
+    Testing RAW access to offcore response counters...           SKIPPED
+  + ./validation/offcore_response_mask
+    Testing if setting invalid offcore bits is blocked...        SKIPPED
+
+* Checking events that require special permissions
+  + ./validation_privileged/uncore_events
+    Testing uncore events...                                     SKIPPED
+
+* Checking basic perf_event functionality
+  + ./validation/format_id_support
+    Testing for FORMAT_ID support...                             PASSED
+  + ./validation/non-existent
+    Testing if non-existent events fail...                       PASSED
+  + ./validation/breakpoint_support
+    Testing hardware breakpoints...                              FAILED
+  + ./validation/inherit
+    Testing inherit...                                           PASSED
+  + ./validation/inherit_stat
+    Testing inherit_stat...                                      UNEXPLAINED
+  + ./validation/enable_on_exec
+    Testing enable_on_exec...                                    PASSED
+  + ./validation/ioctl_flag_group
+    Testing PERF_IOC_FLAG_GROUP...                               PASSED
+
+* Checking overflow functionality
+  + ./overflow/breakpoint_overflow
+    Testing hardware breakpoint overflow...                      UNEXPLAINED
+  + ./overflow/simple_overflow_leader
+    Testing overflow on leaders...                               PASSED
+  + ./overflow/simple_overflow_sibling
+    Testing overflows on sibling...                              PASSED
+  + ./overflow/simultaneous_overflow
+    Testing multiple event overflow...                           PASSED
+  + ./overflow/simultaneous_group_overflow
+    Testing multiple event overflow within group...              PASSED
+  + ./overflow/simul_oneshot_group_overflow
+    Testing simultaneous one-shot group overflow...              PASSED
+  + ./overflow/single_shot_overflow
+    Testing single shot overflow...                              PASSED
+  + ./overflow/single_shot_w_enable
+    Testing enable vs refresh signal types...                    PASSED
+  + ./overflow/wakeup_events_overflow
+    Testing wakeup events overflow...                            PASSED
+  + ./overflow/overflow_requires_wakeup
+    Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
+
+* Checking mmap record sample functionality
+  + ./record_sample/print_record_sample
+    Testing record sampling...                                   PASSED
+  + ./record_sample/validate_record_sample
+    Validating sample record overflow...                         PASSED
+  + ./record_sample/lost_record_sample
+    Checking behavior on mmap overflow...                        PASSED
+  + ./record_sample/multiple_mmap_sizes
+    Checking behavior of various mmap sizes...                   PASSED
+
+* Checking bugs that PAPI has to work around
+  + ./bugs/sync_read_required
+    Testing if time running is correct without DISABLE...        PASSED
+  + ./bugs/read_group_attached
+    Testing if FORMAT_GROUP works on attached processes...       PASSED
+  + ./bugs/check_schedulability
+    Testing if events checked for schedulability at read...      PASSED
+  + ./bugs/check_papi_multiplexing
+    Testing if schedulability checked with pinned=0...           PASSED
+  + ./bugs/check_multiplexing
+    Testing if multiplexing works...                             PASSED
+
+* Checking other bugs
+  + ./corner_cases/sw_start_leader
+    Testing start with sw event group leader...                  PASSED
+  + ./corner_cases/hw_sw_mix
+    Testing mixes of HW and SW events...                         FAILED
+
+* Checking bugs that can silently produce wrong results
+  + ./validation/check_constraints
+    Testing if event constraints are enforced...                 PASSED
+  + ./corner_cases/context_switch_user_kernel
+    Testing if context-switches are kernel only...               NEW BEHAVIOR
+
+* Checking interfaces that have changed over the years
+  + ./corner_cases/overflow_requires_mmap
+    Testing if overflow signals require ring buffer...           NEW BEHAVIOR
+  + ./corner_cases/signal_after_exec
+    Testing if overflow signals survive exec...                  NEW BEHAVIOR
+  + ./corner_cases/sampled_notleader_refresh
+    Testing if refresh of group leader enables siblings...       NEW BEHAVIOR
+
+* Checking for corner-cases in the ABI (not necessarily bugs)
+  + ./corner_cases/multiple_active
+    Testing multiple simultaneous measurements...                PASSED
+  + ./corner_cases/max_multiplex
+    Testing limit of multiplexing...                             PASSED
+  + ./corner_cases/reset_leader
+    Testing reset on group leader...                             PASSED
+  + ./corner_cases/check_reset_mpx
+    Testing if reset clears multiplex fields...                  PASSED
+
+* Checking for fast RDPMC support
+  + ./validation/rdpmc_support
+    Testing if userspace rdpmc reads are supported...            PASSED
+  + ./validation/rdpmc_validation
+    Testing if userspace rdpmc reads give expected results...    PASSED
+
+* Checking proposed interface updates (not in any released kernel)
+  + ./corner_cases/ioctl_refresh_0
+    Testing if PERF_IOC_REFRESH with 0 works...                  USE CAUTION
+  + ./corner_cases/wrong_size_enospc
+    Testing if ENOSPC returned for wrong-sized buffer...         OLD BEHAVIOR
+
+* Checking for major bugs that are unlikely to ever be fixed
+  + ./bugs/nmi_watchdog_group_leader
+    Testing if we can determine maximum events despite NMI watchdog... FAILED
+
