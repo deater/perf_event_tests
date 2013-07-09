@@ -62,9 +62,12 @@ int main(int argc, char **argv) {
            uncore_event=0xff;
            break;
       case PROCESSOR_SANDYBRIDGE:
-      case PROCESSOR_IVYBRIDGE:
            strcpy(uncore_box_name,"uncore_cbox_0");
            strcpy(uncore_event_name,"snb_unc_cbo0::UNC_CLOCKTICKS");
+           uncore_event=0xff;
+      case PROCESSOR_IVYBRIDGE:
+           strcpy(uncore_box_name,"uncore_cbox_0");
+           strcpy(uncore_event_name,"ivb_unc_cbo0::UNC_CLOCKTICKS");
            uncore_event=0xff;
            break;
       default:
