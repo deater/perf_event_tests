@@ -1,6 +1,6 @@
 
 **** RUNNING perf_event_tests ****
-Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
+Linux core2 3.10.0 #3 SMP Tue Jul 9 17:25:31 EDT 2013 x86_64 GNU/Linux
 
 * Checking infrastructure
   + ./validation/get_cache_info
@@ -38,7 +38,7 @@ Linux core2 3.10.0 #2 SMP Mon Jul 8 10:49:38 EDT 2013 x86_64 GNU/Linux
   + ./validation/non-existent
     Testing if non-existent events fail...                       PASSED
   + ./validation/breakpoint_support
-    Testing hardware breakpoints...                              PASSED
+    Testing hardware breakpoints...                              FAILED
   + ./validation/inherit
     Testing inherit...                                           PASSED
   + ./validation/inherit_stat
