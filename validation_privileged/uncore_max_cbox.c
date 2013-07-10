@@ -3,6 +3,8 @@
 
 /* by Vince Weaver, vincent.weaver@maine.edu        */
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -13,6 +15,8 @@
 #include <dirent.h>
 
 #include <errno.h>
+
+#include <sched.h>
 
 #include "perf_event.h"
 #include "perf_helpers.h"
@@ -46,7 +50,7 @@ int main(int argc, char **argv) {
    char cbox_name[BUFSIZ];
 
    char uncore_event_name[BUFSIZ];
-   int uncore_event;
+   unsigned int uncore_event=0x0;
 
    int processor_type;
 
@@ -174,6 +178,7 @@ int main(int argc, char **argv) {
 		}
    	}
 
+	printf("\t\tRunning on core %d\n",sched_getcpu());
 	printf("\t\t");
 	naive_matrix_multiply(quiet);
 
