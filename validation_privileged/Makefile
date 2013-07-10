@@ -4,7 +4,8 @@ LFLAGS =
 
 all:	\
 	uncore_events \
-	uncore_max_cbox
+	uncore_max_cbox \
+	uncore_group_cbox
 
 
 ###
@@ -52,11 +53,26 @@ uncore_max_cbox.o:	uncore_max_cbox.c
 	$(CC) $(CFLAGS) -c uncore_max_cbox.c
 
 
+###
+
+uncore_group_cbox:	uncore_group_cbox.o ../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/matrix_multiply.o
+	$(CC) $(LFLAGS) -o uncore_group_cbox uncore_group_cbox.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/matrix_multiply.o
+
+uncore_group_cbox.o:	uncore_group_cbox.c
+	$(CC) $(CFLAGS) -c uncore_group_cbox.c
+
+
 ####
 
 clean:	
 	rm -f *~ *.o \
 	uncore_events \
-	uncore_max_cbox
+	uncore_max_cbox \
+	uncore_group_cbox
 
 
