@@ -1,7 +1,7 @@
-/* This tests Uncore Evets on Nehalem+ CPUs         */
-/* These weren't supported until at least Linxu 3.6 */
+/* This tests Uncore Events on Nehalem+ CPUs        */
+/* These weren't supported until at least Linux 3.6 */
 
-/* by Vince Weaver, vincent.weaver@maine.edu        */
+/* by Vince Weaver, vincent.weaver _at_ maine.edu   */
 
 #include <stdlib.h>
 #include <stdio.h>
