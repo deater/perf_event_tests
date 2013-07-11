@@ -3,8 +3,8 @@
 #include <string.h>
 #include <malloc.h>
 #include <unistd.h>
-#include <linux/hw_breakpoint.h>
 
+#include "../include/hw_breakpoint.h"
 #include "../include/perf_event.h"
 #include "../include/perf_helpers.h"
 

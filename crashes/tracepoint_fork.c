@@ -9,8 +9,9 @@
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
-#include <linux/hw_breakpoint.h>
-#include <linux/perf_event.h>
+
+#include "hw_breakpoint.h"
+#include "perf_event.h"
 
 #include "perf_helpers.h"
 
