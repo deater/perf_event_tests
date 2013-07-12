@@ -1,10 +1,11 @@
 /* reset_leader.c  */
 /* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
-/* Test if calling reset on a leader resets all child events */
+/* Test if calling reset on a leader resets all child events  */
 
 /* PERF_IOC_FLAG_GROUP was broken from  75f937f24bd9 (2.6.31) */
 /*                                until 724b6daa1    (3.4)    */
+/* Also, reset of children clearned leaders also until 3.4    */
 
 
 #define _GNU_SOURCE 1
@@ -153,6 +154,36 @@ int main(int argc, char** argv) {
       failures++;
    }
 
+	/*******************/
+	/* Count some more */
+	/*******************/
+
+   ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
+   ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
+
+   result=instructions_million();
+   if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
+
+   ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
+
+   read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
+   if (read_result!=sizeof(long long)*READ_SIZE) {
+      if (!quiet) printf("Unexpected read size\n");
+   }
+
+   if (!quiet) {
+      printf("Count some more\n");
+      for(i=0;i<count[0];i++) {
+	 printf("\t%i Counted %lld\n",i,count[1+i]);
+      }
+   }
+
+   read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
+   if (read_result!=sizeof(long long)*READ_SIZE) {
+      printf("Unexpected read size\n");
+   }
+
+
 	/***************/
 	/* reset child */
 	/***************/
@@ -171,8 +202,8 @@ int main(int argc, char** argv) {
       }
    }
 
-   if (count[1]!=0) {
-      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+   if (count[1]==0) {
+      if (!quiet) printf("ERROR! Reset of child cleared leader\n");
       failures++;
    }
 
