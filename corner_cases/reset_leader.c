@@ -5,8 +5,6 @@
 
 /* PERF_IOC_FLAG_GROUP was broken from  75f937f24bd9 (2.6.31) */
 /*                                until 724b6daa1    (3.4)    */
-/* Also, reset of children clearned leaders also until 3.4    */
-
 
 #define _GNU_SOURCE 1
 
@@ -110,14 +108,14 @@ int main(int argc, char** argv) {
       }
    }
 
+	/***************/
+	/* second read */
+	/***************/
+
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
       printf("Unexpected read size\n");
    }
-
-	/***************/
-	/* second read */
-	/***************/
 
    if (!quiet) {
       printf("Second read, to be sure\n");
@@ -260,12 +258,18 @@ int main(int argc, char** argv) {
    }
 
    if (count[1]!=0) {
-      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+     if (!quiet) {
+       printf("ERROR! Reset of leader with PERF_IOC_FLAG_GROUP "
+			 "did not work\n");
+     }
       failures++;
    }
 
    if (count[2]!=0) {
-      if (!quiet) printf("ERROR! Reset of leader didn't clear child\n");
+     if (!quiet) {
+       printf("ERROR! Reset of leader with PERF_IOC_FLAG_GROUP "
+	      "did not clear child\n");
+     }
       failures++;
    }
 
@@ -318,12 +322,18 @@ int main(int argc, char** argv) {
    }
 
    if (count[1]!=0) {
-      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+      if (!quiet) {
+	 printf("ERROR! Reset of child with PERF_IOC_FLAG_GROUP "
+			 "did not clear leader\n");
+      }
       failures++;
    }
 
    if (count[2]!=0) {
-      if (!quiet) printf("ERROR! Reset of child did not work\n");
+     if (!quiet) {
+       printf("ERROR! Reset of child with PERF_IOC_FLAG_GROUP "
+	      "did not work\n");
+     }
       failures++;
    }
 
