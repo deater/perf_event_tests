@@ -3,6 +3,10 @@
 
 /* Test if calling reset on a leader resets all child events */
 
+/* PERF_IOC_FLAG_GROUP was broken from  75f937f24bd9 (2.6.31) */
+/*                                until 724b6daa1    (3.4)    */
+
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -32,6 +36,7 @@ int main(int argc, char** argv) {
    int read_result;
    long long count[READ_SIZE];
    int i;
+   int failures=0;
 
    struct perf_event_attr pe[EVENTS];
 
@@ -88,7 +93,9 @@ int main(int argc, char** argv) {
 
    ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
 
-	/* read results */
+	/****************/
+	/* Initial Read */
+	/****************/
 
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
@@ -107,7 +114,9 @@ int main(int argc, char** argv) {
       printf("Unexpected read size\n");
    }
 
+	/***************/
 	/* second read */
+	/***************/
 
    if (!quiet) {
       printf("Second read, to be sure\n");
@@ -116,23 +125,15 @@ int main(int argc, char** argv) {
       }
    }
 
+	/****************/
 	/* reset leader */
+	/****************/
 
    ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
 
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
       printf("Unexpected read size\n");
-   }
-
-   if (count[1]!=0) {
-      fprintf(stderr,"Reset of event 0 did not work\n");
-      test_fail(test_string);
-   }
-
-   if (count[2]==0) {
-      fprintf(stderr,"Reset of leader cleared child\n");
-      test_fail(test_string);
    }
 
    if (!quiet) {
@@ -142,23 +143,25 @@ int main(int argc, char** argv) {
       }
    }
 
+   if (count[1]!=0) {
+      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+      failures++;
+   }
+
+   if (count[2]==0) {
+      if (!quiet) printf("ERROR! Reset of leader cleared child\n");
+      failures++;
+   }
+
+	/***************/
 	/* reset child */
+	/***************/
 
    ioctl(fd[1], PERF_EVENT_IOC_RESET, 0);
 
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
       printf("Unexpected read size\n");
-   }
-
-   if (count[1]!=0) {
-      fprintf(stderr,"Reset of event 0 did not work\n");
-      test_fail(test_string);
-   }
-
-   if (count[2]!=0) {
-      fprintf(stderr,"Reset of child did not work\n");
-      test_fail(test_string);
    }
 
    if (!quiet) {
@@ -168,7 +171,19 @@ int main(int argc, char** argv) {
       }
    }
 
-   /* Count some more */
+   if (count[1]!=0) {
+      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+      failures++;
+   }
+
+   if (count[2]!=0) {
+      if (!quiet) printf("ERROR! Reset of child did not work\n");
+      failures++;
+   }
+
+	/*******************/
+	/* Count some more */
+	/*******************/
 
    ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
    ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
@@ -180,7 +195,7 @@ int main(int argc, char** argv) {
 
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
-      printf("Unexpected read size\n");
+      if (!quiet) printf("Unexpected read size\n");
    }
 
    if (!quiet) {
@@ -195,23 +210,15 @@ int main(int argc, char** argv) {
       printf("Unexpected read size\n");
    }
 
+	/*************************************/
 	/* reset leader, PERF_IOC_FLAG_GROUP */
+	/*************************************/
 
    ioctl(fd[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
 
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
       printf("Unexpected read size\n");
-   }
-
-   if (count[1]!=0) {
-      fprintf(stderr,"Reset of event 0 did not work\n");
-      test_fail(test_string);
-   }
-
-   if (count[2]!=0) {
-      fprintf(stderr,"Reset of leader didn't clear child\n");
-      test_fail(test_string);
    }
 
    if (!quiet) {
@@ -221,7 +228,19 @@ int main(int argc, char** argv) {
       }
    }
 
-   /* Count some more */
+   if (count[1]!=0) {
+      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+      failures++;
+   }
+
+   if (count[2]!=0) {
+      if (!quiet) printf("ERROR! Reset of leader didn't clear child\n");
+      failures++;
+   }
+
+	/*********************/
+	/* Count some more   */
+	/*********************/
 
    ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
    ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
@@ -249,23 +268,15 @@ int main(int argc, char** argv) {
    }
 
 
+	/****************************************/
 	/* reset child with PERF_IOC_FLAG_GROUP */
+	/****************************************/
 
    ioctl(fd[1], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
 
    read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
    if (read_result!=sizeof(long long)*READ_SIZE) {
       printf("Unexpected read size\n");
-   }
-
-   if (count[1]!=0) {
-      fprintf(stderr,"Reset of event 0 did not work\n");
-      test_fail(test_string);
-   }
-
-   if (count[2]!=0) {
-      fprintf(stderr,"Reset of child did not work\n");
-      test_fail(test_string);
    }
 
    if (!quiet) {
@@ -275,13 +286,25 @@ int main(int argc, char** argv) {
       }
    }
 
+   if (count[1]!=0) {
+      if (!quiet) printf("ERROR! Reset of event 0 did not work\n");
+      failures++;
+   }
 
+   if (count[2]!=0) {
+      if (!quiet) printf("ERROR! Reset of child did not work\n");
+      failures++;
+   }
 
    for(i=0;i<EVENTS;i++) {
       close(fd[i]);
    }
 
    (void) ret;
+
+   if (failures) {
+	test_fail(test_string);
+   }
 
    test_pass(test_string);
 
