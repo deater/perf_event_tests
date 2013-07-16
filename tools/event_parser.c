@@ -42,13 +42,15 @@ static struct pmu_type *pmus=NULL;
 #define FIELD_UNKNOWN	0
 #define FIELD_CONFIG	1
 #define FIELD_CONFIG1	2
+#define FIELD_CONFIG2   3
 
-#define MAX_FIELDS	3
+#define MAX_FIELDS	4
 
 char fieldnames[MAX_FIELDS][20]={
 	"unknown",
 	"config",
 	"config1",
+	"config2",
 };
 
 static int parse_format(char *string, int *field_type, unsigned long long *mask) {
@@ -59,6 +61,9 @@ static int parse_format(char *string, int *field_type, unsigned long long *mask)
 	*mask=0;
 
 	/* get format */
+	/* according to Documentation/ABI/testing/sysfs-bus-event_source-devices-format */
+	/* the format is something like config1:1,6-10,44 */
+
 	i=0;
 	while(1) {
 		format_string[i]=string[i];
