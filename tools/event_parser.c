@@ -16,6 +16,7 @@ struct generic_event_type {
 	char *value;
 	long long config;
 	long long config1;
+	long long config2;
 };
 
 struct format_type {
@@ -79,7 +80,10 @@ static int parse_format(char *string, int *field_type, unsigned long long *mask)
 		*field_type=FIELD_CONFIG;
 	} else if (!strcmp(format_string,"config1")) {
 		*field_type=FIELD_CONFIG1;
-	} else {
+	} else if (!strcmp(format_string,"config2")) {
+		*field_type=FIELD_CONFIG2;
+	}
+	else {
 		*field_type=FIELD_UNKNOWN;
 	}
 
@@ -161,7 +165,10 @@ static unsigned long long separate_bits(unsigned long long value,
 }
 
 static int update_configs(int pmu, char *field,
-			long long value, long long *c, long long *c1) {
+			long long value,
+			long long *c,
+			long long *c1,
+			long long *c2) {
 
 	int i;
 
@@ -178,15 +185,23 @@ static int update_configs(int pmu, char *field,
 						pmus[pmu].formats[i].mask);
 				return 0;
 			}
+
+			if (pmus[pmu].formats[i].field==FIELD_CONFIG2) {
+				*c2|=separate_bits(value,
+						pmus[pmu].formats[i].mask);
+				return 0;
+			}
+
 		}
 	}
 
 	return 0;
 }
 
-static int parse_generic(int pmu,char *value, long long *config, long long *config1) {
+static int parse_generic(int pmu, char *value,
+			long long *config, long long *config1, long long *config2) {
 
-	long long c=0,c1=0,temp;
+	long long c=0,c1=0,c2=0,temp;
 	char field[BUFSIZ];
 	int i,ptr=0;
 	int base=10;
@@ -243,12 +258,13 @@ static int parse_generic(int pmu,char *value, long long *config, long long *conf
 				ptr++;
 			}
 		}
-		update_configs(pmu,field,temp,&c,&c1);
+		update_configs(pmu,field,temp,&c,&c1,&c2);
 		if (value[ptr]==0) break;
 		ptr++;
 	}
 	*config=c;
 	*config1=c1;
+	*config2=c2;
 	return 0;
 }
 
@@ -428,7 +444,8 @@ static int init_pmus(void) {
 				}
 				parse_generic(pmu_num,event_value,
 						&pmus[pmu_num].generic_events[generic_num].config,
-						&pmus[pmu_num].generic_events[generic_num].config1);
+						&pmus[pmu_num].generic_events[generic_num].config1,
+						&pmus[pmu_num].generic_events[generic_num].config2);
 				generic_num++;
 			}
 			closedir(event_dir);
