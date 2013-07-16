@@ -569,6 +569,11 @@ static void close_random_event(void) {
 	/* Exit if no events */
 	if (i<0) return;
 
+	/* here to avoid race in overflow where we munmap or close */
+	/* but event still marked active */
+
+	event_data[i].active=0;
+
 	if (debug&DEBUG_CLOSE) {
 		printf("CLOSE, Active=%d, if %p munmap(%p,%x); close(%d);\n",
 			active_events,
@@ -595,7 +600,6 @@ static void close_random_event(void) {
 		fprintf(logfile,"C %d\n",event_data[i].fd);
 	}
 
-	event_data[i].active=0;
 	active_events--;
 
 
