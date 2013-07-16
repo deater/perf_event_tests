@@ -1,8 +1,8 @@
 /* Parses the events exported by the kernel */
 /* Under /sys/bus/event_source/devices      */
 
-//#define SYSFS "/sys/bus/event_source/devices/"
-#define SYSFS "./fakesys/bus/event_source/devices/"
+#define SYSFS "/sys/bus/event_source/devices/"
+//#define SYSFS "./fakesys/snb_ep/sys/bus/event_source/devices/"
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -22,9 +22,7 @@ struct format_type {
 	char *name;
 	char *value;
 	int field;
-	int bits;
 	unsigned long long  mask;
-	int shift;
 };
 
 struct pmu_type {
@@ -53,10 +51,12 @@ char fieldnames[MAX_FIELDS][20]={
 	"config1",
 };
 
-static int parse_format(char *string, int *field_type, int *shift, int *bits) {
+static int parse_format(char *string, int *field_type, unsigned long long *mask) {
 
-	int i,firstnum,secondnum;
+	int i,firstnum,secondnum,shift,bits;
 	char format_string[BUFSIZ];
+
+	*mask=0;
 
 	/* get format */
 	i=0;
@@ -78,45 +78,57 @@ static int parse_format(char *string, int *field_type, int *shift, int *bits) {
 		*field_type=FIELD_UNKNOWN;
 	}
 
-	/* Read first number */
-	i++;
-	firstnum=0;
 	while(1) {
-		if (string[i]==0) break;
-		if (string[i]=='-') break;
-		if ((string[i]<'0') || (string[i]>'9')) {
-			fprintf(stderr,"Unknown format char %c\n",string[i]);
-			return -1;
-		}
-		firstnum*=10;
-		firstnum+=(string[i])-'0';
+
+		/* Read first number */
 		i++;
-	}
-	*shift=firstnum;
-
-	/* check if no second num */
-	if (string[i]==0) {
-		*bits=1;
-		return 0;
-	}
-
-	/* Read second number */
-	i++;
-	secondnum=0;
-	while(1) {
-		if (string[i]==0) break;
-		if (string[i]=='-') break;
-		if ((string[i]<'0') || (string[i]>'9')) {
-			fprintf(stderr,"Unknown format char %c\n",string[i]);
-			return -1;
+		firstnum=0;
+		while(1) {
+			if (string[i]==0) break;
+			if (string[i]=='-') break;
+			if (string[i]==',') break;
+			if ((string[i]<'0') || (string[i]>'9')) {
+				fprintf(stderr,"Unknown format char %c\n",string[i]);
+				return -1;
+			}
+			firstnum*=10;
+			firstnum+=(string[i])-'0';
+			i++;
 		}
-		secondnum*=10;
-		secondnum+=(string[i])-'0';
-		i++;
+		shift=firstnum;
+
+		/* check if no second num */
+		if ((string[i]==0) || (string[i]==',')) {
+			bits=1;
+		}
+		else {
+			/* Read second number */
+			i++;
+			secondnum=0;
+			while(1) {
+				if (string[i]==0) break;
+				if (string[i]=='-') break;
+				if (string[i]==',') break;
+				if ((string[i]<'0') || (string[i]>'9')) {
+					fprintf(stderr,"Unknown format char %c\n",string[i]);
+					return -1;
+				}
+				secondnum*=10;
+				secondnum+=(string[i])-'0';
+				i++;
+			}
+			bits=(secondnum-firstnum)+1;
+		}
+
+		if (bits==64) {
+			*mask|=0xffffffffffffffffULL;
+		} else {
+			*mask|=((1ULL<<bits)-1)<<shift;
+		}
+
+		if (string[i]==0) break;
+
 	}
-
-	*bits=(secondnum-firstnum)+1;
-
 	return 0;
 }
 
@@ -127,6 +139,22 @@ char *field_to_name(int field) {
 	return fieldnames[field];
 }
 
+static unsigned long long separate_bits(unsigned long long value,
+					unsigned long long mask) {
+
+	int value_bit=0,i;
+	unsigned long long result=0;
+
+	for(i=0;i<64;i++) {
+		if ((1ULL<<i)&mask) {
+			result|=((value>>value_bit)&1)<<i;
+			value_bit++;
+		}
+	}
+
+	return result;
+}
+
 static int update_configs(int pmu, char *field,
 			long long value, long long *c, long long *c1) {
 
@@ -135,14 +163,14 @@ static int update_configs(int pmu, char *field,
 	for(i=0;i<pmus[pmu].num_formats;i++) {
 		if (!strcmp(field,pmus[pmu].formats[i].name)) {
 			if (pmus[pmu].formats[i].field==FIELD_CONFIG) {
-				*c|=( (value&pmus[pmu].formats[i].mask)
-					<<pmus[pmu].formats[i].shift);
+				*c|=separate_bits(value,
+						pmus[pmu].formats[i].mask);
 				return 0;
 			}
 
 			if (pmus[pmu].formats[i].field==FIELD_CONFIG1) {
-				*c1|=( (value&pmus[pmu].formats[i].mask)
-					<<pmus[pmu].formats[i].shift);
+				*c1|=separate_bits(value,
+						pmus[pmu].formats[i].mask);
 				return 0;
 			}
 		}
@@ -281,7 +309,7 @@ static int init_pmus(void) {
 		}
 		else {
 			result=fscanf(fff,"%d",&type);
-			pmus[pmu_num].type=type;
+			if (result==1) pmus[pmu_num].type=type;
 			fclose(fff);
 		}
 
@@ -328,20 +356,15 @@ static int init_pmus(void) {
 				fff=fopen(temp_name,"r");
 				if (fff!=NULL) {
 					result=fscanf(fff,"%s",format_value);
-					pmus[pmu_num].formats[format_num].value=
+					if (result==1) { 
+						pmus[pmu_num].formats[format_num].value=
 						strdup(format_value);
+					}
 					fclose(fff);
 
 					parse_format(format_value,
 						&pmus[pmu_num].formats[format_num].field,
-						&pmus[pmu_num].formats[format_num].shift,
-						&pmus[pmu_num].formats[format_num].bits);
-					if (pmus[pmu_num].formats[format_num].bits==64) {
-						pmus[pmu_num].formats[format_num].mask=0xffffffffffffffffULL;
-					} else {
-						pmus[pmu_num].formats[format_num].mask=
-							(1ULL<<pmus[pmu_num].formats[format_num].bits)-1;
-					}
+						&pmus[pmu_num].formats[format_num].mask);
 					format_num++;
 				}
 			}
@@ -392,8 +415,10 @@ static int init_pmus(void) {
 				fff=fopen(temp_name,"r");
 				if (fff!=NULL) {
 					result=fscanf(fff,"%s",event_value);
-					pmus[pmu_num].generic_events[generic_num].value=
-						strdup(event_value);
+					if (result==1) {
+						pmus[pmu_num].generic_events[generic_num].value=
+							strdup(event_value);
+					}
 					fclose(fff);
 				}
 				parse_generic(pmu_num,event_value,
@@ -407,8 +432,6 @@ static int init_pmus(void) {
 	}
 
 	closedir(dir);
-
-	(void)result;
 
 	return 0;
 
@@ -431,10 +454,8 @@ void dump_pmus(void) {
 			for(j=0;j<pmus[i].num_formats;j++) {
 				printf("\t\t%s : ",pmus[i].formats[j].name);
 				printf("%s\n",pmus[i].formats[j].value);
-				printf("\t\t\tfield: %s shift: %d bits: %d mask: %llx\n",
+				printf("\t\t\tfield: %s mask: %llx\n",
 					field_to_name(pmus[i].formats[j].field),
-					pmus[i].formats[j].shift,
-					pmus[i].formats[j].bits,
 					pmus[i].formats[j].mask);
 			}
 		}
