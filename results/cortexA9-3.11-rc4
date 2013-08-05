@@ -1,0 +1,135 @@
+
+**** RUNNING perf_event_tests ****
+Linux pandaboard 3.11.0-rc4 #4 SMP Mon Aug 5 13:04:37 EDT 2013 armv7l GNU/Linux
+
+* Checking infrastructure
+  + ./validation/get_cache_info
+    Seeing if cache info is provided by the kernel...            FAILED
+ + ./sysfs/events
+    Testing format of event files under /sys/...                 PASSED
+
+* Checking generalized events
+  + ./generalized_events/branches
+    Testing "branches" generalized event...                      FAILED
+  + ./generalized_events/branch-misses
+    Testing "branch-misses" generalized event...                 FAILED
+  + ./generalized_events/cycles
+    Testing "cycles" generalized event...                        PASSED
+  + ./generalized_events/instructions
+    Testing "instructions" generalized event...                  PASSED
+  + ./generalized_events/l1-dcache-stores
+    Testing "L1-dcache-stores" generalized event...              FAILED
+  + ./generalized_events/l1-dcache-loads
+    Testing "L1-dcache-loads" generalized event...               FAILED
+
+* Checking offcore response events
+  + ./validation/offcore_response
+    Testing RAW access to offcore response counters...           SKIPPED
+  + ./validation/offcore_response_mask
+    Testing if setting invalid offcore bits is blocked...        SKIPPED
+
+* Checking events that require special permissions
+  + ./validation_privileged/uncore_events
+    Testing uncore events...                                     SKIPPED
+
+* Checking basic perf_event functionality
+  + ./validation/format_id_support
+    Testing for FORMAT_ID support...                             PASSED
+  + ./validation/non-existent
+    	Failed with wrong error fd=-1 error 2 != 22 No such file or directory!
+Testing if non-existent events fail...                       FAILED
+  + ./validation/breakpoint_support
+    Testing hardware breakpoints...                              SKIPPED
+  + ./validation/inherit
+      + ./validation/inherit_stat
+      + ./validation/enable_on_exec
+    Testing enable_on_exec...                                    FAILED
+  + ./validation/ioctl_flag_group
+    
+* Checking overflow functionality
+  + ./overflow/breakpoint_overflow
+    Testing hardware breakpoint overflow...                      SKIPPED
+  + ./overflow/simple_overflow_leader
+    Testing overflow on leaders...                               FAILED
+  + ./overflow/simple_overflow_sibling
+    Testing overflows on sibling...                              FAILED
+  + ./overflow/simultaneous_overflow
+      + ./overflow/simultaneous_group_overflow
+      + ./overflow/simul_oneshot_group_overflow
+      + ./overflow/single_shot_overflow
+    Testing single shot overflow...                              FAILED
+  + ./overflow/single_shot_w_enable
+    Testing enable vs refresh signal types...                    FAILED
+  + ./overflow/wakeup_events_overflow
+    Testing wakeup events overflow...                            FAILED
+  + ./overflow/overflow_requires_wakeup
+    Testing if we overflow w/o setting wakeup...                 FAILED
+
+* Checking mmap record sample functionality
+  + ./record_sample/print_record_sample
+    Testing record sampling...                                   PASSED
+  + ./record_sample/validate_record_sample
+    Validating sample record overflow...                         PASSED
+  + ./record_sample/lost_record_sample
+    Checking behavior on mmap overflow...                        PASSED
+  + ./record_sample/multiple_mmap_sizes
+    Checking behavior of various mmap sizes...                   PASSED
+
+* Checking bugs that PAPI has to work around
+  + ./bugs/sync_read_required
+    Testing if time running is correct without DISABLE...        PASSED
+  + ./bugs/read_group_attached
+    Testing if FORMAT_GROUP works on attached processes...       PASSED
+  + ./bugs/check_schedulability
+    Testing if events checked for schedulability at read...      PASSED
+  + ./bugs/check_papi_multiplexing
+    Testing if schedulability checked with pinned=0...           PASSED
+  + ./bugs/check_multiplexing
+    Testing if multiplexing works...                             PASSED
+
+* Checking other bugs
+  + ./corner_cases/sw_start_leader
+    Testing start with sw event group leader...                  FAILED
+  + ./corner_cases/hw_sw_mix
+    Testing mixes of HW and SW events...                         FAILED
+
+* Checking bugs that can silently produce wrong results
+  + ./validation/check_constraints
+    Testing if event constraints are enforced...                 SKIPPED
+  + ./corner_cases/context_switch_user_kernel
+    Testing if context-switches are kernel only...               OLD BEHAVIOR
+
+* Checking interfaces that have changed over the years
+  + ./corner_cases/overflow_requires_mmap
+    Testing if overflow signals require ring buffer...           OLD BEHAVIOR
+  + ./corner_cases/signal_after_exec
+    Testing if overflow signals survive exec...                  NEW BEHAVIOR
+  + ./corner_cases/sampled_notleader_refresh
+    Testing if refresh of group leader enables siblings...       NEW BEHAVIOR
+
+* Checking for corner-cases in the ABI (not necessarily bugs)
+  + ./corner_cases/multiple_active
+    Testing multiple simultaneous measurements...                FAILED
+  + ./corner_cases/max_multiplex
+    Testing limit of multiplexing...                             PASSED
+  + ./corner_cases/reset_leader
+    Testing reset on group leader...                             FAILED
+  + ./corner_cases/check_reset_mpx
+    Testing if reset clears multiplex fields...                  PASSED
+
+* Checking for fast RDPMC support
+  + ./validation/rdpmc_support
+    Testing if userspace rdpmc reads are supported...            SKIPPED
+  + ./validation/rdpmc_validation
+    Testing if userspace rdpmc reads give expected results...    SKIPPED
+
+* Checking proposed interface updates (not in any released kernel)
+  + ./corner_cases/ioctl_refresh_0
+    Testing if PERF_IOC_REFRESH with 0 works...                  USE CAUTION
+  + ./corner_cases/wrong_size_enospc
+    Testing if ENOSPC returned for wrong-sized buffer...         OLD BEHAVIOR
+
+* Checking for major bugs that are unlikely to ever be fixed
+  + ./bugs/nmi_watchdog_group_leader
+    Testing if we can determine maximum events despite NMI watchdog... SKIPPED
+
