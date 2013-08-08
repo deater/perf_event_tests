@@ -14,8 +14,8 @@
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
-#include <linux/hw_breakpoint.h>
-#include <linux/perf_event.h>
+#include "hw_breakpoint.h"
+#include "perf_event.h"
 
 int fd[1024];
 struct perf_event_attr pe[1024];
