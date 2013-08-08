@@ -10,12 +10,21 @@ all:	pe_inherit_memleak pe_task_schedule_panic \
 	perf_mmap_close_bug offcore_response_mask \
 	oflo_sw_cpu_clock_crash sw_event_config_overflow \
 	nmi_soft_lockup \
-	tracepoint_fork
+	tracepoint_fork \
+	arm_validate_event_oops
 
 ####
 
 ../lib/perf_helpers.o:	../lib/perf_helpers.c
 	cd ../lib && make
+
+####
+
+arm_validate_event_oops:	arm_validate_event_oops.o
+	$(CC) $(LFLAGS) -o arm_validate_event_oops arm_validate_event_oops.o
+
+arm_validate_event_oops.o:	arm_validate_event_oops.c
+	$(CC) $(CFLAGS) -c arm_validate_event_oops.c
 
 ####
 

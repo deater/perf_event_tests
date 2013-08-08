@@ -14,6 +14,7 @@ echo "time to change your mind..."
 echo
 sleep 5
 
+./crashes/arm_validate_event_oops
 ./crashes/pe_task_schedule_panic
 ./crashes/pe_inherit_memleak
 ./crashes/oflo_sw_cpu_clock_crash
