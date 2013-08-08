@@ -431,6 +431,27 @@ static void open_random_event(void) {
 				event_data[i].flags);
 			perf_dump_attr(&event_data[i].attr);
 		}
+	        if (logging&DEBUG_OPEN) {
+ #if 0
+		  /* uncomment if failing opens are causing crashes */
+			static int quit_next=0;
+	                fprintf(logfile,"O -1 %d %d %d %lx ",
+				event_data[i].pid,
+				event_data[i].cpu,
+				event_data[i].group_fd,
+				event_data[i].flags);
+	                perf_log_attr(&event_data[i].attr);
+			if (quit_next==1) exit(1);
+
+			if (quit_next) quit_next--;
+
+		        if ((event_data[i].attr.read_format==0x2d2d2d))
+                        quit_next=2;
+
+		        // if ((event_data[i].group_fd==152) &&
+                        //    (event_data[i].flags==0x800e9e9)) quit_next=1;
+#endif
+	        }
 
 		fd=perf_event_open(
 			&event_data[i].attr,
@@ -674,7 +695,7 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %ld %d\n",
+				fprintf(logfile,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			}
 			break;
@@ -698,7 +719,7 @@ static void ioctl_random_event(void) {
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %ld %d\n",
+				fprintf(logfile,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			}
 			break;
