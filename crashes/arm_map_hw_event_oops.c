@@ -1,10 +1,19 @@
 /* arm_map_hw_event_oops.c */
+/* Oopses the kernel on ARM and ARM64 from 3.2 until 3.11-rc6 */
+
+/* by Vince Weaver <vincent.weaver _at_ maine.edu */
+
+/* This bug found via my perf_fuzzer tool */
+
+/* It is fixed in 3.11-rc6 with d9f966357b14e356 */
+/* Also the fix is in 3.10.8 and 3.4.59          */
+
+/* This was likely introduced with Linux 3.2 with 8a16b34e2119       */
+
 /* This causes an oops on my Pandaboard running Linux 3.11-rc4 */
 /* The problem is the value of ->config is very large and it   */
 /*   overruns the hw_event array in armpmu_map_hw_event in     */
 /*   arch/arm/kernel/perf_event.c                              */
-/* Hopefully this will be fixed in Linux 3.11                  */
-/* by Vince Weaver <vincent.weaver _at_ maine.edu */
 
 #include <stdio.h>
 #include <unistd.h>
