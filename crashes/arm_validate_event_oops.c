@@ -1,12 +1,25 @@
 /* arm_validate_event_oops */
+/* Oopses the kernel on ARM and ARM64 from 3.2 until 3.11-rc6 */
+
+/* by Vince Weaver <vincent.weaver _at_ maine.edu  */
+
+/* This bug found via my perf_fuzzer tool */
+
+/* It is fixed in 3.11-rc6 with d9f966357b14e35 */
+/* Also the fix is in 3.10.8 and 3.4.59         */
+
+/* This was likely introduced with Linux 3.2 with 8a16b34e2119       */
+
 /* This causes an oops on a pandaboard on 3.11-rc4 */
 /* The problem is in validate_event in  arch/arm/kernel/perf_event.c */
 /*   If you have a group event where the leader is non-HW but the    */
 /*   sibling is HW, validate_event treats the non-HW event as HW and */
 /*   tries to call the ->get_event_idx() function which on non-HW    */
 /*   is off the end of the structure and thus garbage.               */
-/* Hopefully this will be fixed in Linux 3.11                        */
-/* by Vince Weaver <vincent.weaver _at_ maine.edu  */
+/* For more info on this bug see the related (hard-to-trigger)       */
+/*   exploit code in the exploits/ directory.                        */
+
+/* It is assigned CVE-2013-4254 */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -34,7 +47,7 @@ int perf_event_open(struct perf_event_attr *hw_event_uptr,
 
 int main(int argc, char **argv) {
 
-	printf("On ARM systems previous to 3.11-rc5 this test may oops the kernel.\n");
+	printf("On ARM systems previous to 3.11-rc6 this test may oops the kernel.\n");
 
         memset(&pe[5],0,sizeof(struct perf_event_attr));
         pe[5].type=PERF_TYPE_SOFTWARE;
