@@ -5,8 +5,8 @@
 
 /* This bug found via my perf_fuzzer tool */
 
-/* It is fixed in 3.11-rc6 with d9f966357b14e35 */
-/* Also the fix is in 3.10.8 and 3.4.59         */
+/* It is fixed in 3.11-rc6 with c95eb3184ea1a3a25 */
+/* Also the fix is in 3.10.8 and 3.4.59           */
 
 /* This was likely introduced with Linux 3.2 with 8a16b34e2119       */
 
