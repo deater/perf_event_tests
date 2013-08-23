@@ -1,124 +1,22 @@
 /*
- * Routines to get randomness/set seeds.
+ * Routines to get randomness.
  */
-#include <stdio.h>
-#include <sys/time.h>
 #include <syslog.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <limits.h>
-#include "shm.h"
-//#include "params.h"	// 'user_set_seed'
-//#include "log.h"
-#include "sanitise.h"
-
-#define TRUE  1
-#define FALSE 0
-
-/* The actual seed lives in the shm. This variable is used
- * to store what gets passed in from the command line -s argument */
-unsigned int seed = 0;
-
-#if 0
-static void syslog_seed(int seedparam)
-{
-	fprintf(stderr, "Randomness reseeded to %u\n", seedparam);
-	openlog("trinity", LOG_CONS|LOG_PERROR, LOG_USER);
-	syslog(LOG_CRIT, "Randomness reseeded to %u\n", seedparam);
-	closelog();
-}
-#endif
-
-unsigned int new_seed(void)
-{
-	int fd;
-	struct timeval t;
-	unsigned int r;
-
-	if ((fd = open("/dev/urandom", O_RDONLY)) < 0 ||
-	    read(fd, &r, sizeof(r)) != sizeof(r)) {
-		r = rand();
-		if (!(rand() % 2)) {
-			gettimeofday(&t, 0);
-			r |= t.tv_usec;
-		}
-	}
-	if (fd >= 0)
-		close(fd);
-	return r;
-}
-
-/*
- * If we passed in a seed with -s, use that. Otherwise make one up from time of day.
- */
-unsigned int init_seed(unsigned int seedparam)
-{
-#if 0
-	if (user_set_seed == TRUE)
-		printf("[%d] Using user passed random seed: %u\n", getpid(), seedparam);
-	else {
-		seedparam = new_seed();
-
-		printf("Initial random seed: %u\n", seedparam);
-	}
-
-	if (do_syslog == TRUE)
-		syslog_seed(seedparam);
-#endif
-	return seedparam;
-}
-
-/* Mix in the pidslot so that all children get different randomness.
- * we can't use the actual pid or anything else 'random' because otherwise reproducing
- * seeds with -s would be much harder to replicate.
- */
-void set_seed(unsigned int pidslot)
-{
-	srand(shm->seed + (pidslot + 1));
-	shm->seeds[pidslot] = shm->seed;
-}
-
-/*
- * Periodically reseed.
- *
- * We do this so we can log a new seed every now and again, so we can cut down on the
- * amount of time necessary to reproduce a bug.
- * Caveat: Not used if we passed in our own seed with -s
- */
-void reseed(void)
-{
-	shm->need_reseed = FALSE;
-	shm->reseed_counter = 0;
-
-#if 0
-
-	if (getpid() != shm->parentpid) {
-		output(0, "Reseeding should only happen from parent!\n");
-		exit(EXIT_FAILURE);
-	}
-	/* don't change the seed if we passed -s */
-	if (user_set_seed == TRUE)
-		return;
-#endif
-	/* We are reseeding. */
-	shm->seed = new_seed();
-
-//	output(0, "[%d] Random reseed: %u\n", getpid(), shm->seed);
-#if 0
-	if (do_syslog == TRUE)
-		syslog_seed(shm->seed);
-#endif
-}
+//#include "pids.h"
+#include "random.h"
+#include "sanitise.h"	// interesting_numbers
+//#include "types.h"
 
 unsigned int rand_bool(void)
 {
 	return rand() % 2;
 }
 
-unsigned int rand_single_bit(unsigned char size)
+static unsigned int rand_single_bit(unsigned char size)
 {
 	return (1L << (rand() % size));
 }
@@ -142,7 +40,7 @@ static unsigned long taviso(void)
 {
 	unsigned long r = 0;
 
-	switch (rand() % 3) {
+	switch (rand() % 4) {
 	case 0:	r = rand() & rand();
 #if __WORDSIZE == 64
 		r <<= 32;
@@ -150,14 +48,21 @@ static unsigned long taviso(void)
 #endif
 		break;
 
-	case 1:	r = rand() | rand();
+	case 1:	r = rand() % rand();
+#if __WORDSIZE == 64
+		r <<= 32;
+		r |= rand() % rand();
+#endif
+		break;
+
+	case 2:	r = rand() | rand();
 #if __WORDSIZE == 64
 		r <<= 32;
 		r |= rand() | rand();
 #endif
 		break;
 
-	case 2:	r = rand();
+	case 3:	r = rand();
 #if __WORDSIZE == 64
 		r <<= 32;
 		r |= rand();
@@ -233,7 +138,7 @@ unsigned int rand32(void)
 		/* mangle it. */
 		rounds = rand() % 3;
 		for (i = 0; i < rounds; i++) {
-			switch (rand() % 2) {
+			switch (rand_bool()) {
 			case 0: r |= __rand32();
 				break;
 			case 1: r ^= __rand32();
@@ -265,7 +170,7 @@ unsigned int rand32(void)
 	return r;
 }
 
-unsigned long rand64(void)
+unsigned long long rand64(void)
 {
 	unsigned long r = 0;
 
@@ -309,7 +214,7 @@ unsigned long rand64(void)
 	}
 
 	if (rand_bool())
-		r ^= r;
+		r = ~r;
 
 	/* increase distribution in MSB */
 	if ((rand() % 10)) {

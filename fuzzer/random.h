@@ -11,7 +11,7 @@ unsigned int rand_bool(void);
 unsigned int rand_single_32bit(void);
 unsigned long rand_single_64bit(void);
 unsigned int rand32(void);
-unsigned long rand64(void);
+unsigned long long rand64(void);
 unsigned int rand_bool(void);
 
 #endif	/* _RANDOM_H */
