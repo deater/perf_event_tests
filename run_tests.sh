@@ -123,6 +123,9 @@ echo -n "    "
 echo "  + ./record_sample/multiple_mmap_sizes"
 echo -n "    "
 ./record_sample/multiple_mmap_sizes
+echo "  + ./record_sample/sample_branch_stach"
+echo -n "    "
+./record_sample/sample_branch_stack
 
 echo
 echo "* Checking bugs that PAPI has to work around"

@@ -6,6 +6,7 @@ all:	\
 	lost_record_sample \
 	multiple_mmap_sizes \
 	print_record_sample \
+	sample_branch_stack \
 	validate_record_sample
 
 ###
@@ -102,10 +103,29 @@ validate_record_sample.o:	validate_record_sample.c
 
 ###
 
+sample_branch_stack:	sample_branch_stack.o \
+					parse_record.o \
+					../lib/test_utils.o \
+					../lib/perf_helpers.o \
+					../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_branch_stack \
+				sample_branch_stack.o \
+				parse_record.o \
+				../lib/test_utils.o \
+				../lib/perf_helpers.o \
+				../lib/instructions_testcode.o
+
+sample_branch_stack.o:	sample_branch_stack.c
+	$(CC) $(CFLAGS) -c sample_branch_stack.c
+
+
+###
+
 clean:	
 	rm -f *~ *.o \
 	lost_record_sample \
 	multiple_mmap_sizes \
 	print_record_sample \
+	sample_branch_stack \
 	validate_record_sample
 
