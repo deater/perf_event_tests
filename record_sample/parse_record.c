@@ -1,4 +1,4 @@
-/* pare_record.c  */
+/* parse_record.c  */
 /* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
 /* This just tests perf_event sampling */
@@ -28,80 +28,84 @@
 #include "parse_record.h"
 
 /* Urgh who designed this interface */
-static int handle_struct_read_format(unsigned char *sample, 
+static int handle_struct_read_format(unsigned char *sample,
 				     int read_format,
 				     struct validate_values *validation,
 				     int quiet) {
-  
-  int offset=0,i;
 
-  if (read_format & PERF_FORMAT_GROUP) {
-     long long nr,time_enabled,time_running;
+	int offset=0,i;
 
-     memcpy(&nr,&sample[offset],sizeof(long long));
-     if (!quiet) printf("\t\tNumber: %lld ",nr);
-     offset+=8;
+	if (read_format & PERF_FORMAT_GROUP) {
+		long long nr,time_enabled,time_running;
 
-     if (validation) {
-        if (validation->events!=nr) {
-	  fprintf(stderr,"Error!  Wrong number of events %d != %lld\n",
-		  validation->events,nr);
-        }
-     }
+		memcpy(&nr,&sample[offset],sizeof(long long));
+		if (!quiet) printf("\t\tNumber: %lld ",nr);
+		offset+=8;
 
-     if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
-        memcpy(&time_enabled,&sample[offset],sizeof(long long));
-        if (!quiet) printf("enabled: %lld ",time_enabled);
-        offset+=8;
-     }
-     if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
-        memcpy(&time_running,&sample[offset],sizeof(long long));
-        if (!quiet) printf("running: %lld ",time_running);
-        offset+=8;
-     }
+		if (validation) {
+			if (validation->events!=nr) {
+				fprintf(stderr,"Error!  Wrong number "
+						"of events %d != %lld\n",
+						validation->events,nr);
+			}
+		}
 
-     if (!quiet) printf("\n");
+		if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
+			memcpy(&time_enabled,&sample[offset],sizeof(long long));
+			if (!quiet) printf("enabled: %lld ",time_enabled);
+			offset+=8;
+		}
+		if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
+			memcpy(&time_running,&sample[offset],sizeof(long long));
+			if (!quiet) printf("running: %lld ",time_running);
+			offset+=8;
+		}
 
-     for(i=0;i<nr;i++) {
-        long long value, id;
-        memcpy(&value,&sample[offset],sizeof(long long));
-        if (!quiet) printf("\t\t\tValue: %lld ",value);
-	offset+=8;
+		if (!quiet) printf("\n");
 
-        if (read_format & PERF_FORMAT_ID) {
-           memcpy(&id,&sample[offset],sizeof(long long));
-           if (!quiet) printf("id: %lld ",id);
-           offset+=8;
+		for(i=0;i<nr;i++) {
+			long long value, id;
+
+			memcpy(&value,&sample[offset],sizeof(long long));
+			if (!quiet) printf("\t\t\tValue: %lld ",value);
+			offset+=8;
+
+			if (read_format & PERF_FORMAT_ID) {
+				memcpy(&id,&sample[offset],sizeof(long long));
+				if (!quiet) printf("id: %lld ",id);
+				offset+=8;
+			}
+
+			if (!quiet) printf("\n");
+		}
+	}
+	else {
+
+		long long value,time_enabled,time_running,id;
+
+		memcpy(&value,&sample[offset],sizeof(long long));
+		if (!quiet) printf("\t\tValue: %lld ",value);
+		offset+=8;
+
+		if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
+			memcpy(&time_enabled,&sample[offset],sizeof(long long));
+			if (!quiet) printf("enabled: %lld ",time_enabled);
+			offset+=8;
+		}
+		if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
+			memcpy(&time_running,&sample[offset],sizeof(long long));
+			if (!quiet) printf("running: %lld ",time_running);
+			offset+=8;
+		}
+		if (read_format & PERF_FORMAT_ID) {
+			memcpy(&id,&sample[offset],sizeof(long long));
+			if (!quiet) printf("id: %lld ",id);
+			offset+=8;
+		}
+		if (!quiet) printf("\n");
 	}
 
-        if (!quiet) printf("\n");
-     }
-  }
-  else {
-    long long value,time_enabled,time_running,id;
-    memcpy(&value,&sample[offset],sizeof(long long));
-    if (!quiet) printf("\t\tValue: %lld ",value);
-    offset+=8;
-
-    if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
-       memcpy(&time_enabled,&sample[offset],sizeof(long long));
-       if (!quiet) printf("enabled: %lld ",time_enabled);
-       offset+=8;
-    }
-    if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
-       memcpy(&time_running,&sample[offset],sizeof(long long));
-       if (!quiet) printf("running: %lld ",time_running);
-       offset+=8;
-    }
-    if (read_format & PERF_FORMAT_ID) {
-       memcpy(&id,&sample[offset],sizeof(long long));
-       if (!quiet) printf("id: %lld ",id);
-       offset+=8;
-    }
-    if (!quiet) printf("\n");
-  }
-
-  return offset;
+	return offset;
 }
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
@@ -316,36 +320,80 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 	      }
 	      if (!quiet) printf("\n");
 	   }
-	   if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
-	      long long bnr;
-	      memcpy(&bnr,&data[offset],sizeof(long long));
-	      if (!quiet) printf("\tbranch_stack entries: %lld\n",bnr);
-	      offset+=8;
-	      
-	      for(i=0;i<bnr;i++) {
-		 long long from,to,flags;
-		 memcpy(&from,&data[offset],sizeof(long long));
-	         offset+=8;
-		 memcpy(&to,&data[offset],sizeof(long long));
-	         offset+=8;
-		 memcpy(&flags,&data[offset],sizeof(long long));
-	         offset+=8;
-	         if (!quiet) {
-                    printf("\t\t lbr[%d]: %llx %llx %llx\n",i,from,to,flags);
-		 }
-	      }
-	   }
-           break;
-           default: if (!quiet) printf("Unknown type %d\n",event->type);
-      }
-   }
 
-   control_page->data_tail=head;
+		if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
+			long long bnr;
+			memcpy(&bnr,&data[offset],sizeof(long long));
+			if (!quiet) {
+				printf("\tbranch_stack entries: %lld\n",bnr);
+			}
+			offset+=8;
 
-   free(data);
-   
-   return head;
+			for(i=0;i<bnr;i++) {
+				long long from,to,flags;
+
+
+
+				/* From value */
+				memcpy(&from,&data[offset],sizeof(long long));
+				offset+=8;
+
+				/* Could be more complete here */
+				if (validate) {
+					if (from < validate->branch_low) {
+						fprintf(stderr,"Error! branch out of bounds!\n");
+					}
+				}
+
+
+				/* To Value */
+				memcpy(&to,&data[offset],sizeof(long long));
+				offset+=8;
+				if (!quiet) {
+					printf("\t\t lbr[%d]: %llx %llx ",
+						i,from,to);
+		 		}
+
+				/* Flags */
+				memcpy(&flags,&data[offset],sizeof(long long));
+				offset+=8;
+
+				if (!quiet) {
+					if (flags==0) printf("0");
+
+					if (flags&1) {
+						printf("MISPREDICTED ");
+						flags&=~2;
+					}
+
+					if (flags&2) {
+						printf("PREDICTED ");
+						flags&=~2;
+					}
+
+					if (flags&4) {
+						printf("IN_TRANSACTION ");
+						flags&=~4;
+					}
+
+					if (flags&8) {
+						printf("TRANSACTION_ABORT ");
+						flags&=~8;
+					}
+					printf("\n");
+				}
+	      		}
+	   	}
+           	break;
+
+			default: if (!quiet) printf("Unknown type %d\n",event->type);
+		}
+	}
+
+	control_page->data_tail=head;
+
+	free(data);
+
+	return head;
 
 }
-
-

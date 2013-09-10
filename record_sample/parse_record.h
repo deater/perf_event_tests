@@ -1,7 +1,9 @@
 struct validate_values {
-  int pid;
-  int tid;
-  int events;
+	int pid;
+	int tid;
+	int events;
+	unsigned long branch_low;
+	unsigned long branch_high;
 };
 
 long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,

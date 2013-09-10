@@ -36,8 +36,8 @@
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
                   PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
                   PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
-                  PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW ;
-   //                  PERF_SAMPLE_BRANCH_STACK;
+                  PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW |
+                  PERF_SAMPLE_BRANCH_STACK;
 
 
 int read_format=
@@ -65,7 +65,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
   prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-		 sample_type,read_format,&validate,1); 
+		 sample_type,read_format,&validate,1);
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -82,115 +82,140 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
 
   (void) ret;
-  
+
 }
 
 
 int main(int argc, char** argv) {
-   
-   int ret,quiet;
-   int mmap_pages=1+MMAP_DATA_SIZE;
 
-   struct perf_event_attr pe;
+	int ret,quiet;
+	int mmap_pages=1+MMAP_DATA_SIZE;
 
-   struct sigaction sa;
-   char test_string[]="Validating sample record overflow...";
-   
-   quiet=test_quiet();
+	struct perf_event_attr pe;
 
-   if (!quiet) printf("This validates the sampling records.\n");
+	struct sigaction sa;
+	char test_string[]="Validating sample record overflow...";
 
-   /* set up validation */
-   validate.pid=getpid();
-   validate.tid=mygettid();
-   validate.events=2;
+	quiet=test_quiet();
 
-   memset(&sa, 0, sizeof(struct sigaction));
-   sa.sa_sigaction = our_handler;
-   sa.sa_flags = SA_SIGINFO;
+	if (!quiet) printf("This validates the sampling records.\n");
 
-   if (sigaction( SIGIO, &sa, NULL) < 0) {
-     fprintf(stderr,"Error setting up signal handler\n");
-     exit(1);
-   }
-   
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	/* set up validation */
+	validate.pid=getpid();
+	validate.tid=mygettid();
+	validate.events=2;
 
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.sample_period=SAMPLE_FREQUENCY;
-   pe.sample_type=sample_type;
+	validate.branch_low=(unsigned long)instructions_million;
 
-   pe.read_format=read_format;
-   pe.disabled=1;
-   pe.pinned=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
-   pe.wakeup_events=1;
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = our_handler;
+	sa.sa_flags = SA_SIGINFO;
 
-   arch_adjust_domain(&pe,quiet);
+	if (sigaction( SIGIO, &sa, NULL) < 0) {
+		fprintf(stderr,"Error setting up signal handler\n");
+		exit(1);
+	}
 
-   fd1=perf_event_open(&pe,0,-1,-1,0);
-   if (fd1<0) {
-     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
-   }
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	/* Open Instructions Event */
 
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_CPU_CYCLES;
-   pe.sample_type=PERF_SAMPLE_IP;
-   pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
-   pe.disabled=0;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   arch_adjust_domain(&pe,quiet);
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.sample_period=SAMPLE_FREQUENCY;
+	pe.sample_type=sample_type;
 
-   fd2=perf_event_open(&pe,0,-1,fd1,0);
-   if (fd2<0) {
-     if (!quiet) fprintf(stderr,"Error opening %llx\n",pe.config);
-     test_fail(test_string);
-   }
+	pe.read_format=read_format;
+	pe.disabled=1;
+	pe.pinned=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
+	pe.wakeup_events=1;
 
-   our_mmap=mmap(NULL, mmap_pages*4096, 
-                 PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
+	pe.branch_sample_type=PERF_SAMPLE_BRANCH_ANY;
 
-   
-   fcntl(fd1, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
-   fcntl(fd1, F_SETSIG, SIGIO);
-   fcntl(fd1, F_SETOWN,getpid());
-   
-   ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
+	arch_adjust_domain(&pe,quiet);
 
-   ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+	fd1=perf_event_open(&pe,0,-1,-1,0);
+	if (fd1<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error opening leader %s\n",
+					strerror(errno));
+			fprintf(stderr,"Trying without branches\n");
+		}
+		sample_type&=~PERF_SAMPLE_BRANCH_STACK;
+		pe.sample_type=sample_type;
+		fd1=perf_event_open(&pe,0,-1,-1,0);
+		if (fd1<0) {
+			if (!quiet) {
+				fprintf(stderr,"Error opening leader %s\n",
+					strerror(errno));
+			}
+			test_fail(test_string);
+		}
+	}
 
-   if (ret<0) {
-     if (!quiet) {
-        fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
-	     "%d %s\n",errno,strerror(errno));
-     }
-     exit(1);
-   }
 
-   instructions_million();
-   
-   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
 
-   if (count.total==0) {
-      if (!quiet) printf("No overflow events generated.\n");
-      test_fail(test_string);
-   }
+	/* Open Cycles Event */
 
-   munmap(our_mmap,mmap_pages*4096);
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   close(fd2);
-   close(fd1);
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_CPU_CYCLES;
+	pe.sample_type=PERF_SAMPLE_IP;
+	pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+	pe.disabled=0;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   test_pass(test_string);
-   
-   return 0;
+	arch_adjust_domain(&pe,quiet);
+
+	fd2=perf_event_open(&pe,0,-1,fd1,0);
+	if (fd2<0) {
+		if (!quiet) fprintf(stderr,"Error opening %llx\n",pe.config);
+		test_fail(test_string);
+	}
+
+	our_mmap=mmap(NULL, mmap_pages*4096,
+			PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
+
+	fcntl(fd1, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+	fcntl(fd1, F_SETSIG, SIGIO);
+	fcntl(fd1, F_SETOWN,getpid());
+
+	ioctl(fd1, PERF_EVENT_IOC_RESET, 0);
+
+	ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+
+	if (ret<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE "
+					"of group leader: %d %s\n",
+					errno,strerror(errno));
+     		}
+     		exit(1);
+	}
+
+	instructions_million();
+
+	/* Why refresh and not DISABLE? */
+	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
+
+	if (count.total==0) {
+		if (!quiet) printf("No overflow events generated.\n");
+ 		test_fail(test_string);
+ 	}
+
+	munmap(our_mmap,mmap_pages*4096);
+
+	close(fd2);
+	close(fd1);
+
+	test_pass(test_string);
+
+	return 0;
 }
