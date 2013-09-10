@@ -1,0 +1,36 @@
+Just a list of bugs found by the fuzzer.  May be useful if I try to 
+every get anything published about this.
+
+These are bugs specifically found by my fuzzer tool.  Additional bugs
+have been found in perf_event due to my changes to syscalls/perf_event_open.c
+in Dave Jones' trinity fuzzer.
+
+
++ perf: Fix perf mmap bugs
+  Reported-by: Vince Weaver
+  Commit: 26cb63ad11e04047a64309362674bcbbd6a6f246
+
++ perf: Fix mmap() accounting hole
+  Reported-and-tested-by: Vince Weaver
+  Commit: 9bb5d40cd93c9dd4be74834b1dcb1ba03629716b
+
++ ARM: 7810/1: perf: Fix array out of bounds access in armpmu_map_hw_event()
+  Reported-by: Vince Weaver
+  Commit: d9f966357b14e356dbd83b8f4a197a287ab4ff83
+
++ ARM: 7809/1: perf: fix event validation for software group leaders
+  Reported-by: Vince Weaver
+  Commit: c95eb3184ea1a3a2551df57190c81da695e2144b
+  CVE-2013-4254
+
++ arm64: perf: fix array out of bounds access in armpmu_map_hw_event()
+  Reported-by: Will Deacon
+  Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
+
++ arm64: perf: fix event validation for software group leaders
+  Reported-by: Will Deacon
+  Commit: ee7538a008a45050c8f706d38b600f55953169f9
+
++ alpha: perf: fix out-of-bounds array access triggered from raw event
+  Reported-by: Will Deacon
+  Commit:
