@@ -3,7 +3,7 @@
 /* fuzzes the perf_event system call */
 /* Some code shared with the trinity fuzzer */
 
-#define VERSION "0.3"
+#define VERSION "0.4"
 
 #define _GNU_SOURCE 1
 
@@ -17,6 +17,8 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/prctl.h>
+
+#include <poll.h>
 
 #include <fcntl.h>
 
@@ -44,6 +46,7 @@ int page_size=4096;
 #define DEBUG_FORK		0x080
 #define DEBUG_MMAP_SUCCESS	0x100
 #define DEBUG_PRCTL		0x200
+#define DEBUG_POLL		0x400
 
 static int debug=0;
 static int logging=0;
@@ -67,6 +70,7 @@ static long long read_attempts=0,read_successful=0;
 static long long ioctl_attempts=0,ioctl_successful=0;
 static long long prctl_attempts=0,prctl_successful=0;
 static long long fork_attempts=0,fork_successful=0;
+static long long poll_attempts=0,poll_successful=0;
 
 #define NUM_EVENTS 1024
 
@@ -855,6 +859,49 @@ static void write_random_event(void) {
 
 }
 
+static void poll_random_event(void) {
+
+#define MAX_POLL_FDS 128
+
+	int i,result,num_fds;
+
+	struct pollfd pollfds[MAX_POLL_FDS];
+	int timeout;
+
+	num_fds=rand()%MAX_POLL_FDS;
+
+	for(i=0;i<num_fds;i++) {
+		pollfds[i].fd=event_data[find_random_active_event()].fd;
+		pollfds[i].events=POLLIN;
+	}
+
+	/* Want short timeout (ms) */
+	timeout=rand()%10;
+
+
+	if (debug&DEBUG_POLL) {
+		printf("POLL: poll(");
+		for(i=0;i<num_fds;i++) {
+			printf("%d,%d, ",pollfds[i].fd,pollfds[i].events);
+		}
+		printf("%d, %d);\n",num_fds,timeout);
+	}
+
+	poll_attempts++;
+	result=poll(pollfds,num_fds,timeout);
+
+	if (debug&DEBUG_POLL) printf("POLL RESULT: result %d %s\n",result,
+		result<0?strerror(errno):"OK");
+	if (result>0) {
+	        poll_successful++;
+		if (logging&DEBUG_POLL) {
+			fprintf(logfile,"@\n");
+		}
+	}
+
+}
+
+
 static void access_random_file(void) {
 
 	/* FIXME -- access perf event files under /proc and /sys */
@@ -929,6 +976,8 @@ static void dump_summary(void) {
 	       prctl_attempts,prctl_successful);
 	printf("\tFork attempts: %lld  Successful: %lld\n",
 	       fork_attempts,fork_successful);
+	printf("\tPoll attempts: %lld  Successful: %lld\n",
+	       poll_attempts,poll_successful);
 	printf("\tOverflows: %lld\n", overflows);
 	printf("\tSIGIOs due to RT signal queue full: %lld\n",sigios);
 	open_attempts=0; open_successful=0;
@@ -1081,7 +1130,7 @@ int main(int argc, char **argv) {
 
 	while(1) {
 
-		switch(rand()%9) {
+		switch(rand()%10) {
 			case 0:	open_random_event();
 				break;
 			case 1: close_random_event();
@@ -1097,6 +1146,8 @@ int main(int argc, char **argv) {
 			case 6: access_random_file();
 				break;
 			case 7: fork_random_event();
+				break;
+			case 8: poll_random_event();
 				break;
 			default:
 				run_a_million_instructions();
