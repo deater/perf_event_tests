@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
 	fd1=perf_event_open(&pe,0,-1,-1,0);
 	if (fd1<0) {
 		if (!quiet) {
-			fprintf(stderr,"Error opening leader %s\n",
+			fprintf(stderr,"Problem opening leader %s\n",
 					strerror(errno));
 			fprintf(stderr,"Trying without branches\n");
 		}

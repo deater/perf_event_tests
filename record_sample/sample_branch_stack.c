@@ -143,6 +143,9 @@ int main(int argc, char** argv) {
 			fprintf(stderr,"Error opening leader "
 				"INSTRUCTIONS %s\n",strerror(errno));
 		}
+		if (errno==ENOTSUP) {
+			test_skip(test_string);
+		}
      		test_fail(test_string);
 	}
 
