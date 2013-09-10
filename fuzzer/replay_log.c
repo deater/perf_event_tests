@@ -18,6 +18,8 @@
 #include "../include/perf_event.h"
 #include "../include/perf_helpers.h"
 
+#include "fuzz_compat.h"
+
 static int error=0;
 static unsigned long long line_num=0;
 

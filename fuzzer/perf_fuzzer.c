@@ -26,6 +26,8 @@
 #include "../include/perf_helpers.h"
 #include "../include/instructions_testcode.h"
 
+#include "fuzz_compat.h"
+
 #include "perf_attr_print.h"
 
 int user_set_seed;

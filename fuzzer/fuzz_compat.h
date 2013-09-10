@@ -1,0 +1,4 @@
+#ifndef PR_TASK_PERF_EVENTS_ENABLE
+#define PR_TASK_PERF_EVENTS_DISABLE       	31
+#define PR_TASK_PERF_EVENTS_ENABLE              32
+#endif
