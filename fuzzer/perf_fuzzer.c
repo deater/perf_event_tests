@@ -895,7 +895,12 @@ static void poll_random_event(void) {
 	if (result>0) {
 	        poll_successful++;
 		if (logging&DEBUG_POLL) {
-			fprintf(logfile,"@\n");
+			fprintf(logfile,"p %d ",num_fds);
+			for(i=0;i<num_fds;i++) {
+				fprintf(logfile,"%d %x ",pollfds[i].fd,
+							pollfds[i].events);
+			}
+			fprintf(logfile,"%d\n",timeout);
 		}
 	}
 

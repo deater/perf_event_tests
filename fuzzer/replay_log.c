@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/prctl.h>
+#include <poll.h>
 
 #include <fcntl.h>
 
@@ -276,6 +277,43 @@ static void prctl_event(char *line) {
         }
 }
 
+
+static void poll_event(char *line) {
+
+#define MAX_POLL_FDS 128
+
+        int i,result,num_fds;
+
+        struct pollfd pollfds[MAX_POLL_FDS];
+        int timeout;
+	char *next;
+
+        sscanf(line,"%*c %d",&num_fds);
+
+	strtok(line," ");	/* Point to num_fds */
+	strtok(NULL," ");	/* Point to first value */
+
+//	printf("p %d \n",num_fds);
+
+        for(i=0;i<num_fds;i++) {
+		next=strtok(NULL," ");
+                pollfds[i].fd=atoi(next);
+		next=strtok(NULL," ");
+                pollfds[i].events=atoi(next);
+//		printf("%d %d ",pollfds[i].fd,pollfds[i].events);
+        }
+
+	next=strtok(NULL," ");
+
+        timeout=atoi(next);
+//	printf("%d\n",timeout);
+
+
+        result=poll(pollfds,num_fds,timeout);
+
+}
+
+
 static int forked_pid=0;
 
 static void fork_event(char *line) {
@@ -303,6 +341,7 @@ static void fork_event(char *line) {
 #define REPLAY_MUNMAP	0x020
 #define REPLAY_PRCTL	0x040
 #define REPLAY_FORK	0x080
+#define REPLAY_POLL	0x100
 #define REPLAY_ALL	0xfff
 
 
@@ -448,6 +487,12 @@ int main(int argc, char **argv) {
 			case 'P':
 				if (replay_which & REPLAY_PRCTL) {
 					prctl_event(line);
+					replay_syscalls++;
+				}
+				break;
+			case 'p':
+				if (replay_which & REPLAY_POLL) {
+					poll_event(line);
 					replay_syscalls++;
 				}
 				break;
