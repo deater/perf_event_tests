@@ -4,6 +4,8 @@
 #include <malloc.h>
 #include <unistd.h>
 
+#include <poll.h>
+
 #include "../include/hw_breakpoint.h"
 #include "../include/perf_event.h"
 #include "../include/perf_helpers.h"
@@ -209,6 +211,39 @@ static void prctl_event(char *line) {
 	}
 }
 
+
+static void poll_event(char *line) {
+
+#define MAX_POLL_FDS 128
+
+        int i,num_fds;
+
+        struct pollfd pollfds[MAX_POLL_FDS];
+        int timeout;
+        char *next;
+
+        sscanf(line,"%*c %d",&num_fds);
+
+        strtok(line," ");       /* Point to num_fds */
+        strtok(NULL," ");       /* Point to first value */
+
+        for(i=0;i<num_fds;i++) {
+                next=strtok(NULL," ");
+                pollfds[i].fd=atoi(next);
+                next=strtok(NULL," ");
+                pollfds[i].events=atoi(next);
+		printf("\tpollfds[%d].fd=fd[%d]; pollfds[%d].events=%d;\n",
+			i,pollfds[i].fd,i,pollfds[i].events);
+        }
+        next=strtok(NULL," ");
+
+        timeout=atoi(next);
+
+	printf("\tpoll(pollfds,%d,%d);\n",num_fds,timeout);
+
+}
+
+
 static void fork_event(char *line) {
 
 	int enable=0;
@@ -258,6 +293,7 @@ int main(int argc, char **argv) {
 	printf("#include <sys/syscall.h>\n");
 	printf("#include <sys/ioctl.h>\n");
 	printf("#include <sys/prctl.h>\n");
+	printf("#include <poll.h>\n");
 	printf("#include <linux/hw_breakpoint.h>\n");
 	printf("#include <linux/perf_event.h>\n");
 
@@ -269,6 +305,11 @@ int main(int argc, char **argv) {
 
 	printf("#define MAX_READ_SIZE 65536\n");
 	printf("static long long data[MAX_READ_SIZE];\n");
+
+	printf("\n");
+
+	printf("#define MAX_POLL_FDS 128\n");
+	printf("struct pollfd pollfds[MAX_POLL_FDS];\n");
 
 	printf("\n");
 
@@ -312,6 +353,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'P':
 				prctl_event(line);
+				break;
+			case 'p':
+				poll_event(line);
 				break;
 			case 'F':
 				fork_event(line);
