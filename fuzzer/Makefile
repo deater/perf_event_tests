@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall -g -I../include
+CFLAGS = -O2 -Wall -g -I../include -I./include
 LFLAGS = 
 
 all:	perf_fuzzer replay_log log_to_code filter_log
