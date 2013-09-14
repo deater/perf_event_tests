@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/prctl.h>
+#include <time.h>
 
 #include <poll.h>
 
@@ -1001,13 +1002,14 @@ static void usage(char *name,int help) {
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
 
 	if (help) {
-		printf("%s [-h] [-v] [-d] [-f] [-l filename] [-s num]\n\n",name);
+		printf("%s [-h] [-v] [-d] [-f] [-l filename] [-s num] [-r num]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
 		printf("\t-d\tenable debugging\n");
 		printf("\t-l logfile\tlog to file\n");
 		printf("\t-f only log fork syscalls; do not run\n");
 		printf("\t-s num\tstop after num system calls\n");
+		printf("\t-r num\tseed random number generator with num\n");
 		printf("\n");
 	}
 }
@@ -1016,6 +1018,7 @@ int main(int argc, char **argv) {
 
 	int i;
 	char *logfile_name=NULL;
+	unsigned int seed=0;
 
 	/* Parse command line parameters */
 
@@ -1055,6 +1058,12 @@ int main(int argc, char **argv) {
 						printf("Stopping after %d\n",stop_after);
 						i+=2;
 						break;
+				case 'r':	if (i+1<argc) {
+							seed=atoi(argv[i+1]);
+						}
+						printf("Using user-specified random seed of %d\n",seed);
+						i+=2;
+						break;
 				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
 						usage(argv[0],1);
 						exit(1);
@@ -1090,6 +1099,14 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
+
+	/* Poor Seeding */
+	/* should read /dev/urandom instead */
+	if (!seed) {
+		seed=time(NULL);
+	}
+	srand(seed);
+	printf("Seeding random number generator with %d\n",seed);
 
 	/* Set up to match trinity setup, vaguely */
 
