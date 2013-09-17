@@ -14,6 +14,7 @@ int quiet=0;
 #include <sys/ioctl.h>
 
 #include "perf_event.h"
+//#include <linux/perf_event.h>
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
@@ -167,12 +168,14 @@ int main(int argc, char **argv) {
        fprintf(stderr,"Error mmap()ing event %d!\n",i);
        test_fail(test_string);
      }
+
      our_mmap=(struct perf_event_mmap_page *)addr[i];
      if (our_mmap->cap_usr_rdpmc==0) {
-       if (!quiet) printf("rdpmc support not detected\n");
+       if (!quiet) printf("rdpmc support not detected (mmap->cap_usr_rdpmc==%d)\n",
+		our_mmap->cap_usr_rdpmc);
         test_skip(test_string);
      }
-     
+
    }
 
    /***************/
