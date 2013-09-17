@@ -180,6 +180,9 @@ static void ioctl_event(char *line) {
 			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_FILTER,%d);\n",
 				fd,arg2);
 			break;
+		case PERF_EVENT_IOC_ID:
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_ID,&id);\n",fd);
+			break;
 		default:
 			printf("\tioctl(fd[%d],%d,%d);\n",fd,arg,arg2);
 			break;
@@ -310,6 +313,11 @@ int main(int argc, char **argv) {
 
 	printf("#define MAX_POLL_FDS 128\n");
 	printf("struct pollfd pollfds[MAX_POLL_FDS];\n");
+
+	printf("\n");
+
+	/* For ioctl(PERF_EVENT_IOC_ID); */
+	printf("long long id;\n");
 
 	printf("\n");
 

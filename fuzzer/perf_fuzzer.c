@@ -636,13 +636,14 @@ static void close_random_event(void) {
 static void ioctl_random_event(void) {
 
 	int i,arg,arg2,result;
+	long long id;
 
 	i=find_random_active_event();
 
 	/* Exit if no events */
 	if (i<0) return;
 
-	switch(rand()%8) {
+	switch(rand()%9) {
 		case 0:
 			arg=rand_ioctl_arg();
 			if (debug&DEBUG_IOCTL) {
@@ -730,6 +731,18 @@ static void ioctl_random_event(void) {
 					event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			}
 			break;
+		case 7: arg=rand();
+			if (debug&DEBUG_IOCTL) {
+				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_ID,%p);\n",
+					event_data[i].fd,&id);
+			}
+			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
+			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+				fprintf(logfile,"I %d %ld %lld\n",
+					event_data[i].fd,PERF_EVENT_IOC_ID,id);
+			}
+			break;
+
 		default:
 			arg=rand(); arg2=rand();
 			result=ioctl(event_data[i].fd,arg,arg2);

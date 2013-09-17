@@ -206,6 +206,7 @@ static void close_event(char *line) {
 static void ioctl_event(char *line) {
 
 	int fd,arg,arg2,result;
+	long long id;
 
 	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
 
@@ -219,6 +220,9 @@ static void ioctl_event(char *line) {
 			else {
 				result=ioctl(fd_remap[fd],arg,fd_remap[arg2]);
 			}
+			break;
+		case PERF_EVENT_IOC_ID:
+			result=ioctl(fd_remap[fd],arg,&id);
 			break;
 		default:
 			result=ioctl(fd_remap[fd],arg,arg2);
@@ -308,6 +312,8 @@ static void poll_event(char *line) {
         timeout=atoi(next);
 //	printf("%d\n",timeout);
 
+	/* quiet a warning */
+	(void)result;
 
         result=poll(pollfds,num_fds,timeout);
 
