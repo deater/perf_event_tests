@@ -1,0 +1,47 @@
+The Perf Event Testsuite
+  by Vince Weaver   <vincent.weaver _at_ maine.edu>
+
+
+This series of test is meant to validate that the perf_event
+subsystem is working.
+
+LAYOUT
+~~~~~~
+There are various subdirectories:
+
+   + bugs      -- these contain tests for broken features of perf_events
+                  that a tool like PAPI has to work around.
+
+   + corner_cases -- these are tests that check unusual or uncommon
+                  perf_event functionality.  They might not affect
+                  common perf usage patterns but are still important
+                  to get right
+
+   + error_returns -- TODO
+
+   + generalized_events -- tests that check the validity of the various
+                  perf_event generalized events, such as "instructions"
+                  or "cycles"
+
+   + overflow  -- tests involving counter overflow functionality
+
+   + record_sample -- tests that check the functionality of sample
+                  recording
+
+   + sysfs      -- test the parsing of various perf_event related
+                   files under /sys/
+
+   + unfinished -- TODO
+
+   + validation -- tests that check low-level perf_event functionality
+
+   + validation_privledged -- tests that are low-level but require
+                   root or elevated permissions to run
+
+   + unfinished -- unfinished tests
+
+
+---
+
+Vince
+17 September 2013

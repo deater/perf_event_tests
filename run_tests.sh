@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export TESTS_QUIET=y
+export TESTS_DIR=./tests
 
 echo
 echo "**** RUNNING perf_event_tests ****"
@@ -8,210 +9,210 @@ uname -a
 
 echo
 echo "* Checking infrastructure"
-echo "  + ./validation/get_cache_info"
+echo "  + $TESTS_DIR/validation/get_cache_info"
 echo -n "    "
-./validation/get_cache_info
-echo " + ./sysfs/events"
+$TESTS_DIR/validation/get_cache_info
+echo " + $TESTS_DIR/sysfs/events"
 echo -n "    "
-./sysfs/events
+$TESTS_DIR/sysfs/events
 
 echo
 echo "* Checking generalized events"
-echo "  + ./generalized_events/branches"
+echo "  + $TESTS_DIR/generalized_events/branches"
 echo -n "    "
-./generalized_events/branches
-echo "  + ./generalized_events/branch-misses"
+$TESTS_DIR/generalized_events/branches
+echo "  + $TESTS_DIR/generalized_events/branch-misses"
 echo -n "    "
-./generalized_events/branch-misses
-echo "  + ./generalized_events/cycles"
+$TESTS_DIR/generalized_events/branch-misses
+echo "  + $TESTS_DIR/generalized_events/cycles"
 echo -n "    "
-./generalized_events/cycles
-echo "  + ./generalized_events/instructions"
+$TESTS_DIR/generalized_events/cycles
+echo "  + $TESTS_DIR/generalized_events/instructions"
 echo -n "    "
-./generalized_events/instructions
-echo "  + ./generalized_events/l1-dcache-stores"
+$TESTS_DIR/generalized_events/instructions
+echo "  + $TESTS_DIR/generalized_events/l1-dcache-stores"
 echo -n "    "
-./generalized_events/l1-dcache-stores
-echo "  + ./generalized_events/l1-dcache-loads"
+$TESTS_DIR/generalized_events/l1-dcache-stores
+echo "  + $TESTS_DIR/generalized_events/l1-dcache-loads"
 echo -n "    "
-./generalized_events/l1-dcache-loads
+$TESTS_DIR/generalized_events/l1-dcache-loads
 
 echo
 echo "* Checking offcore response events"
-echo "  + ./validation/offcore_response"
+echo "  + $TESTS_DIR/validation/offcore_response"
 echo -n "    "
-./validation/offcore_response
-echo "  + ./validation/offcore_response_mask"
+$TESTS_DIR/validation/offcore_response
+echo "  + $TESTS_DIR/validation/offcore_response_mask"
 echo -n "    "
-./validation/offcore_response_mask
+$TESTS_DIR/validation/offcore_response_mask
 
 echo
 echo "* Checking events that require special permissions"
-echo "  + ./validation_privileged/uncore_events"
+echo "  + $TESTS_DIR/validation_privileged/uncore_events"
 echo -n "    "
-./validation_privileged/uncore_events
+$TESTS_DIR/validation_privileged/uncore_events
 
 echo
 echo "* Checking basic perf_event functionality"
-echo "  + ./validation/format_id_support"
+echo "  + $TESTS_DIR/validation/format_id_support"
 echo -n "    "
-./validation/format_id_support
-echo "  + ./validation/non-existent"
+$TESTS_DIR/validation/format_id_support
+echo "  + $TESTS_DIR/validation/non-existent"
 echo -n "    "
-./validation/non-existent
-echo "  + ./validation/breakpoint_support"
+$TESTS_DIR/validation/non-existent
+echo "  + $TESTS_DIR/validation/breakpoint_support"
 echo -n "    "
-./validation/breakpoint_support
-echo "  + ./validation/inherit"
+$TESTS_DIR/validation/breakpoint_support
+echo "  + $TESTS_DIR/validation/inherit"
 echo -n "    "
-./validation/inherit
-echo "  + ./validation/inherit_stat"
+$TESTS_DIR/validation/inherit
+echo "  + $TESTS_DIR/validation/inherit_stat"
 echo -n "    "
-./validation/inherit_stat
-echo "  + ./validation/enable_on_exec"
+$TESTS_DIR/validation/inherit_stat
+echo "  + $TESTS_DIR/validation/enable_on_exec"
 echo -n "    "
-./validation/enable_on_exec
-echo "  + ./validation/ioctl_flag_group"
+$TESTS_DIR/validation/enable_on_exec
+echo "  + $TESTS_DIR/validation/ioctl_flag_group"
 echo -n "    "
-./validation/ioctl_flag_group
+$TESTS_DIR/validation/ioctl_flag_group
 
 echo
 echo "* Checking overflow functionality"
-echo "  + ./overflow/breakpoint_overflow"
+echo "  + $TESTS_DIR/overflow/breakpoint_overflow"
 echo -n "    "
-./overflow/breakpoint_overflow
-echo "  + ./overflow/simple_overflow_leader"
+$TESTS_DIR/overflow/breakpoint_overflow
+echo "  + $TESTS_DIR/overflow/simple_overflow_leader"
 echo -n "    "
-./overflow/simple_overflow_leader
-echo "  + ./overflow/simple_overflow_sibling"
+$TESTS_DIR/overflow/simple_overflow_leader
+echo "  + $TESTS_DIR/overflow/simple_overflow_sibling"
 echo -n "    "
-./overflow/simple_overflow_sibling
-echo "  + ./overflow/simultaneous_overflow"
+$TESTS_DIR/overflow/simple_overflow_sibling
+echo "  + $TESTS_DIR/overflow/simultaneous_overflow"
 echo -n "    "
-./overflow/simultaneous_overflow
-echo "  + ./overflow/simultaneous_group_overflow"
+$TESTS_DIR/overflow/simultaneous_overflow
+echo "  + $TESTS_DIR/overflow/simultaneous_group_overflow"
 echo -n "    "
-./overflow/simultaneous_group_overflow
-echo "  + ./overflow/simul_oneshot_group_overflow"
+$TESTS_DIR/overflow/simultaneous_group_overflow
+echo "  + $TESTS_DIR/overflow/simul_oneshot_group_overflow"
 echo -n "    "
-./overflow/simul_oneshot_group_overflow
-echo "  + ./overflow/single_shot_overflow"
+$TESTS_DIR/overflow/simul_oneshot_group_overflow
+echo "  + $TESTS_DIR/overflow/single_shot_overflow"
 echo -n "    "
-./overflow/single_shot_overflow
-echo "  + ./overflow/single_shot_w_enable"
+$TESTS_DIR/overflow/single_shot_overflow
+echo "  + $TESTS_DIR/overflow/single_shot_w_enable"
 echo -n "    "
-./overflow/single_shot_w_enable
-echo "  + ./overflow/wakeup_events_overflow"
+$TESTS_DIR/overflow/single_shot_w_enable
+echo "  + $TESTS_DIR/overflow/wakeup_events_overflow"
 echo -n "    "
-./overflow/wakeup_events_overflow
-echo "  + ./overflow/overflow_requires_wakeup"
+$TESTS_DIR/overflow/wakeup_events_overflow
+echo "  + $TESTS_DIR/overflow/overflow_requires_wakeup"
 echo -n "    "
-./overflow/overflow_requires_wakeup
+$TESTS_DIR/overflow/overflow_requires_wakeup
 
 
 echo
 echo "* Checking mmap record sample functionality"
-echo "  + ./record_sample/print_record_sample"
+echo "  + $TESTS_DIR/record_sample/print_record_sample"
 echo -n "    "
-./record_sample/print_record_sample
-echo "  + ./record_sample/validate_record_sample"
+$TESTS_DIR/record_sample/print_record_sample
+echo "  + $TESTS_DIR/record_sample/validate_record_sample"
 echo -n "    "
-./record_sample/validate_record_sample
-echo "  + ./record_sample/lost_record_sample"
+$TESTS_DIR/record_sample/validate_record_sample
+echo "  + $TESTS_DIR/record_sample/lost_record_sample"
 echo -n "    "
-./record_sample/lost_record_sample
-echo "  + ./record_sample/multiple_mmap_sizes"
+$TESTS_DIR/record_sample/lost_record_sample
+echo "  + $TESTS_DIR/record_sample/multiple_mmap_sizes"
 echo -n "    "
-./record_sample/multiple_mmap_sizes
-echo "  + ./record_sample/sample_branch_stach"
+$TESTS_DIR/record_sample/multiple_mmap_sizes
+echo "  + $TESTS_DIR/record_sample/sample_branch_stach"
 echo -n "    "
-./record_sample/sample_branch_stack
+$TESTS_DIR/record_sample/sample_branch_stack
 
 echo
 echo "* Checking bugs that PAPI has to work around"
-echo "  + ./bugs/sync_read_required"
+echo "  + $TESTS_DIR/bugs/sync_read_required"
 echo -n "    "
-./bugs/sync_read_required
-echo "  + ./bugs/read_group_attached"
+$TESTS_DIR/bugs/sync_read_required
+echo "  + $TESTS_DIR/bugs/read_group_attached"
 echo -n "    "
-./bugs/read_group_attached
-echo "  + ./bugs/check_schedulability"
+$TESTS_DIR/bugs/read_group_attached
+echo "  + $TESTS_DIR/bugs/check_schedulability"
 echo -n "    "
-./bugs/check_schedulability
-echo "  + ./bugs/check_papi_multiplexing"
+$TESTS_DIR/bugs/check_schedulability
+echo "  + $TESTS_DIR/bugs/check_papi_multiplexing"
 echo -n "    "
-./bugs/check_papi_multiplexing
-echo "  + ./bugs/check_multiplexing"
+$TESTS_DIR/bugs/check_papi_multiplexing
+echo "  + $TESTS_DIR/bugs/check_multiplexing"
 echo -n "    "
-./bugs/check_multiplexing
+$TESTS_DIR/bugs/check_multiplexing
 
 echo
 echo "* Checking other bugs"
-echo "  + ./corner_cases/sw_start_leader"
+echo "  + $TESTS_DIR/corner_cases/sw_start_leader"
 echo -n "    "
-./corner_cases/sw_start_leader
-echo "  + ./corner_cases/hw_sw_mix"
+$TESTS_DIR/corner_cases/sw_start_leader
+echo "  + $TESTS_DIR/corner_cases/hw_sw_mix"
 echo -n "    "
-./corner_cases/hw_sw_mix
+$TESTS_DIR/corner_cases/hw_sw_mix
 
 echo
 echo "* Checking bugs that can silently produce wrong results"
-echo "  + ./validation/check_constraints"
+echo "  + $TESTS_DIR/validation/check_constraints"
 echo -n "    "
-./validation/check_constraints
-echo "  + ./corner_cases/context_switch_user_kernel"
+$TESTS_DIR/validation/check_constraints
+echo "  + $TESTS_DIR/corner_cases/context_switch_user_kernel"
 echo -n "    "
-./corner_cases/context_switch_user_kernel
+$TESTS_DIR/corner_cases/context_switch_user_kernel
 
 echo
 echo "* Checking interfaces that have changed over the years"
-echo "  + ./corner_cases/overflow_requires_mmap"
+echo "  + $TESTS_DIR/corner_cases/overflow_requires_mmap"
 echo -n "    "
-./corner_cases/overflow_requires_mmap
-echo "  + ./corner_cases/signal_after_exec"
+$TESTS_DIR/corner_cases/overflow_requires_mmap
+echo "  + $TESTS_DIR/corner_cases/signal_after_exec"
 echo -n "    "
-./corner_cases/signal_after_exec
-echo "  + ./corner_cases/sampled_notleader_refresh"
+$TESTS_DIR/corner_cases/signal_after_exec
+echo "  + $TESTS_DIR/corner_cases/sampled_notleader_refresh"
 echo -n "    "
-./corner_cases/sampled_notleader_refresh
+$TESTS_DIR/corner_cases/sampled_notleader_refresh
 
 echo
 echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
-echo "  + ./corner_cases/multiple_active"
+echo "  + $TESTS_DIR/corner_cases/multiple_active"
 echo -n "    "
-./corner_cases/multiple_active
-echo "  + ./corner_cases/max_multiplex"
+$TESTS_DIR/corner_cases/multiple_active
+echo "  + $TESTS_DIR/corner_cases/max_multiplex"
 echo -n "    "
-./corner_cases/max_multiplex
-echo "  + ./corner_cases/reset_leader"
+$TESTS_DIR/corner_cases/max_multiplex
+echo "  + $TESTS_DIR/corner_cases/reset_leader"
 echo -n "    "
-./corner_cases/reset_leader
-echo "  + ./corner_cases/check_reset_mpx"
+$TESTS_DIR/corner_cases/reset_leader
+echo "  + $TESTS_DIR/corner_cases/check_reset_mpx"
 echo -n "    "
-./corner_cases/check_reset_mpx
+$TESTS_DIR/corner_cases/check_reset_mpx
 
 echo
 echo "* Checking for fast RDPMC support"
-echo "  + ./validation/rdpmc_support"
+echo "  + $TESTS_DIR/validation/rdpmc_support"
 echo -n "    "
-./validation/rdpmc_support
-echo "  + ./validation/rdpmc_validation"
+$TESTS_DIR/validation/rdpmc_support
+echo "  + $TESTS_DIR/validation/rdpmc_validation"
 echo -n "    "
-./validation/rdpmc_validation
+$TESTS_DIR/validation/rdpmc_validation
 
 echo
 echo "* Checking proposed interface updates (not in any released kernel)"
-echo "  + ./corner_cases/ioctl_refresh_0"
+echo "  + $TESTS_DIR/corner_cases/ioctl_refresh_0"
 echo -n "    "
-./corner_cases/ioctl_refresh_0
-echo "  + ./corner_cases/wrong_size_enospc"
+$TESTS_DIR/corner_cases/ioctl_refresh_0
+echo "  + $TESTS_DIR/corner_cases/wrong_size_enospc"
 echo -n "    "
-./corner_cases/wrong_size_enospc
+$TESTS_DIR/corner_cases/wrong_size_enospc
 
 echo
 echo "* Checking for major bugs that are unlikely to ever be fixed"
-echo "  + ./bugs/nmi_watchdog_group_leader"
+echo "  + $TESTS_DIR/bugs/nmi_watchdog_group_leader"
 echo -n "    "
-./bugs/nmi_watchdog_group_leader
+$TESTS_DIR/bugs/nmi_watchdog_group_leader
 
 echo

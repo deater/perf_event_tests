@@ -19,40 +19,31 @@ LAYOUT
 ~~~~~~
 There are various subdirectories:
 
-   + bugs      -- these contain tests for broken features of perf_events
-                  that a tool like PAPI has to work around.
-
-   + corner_cases -- these are tests that check unusual or uncommon
-                  perf_event functionality.  They might not affect
-                  common perf usage patterns but are still important
-                  to get right
-
    + crashes   -- these contain tests known to crash certain
                   kernel versions from userspace.
                   * USE CAUTION RUNNING THESE TESTS *
 
+   + exploits  -- perf_event code that can cause some sort of security exploit
+
    + fuzzer    -- a fuzzer tool that tries to hit the extremes of
                   the perf_event interface and find bugs in the kernel
 
-   + generalized_events -- tests that check the validity of the various
-                  perf_event generalized events, such as "instructions"
-                  or "cycles"
+   + include   -- common include files
 
-   + overflow  -- tests involving counter overflow functionality
+   + lib       -- common library code
 
-   + papi       -- tests for the PAPI library.  Only compile/run
+   + papi      -- tests for the PAPI library.  Only compile/run
                   these if you have PAPI installed
 
-   + record_sample -- tests that check the functionality of sample
-                  recording
+   + perf_event_h -- an archive of perf_event.h files over the
+                     history of the interface.  Useful when
+                     figuring out when a feature was added
 
-   + validation -- tests that check low-level perf_event functionality
+   + results   -- results of ./run_tests.sh across kernel versions
 
-   + validation_privledged -- tests that are low-level but require
-                   root or elevated permissions to run
+   + tests     -- all of the various tests live under here
 
-   + unfinished -- unfinished tests
-
+   + tools     -- various perf_event related tools
 
 WEBSITE
 ~~~~~~~
@@ -69,4 +60,4 @@ Even more recent code can be obtained from the git tree:
 ---
 
 Vince
-29 January 2013
+17 September 2013

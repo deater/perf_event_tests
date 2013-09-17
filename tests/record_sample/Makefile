@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -O2 -I../include
+CFLAGS = -Wall -O2 -I../../include
 LFLAGS =
+LIB = ../../lib
 
 all:	\
 	lost_record_sample \
@@ -11,20 +12,20 @@ all:	\
 
 ###
 
-../lib/test_utils.o:	../lib/test_utils.c
-	cd ../lib && make
+$(LIB)/test_utils.o:	$(LIB)/test_utils.c
+	cd $(LIB) && make
 
-../lib/branches_testcode.o:	../lib/branches_testcode.c
-	cd ../lib && make
+$(LIB)/branches_testcode.o:	$(LIB)/branches_testcode.c
+	cd $(LIB) && make
 
-../lib/matrix_multiply.o:	../lib/matrix_multiply.c
-	cd ../lib && make
+$(LIB)/matrix_multiply.o:	$(LIB)/matrix_multiply.c
+	cd $(LIB) && make
 
-../lib/perf_helpers.o:	../lib/perf_helpers.c
-	cd ../lib && make
+$(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
+	cd $(LIB) && make
 
-../lib/detect_cache.o:	../lib/detect_cache.c
-	cd ../lib && make
+$(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
+	cd $(LIB) && make
 
 ###
 
@@ -35,15 +36,15 @@ parse_record.o:		parse_record.c parse_record.h
 
 lost_record_sample:	lost_record_sample.o \
 					parse_record.o \
-					../lib/test_utils.o \
-					../lib/perf_helpers.o \
-					../lib/instructions_testcode.o
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o lost_record_sample \
 				lost_record_sample.o \
 				parse_record.o \
-				../lib/test_utils.o \
-				../lib/perf_helpers.o \
-				../lib/instructions_testcode.o
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
 
 lost_record_sample.o:	lost_record_sample.c
 	$(CC) $(CFLAGS) -c lost_record_sample.c
@@ -53,15 +54,15 @@ lost_record_sample.o:	lost_record_sample.c
 
 multiple_mmap_sizes:	multiple_mmap_sizes.o \
 					parse_record.o \
-					../lib/test_utils.o \
-					../lib/perf_helpers.o \
-					../lib/instructions_testcode.o
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o multiple_mmap_sizes \
 				multiple_mmap_sizes.o \
 				parse_record.o \
-				../lib/test_utils.o \
-				../lib/perf_helpers.o \
-				../lib/instructions_testcode.o
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
 
 multiple_mmap_sizes.o:	multiple_mmap_sizes.c
 	$(CC) $(CFLAGS) -c multiple_mmap_sizes.c
@@ -70,15 +71,15 @@ multiple_mmap_sizes.o:	multiple_mmap_sizes.c
 
 print_record_sample:	print_record_sample.o \
 					parse_record.o \
-					../lib/test_utils.o \
-					../lib/perf_helpers.o \
-					../lib/instructions_testcode.o
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o print_record_sample \
 				print_record_sample.o \
 				parse_record.o \
-				../lib/test_utils.o \
-				../lib/perf_helpers.o \
-				../lib/instructions_testcode.o
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
 
 print_record_sample.o:	print_record_sample.c
 	$(CC) $(CFLAGS) -c print_record_sample.c
@@ -87,15 +88,15 @@ print_record_sample.o:	print_record_sample.c
 
 validate_record_sample:	validate_record_sample.o \
 					parse_record.o \
-					../lib/test_utils.o \
-					../lib/perf_helpers.o \
-					../lib/instructions_testcode.o
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o validate_record_sample \
 				validate_record_sample.o \
 				parse_record.o \
-				../lib/test_utils.o \
-				../lib/perf_helpers.o \
-				../lib/instructions_testcode.o
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
 
 validate_record_sample.o:	validate_record_sample.c
 	$(CC) $(CFLAGS) -c validate_record_sample.c
@@ -105,15 +106,15 @@ validate_record_sample.o:	validate_record_sample.c
 
 sample_branch_stack:	sample_branch_stack.o \
 					parse_record.o \
-					../lib/test_utils.o \
-					../lib/perf_helpers.o \
-					../lib/instructions_testcode.o
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o sample_branch_stack \
 				sample_branch_stack.o \
 				parse_record.o \
-				../lib/test_utils.o \
-				../lib/perf_helpers.o \
-				../lib/instructions_testcode.o
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
 
 sample_branch_stack.o:	sample_branch_stack.c
 	$(CC) $(CFLAGS) -c sample_branch_stack.c
