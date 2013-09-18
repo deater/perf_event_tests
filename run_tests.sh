@@ -75,7 +75,10 @@ $TESTS_DIR/validation/enable_on_exec
 
 echo
 echo "* Checking perf_event ioctl calls"
-echo "  + $TESTS_DIR/validation/ioctl_flag_group"
+echo "  + $TESTS_DIR/ioctl/ioctl_flag_group"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_flag_group
+echo "  + $TESTS_DIR/ioctl/ioctl_id"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_flag_group
 

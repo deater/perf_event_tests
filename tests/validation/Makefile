@@ -11,7 +11,6 @@ all:	\
 	get_cache_info \
 	inherit \
 	inherit_stat \
-	ioctl_flag_group \
 	non-existent \
 	offcore_response \
 	offcore_response_mask \
@@ -128,21 +127,6 @@ inherit_stat.o:	inherit_stat.c
 
 ###
 
-ioctl_flag_group:	ioctl_flag_group.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o ioctl_flag_group ioctl_flag_group.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/instructions_testcode.o \
-				$(LIB)/perf_helpers.o -lpthread
-
-ioctl_flag_group.o:	ioctl_flag_group.c
-	$(CC) $(CFLAGS) -c ioctl_flag_group.c
-
-
-
-###
-
 non-existent:	non-existent.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/matrix_multiply.o
@@ -218,7 +202,6 @@ clean:
 	get_cache_info \
 	inherit \
 	inherit_stat \
-	ioctl_flag_group \
 	non-existent \
 	offcore_response \
 	offcore_response_mask \

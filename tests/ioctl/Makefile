@@ -4,7 +4,8 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
-	ioctl_flag_group 
+	ioctl_flag_group \
+	ioctl_id
 
 ###
 
@@ -36,8 +37,23 @@ ioctl_flag_group:	ioctl_flag_group.o $(LIB)/test_utils.o \
 ioctl_flag_group.o:	ioctl_flag_group.c
 	$(CC) $(CFLAGS) -c ioctl_flag_group.c
 
+###
 
+ioctl_id:	ioctl_id.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o ioctl_id ioctl_id.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/instructions_testcode.o \
+				$(LIB)/perf_helpers.o -lpthread
+
+ioctl_id.o:	ioctl_id.c
+	$(CC) $(CFLAGS) -c ioctl_id.c
+
+
+####
 
 clean:	
 	rm -f *~ *.o \
-	ioctl_flag_group 
+	ioctl_flag_group \
+	ioctl_id
