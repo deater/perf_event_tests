@@ -72,9 +72,12 @@ $TESTS_DIR/validation/inherit_stat
 echo "  + $TESTS_DIR/validation/enable_on_exec"
 echo -n "    "
 $TESTS_DIR/validation/enable_on_exec
+
+echo
+echo "* Checking perf_event ioctl calls"
 echo "  + $TESTS_DIR/validation/ioctl_flag_group"
 echo -n "    "
-$TESTS_DIR/validation/ioctl_flag_group
+$TESTS_DIR/ioctl/ioctl_flag_group
 
 echo
 echo "* Checking overflow functionality"

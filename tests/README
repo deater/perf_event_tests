@@ -23,6 +23,8 @@ There are various subdirectories:
                   perf_event generalized events, such as "instructions"
                   or "cycles"
 
+   + ioctl     -- tests of perf_event ioctl calls
+
    + overflow  -- tests involving counter overflow functionality
 
    + record_sample -- tests that check the functionality of sample
