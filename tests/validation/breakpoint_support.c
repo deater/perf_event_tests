@@ -2,7 +2,7 @@
 
 /* This was not added until 2.6.33 */
 
-/* by Vince Weaver, vweaver1 _at_ eecs.utk.edu        */
+/* by Vince Weaver, vincent.weaver _at_ maine.edu        */
 
 
 char test_string[]="Testing hardware breakpoints...";
@@ -27,9 +27,10 @@ int fd;
 
 int test_function(int a, int b) {
 
-  /* The time thing is there to keep the compiler */
-  /* from optimizing this away.                   */
-  return a+b+time(NULL);
+	/* The time thing is there to keep the compiler */
+	/* from optimizing this away.                   */
+
+	return a+b+time(NULL);
 
 }
 
@@ -41,206 +42,219 @@ volatile int test_variable=5;
 
 int main(int argc, char **argv) {
 
-   struct perf_event_attr pe;
-   int i, sum=0, read_result, passes=0;
-   long long count;
+	struct perf_event_attr pe;
+	int i, sum=0, read_result, passes=0;
+	long long count;
 
-   void *address;
+	void *address;
 
-   address=test_function;
+	address=test_function;
 
-   quiet=test_quiet();
-   
-   if (!quiet) printf("This test checks that hardware breakpoints work.\n");
+	quiet=test_quiet();
 
-   /*******************************/
-   /* Test execution breakpoint   */
-   /*******************************/
+	if (!quiet) {
+		printf("This test checks that hardware breakpoints work.\n");
+	}
 
-   if (!quiet) printf("\tTesting HW_BREAKPOINT_X\n");
+	/*******************************/
+	/* Test execution breakpoint   */
+	/*******************************/
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
-   pe.type=PERF_TYPE_BREAKPOINT;
-   pe.size=sizeof(struct perf_event_attr);
+	if (!quiet) {
+		printf("\tTesting HW_BREAKPOINT_X\n");
+	}
 
-   /* setup for an execution breakpoint */
-   pe.config=0;
-   pe.bp_type=HW_BREAKPOINT_X;
-   pe.bp_addr=(unsigned long)address;
-   pe.bp_len=sizeof(long);
+	memset(&pe,0,sizeof(struct perf_event_attr));
+	pe.type=PERF_TYPE_BREAKPOINT;
+	pe.size=sizeof(struct perf_event_attr);
 
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	/* setup for an execution breakpoint */
+	pe.config=0;
+	pe.bp_type=HW_BREAKPOINT_X;
+	pe.bp_addr=(unsigned long)address;
+	pe.bp_len=sizeof(long);
 
-   arch_adjust_domain(&pe,quiet);
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-      if (!quiet) {
-	printf("\t\tError opening leader %llx %s\n",pe.config,
-	       strerror(errno));
-      }
-      goto skip_execs;
-   }
+	arch_adjust_domain(&pe,quiet);
 
-   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-   ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) {
+			printf("\t\tError opening leader %llx %s\n",
+				pe.config,strerror(errno));
+		}
+		goto skip_execs;
+	}
 
-   /* Access a function 10 times */
-   for(i=0;i<EXECUTIONS;i++) {
-     sum+=test_function(i,sum);
-   }
+	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
-   ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
-   read_result=read(fd,&count,sizeof(long long));
+	/* Access a function 10 times */
+	for(i=0;i<EXECUTIONS;i++) {
+		sum+=test_function(i,sum);
+	}
 
-   if (read_result!=sizeof(long long)) {
-     fprintf(stderr,"\tImproper return from read: %d\n",read_result);
-     test_fail(test_string); 
-   }
+	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	read_result=read(fd,&count,sizeof(long long));
 
-   if (!quiet) printf("\t\tTried %d calls, found %lld times, sum=%d\n",
-		      EXECUTIONS,count,sum);
+	if (read_result!=sizeof(long long)) {
+		fprintf(stderr,"\tImproper return from read: %d\n",
+				read_result);
+		test_fail(test_string);
+	}
 
-   if (count!=EXECUTIONS) {
-      fprintf(stderr,"\tWrong number of executions "
-	      "%lld != %d\n",count,EXECUTIONS);
-      test_fail(test_string);
-   }
+	if (!quiet) {
+		printf("\t\tTried %d calls, found %lld times, sum=%d\n",
+			EXECUTIONS,count,sum);
 
-   close(fd);
-   passes++;
+		if (count!=EXECUTIONS) {
+			fprintf(stderr,"\tWrong number of executions "
+					"%lld != %d\n",count,EXECUTIONS);
+		}
+		test_fail(test_string);
+	}
+
+	close(fd);
+	passes++;
+
 skip_execs:
 
-   /*******************************/
-   /* Test write breakpoint       */
-   /*******************************/
+	/*******************************/
+	/* Test write breakpoint       */
+	/*******************************/
 
-   if (!quiet) printf("\tTesting HW_BREAKPOINT_W\n");
+	if (!quiet) printf("\tTesting HW_BREAKPOINT_W\n");
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
-   pe.type=PERF_TYPE_BREAKPOINT;
-   pe.size=sizeof(struct perf_event_attr);
+	memset(&pe,0,sizeof(struct perf_event_attr));
+	pe.type=PERF_TYPE_BREAKPOINT;
+	pe.size=sizeof(struct perf_event_attr);
 
-   /* setup for an execution breakpoint */
-   pe.config=0;
-   pe.bp_type=HW_BREAKPOINT_W;
-   pe.bp_addr=(long)&test_variable;
-   pe.bp_len=HW_BREAKPOINT_LEN_4;
+	/* setup for an execution breakpoint */
+	pe.config=0;
+	pe.bp_type=HW_BREAKPOINT_W;
+	pe.bp_addr=(long)&test_variable;
+	pe.bp_len=HW_BREAKPOINT_LEN_4;
 
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   arch_adjust_domain(&pe,quiet);
+	arch_adjust_domain(&pe,quiet);
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-     if (!quiet) {
-        printf("\t\tError opening leader %llx %s\n",
-	       pe.config,strerror(errno));
-     }
-     goto skip_writes;
-   }
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) {
+			printf("\t\tError opening leader %llx %s\n",
+				pe.config,strerror(errno));
+		}
+		goto skip_writes;
+	}
 
-   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-   ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
-   /* Read a variable WRITES times */
-   for(i=0;i<WRITES;i++) {
-      test_variable=sum+i;
-   }
+	/* Read a variable WRITES times */
+	for(i=0;i<WRITES;i++) {
+		test_variable=sum+i;
+	}
 
-   ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
-   read_result=read(fd,&count,sizeof(long long));
+	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	read_result=read(fd,&count,sizeof(long long));
 
-   if (read_result!=sizeof(long long)) {
-     fprintf(stderr,"\tImproper return from read: %d\n",read_result);
-     test_fail(test_string); 
-   }
+	if (read_result!=sizeof(long long)) {
+		fprintf(stderr,"\tImproper return from read: %d\n",read_result);
+		test_fail(test_string);
+	}
 
-   if (!quiet) printf("\t\tTried %d writes, found %lld times, sum=%d\n",
-		      WRITES,count,sum);
+	if (!quiet) {
+		printf("\t\tTried %d writes, found %lld times, sum=%d\n",
+			WRITES,count,sum);
+	}
 
-   if (count!=WRITES) {
-      fprintf(stderr,"\tWrong number of writes "
-	      "%lld != %d\n",count,WRITES);
-      test_fail(test_string);
-   }
+	if (count!=WRITES) {
+		fprintf(stderr,"\tWrong number of writes "
+				"%lld != %d\n",count,WRITES);
+		test_fail(test_string);
+	}
 
-   close(fd);
-   passes++;
+	close(fd);
+	passes++;
 skip_writes:
 
-   /*******************************/
-   /* Test read breakpoint        */
-   /*******************************/
+	/*******************************/
+	/* Test read breakpoint        */
+	/*******************************/
 
-   if (!quiet) printf("\tTesting HW_BREAKPOINT_R\n");
+	if (!quiet) printf("\tTesting HW_BREAKPOINT_R\n");
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
-   pe.type=PERF_TYPE_BREAKPOINT;
-   pe.size=sizeof(struct perf_event_attr);
+	memset(&pe,0,sizeof(struct perf_event_attr));
+	pe.type=PERF_TYPE_BREAKPOINT;
+	pe.size=sizeof(struct perf_event_attr);
 
-   /* setup for an execution breakpoint */
-   pe.config=0;
-   pe.bp_type=HW_BREAKPOINT_R;
-   pe.bp_addr=(long)&test_variable;
-   pe.bp_len=HW_BREAKPOINT_LEN_4;
+	/* setup for an execution breakpoint */
+	pe.config=0;
+	pe.bp_type=HW_BREAKPOINT_R;
+	pe.bp_addr=(long)&test_variable;
+	pe.bp_len=HW_BREAKPOINT_LEN_4;
 
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   arch_adjust_domain(&pe,quiet);
+	arch_adjust_domain(&pe,quiet);
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-     if (!quiet) {
-        printf("\t\tError opening leader %llx %s\n",
-	       pe.config,strerror(errno));
-        printf("\t\tRead breakpoints probably not supported, skipping\n");
-     }
-     goto skip_reads;
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) {
+			printf("\t\tError opening leader %llx %s\n",
+				pe.config,strerror(errno));
+			printf("\t\tRead breakpoints probably not supported, "
+				"skipping\n");
+		}
+		goto skip_reads;
 
-   }
+	}
 
-   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-   ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
-   /* Read a variable READS times */
-   for(i=0;i<READS;i++) {
-      sum+=test_variable;
-   }
+	/* Read a variable READS times */
+	for(i=0;i<READS;i++) {
+		sum+=test_variable;
+	}
 
-   ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
-   read_result=read(fd,&count,sizeof(long long));
+	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	read_result=read(fd,&count,sizeof(long long));
 
-   if (read_result!=sizeof(long long)) {
-     fprintf(stderr,"\tImproper return from read: %d\n",read_result);
-     test_fail(test_string); 
-   }
+	if (read_result!=sizeof(long long)) {
+		fprintf(stderr,"\tImproper return from read: %d\n",read_result);
+		test_fail(test_string);
+	}
 
-   if (!quiet) printf("\t\tTrying %d reads, found %lld times, sum=%d\n",
-		      READS,count,sum);
+	if (!quiet) {
+		printf("\t\tTrying %d reads, found %lld times, sum=%d\n",
+			READS,count,sum);
+	}
 
-   if (count!=READS) {
-      fprintf(stderr,"\tWrong number of reads "
-	      "%lld != %d\n",count,READS);
-      test_fail(test_string);
-   }
+	if (count!=READS) {
+		fprintf(stderr,"\tWrong number of reads "
+			"%lld != %d\n",count,READS);
+		test_fail(test_string);
+	}
 
-   close(fd);
-   passes++;
+	close(fd);
+	passes++;
 
 skip_reads:
 
-   if (passes>0) {
-      test_pass(test_string);
-   } else {
-      test_skip(test_string);
-   }
+	if (passes>0) {
+		test_pass(test_string);
+	} else {
+		test_skip(test_string);
+	}
 
-   return 0;
+	return 0;
 }
