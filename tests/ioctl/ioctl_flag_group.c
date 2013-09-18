@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
    quiet=test_quiet();
 
    if (!quiet) {
-      printf("This test the PERF_IOC_FLAG_GROUP ioctl parameter.\n\n");
+      printf("This tests the PERF_IOC_FLAG_GROUP ioctl parameter.\n\n");
    }
 
    /**********************************************/
