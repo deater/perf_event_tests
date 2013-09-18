@@ -25,12 +25,18 @@ int fd;
 #include "instructions_testcode.h"
 
 
-int test_function(int a, int b) {
+int test_function(int a, int b, int quiet) __attribute__((noinline));
+
+int test_function(int a, int b, int quiet) {
+
+	int c;
 
 	/* The time thing is there to keep the compiler */
 	/* from optimizing this away.                   */
 
-	return a+b+time(NULL);
+	c=a+b+rand();
+	printf("\t\tFunction: %d\n",c);
+	return c;
 
 }
 
@@ -94,7 +100,7 @@ int main(int argc, char **argv) {
 
 	/* Access a function 10 times */
 	for(i=0;i<EXECUTIONS;i++) {
-		sum+=test_function(i,sum);
+		sum+=test_function(i,sum,quiet);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
@@ -113,8 +119,8 @@ int main(int argc, char **argv) {
 		if (count!=EXECUTIONS) {
 			fprintf(stderr,"\tWrong number of executions "
 					"%lld != %d\n",count,EXECUTIONS);
+			test_fail(test_string);
 		}
-		test_fail(test_string);
 	}
 
 	close(fd);
@@ -156,9 +162,10 @@ skip_execs:
 	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
-	/* Read a variable WRITES times */
+	/* Write a variable WRITES times */
 	for(i=0;i<WRITES;i++) {
 		test_variable=sum+i;
+		if (!quiet) printf("\t\tWrote %d\n",test_variable);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
@@ -224,6 +231,7 @@ skip_writes:
 	/* Read a variable READS times */
 	for(i=0;i<READS;i++) {
 		sum+=test_variable;
+		if (!quiet) printf("\t\tRead %d\n",sum);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
