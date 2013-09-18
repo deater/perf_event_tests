@@ -67,6 +67,9 @@ int main(int argc, char** argv) {
 
 	result=ioctl(fd[0], PERF_EVENT_IOC_ID, &id);
 	if (result!=0) {
+		if (errno==ENOTTY) {
+			test_skip(test_string);
+		}
 		fprintf(stderr,"\tError with ioctl %s\n",
 			strerror(errno));
 	}
