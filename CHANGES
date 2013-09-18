@@ -1,3 +1,11 @@
+18 September 2013
++ Fix breakpoint_support test that was broken by too-clever gcc 4.8
++ Release version 0.28
+
+17 September 2013
++ Re-organize files
++ add ioctl_id test
+
 9 September 2013
 + Add SAMPLE_BRANCH_STACK test
 
