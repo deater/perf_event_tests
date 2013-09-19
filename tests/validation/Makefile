@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2 -I../../include
+CFLAGS = -Wall -O2 -g -I../../include
 LFLAGS =
 LIB = ../../lib
 

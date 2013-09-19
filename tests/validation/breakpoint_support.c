@@ -5,10 +5,6 @@
 /* by Vince Weaver, vincent.weaver _at_ maine.edu        */
 
 
-char test_string[]="Testing hardware breakpoints...";
-int quiet=0;
-int fd;
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -25,6 +21,10 @@ int fd;
 #include "instructions_testcode.h"
 
 
+char test_string[BUFSIZ];
+int quiet=0;
+int fd;
+
 int test_function(int a, int b, int quiet) __attribute__((noinline));
 
 int test_function(int a, int b, int quiet) {
@@ -35,7 +35,7 @@ int test_function(int a, int b, int quiet) {
 	/* from optimizing this away.                   */
 
 	c=a+b+rand();
-	printf("\t\tFunction: %d\n",c);
+	if (!quiet) printf("\t\tFunction: %d\n",c);
 	return c;
 
 }
@@ -57,6 +57,10 @@ int main(int argc, char **argv) {
 	address=test_function;
 
 	quiet=test_quiet();
+
+	sprintf(test_string,"Testing hardware breakpoints (%d)...",
+					42);
+
 
 	if (!quiet) {
 		printf("This test checks that hardware breakpoints work.\n");
@@ -103,6 +107,10 @@ int main(int argc, char **argv) {
 		sum+=test_function(i,sum,quiet);
 	}
 
+	if (!quiet) {
+		printf("\t\tSum=%d\n",sum);
+	}
+
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 	read_result=read(fd,&count,sizeof(long long));
 
@@ -127,6 +135,11 @@ int main(int argc, char **argv) {
 	passes++;
 
 skip_execs:
+
+	/* Urgh, it's hard to force gcc 4.8+ to not optimize */
+	/* this all away.                                    */
+	sprintf(test_string,"Testing hardware breakpoints (%d)...",
+					sum);
 
 	/*******************************/
 	/* Test write breakpoint       */
@@ -164,7 +177,7 @@ skip_execs:
 
 	/* Write a variable WRITES times */
 	for(i=0;i<WRITES;i++) {
-		test_variable=sum+i;
+		test_variable=sum+time(NULL);
 		if (!quiet) printf("\t\tWrote %d\n",test_variable);
 	}
 
@@ -190,6 +203,12 @@ skip_execs:
 	close(fd);
 	passes++;
 skip_writes:
+
+	/* Urgh, it's hard to force gcc 4.8+ to not optimize */
+	/* this all away.                                    */
+	sprintf(test_string,"Testing hardware breakpoints (%d)...",
+					test_variable);
+
 
 	/*******************************/
 	/* Test read breakpoint        */
