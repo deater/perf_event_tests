@@ -80,7 +80,7 @@ echo -n "    "
 $TESTS_DIR/ioctl/ioctl_flag_group
 echo "  + $TESTS_DIR/ioctl/ioctl_id"
 echo -n "    "
-$TESTS_DIR/ioctl/ioctl_flag_group
+$TESTS_DIR/ioctl/ioctl_id
 
 echo
 echo "* Checking overflow functionality"
