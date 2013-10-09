@@ -21,6 +21,8 @@
 
 #include "fuzz_compat.h"
 
+#include "perf_attr_print.h"
+
 static int error=0;
 static unsigned long long line_num=0;
 
@@ -164,6 +166,9 @@ static void open_event(char *line) {
 	if (fd<0) {
 		fprintf(stderr,"Line %lld Error opening %s : %s\n",
 			line_num,line,strerror(errno));
+                perf_pretty_print_event(stderr,orig_fd,
+                                &pe, pid, cpu,
+                                remapped_group_fd,flags);
 		error=1;
 		return;
 	}

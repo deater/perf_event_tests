@@ -13,14 +13,17 @@ filter_log:	filter_log.o
 filter_log.o:	filter_log.c
 	$(CC) $(CFLAGS) -c filter_log.c
 
+###
 
 replay_log:	replay_log.o \
-		../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o replay_log replay_log.o ../lib/perf_helpers.o
+		../lib/perf_helpers.o perf_attr_print.o
+	$(CC) $(LFLAGS) -o replay_log replay_log.o ../lib/perf_helpers.o perf_attr_print.o
 
 replay_log.o:	replay_log.c
 	$(CC) $(CFLAGS) -c replay_log.c
 
+
+###
 
 log_to_code:	log_to_code.o \
 		perf_attr_print.o \

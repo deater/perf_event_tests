@@ -97,7 +97,7 @@ static void open_event(char *line) {
 	pe.exclude_host=exclude_host;
 	pe.exclude_guest=exclude_guest;
 
-	perf_pretty_print_attr(&pe,orig_fd);
+	perf_pretty_print_attr(stdout,&pe,orig_fd);
 
 	printf("\tfd[%d]=perf_event_open(&pe[%d],%d,%d,",
 		orig_fd,orig_fd,pid,cpu);
@@ -108,7 +108,7 @@ static void open_event(char *line) {
 		printf("fd[%d],",group_fd);
 	}
 
-	perf_pretty_print_flags(flags);
+	perf_pretty_print_flags(stdout,flags);
 	printf(" /*%lx*/ ",flags);
 
 	printf(");\n");

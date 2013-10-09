@@ -246,7 +246,7 @@ static void sigquit_handler(int signum, siginfo_t *info, void *uc) {
 
 	for(i=0;i<NUM_EVENTS;i++) {
 		if (event_data[i].active) {
-			perf_pretty_print_event(
+			perf_pretty_print_event(stdout,
 				event_data[i].fd,
 				&event_data[i].attr,
 				event_data[i].pid,
