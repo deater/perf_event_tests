@@ -343,15 +343,15 @@ void perf_dump_attr(struct perf_event_attr *attr) {
 	printf("sample_id_all=%d ",attr->sample_id_all);
 	printf("exclude_host=%d ",attr->exclude_host);
 	printf("exclude_guest=%d ",attr->exclude_guest);
-//	printf("exclude_callchain_kernel=%d ",attr->exclude_callchain_kernel);
-//	printf("exclude_callchain_user=%d ",attr->exclude_callchain_user);
+	printf("exclude_callchain_kernel=%d ",attr->exclude_callchain_kernel);
+	printf("exclude_callchain_user=%d ",attr->exclude_callchain_user);
 	printf("wakeup_events=%d ",attr->wakeup_events);
 	printf("bp_type=%d ",attr->bp_type);
 	printf("config1=%llx ",attr->config1);
 	printf("config2=%llx ",attr->config2);
 	printf("branch_sample_type=%lld ",attr->branch_sample_type);
-//	printf("sample_regs_user=%d ",attr->sample_regs_user);
-//	printf("sample_stack_user=%d ",attr->sample_stack_user);
+	printf("sample_regs_user=%lld ",attr->sample_regs_user);
+	printf("sample_stack_user=%d ",attr->sample_stack_user);
 	printf("\n");
 }
 
@@ -389,6 +389,12 @@ void perf_log_attr(struct perf_event_attr *attr) {
 	fprintf(logfile,"%llx ",attr->config1);
 	fprintf(logfile,"%llx ",attr->config2);
 	fprintf(logfile,"%lld ",attr->branch_sample_type);
+
+	fprintf(logfile,"%d ",attr->exclude_callchain_kernel);
+	fprintf(logfile,"%d ",attr->exclude_callchain_user);
+	fprintf(logfile,"%lld ",attr->sample_regs_user);
+	fprintf(logfile,"%d ",attr->sample_stack_user);
+
 	fprintf(logfile,"\n");
 }
 

@@ -469,8 +469,9 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	if (pe->sample_id_all) fprintf(fff,"\tpe[%d].sample_id_all=%d;\n",fd,pe->sample_id_all);
 	if (pe->exclude_host) fprintf(fff,"\tpe[%d].exclude_host=%d;\n",fd,pe->exclude_host);
 	if (pe->exclude_guest) fprintf(fff,"\tpe[%d].exclude_guest=%d;\n",fd,pe->exclude_guest);
-	/* callchain kernel */
-	/* callchain user */
+	if (pe->exclude_callchain_kernel) fprintf(fff,"\tpe[%d].exclude_callchain_kernel=%d;\n",fd,pe->exclude_callchain_kernel);
+	if (pe->exclude_callchain_user) fprintf(fff,"\tpe[%d].exclude_callchain_user=%d;\n",fd,pe->exclude_callchain_user);
+
 
 	if (pe->watermark) {
 		fprintf(fff,"\tpe[%d].wakeup_watermark=%d;\n",fd,pe->wakeup_watermark);
@@ -492,8 +493,9 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 		fprintf(fff,"\tpe[%d].bp_len=0x%llx;\n",fd,pe->bp_len);
 	}
 	if (pe->branch_sample_type) fprintf(fff,"\tpe[%d].branch_sample_type=%lld;\n",fd,pe->branch_sample_type);
-	/* sample regs user */
-	/* sample stack user */
+
+	if (pe->sample_regs_user) fprintf(fff,"\tpe[%d].sample_regs_user=%lld;\n",fd,pe->sample_regs_user);
+	if (pe->sample_stack_user) fprintf(fff,"\tpe[%d].sample_stack_user=%d;\n",fd,pe->sample_stack_user);
 	fprintf(fff,"\n");
 }
 

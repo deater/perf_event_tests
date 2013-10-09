@@ -107,6 +107,7 @@ static void open_event(char *line) {
 	int mmap,comm,freq,inherit_stat;
 	int enable_on_exec,task,watermark,precise_ip;
 	int mmap_data,sample_id_all,exclude_host,exclude_guest;
+	int exclude_callchain_user,exclude_callchain_kernel;
 
 	sscanf(line,
 		"%*c %d %d %d %d %lx "
@@ -118,7 +119,8 @@ static void open_event(char *line) {
 		"%d %d %d %d "
 		"%d %d %d %d "
 		"%d %d "
-		"%llx %llx %lld ",
+		"%llx %llx %lld "
+		"%d %d %lld %d ",
 		&orig_fd,&pid,&cpu,&group_fd,&flags,
 		&pe.type,&pe.size,
 		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format,
@@ -128,7 +130,9 @@ static void open_event(char *line) {
 		&enable_on_exec,&task,&watermark,&precise_ip,
 		&mmap_data,&sample_id_all,&exclude_host,&exclude_guest,
 		&pe.wakeup_events,&pe.bp_type,
-		&pe.config1,&pe.config2,&pe.branch_sample_type);
+		&pe.config1,&pe.config2,&pe.branch_sample_type,
+		&exclude_callchain_kernel,&exclude_callchain_user,
+		&pe.sample_regs_user,&pe.sample_stack_user);
 
 	errno=0;
 
@@ -154,7 +158,8 @@ static void open_event(char *line) {
 	pe.sample_id_all=sample_id_all;
 	pe.exclude_host=exclude_host;
 	pe.exclude_guest=exclude_guest;
-
+	pe.exclude_callchain_user=exclude_callchain_user;
+	pe.exclude_callchain_kernel=exclude_callchain_kernel;
 
 	if (group_fd==-1) {
 		remapped_group_fd=-1;
