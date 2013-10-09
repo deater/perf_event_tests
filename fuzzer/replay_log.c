@@ -348,6 +348,7 @@ static void fork_event(char *line) {
 #define REPLAY_PRCTL	0x040
 #define REPLAY_FORK	0x080
 #define REPLAY_POLL	0x100
+#define REPLAY_SEED	0x200
 #define REPLAY_ALL	0xfff
 
 
@@ -503,6 +504,12 @@ int main(int argc, char **argv) {
 				if (replay_which & REPLAY_READ) {
 					read_event(line);
 					replay_syscalls++;
+				}
+				break;
+			case 'S':
+				if (replay_which & REPLAY_SEED) {
+					/* don't need to do anything */
+					/* as we don't use rand      */
 				}
 				break;
 			case 'U':

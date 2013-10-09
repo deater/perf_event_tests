@@ -1127,6 +1127,9 @@ int main(int argc, char **argv) {
 	if (fff!=NULL) {
 		fprintf(fff,"%d\n",seed);
 	}
+	if (logging) {
+		fprintf(logfile,"S %d\n",seed);
+	}
 
 	/* Set up to match trinity setup, vaguely */
 
