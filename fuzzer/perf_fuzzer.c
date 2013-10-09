@@ -1032,6 +1032,7 @@ int main(int argc, char **argv) {
 	int i;
 	char *logfile_name=NULL;
 	unsigned int seed=0;
+	FILE *fff;
 
 	/* Parse command line parameters */
 
@@ -1120,6 +1121,12 @@ int main(int argc, char **argv) {
 	}
 	srand(seed);
 	printf("Seeding random number generator with %d\n",seed);
+
+	/* Write seed to disk so we can find it later */
+	fff=fopen("last.seed","w");
+	if (fff!=NULL) {
+		fprintf(fff,"%d\n",seed);
+	}
 
 	/* Set up to match trinity setup, vaguely */
 
