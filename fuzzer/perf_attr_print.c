@@ -505,15 +505,27 @@ void perf_pretty_print_event(FILE *fff, int fd,
 	fprintf(fff,"/* fd = %d */\n",fd);
 	perf_pretty_print_attr(fff,pe,fd);
 
-	fprintf(fff,"\tfd[%d]=perf_event_open(&pe[%d],%d,%d,",
-		fd,fd,pid,cpu);
+	fprintf(fff,"\tfd[%d]=perf_event_open(&pe[%d],\n",fd,fd);
+
+	fprintf(fff,"\t\t\t\t%d, ",pid);
+	if (pid==0) fprintf(fff,"/* current thread */\n");
+	else if (pid==-1) fprintf(fff,"/* all processes */\n");
+	else fprintf(fff,"/* Only pid %d */\n",pid);
+
+	fprintf(fff,"\t\t\t\t%d, ",cpu);
+	if (cpu>=0) fprintf(fff,"/* Only cpu %d */\n",cpu);
+	else if (cpu==-1) fprintf(fff,"/* all cpus */\n");
+	else fprintf(fff,"/* Unknown setting? */\n");
+
 	if (group_fd==-1) {
-		fprintf(fff,"-1,");
+		fprintf(fff,"\t\t\t\t-1, /* New Group Leader */\n");
 	}
 	else {
-		fprintf(fff,"fd[%d],",group_fd);
+		fprintf(fff,"\t\t\t\tfd[%d], /* %d is group leader */\n",
+			group_fd,group_fd);
 	}
 
+	fprintf(fff,"\t\t\t\t");
 	perf_pretty_print_flags(fff,flags);
 	fprintf(fff," /*%lx*/ ",flags);
 
