@@ -454,15 +454,15 @@ int main(int argc, char **argv) {
 		if (line_num<skip_lines) continue;
 
 		switch(line[0]) {
-			case 'O':
-				if (replay_which & REPLAY_OPEN) {
-					open_event(line);
-					replay_syscalls++;
-				}
-				break;
 			case 'C':
 				if (replay_which & REPLAY_CLOSE) {
 					close_event(line);
+					replay_syscalls++;
+				}
+				break;
+			case 'F':
+				if (replay_which & REPLAY_FORK) {
+					fork_event(line);
 					replay_syscalls++;
 				}
 				break;
@@ -472,21 +472,15 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
-			case 'R':
-				if (replay_which & REPLAY_READ) {
-					read_event(line);
-					replay_syscalls++;
-				}
-				break;
 			case 'M':
 				if (replay_which & REPLAY_MMAP) {
 					mmap_event(line);
 					replay_syscalls++;
 				}
 				break;
-			case 'U':
-				if (replay_which & REPLAY_MUNMAP) {
-					munmap_event(line);
+			case 'O':
+				if (replay_which & REPLAY_OPEN) {
+					open_event(line);
 					replay_syscalls++;
 				}
 				break;
@@ -502,15 +496,21 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
-			case 'F':
-				if (replay_which & REPLAY_FORK) {
-					fork_event(line);
-					replay_syscalls++;
-				}
-				break;
 			case 'Q':
 				fprintf(stderr,"Quitting early\n");
 				exit(1);
+			case 'R':
+				if (replay_which & REPLAY_READ) {
+					read_event(line);
+					replay_syscalls++;
+				}
+				break;
+			case 'U':
+				if (replay_which & REPLAY_MUNMAP) {
+					munmap_event(line);
+					replay_syscalls++;
+				}
+				break;
 			default:
 				fprintf(stderr,"Line %lld Unknown log type \'%c\'\n",
 					line_num,line[0]);
