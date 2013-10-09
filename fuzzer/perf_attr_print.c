@@ -335,10 +335,111 @@ static void perf_pretty_print_sample_type(FILE *fff, unsigned long long sample_t
 		if (!our_type) return;
 		fprintf(fff,"|");
 	}
+
+	if (our_type&PERF_SAMPLE_WEIGHT) {
+		fprintf(fff,"PERF_SAMPLE_WEIGHT");
+		our_type&=~PERF_SAMPLE_WEIGHT;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_DATA_SRC) {
+		fprintf(fff,"PERF_SAMPLE_DATA_SRC");
+		our_type&=~PERF_SAMPLE_DATA_SRC;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
 	fprintf(fff,"0x%llxULL",our_type);
 
 
 }
+
+
+static void perf_pretty_print_branch_sample_type(FILE *fff, unsigned long long branch_sample_type) {
+
+	unsigned long long our_type=branch_sample_type;
+
+	if (!our_type) {
+		fprintf(fff,"0");
+		return;
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_USER) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_USER");
+		our_type&=~PERF_SAMPLE_BRANCH_USER;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_KERNEL) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_KERNEL");
+		our_type&=~PERF_SAMPLE_BRANCH_KERNEL;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_HV) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_HV");
+		our_type&=~PERF_SAMPLE_BRANCH_HV;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_ANY) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_ANY");
+		our_type&=~PERF_SAMPLE_BRANCH_ANY;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_ANY_CALL) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_ANY_CALL");
+		our_type&=~PERF_SAMPLE_BRANCH_ANY_CALL;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_ANY_RETURN) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_ANY_RETURN");
+		our_type&=~PERF_SAMPLE_BRANCH_ANY_RETURN;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_IND_CALL) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_IND_CALL");
+		our_type&=~PERF_SAMPLE_BRANCH_IND_CALL;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_ABORT_TX) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_ABORT_TX");
+		our_type&=~PERF_SAMPLE_BRANCH_ABORT_TX;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_IN_TX) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_IN_TX");
+		our_type&=~PERF_SAMPLE_BRANCH_IN_TX;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_BRANCH_NO_TX) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_NO_TX");
+		our_type&=~PERF_SAMPLE_BRANCH_NO_TX;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	fprintf(fff,"0x%llxULL",our_type);
+
+
+}
+
 
 static void perf_pretty_print_read_format(FILE *fff, unsigned long long read_format) {
 
@@ -492,7 +593,11 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 		fprintf(fff,"\tpe[%d].bp_addr=0x%llx;\n",fd,pe->bp_addr);
 		fprintf(fff,"\tpe[%d].bp_len=0x%llx;\n",fd,pe->bp_len);
 	}
-	if (pe->branch_sample_type) fprintf(fff,"\tpe[%d].branch_sample_type=%lld;\n",fd,pe->branch_sample_type);
+	if (pe->branch_sample_type) {
+		fprintf(fff,"\tpe[%d].branch_sample_type=",fd);
+		perf_pretty_print_branch_sample_type(fff,pe->branch_sample_type);
+
+	}
 
 	if (pe->sample_regs_user) fprintf(fff,"\tpe[%d].sample_regs_user=%lld;\n",fd,pe->sample_regs_user);
 	if (pe->sample_stack_user) fprintf(fff,"\tpe[%d].sample_stack_user=%d;\n",fd,pe->sample_stack_user);
