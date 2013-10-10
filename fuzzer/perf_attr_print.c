@@ -211,6 +211,9 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 				case PERF_COUNT_SW_EMULATION_FAULTS:
 					fprintf(fff,"PERF_COUNT_SW_EMULATION_FAULTS");
 					break;
+				case PERF_COUNT_SW_DUMMY:
+					fprintf(fff,"PERF_COUNT_SW_DUMMY");
+					break;
 				default:
 					fprintf(fff,"0x%llx",config);
 			}
@@ -346,6 +349,13 @@ static void perf_pretty_print_sample_type(FILE *fff, unsigned long long sample_t
 	if (our_type&PERF_SAMPLE_DATA_SRC) {
 		fprintf(fff,"PERF_SAMPLE_DATA_SRC");
 		our_type&=~PERF_SAMPLE_DATA_SRC;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
+	if (our_type&PERF_SAMPLE_IDENTIFIER) {
+		fprintf(fff,"PERF_SAMPLE_IDENTIFIER");
+		our_type&=~PERF_SAMPLE_IDENTIFIER;
 		if (!our_type) return;
 		fprintf(fff,"|");
 	}

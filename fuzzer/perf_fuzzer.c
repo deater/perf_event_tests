@@ -332,6 +332,7 @@ void perf_dump_attr(struct perf_event_attr *attr) {
 	printf("exclude_hv=%d ",attr->exclude_hv);
 	printf("exclude_idle=%d ",attr->exclude_idle);
 	printf("mmap=%d ",attr->mmap);
+	printf("mmap2=%d ",attr->mmap2);
 	printf("comm=%d ",attr->comm);
 	printf("freq=%d ",attr->freq);
 	printf("inherit_stat=%d ",attr->inherit_stat);
@@ -394,6 +395,7 @@ void perf_log_attr(struct perf_event_attr *attr) {
 	fprintf(logfile,"%d ",attr->exclude_callchain_user);
 	fprintf(logfile,"%lld ",attr->sample_regs_user);
 	fprintf(logfile,"%d ",attr->sample_stack_user);
+	fprintf(logfile,"%d ",attr->mmap2);
 
 	fprintf(logfile,"\n");
 }

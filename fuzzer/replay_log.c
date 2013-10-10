@@ -108,6 +108,7 @@ static void open_event(char *line) {
 	int enable_on_exec,task,watermark,precise_ip;
 	int mmap_data,sample_id_all,exclude_host,exclude_guest;
 	int exclude_callchain_user,exclude_callchain_kernel;
+	int mmap2;
 
 	sscanf(line,
 		"%*c %d %d %d %d %lx "
@@ -120,7 +121,7 @@ static void open_event(char *line) {
 		"%d %d %d %d "
 		"%d %d "
 		"%llx %llx %lld "
-		"%d %d %lld %d ",
+		"%d %d %lld %d %d",
 		&orig_fd,&pid,&cpu,&group_fd,&flags,
 		&pe.type,&pe.size,
 		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format,
@@ -132,7 +133,7 @@ static void open_event(char *line) {
 		&pe.wakeup_events,&pe.bp_type,
 		&pe.config1,&pe.config2,&pe.branch_sample_type,
 		&exclude_callchain_kernel,&exclude_callchain_user,
-		&pe.sample_regs_user,&pe.sample_stack_user);
+		&pe.sample_regs_user,&pe.sample_stack_user,&mmap2);
 
 	errno=0;
 
@@ -160,6 +161,7 @@ static void open_event(char *line) {
 	pe.exclude_guest=exclude_guest;
 	pe.exclude_callchain_user=exclude_callchain_user;
 	pe.exclude_callchain_kernel=exclude_callchain_kernel;
+	pe.mmap2=mmap2;
 
 	if (group_fd==-1) {
 		remapped_group_fd=-1;
