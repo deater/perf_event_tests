@@ -95,11 +95,24 @@ static void munmap_event(char *line) {
 static void open_event(char *line) {
 
 
-	struct perf_event_attr pe;
+	struct perf_event_attr *pe;
 	int fd,orig_fd,remapped_group_fd;
 	pid_t pid;
-	int cpu,group_fd;
+	int cpu,group_fd,orig_size;
 	long int flags;
+
+	unsigned char zeros[4096];
+
+	/* urgh, necessary.  Took forever to track this down  */
+	/* data from the poll structure was leaking in if not */
+	/* entirely zero, and also getting E2BIG errors if we */
+	/* set the size to a "too big" value and there were   */
+	/* non-zero values in that space.                     */
+	/* The max size of a struct is the pagesize, so make  */
+	/* all events live in a sea of zeros to avoid problems*/
+
+	memset(&zeros,0,4096);
+	pe=(struct perf_event_attr *)&zeros;
 
 	/* I hate bitfields */
 	int disabled,inherit,pinned,exclusive;
@@ -110,9 +123,6 @@ static void open_event(char *line) {
 	int exclude_callchain_user,exclude_callchain_kernel;
 	int mmap2;
 
-	/* urgh, necessary.  Took forever to track this down */
-	/* data from the poll structure was leaking in       */
-	memset(&pe,0,sizeof(struct perf_event_attr));
 
 	sscanf(line,
 		"%*c %d %d %d %d %lx "
@@ -127,45 +137,48 @@ static void open_event(char *line) {
 		"%llx %llx %lld "
 		"%d %d %lld %d %d",
 		&orig_fd,&pid,&cpu,&group_fd,&flags,
-		&pe.type,&pe.size,
-		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format,
+		&pe->type,&pe->size,
+		&pe->config,&pe->sample_period,&pe->sample_type,&pe->read_format,
 		&disabled,&inherit,&pinned,&exclusive,
 		&exclude_user,&exclude_kernel,&exclude_hv,&exclude_idle,
 		&mmap,&comm,&freq,&inherit_stat,
 		&enable_on_exec,&task,&watermark,&precise_ip,
 		&mmap_data,&sample_id_all,&exclude_host,&exclude_guest,
-		&pe.wakeup_events,&pe.bp_type,
-		&pe.config1,&pe.config2,&pe.branch_sample_type,
+		&pe->wakeup_events,&pe->bp_type,
+		&pe->config1,&pe->config2,&pe->branch_sample_type,
 		&exclude_callchain_kernel,&exclude_callchain_user,
-		&pe.sample_regs_user,&pe.sample_stack_user,&mmap2);
+		&pe->sample_regs_user,&pe->sample_stack_user,&mmap2);
 
 	errno=0;
 
 	/* re-populate bitfields */
 	/* can't sscanf into them */
-	pe.disabled=disabled;
-	pe.inherit=inherit;
-	pe.pinned=pinned;
-	pe.exclusive=exclusive;
-	pe.exclude_user=exclude_user;
-	pe.exclude_kernel=exclude_kernel;
-	pe.exclude_hv=exclude_hv;
-	pe.exclude_idle=exclude_idle;
-	pe.mmap=mmap;
-	pe.comm=comm;
-	pe.freq=freq;
-	pe.inherit_stat=inherit_stat;
-	pe.enable_on_exec=enable_on_exec;
-	pe.task=task;
-	pe.watermark=watermark;
-	pe.precise_ip=precise_ip;
-	pe.mmap_data=mmap_data;
-	pe.sample_id_all=sample_id_all;
-	pe.exclude_host=exclude_host;
-	pe.exclude_guest=exclude_guest;
-	pe.exclude_callchain_user=exclude_callchain_user;
-	pe.exclude_callchain_kernel=exclude_callchain_kernel;
-	pe.mmap2=mmap2;
+	pe->disabled=disabled;
+	pe->inherit=inherit;
+	pe->pinned=pinned;
+	pe->exclusive=exclusive;
+	pe->exclude_user=exclude_user;
+	pe->exclude_kernel=exclude_kernel;
+	pe->exclude_hv=exclude_hv;
+	pe->exclude_idle=exclude_idle;
+	pe->mmap=mmap;
+	pe->comm=comm;
+	pe->freq=freq;
+	pe->inherit_stat=inherit_stat;
+	pe->enable_on_exec=enable_on_exec;
+	pe->task=task;
+	pe->watermark=watermark;
+	pe->precise_ip=precise_ip;
+	pe->mmap_data=mmap_data;
+	pe->sample_id_all=sample_id_all;
+	pe->exclude_host=exclude_host;
+	pe->exclude_guest=exclude_guest;
+	pe->exclude_callchain_user=exclude_callchain_user;
+	pe->exclude_callchain_kernel=exclude_callchain_kernel;
+	pe->mmap2=mmap2;
+
+	/* kernel over-writes this sometimes :( */
+	orig_size=pe->size;
 
 	if (group_fd==-1) {
 		remapped_group_fd=-1;
@@ -173,13 +186,33 @@ static void open_event(char *line) {
 		remapped_group_fd=fd_remap[group_fd];
 	}
 
-	fd=perf_event_open(&pe,pid,cpu,remapped_group_fd,flags);
+	fd=perf_event_open(pe,pid,cpu,remapped_group_fd,flags);
 	if (fd<0) {
 		fprintf(stderr,"Line %lld Error opening %s : %s\n",
 			line_num,line,strerror(errno));
                 perf_pretty_print_event(stderr,orig_fd,
-                                &pe, pid, cpu,
-                                remapped_group_fd,flags);
+				pe, pid, cpu,
+				remapped_group_fd,flags);
+
+		if (errno==E2BIG) {
+			printf("Too big!  Kernel returns %d we were %d\n",
+				pe->size,orig_size);
+		}
+#if 0
+	{
+		int i;
+		char *blah;
+
+		blah=(char *)&pe;
+
+		printf("BEFORE\n");
+		for(i=0;i<100;i++) {
+			printf("%d:%2x ",i,blah[i]);
+		}
+		printf("AFTER\n");
+	}
+#endif
+
 		error=1;
 		return;
 	}
