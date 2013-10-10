@@ -606,7 +606,7 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	if (pe->branch_sample_type) {
 		fprintf(fff,"\tpe[%d].branch_sample_type=",fd);
 		perf_pretty_print_branch_sample_type(fff,pe->branch_sample_type);
-
+		fprintf(fff,";\n");
 	}
 
 	if (pe->sample_regs_user) fprintf(fff,"\tpe[%d].sample_regs_user=%lld;\n",fd,pe->sample_regs_user);
