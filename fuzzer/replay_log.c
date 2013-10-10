@@ -110,6 +110,10 @@ static void open_event(char *line) {
 	int exclude_callchain_user,exclude_callchain_kernel;
 	int mmap2;
 
+	/* urgh, necessary.  Took forever to track this down */
+	/* data from the poll structure was leaking in       */
+	memset(&pe,0,sizeof(struct perf_event_attr));
+
 	sscanf(line,
 		"%*c %d %d %d %d %lx "
 		"%x %x "
@@ -180,13 +184,13 @@ static void open_event(char *line) {
 		return;
 	}
 
-	if (fd>FD_REMAP_SIZE) {
+	if (orig_fd>FD_REMAP_SIZE) {
 		fprintf(stderr,"fd out of range\n");
 		error=1;
 		return;
 	}
-	fd_remap[orig_fd]=fd;
 
+	fd_remap[orig_fd]=fd;
 
 
 }
@@ -297,7 +301,6 @@ static void prctl_event(char *line) {
 static void poll_event(char *line) {
 
 #define MAX_POLL_FDS 128
-
         int i,result,num_fds;
 
         struct pollfd pollfds[MAX_POLL_FDS];
@@ -316,7 +319,10 @@ static void poll_event(char *line) {
                 pollfds[i].fd=atoi(next);
 		next=strtok(NULL," ");
                 pollfds[i].events=atoi(next);
-//		printf("%d %d ",pollfds[i].fd,pollfds[i].events);
+//		printf("%d/%d %d ",
+//			pollfds[i].fd,
+//			fd_remap[pollfds[i].fd],
+//			pollfds[i].events);
         }
 
 	next=strtok(NULL," ");
@@ -366,7 +372,7 @@ static void fork_event(char *line) {
 
 void print_usage(char *exec_name) {
 
-	fprintf(stderr,"\nUsage: %s [-h] [-s lines] [-r OCIRMUPF] filename\n\n",
+	fprintf(stderr,"\nUsage: %s [-h] [-s lines] [-r OCIRMUPFp] filename\n\n",
 		exec_name);
 }
 
@@ -429,11 +435,13 @@ int main(int argc, char **argv) {
 								break;
 						case 'F':	replay_which|=REPLAY_FORK;
 								break;
+						case 'p':	replay_which|=REPLAY_POLL;
+								break;
 						default:	fprintf(stderr,"Unknown replay %c\n",
 									argv[i][j]);
 						}
 					}
-					i+=2;
+					i++;
 					break;
 			default:	fprintf(stderr,"Unknown option -%c\n",argv[i][1]);
 					exit(1);
