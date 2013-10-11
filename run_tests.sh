@@ -205,12 +205,12 @@ $TESTS_DIR/corner_cases/check_reset_mpx
 
 echo
 echo "* Checking for fast RDPMC support"
-echo "  + $TESTS_DIR/validation/rdpmc_support"
+echo "  + $TESTS_DIR/rdpmc/rdpmc_support"
 echo -n "    "
-$TESTS_DIR/validation/rdpmc_support
-echo "  + $TESTS_DIR/validation/rdpmc_validation"
+$TESTS_DIR/rdpmc/rdpmc_support
+echo "  + $TESTS_DIR/rdpmc/rdpmc_validation"
 echo -n "    "
-$TESTS_DIR/validation/rdpmc_validation
+$TESTS_DIR/rdpmc/rdpmc_validation
 
 echo
 echo "* Checking proposed interface updates (not in any released kernel)"

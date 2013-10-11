@@ -1,6 +1,7 @@
 11 October 2013
 + Add tests/error_returns/e2big
 + Move non-existent test to tests/error_returns
++ Move rdpmc tests to own directory
 
 18 September 2013
 + Fix breakpoint_support test that was broken by too-clever gcc 4.8

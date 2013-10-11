@@ -12,9 +12,8 @@ all:	\
 	inherit \
 	inherit_stat \
 	offcore_response \
-	offcore_response_mask \
-	rdpmc_support \
-	rdpmc_validation 
+	offcore_response_mask 
+
 
 ###
 
@@ -153,30 +152,6 @@ format_id_support.o:	format_id_support.c
 	$(CC) $(CFLAGS) -c format_id_support.c
 
 ###
-
-rdpmc_support:	rdpmc_support.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o rdpmc_support rdpmc_support.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-rdpmc_support.o:	rdpmc_support.c
-	$(CC) $(CFLAGS) -c rdpmc_support.c
-
-###
-
-rdpmc_validation:	rdpmc_validation.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o rdpmc_validation rdpmc_validation.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-rdpmc_validation.o:	rdpmc_validation.c
-	$(CC) $(CFLAGS) -c rdpmc_validation.c
 
 
 clean:	

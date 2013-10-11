@@ -17,7 +17,8 @@ There are various subdirectories:
                   common perf usage patterns but are still important
                   to get right
 
-   + error_returns -- TODO
+   + error_returns -- tests various cases to make sure the proper
+			error returns happen
 
    + generalized_events -- tests that check the validity of the various
                   perf_event generalized events, such as "instructions"
@@ -26,6 +27,8 @@ There are various subdirectories:
    + ioctl     -- tests of perf_event ioctl calls
 
    + overflow  -- tests involving counter overflow functionality
+
+   + rdpmc     -- tests user-space counter access w/o syscall
 
    + record_sample -- tests that check the functionality of sample
                   recording
@@ -46,4 +49,4 @@ There are various subdirectories:
 ---
 
 Vince
-17 September 2013
+11 October 2013
