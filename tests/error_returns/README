@@ -20,8 +20,6 @@ ENOENT
    Invalid attr.type setting 
 ENOSYS
    PERF_SOUREC_STACK_TRACE not supported 
-E2BIG
-   attr structure bigger than expected and non-zero 
 EOPNOTSUPP
    PMU interrupt not available and requested sampling
    Request branch tracing and not available
@@ -30,3 +28,8 @@ EBUSY
 EAGAIN
 ENOMEM
    Kernel failed while allocating memory 
+E2BIG
+	size value too low (below PERF_ATTR_SIZE_VER0 but 0 is OK)
+	size value too high (above pagesize)
+	size value high and padding is non-zero	
+	

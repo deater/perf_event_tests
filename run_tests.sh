@@ -83,6 +83,12 @@ echo -n "    "
 $TESTS_DIR/ioctl/ioctl_id
 
 echo
+echo "* Checking error returns"
+echo "  + $TESTS_DIR/errors/e2big"
+echo -n "    "
+$TESTS_DIR/errors/e2big
+
+echo
 echo "* Checking overflow functionality"
 echo "  + $TESTS_DIR/overflow/breakpoint_overflow"
 echo -n "    "

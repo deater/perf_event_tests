@@ -1,3 +1,6 @@
+11 October 2013
++ Add tests/errors/e2big
+
 18 September 2013
 + Fix breakpoint_support test that was broken by too-clever gcc 4.8
 + Release version 0.28
