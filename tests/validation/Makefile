@@ -11,7 +11,6 @@ all:	\
 	get_cache_info \
 	inherit \
 	inherit_stat \
-	non-existent \
 	offcore_response \
 	offcore_response_mask \
 	rdpmc_support \
@@ -127,19 +126,6 @@ inherit_stat.o:	inherit_stat.c
 
 ###
 
-non-existent:	non-existent.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o non-existent non-existent.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-non-existent.o:	non-existent.c
-	$(CC) $(CFLAGS) -c non-existent.c
-
-###
-
 enable_on_exec:	enable_on_exec.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
@@ -202,7 +188,6 @@ clean:
 	get_cache_info \
 	inherit \
 	inherit_stat \
-	non-existent \
 	offcore_response \
 	offcore_response_mask \
 	rdpmc_support \

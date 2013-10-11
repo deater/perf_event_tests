@@ -4,7 +4,8 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
-	e2big
+	e2big \
+	non-existent
 
 ###
 
@@ -36,6 +37,21 @@ e2big.o:	e2big.c
 
 ###
 
+non-existent:	non-existent.o $(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/matrix_multiply.o
+	$(CC) $(LFLAGS) -o non-existent non-existent.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/matrix_multiply.o
+
+non-existent.o:	non-existent.c
+	$(CC) $(CFLAGS) -c non-existent.c
+
+###
+
+
 clean:	
 	rm -f *~ *.o \
-		e2big
+		e2big \
+		non-existent

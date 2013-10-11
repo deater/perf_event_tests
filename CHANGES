@@ -1,5 +1,6 @@
 11 October 2013
-+ Add tests/errors/e2big
++ Add tests/error_returns/e2big
++ Move non-existent test to tests/error_returns
 
 18 September 2013
 + Fix breakpoint_support test that was broken by too-clever gcc 4.8

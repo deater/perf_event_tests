@@ -57,9 +57,6 @@ echo "* Checking basic perf_event functionality"
 echo "  + $TESTS_DIR/validation/format_id_support"
 echo -n "    "
 $TESTS_DIR/validation/format_id_support
-echo "  + $TESTS_DIR/validation/non-existent"
-echo -n "    "
-$TESTS_DIR/validation/non-existent
 echo "  + $TESTS_DIR/validation/breakpoint_support"
 echo -n "    "
 $TESTS_DIR/validation/breakpoint_support
@@ -86,7 +83,10 @@ echo
 echo "* Checking error returns"
 echo "  + $TESTS_DIR/error_returns/e2big"
 echo -n "    "
-$TESTS_DIR/errors/e2big
+$TESTS_DIR/error_returns/e2big
+echo "  + $TESTS_DIR/error_returns/non-existent"
+echo -n "    "
+$TESTS_DIR/error_returns/non-existent
 
 echo
 echo "* Checking overflow functionality"
