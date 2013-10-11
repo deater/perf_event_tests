@@ -119,7 +119,7 @@ fail:
 int main(int argc, char **argv) {
 
 	int i;
-	static long page_size=getpagesize();
+	long page_size=getpagesize();
 
 	long long start_before,stop_after;
 
@@ -176,10 +176,10 @@ int main(int argc, char **argv) {
 		}
 
 		our_mmap=(struct perf_event_mmap_page *)addr[i];
-		if (our_mmap->cap_usr_rdpmc==0) {
+		if (our_mmap->cap_user_rdpmc==0) {
 			if (!quiet) {
-				printf("rdpmc support not detected (mmap->cap_usr_rdpmc==%d)\n",
-					our_mmap->cap_usr_rdpmc);
+				printf("rdpmc support not detected (mmap->cap_user_rdpmc==%d)\n",
+					our_mmap->cap_user_rdpmc);
 			}
 			test_skip(test_string);
 		}
