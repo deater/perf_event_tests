@@ -26,10 +26,16 @@ $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 
 ###
 
-rdpmc_support:	rdpmc_support.o $(LIB)/test_utils.o \
+rdpmc_lib.o:	rdpmc_lib.c rdpmc_lib.h
+	$(CC) $(CFLAGS) -c rdpmc_lib.c
+
+###
+
+rdpmc_support:	rdpmc_support.o rdpmc_lib.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/matrix_multiply.o
 	$(CC) $(LFLAGS) -o rdpmc_support rdpmc_support.o \
+				rdpmc_lib.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/matrix_multiply.o
@@ -39,10 +45,11 @@ rdpmc_support.o:	rdpmc_support.c
 
 ###
 
-rdpmc_validation:	rdpmc_validation.o $(LIB)/test_utils.o \
+rdpmc_validation:	rdpmc_validation.o rdpmc_lib.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o rdpmc_validation rdpmc_validation.o \
+				rdpmc_lib.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o

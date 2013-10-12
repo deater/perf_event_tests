@@ -22,98 +22,12 @@ int quiet=0;
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+#include "rdpmc_lib.h"
+
 #include <sys/mman.h>
 
 
 #define MAX_EVENTS 16
-
-#if defined(__i386__) || defined (__x86_64__)
-
-static unsigned long long rdtsc(void) {
-
-	unsigned a,d;
-
-	__asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
-
-	return ((unsigned long long)a) | (((unsigned long long)d) << 32);
-}
-
-static unsigned long long rdpmc(unsigned int counter) {
-
-	unsigned int low, high;
-
-	__asm__ volatile("rdpmc" : "=a" (low), "=d" (high) : "c" (counter));
-
-	return (unsigned long long)low | ((unsigned long long)high) <<32;
-}
-
-#define barrier() __asm__ volatile("" ::: "memory")
-
-#else
-
-static unsigned long long rdtsc(void) {
-
-	return 0;
-
-}
-
-static unsigned long long rdpmc(unsigned int counter) {
-
-	return 0;
-}
-
-#define barrier()
-
-#endif
-
-
-/* From Peter Zijlstra's demo code */
-static unsigned long long mmap_read_self(void *addr,
-					 unsigned long long *enabled,
-					 unsigned long long *running)
-{
-	struct perf_event_mmap_page *pc = addr;
-	unsigned int seq;
-	unsigned long long count, delta=0, cyc;
-	unsigned long long rem, quot;
-
-	do {
-again:
-		seq=pc->lock;
-		barrier();
-		if (seq&1) goto again;
-
-		if ((enabled || running) && pc->time_mult) {
-			cyc = rdtsc();
-
-
-			quot=(cyc >> pc->time_shift);
-			rem = cyc & ((1 << pc->time_shift) -1);
-			delta=pc->time_offset +
-				quot*pc->time_mult +
-				((rem * pc->time_mult) >> pc->time_shift);
-		}
-
-		if (enabled) *enabled=pc->time_enabled+delta;
-		if (running) *running=pc->time_running+delta;
-
-		if (pc->index) {
-			count=rdpmc(pc->index-1);
-			count+=pc->offset;
-		}
-		else goto fail;
-
-		barrier();
-	} while (pc->lock != seq);
-
-	return count;
-
-fail:
-	/* should do slow read here */
-	if (!quiet) printf("FAIL FAIL FAIL\n");
-	return -1;
-
-}
 
 
 int main(int argc, char **argv) {
