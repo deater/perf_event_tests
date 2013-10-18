@@ -3,7 +3,7 @@
 /* fuzzes the perf_event system call */
 /* Some code shared with the trinity fuzzer */
 
-#define VERSION "0.4"
+#define VERSION "0.5"
 
 #define _GNU_SOURCE 1
 
@@ -1051,15 +1051,19 @@ int main(int argc, char **argv) {
 
 			if(argv[i][0]=='-') {
 				switch(argv[i][1]) {
+				/* help */
 				case 'h':	usage(argv[0],1);
 						exit(0);
 						break;
+				/* version */
 				case 'v':	usage(argv[0],0);
 						exit(0);
 						break;
+				/* debug */
 				case 'd':	debug=DEBUG_ALL;
 						i++;
 						break;
+				/* log */
                                 case 'l':       logging=DEBUG_ALL;
 						i++;
 						if (i<argc) {
@@ -1070,20 +1074,23 @@ int main(int argc, char **argv) {
 						}
 						i++;
 						break;
+				/* fork */
 				case 'f':	log_only=1;
 						printf("Logging fork only\n");
 						i++;
 						break;
-				case 's':	if (i+1<argc) {
-							stop_after=atoi(argv[i+1]);
-						}
-						printf("Stopping after %d\n",stop_after);
-						i+=2;
-						break;
+				/* seed */
 				case 'r':	if (i+1<argc) {
 							seed=atoi(argv[i+1]);
 						}
 						printf("Using user-specified random seed of %d\n",seed);
+						i+=2;
+						break;
+				/* stop */
+				case 's':	if (i+1<argc) {
+							stop_after=atoi(argv[i+1]);
+						}
+						printf("Stopping after %d\n",stop_after);
 						i+=2;
 						break;
 				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
