@@ -26,4 +26,4 @@ sleep 5
 # Run twice, sometimes takes two runs
 ./crashes/nmi_soft_lockup
 ./crashes/nmi_soft_lockup
-
+./crashes/perf_ftrace_event_crash
