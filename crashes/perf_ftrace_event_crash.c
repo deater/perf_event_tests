@@ -1,6 +1,21 @@
 /* log_to_code output from ./broken_trace/new.broken.7 */
 /* by Vince Weaver <vincent.weaver _at_ maine.edu */
 
+/* Found with modified perf_fuzzer with random seed 1382550501 */
+
+/* Triggers on 3.10 to 3.12-rc6 at least, but see below */
+
+/* Need advanced ftrace options enabled to trigger this one
+CONFIG_KPROBES_ON_FTRACE=y
+CONFIG_FUNCTION_TRACER=y
+CONFIG_FUNCTION_GRAPH_TRACER=y
+CONFIG_STACK_TRACER=y
+CONFIG_DYNAMIC_FTRACE=y
+CONFIG_DYNAMIC_FTRACE_WITH_REGS=y
+CONFIG_FUNCTION_PROFILER=y
+CONFIG_FTRACE_MCOUNT_RECORD=y
+*/
+
 #define _GNU_SOURCE 1
 #include <stdio.h>
 #include <unistd.h>
