@@ -602,6 +602,9 @@ static void open_random_event(void) {
 	/* Setup overflow? */
 	if ((type&DEBUG_OVERFLOW) && (rand()%2)) {
 
+		sprintf(log_buffer,"o %d\n",event_data[i].fd);
+		write(log_fd,log_buffer,strlen(log_buffer));
+
 		memset(&event_data[i].sa, 0, sizeof(struct sigaction));
 		event_data[i].sa.sa_sigaction = our_handler;
 		event_data[i].sa.sa_flags = SA_SIGINFO;
