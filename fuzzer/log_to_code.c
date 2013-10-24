@@ -288,15 +288,17 @@ int main(int argc, char **argv) {
 	long long total_syscalls=0;
 
 	if (argc<2) {
-		fprintf(stderr,"\nUsage: %s logfile\n\n",
-			argv[0]);
-		exit(1);
+		logfile=stdin;
+//		fprintf(stderr,"\nUsage: %s logfile\n\n",
+//			argv[0]);
+//		exit(1);
 	}
-
-	logfile=fopen(argv[1],"r");
-	if (logfile==NULL) {
-		fprintf(stderr,"Error opening %s\n",argv[1]);
-		exit(1);
+	else {
+		logfile=fopen(argv[1],"r");
+		if (logfile==NULL) {
+			fprintf(stderr,"Error opening %s\n",argv[1]);
+			exit(1);
+		}
 	}
 
 	printf("/* log_to_code output from %s */\n",argv[1]);
