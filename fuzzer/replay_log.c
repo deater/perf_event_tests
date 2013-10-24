@@ -389,6 +389,54 @@ static void fork_event(char *line) {
 
 }
 
+static int overflows=0;
+static int sigios=0;
+
+static void our_handler(int signum, siginfo_t *info, void *uc) {
+
+	int fd = info->si_fd;
+	int ret;
+
+	overflows++;
+	/* disable the event for the time being */
+	/* we were having trouble with signal storms */
+	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
+
+	/* don't re-enable event if we're stuck in a signal-handler storm */
+	if (sigios) return;
+
+	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
+
+        (void) ret;
+
+}
+
+static void sigio_handler(int signum, siginfo_t *info, void *uc) {
+
+	sigios++;
+}
+
+
+static void setup_overflow(char *line) {
+
+        int overflow_fd;
+	struct sigaction sa;
+
+        sscanf(line,"%*c %d",&overflow_fd);
+
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = our_handler;
+	sa.sa_flags = SA_SIGINFO;
+
+	if (sigaction( SIGRTMIN+2, &sa, NULL) < 0) {
+		printf("Error setting up signal handler\n");
+	}
+
+	fcntl(fd_remap[overflow_fd], F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+	fcntl(fd_remap[overflow_fd], F_SETSIG, SIGRTMIN+2);
+	fcntl(fd_remap[overflow_fd], F_SETOWN,getpid());
+}
+
 
 #define REPLAY_OPEN	0x001
 #define REPLAY_CLOSE	0x002
@@ -400,6 +448,7 @@ static void fork_event(char *line) {
 #define REPLAY_FORK	0x080
 #define REPLAY_POLL	0x100
 #define REPLAY_SEED	0x200
+#define REPLAY_OVERFLOW 0x400
 #define REPLAY_ALL	0xfff
 
 
@@ -417,6 +466,7 @@ int main(int argc, char **argv) {
 	char *result;
 	long long total_syscalls=0,replay_syscalls=0;
 	long long skip_lines=0;
+	struct sigaction sigio;
 
 	int i,j;
 
@@ -453,6 +503,8 @@ int main(int argc, char **argv) {
 					for(j=0;j<strlen(argv[i]);j++) {
 						switch(argv[i][j]) {
 						case 'O':	replay_which|=REPLAY_OPEN;
+								break;
+						case 'o':	replay_which|=REPLAY_OVERFLOW;
 								break;
 						case 'C':	replay_which|=REPLAY_CLOSE;
 								break;
@@ -498,6 +550,16 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	/* Set up SIGIO handler */
+	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */
+	/* But if the RT queue overflows we will get a SIGIO */
+	memset(&sigio, 0, sizeof(struct sigaction));
+	sigio.sa_sigaction = sigio_handler;
+	sigio.sa_flags = SA_SIGINFO;
+
+	if (sigaction( SIGIO, &sigio, NULL) < 0) {
+		printf("Error setting up SIGIO signal handler\n");
+	}
 
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
@@ -535,6 +597,12 @@ int main(int argc, char **argv) {
 			case 'O':
 				if (replay_which & REPLAY_OPEN) {
 					open_event(line);
+					replay_syscalls++;
+				}
+				break;
+			case 'o':
+				if (replay_which & REPLAY_OVERFLOW) {
+					setup_overflow(line);
 					replay_syscalls++;
 				}
 				break;
