@@ -58,7 +58,8 @@ static int stop_after=0;
 
 static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
 
-static FILE *logfile;
+static int log_fd;
+static char log_buffer[BUFSIZ];
 
 struct shm_s *shm;
 
@@ -362,45 +363,84 @@ void perf_dump_attr(struct perf_event_attr *attr) {
 
 void perf_log_attr(struct perf_event_attr *attr) {
 
-	fprintf(logfile,"%x ",attr->type);
-	fprintf(logfile,"%x ",attr->size);
-	fprintf(logfile,"%llx ",attr->config);
-	fprintf(logfile,"%llx ",attr->sample_period);
-	fprintf(logfile,"%llx ",attr->sample_type);
-	fprintf(logfile,"%llx ",attr->read_format);
-	fprintf(logfile,"%d ",attr->disabled);
-	fprintf(logfile,"%d ",attr->inherit);
-	fprintf(logfile,"%d ",attr->pinned);
-	fprintf(logfile,"%d ",attr->exclusive);
-	fprintf(logfile,"%d ",attr->exclude_user);
-	fprintf(logfile,"%d ",attr->exclude_kernel);
-	fprintf(logfile,"%d ",attr->exclude_hv);
-	fprintf(logfile,"%d ",attr->exclude_idle);
-	fprintf(logfile,"%d ",attr->mmap);
-	fprintf(logfile,"%d ",attr->comm);
-	fprintf(logfile,"%d ",attr->freq);
-	fprintf(logfile,"%d ",attr->inherit_stat);
-	fprintf(logfile,"%d ",attr->enable_on_exec);
-	fprintf(logfile,"%d ",attr->task);
-	fprintf(logfile,"%d ",attr->watermark);
-	fprintf(logfile,"%d ",attr->precise_ip);
-	fprintf(logfile,"%d ",attr->mmap_data);
-	fprintf(logfile,"%d ",attr->sample_id_all);
-	fprintf(logfile,"%d ",attr->exclude_host);
-	fprintf(logfile,"%d ",attr->exclude_guest);
-	fprintf(logfile,"%d ",attr->wakeup_events);
-	fprintf(logfile,"%d ",attr->bp_type);
-	fprintf(logfile,"%llx ",attr->config1);
-	fprintf(logfile,"%llx ",attr->config2);
-	fprintf(logfile,"%lld ",attr->branch_sample_type);
+	sprintf(log_buffer,"%x ",attr->type);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%x ",attr->size);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%llx ",attr->config);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%llx ",attr->sample_period);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%llx ",attr->sample_type);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%llx ",attr->read_format);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->disabled);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->inherit);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->pinned);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclusive);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_user);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_kernel);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_hv);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_idle);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->mmap);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->comm);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->freq);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->inherit_stat);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->enable_on_exec);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->task);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->watermark);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->precise_ip);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->mmap_data);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->sample_id_all);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_host);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_guest);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->wakeup_events);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->bp_type);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%llx ",attr->config1);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%llx ",attr->config2);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%lld ",attr->branch_sample_type);
+	write(log_fd,log_buffer,strlen(log_buffer));
 
-	fprintf(logfile,"%d ",attr->exclude_callchain_kernel);
-	fprintf(logfile,"%d ",attr->exclude_callchain_user);
-	fprintf(logfile,"%lld ",attr->sample_regs_user);
-	fprintf(logfile,"%d ",attr->sample_stack_user);
-	fprintf(logfile,"%d ",attr->mmap2);
+	sprintf(log_buffer,"%d ",attr->exclude_callchain_kernel);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_callchain_user);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%lld ",attr->sample_regs_user);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->sample_stack_user);
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->mmap2);
+	write(log_fd,log_buffer,strlen(log_buffer));
 
-	fprintf(logfile,"\n");
+	sprintf(log_buffer,"\n");
+	write(log_fd,log_buffer,strlen(log_buffer));
+	sync();
+
 }
 
 
@@ -453,11 +493,12 @@ static void open_random_event(void) {
  #if 0
 		  /* uncomment if failing opens are causing crashes */
 			static int quit_next=0;
-	                fprintf(logfile,"O -1 %d %d %d %lx ",
+	                sprintf(log_buffer,"O -1 %d %d %d %lx ",
 				event_data[i].pid,
 				event_data[i].cpu,
 				event_data[i].group_fd,
 				event_data[i].flags);
+			write(log_fd,log_buffer,strlen(log_buffer));
 	                perf_log_attr(&event_data[i].attr);
 			if (quit_next==1) exit(1);
 
@@ -496,13 +537,14 @@ static void open_random_event(void) {
 			fd,active_events);
 	}
 	if (logging&DEBUG_OPEN) {
-	   fprintf(logfile,"O %d %d %d %d %lx ",
+		sprintf(log_buffer,"O %d %d %d %d %lx ",
 				fd,
 				event_data[i].pid,
 				event_data[i].cpu,
 				event_data[i].group_fd,
 				event_data[i].flags);
-	   perf_log_attr(&event_data[i].attr);
+		write(log_fd,log_buffer,strlen(log_buffer));
+		perf_log_attr(&event_data[i].attr);
 	}
 
 	event_data[i].fd=fd;
@@ -547,9 +589,10 @@ static void open_random_event(void) {
 		}
 		else {
 			if (logging&DEBUG_MMAP_SUCCESS) {
- 				fprintf(logfile,"M %d %d %p\n",
+ 				sprintf(log_buffer,"M %d %d %p\n",
 					event_data[i].mmap_size,event_data[i].fd,
 					event_data[i].mmap);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
 			mmap_successful++;
@@ -627,10 +670,11 @@ static void close_random_event(void) {
 	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
 		if (logging&DEBUG_MMAP) {
-			fprintf(logfile,"U %d %d %p\n",
+			sprintf(log_buffer,"U %d %d %p\n",
 				event_data[i].fd,
 				event_data[i].mmap_size,
 				event_data[i].mmap);
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 	}
 
@@ -639,7 +683,8 @@ static void close_random_event(void) {
 	if (result==0) close_successful++;
 
 	if (logging&DEBUG_CLOSE) {
-		fprintf(logfile,"C %d\n",event_data[i].fd);
+		sprintf(log_buffer,"C %d\n",event_data[i].fd);
+		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
 	active_events--;
@@ -667,8 +712,9 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 1:
@@ -679,8 +725,9 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_DISABLE,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 2:
@@ -694,8 +741,9 @@ static void ioctl_random_event(void) {
 				event_data[i].last_refresh=arg;
 			}
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 3:
@@ -706,8 +754,9 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_RESET,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_RESET,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 4: arg=rand_period();
@@ -717,8 +766,9 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %ld %d\n",
+				sprintf(log_buffer,"I %d %ld %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 5: arg=event_data[find_random_active_event()].fd;
@@ -728,8 +778,9 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 6: arg=rand();
@@ -741,8 +792,9 @@ static void ioctl_random_event(void) {
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %ld %d\n",
+				sprintf(log_buffer,"I %d %ld %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 7: arg=rand();
@@ -752,8 +804,9 @@ static void ioctl_random_event(void) {
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %ld %lld\n",
+				sprintf(log_buffer,"I %d %ld %lld\n",
 					event_data[i].fd,PERF_EVENT_IOC_ID,id);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 
@@ -765,8 +818,9 @@ static void ioctl_random_event(void) {
 					event_data[i].fd,arg,arg2);
 			}
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
-				fprintf(logfile,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,arg,arg2);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
 			break;
@@ -789,7 +843,8 @@ static void prctl_random_event(void) {
 			printf("PRCTL: PR_TASK_PERF_EVENTS_ENABLE\n");
 		}
 		if ((ret==0)&&(logging&DEBUG_PRCTL)) {
-			fprintf(logfile,"P 1\n");
+			sprintf(log_buffer,"P 1\n");
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 	}
 	else {
@@ -798,7 +853,8 @@ static void prctl_random_event(void) {
 			printf("PRCTL: PR_TASK_PERF_EVENTS_DISABLE\n");
 		}
 		if ((ret==0)&&(logging&DEBUG_PRCTL)) {
-			fprintf(logfile,"P 0\n");
+			sprintf(log_buffer,"P 0\n");
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
 	}
@@ -843,7 +899,8 @@ static void read_random_event(void) {
 	if (result>0) {
 	        read_successful++;
 		if (logging&DEBUG_READ) {
-			fprintf(logfile,"R %d %d\n",event_data[i].fd,read_size);
+			sprintf(log_buffer,"R %d %d\n",event_data[i].fd,read_size);
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 		if (debug&DEBUG_READ) {
 			printf("READ VALUES: ");
@@ -923,12 +980,15 @@ static void poll_random_event(void) {
 	if (result>0) {
 	        poll_successful++;
 		if (logging&DEBUG_POLL) {
-			fprintf(logfile,"p %d ",num_fds);
+			sprintf(log_buffer,"p %d ",num_fds);
+			write(log_fd,log_buffer,strlen(log_buffer));
 			for(i=0;i<num_fds;i++) {
-				fprintf(logfile,"%d %x ",pollfds[i].fd,
+				sprintf(log_buffer,"%d %x ",pollfds[i].fd,
 							pollfds[i].events);
+				write(log_fd,log_buffer,strlen(log_buffer));
 			}
-			fprintf(logfile,"%d\n",timeout);
+			sprintf(log_buffer,"%d\n",timeout);
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 	}
 
@@ -963,7 +1023,8 @@ static void fork_random_event(void) {
 			printf("FORK: KILLING pid %d\n",forked_pid);
 		}
 		if (logging&DEBUG_FORK) {
-			fprintf(logfile,"F 0\n");
+			sprintf(log_buffer,"F 0\n");
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
 		if (!log_only) kill(forked_pid,SIGKILL);
@@ -975,7 +1036,8 @@ static void fork_random_event(void) {
 			printf("FORKING\n");
 		}
 		if (logging&DEBUG_FORK) {
-			fprintf(logfile,"F 1\n");
+			sprintf(log_buffer,"F 1\n");
+			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
 		if (!log_only) {
@@ -1126,11 +1188,11 @@ int main(int argc, char **argv) {
 	if (logging) {
 
 		if (!strcmp(logfile_name,"-")) {
-			logfile=stdout;
+			log_fd=1;		/* stdout */
 		}
 		else {
-			logfile=fopen(logfile_name,"w");
-			if (logfile==NULL) {
+			log_fd=open(logfile_name,O_WRONLY);
+			if (log_fd<0) {
 				fprintf(stderr,"Error opening %s\n",
 					logfile_name);
 				exit(1);
@@ -1152,7 +1214,8 @@ int main(int argc, char **argv) {
 		fprintf(fff,"%d\n",seed);
 	}
 	if (logging) {
-		fprintf(logfile,"S %d\n",seed);
+		sprintf(log_buffer,"S %d\n",seed);
+		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
 	/* Set up to match trinity setup, vaguely */
@@ -1254,7 +1317,7 @@ int main(int argc, char **argv) {
 		if (total_iterations%10000==0) {
 			dump_summary();
 		}
-		fflush(logfile);
+		sync();
 	}
 
 	return 0;
