@@ -271,6 +271,27 @@ static void fork_event(char *line) {
 
 }
 
+static void setup_overflow(char *line) {
+
+	int overflow_fd;
+
+	sscanf(line,"%*c %d",&overflow_fd);
+
+	printf("\tmemset(&sa, 0, sizeof(struct sigaction));\n");
+	printf("\tsa.sa_sigaction = our_handler;\n");
+	printf("\tsa.sa_flags = SA_SIGINFO;\n");
+
+	printf("\tif (sigaction( SIGRTMIN+2, &sa, NULL) < 0) {\n");
+        printf("\t\tprintf(\"Error setting up signal handler\\n\");\n");
+	printf("\t}\n");
+
+        printf("\tfcntl(fd[%d], F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);\n",overflow_fd);
+        printf("\tfcntl(fd[%d], F_SETSIG, SIGRTMIN+2);\n",overflow_fd);
+        printf("\tfcntl(fd[%d], F_SETOWN,getpid());\n",overflow_fd);
+}
+
+
+
 
 #define NUM_VALUES 1024
 
@@ -296,8 +317,10 @@ int main(int argc, char **argv) {
 	printf("/* log_to_code output from %s */\n",argv[1]);
 	printf("/* by Vince Weaver <vincent.weaver _at_ maine.edu */\n\n");
 
+	printf("#define _GNU_SOURCE 1\n");
 	printf("#include <stdio.h>\n");
 	printf("#include <unistd.h>\n");
+	printf("#include <fcntl.h>\n");
 	printf("#include <string.h>\n");
 	printf("#include <signal.h>\n");
 	printf("#include <sys/mman.h>\n");
@@ -331,12 +354,27 @@ int main(int argc, char **argv) {
 
 	printf("int forked_pid;\n\n");
 
+	printf("struct sigaction sa;\n");
+	printf("static int overflows=0;\n");
+	printf("static int sigios=0;\n\n");
+
+	printf("static void our_handler(int signum, siginfo_t *info, void *uc) {\n");
+	printf("\tint fd = info->si_fd;\n");
+	printf("\tint ret;\n\n");
+	printf("\toverflows++;\n");
+	printf("\tioctl(fd,PERF_EVENT_IOC_DISABLE,0);\n");
+	printf("\tif (sigios) return;\n");
+	printf("\tret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);\n");
+	printf("}\n");
+
 	printf("int perf_event_open(struct perf_event_attr *hw_event_uptr,\n");
 	printf("\tpid_t pid, int cpu, int group_fd, unsigned long flags) {\n");
 	printf("\n");
 	printf("\treturn syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,\n");
 	printf("\t\tgroup_fd, flags);\n");
 	printf("}\n\n");
+
+
 
 	printf("int main(int argc, char **argv) {\n");
 
@@ -351,6 +389,9 @@ int main(int argc, char **argv) {
 		switch(line[0]) {
 			case 'O':
 				open_event(line);
+				break;
+			case 'o':
+				setup_overflow(line);
 				break;
 			case 'C':
 				close_event(line);
