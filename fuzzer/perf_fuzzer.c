@@ -56,10 +56,14 @@ static int logging=0;
 static int log_only=0;
 static int stop_after=0;
 
-static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
+static int type=DEBUG_ALL;
+//DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
 
 static int log_fd;
 static char log_buffer[BUFSIZ];
+
+#define MAX_ERRNOS 1023
+static int errno_count[MAX_ERRNOS];
 
 struct shm_s *shm;
 
@@ -443,7 +447,25 @@ void perf_log_attr(struct perf_event_attr *attr) {
 
 }
 
+static void print_errno_name(int e) {
 
+	switch(e) {
+		case EPERM:	printf("EPERM");
+				break;
+		case ENOENT:	printf("ENOENT");
+				break;
+		case E2BIG:	printf("E2BIG");
+				break;
+		case EBADF:	printf("EBADF");
+				break;
+		case EINVAL:	printf("EINVAL");
+				break;
+		case EOPNOTSUPP:	printf("EOPNOTSUPP");
+				break;
+		default:	printf("UNKNOWN %d",e);
+				break;
+	}
+}
 
 static void open_random_event(void) {
 
@@ -521,6 +543,8 @@ static void open_random_event(void) {
 		open_attempts++;
 
 		if (fd>0) break;
+
+		if (errno<MAX_ERRNOS) errno_count[errno]++;
 
 		if (debug&DEBUG_OPEN) {
 			printf("PERF_EVENT_OPEN: FAIL %s\n",
@@ -1061,9 +1085,20 @@ static void fork_random_event(void) {
 
 
 static void dump_summary(void) {
+
+	int i;
+
 	printf("Iteration %lld\n",total_iterations);
 	printf("\tOpen attempts: %lld  Successful: %lld\n",
 	       open_attempts,open_successful);
+	for(i=0;i<MAX_ERRNOS;i++) {
+		if (errno_count[i]!=0) {
+			printf("\t\t");
+			print_errno_name(i);
+			printf(" : %d\n",errno_count[i]);
+		}
+	}
+
 	printf("\tClose attempts: %lld  Successful: %lld\n",
 	       close_attempts,close_successful);
 	printf("\tRead attempts: %lld  Successful: %lld\n",
@@ -1089,6 +1124,9 @@ static void dump_summary(void) {
 	fork_attempts=0; fork_successful=0;
 	overflows=0;
 	sigios=0;
+	for(i=0;i<MAX_ERRNOS;i++) {
+		errno_count[i]=0;
+	}
 }
 
 static void usage(char *name,int help) {
@@ -1212,6 +1250,12 @@ int main(int argc, char **argv) {
 	}
 	srand(seed);
 	printf("Seeding random number generator with %d\n",seed);
+
+
+	/* Clear errnos count */
+	for(i=0;i<MAX_ERRNOS;i++) {
+		errno_count[i]=0;
+	}
 
 	/* Write seed to disk so we can find it later */
 	fff=fopen("last.seed","w");
