@@ -646,6 +646,9 @@ int main(int argc, char **argv) {
 		}
 		//if (error) break;
 		total_syscalls++;
+		if (total_syscalls%1000==0) {
+			printf("%lld\n",total_syscalls);
+		}
 	}
 
 	printf("Replayed %lld of %lld syscalls\n",
