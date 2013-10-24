@@ -105,22 +105,7 @@ static void open_event(char *line) {
 	pe.exclude_callchain_kernel=exclude_callchain_kernel;
 	pe.mmap2=mmap2;
 
-	perf_pretty_print_attr(stdout,&pe,orig_fd);
-
-	printf("\tfd[%d]=perf_event_open(&pe[%d],%d,%d,",
-		orig_fd,orig_fd,pid,cpu);
-	if (group_fd==-1) {
-		printf("-1,");
-	}
-	else {
-		printf("fd[%d],",group_fd);
-	}
-
-	perf_pretty_print_flags(stdout,flags);
-	printf(" /*%lx*/ ",flags);
-
-	printf(");\n");
-
+	perf_pretty_print_event(stdout,orig_fd,&pe,pid,cpu,group_fd,flags);
 
 	printf("\n");
 
