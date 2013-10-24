@@ -37,23 +37,26 @@ int user_set_seed;
 int page_size=4096;
 
 #define DEBUG_ALL		0xffffffff
-#define DEBUG_MMAP		0x001
-#define DEBUG_OVERFLOW		0x002
-#define DEBUG_OPEN		0x004
-#define DEBUG_CLOSE		0x008
-#define DEBUG_READ		0x010
-#define DEBUG_WRITE		0x020
-#define DEBUG_IOCTL		0x040
-#define DEBUG_FORK		0x080
-#define DEBUG_MMAP_SUCCESS	0x100
-#define DEBUG_PRCTL		0x200
-#define DEBUG_POLL		0x400
+#define DEBUG_MMAP		0x0001
+#define DEBUG_OVERFLOW		0x0002
+#define DEBUG_OPEN		0x0004
+#define DEBUG_CLOSE		0x0008
+#define DEBUG_READ		0x0010
+#define DEBUG_WRITE		0x0020
+#define DEBUG_IOCTL		0x0040
+#define DEBUG_FORK		0x0080
+#define DEBUG_MMAP_SUCCESS	0x0100
+#define DEBUG_PRCTL		0x0200
+#define DEBUG_POLL		0x0400
+#define DEBUG_MILLION		0x0800
+#define DEBUG_ACCESS		0x1000
 
 static int debug=0;
 static int logging=0;
 static int log_only=0;
 static int stop_after=0;
 
+static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
 
 static FILE *logfile;
 
@@ -515,43 +518,46 @@ static void open_random_event(void) {
 
 	/* Setup mmap buffer */
 
-	switch(rand()%3) {
-		case 0:	event_data[i].mmap_size=(rand()%64)*getpagesize();
-			break;
-		case 1: event_data[i].mmap_size=
-				(1 + (1<<rand()%10) )*getpagesize();
-			break;
-		default: event_data[i].mmap_size=rand()%65535;
-	}
+	if (type & DEBUG_MMAP) {
 
-	event_data[i].mmap=NULL;
-	if (debug&DEBUG_MMAP) {
-		printf("MMAP: mmap(NULL, %d, PROT_READ|PROT_WRITE, "
-			"MAP_SHARED, %d, 0);\n",
-			event_data[i].mmap_size,event_data[i].fd);
-	}
-	mmap_attempts++;
-	event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
-		PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
-	if (debug&DEBUG_MMAP) {
-		printf("MMAP: RESULT %p\n",event_data[i].mmap);
-	}
-
-	if (event_data[i].mmap==MAP_FAILED) {
-		event_data[i].mmap=NULL;
-	}
-	else {
-		if (logging&DEBUG_MMAP_SUCCESS) {
- 			fprintf(logfile,"M %d %d %p\n",
-				event_data[i].mmap_size,event_data[i].fd,
-				event_data[i].mmap);
+		switch(rand()%3) {
+			case 0:	event_data[i].mmap_size=(rand()%64)*getpagesize();
+				break;
+			case 1: event_data[i].mmap_size=
+					(1 + (1<<rand()%10) )*getpagesize();
+				break;
+			default: event_data[i].mmap_size=rand()%65535;
 		}
 
-		mmap_successful++;
+		event_data[i].mmap=NULL;
+		if (debug&DEBUG_MMAP) {
+			printf("MMAP: mmap(NULL, %d, PROT_READ|PROT_WRITE, "
+				"MAP_SHARED, %d, 0);\n",
+				event_data[i].mmap_size,event_data[i].fd);
+		}
+		mmap_attempts++;
+		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
+			PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
+		if (debug&DEBUG_MMAP) {
+			printf("MMAP: RESULT %p\n",event_data[i].mmap);
+		}
+
+		if (event_data[i].mmap==MAP_FAILED) {
+			event_data[i].mmap=NULL;
+		}
+		else {
+			if (logging&DEBUG_MMAP_SUCCESS) {
+ 				fprintf(logfile,"M %d %d %p\n",
+					event_data[i].mmap_size,event_data[i].fd,
+					event_data[i].mmap);
+			}
+
+			mmap_successful++;
+		}
 	}
 
 	/* Setup overflow? */
-	if (rand()%2) {
+	if ((type&DEBUG_OVERFLOW) && (rand()%2)) {
 
 		memset(&event_data[i].sa, 0, sizeof(struct sigaction));
 		event_data[i].sa.sa_sigaction = our_handler;
@@ -1023,14 +1029,15 @@ static void usage(char *name,int help) {
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
 
 	if (help) {
-		printf("%s [-h] [-v] [-d] [-f] [-l filename] [-s num] [-r num]\n\n",name);
+		printf("%s [-h] [-v] [-d] [-f] [-l filename] [-s num] [-r num] [-t OCIRMUPFpm]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
 		printf("\t-d\tenable debugging\n");
 		printf("\t-l logfile\tlog to file\n");
 		printf("\t-f only log fork syscalls; do not run\n");
-		printf("\t-s num\tstop after num system calls\n");
 		printf("\t-r num\tseed random number generator with num\n");
+		printf("\t-s num\tstop after num system calls\n");
+		printf("\t-t OCIRMUPFpm type of calls to execute (default is all)\n");
 		printf("\n");
 	}
 }
@@ -1093,6 +1100,8 @@ int main(int argc, char **argv) {
 						printf("Stopping after %d\n",stop_after);
 						i+=2;
 						break;
+				/* type */
+				case 't':	break;
 				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
 						usage(argv[0],1);
 						exit(1);
@@ -1191,26 +1200,46 @@ int main(int argc, char **argv) {
 	while(1) {
 
 		switch(rand()%10) {
-			case 0:	open_random_event();
+			case 0:	if (type&DEBUG_OPEN) {
+					open_random_event();
+				}
 				break;
-			case 1: close_random_event();
+			case 1: if (type&DEBUG_CLOSE) {
+					close_random_event();
+				}
 				break;
-			case 2: ioctl_random_event();
+			case 2: if (type&DEBUG_IOCTL) {
+					ioctl_random_event();
+				}
 				break;
-			case 3: prctl_random_event();
+			case 3: if (type&DEBUG_PRCTL) {
+					prctl_random_event();
+				}
 				break;
-			case 4: read_random_event();
+			case 4: if (type&DEBUG_READ) {
+					read_random_event();
+				}
 				break;
-			case 5: write_random_event();
+			case 5: if (type&DEBUG_WRITE) {
+					write_random_event();
+				}
 				break;
-			case 6: access_random_file();
+			case 6: if (type&DEBUG_ACCESS) {
+					access_random_file();
+				}
 				break;
-			case 7: fork_random_event();
+			case 7: if (type&DEBUG_FORK) {
+					fork_random_event();
+				}
 				break;
-			case 8: poll_random_event();
+			case 8: if (type&DEBUG_POLL) {
+					poll_random_event();
+				}
 				break;
 			default:
-				run_a_million_instructions();
+				if (type&DEBUG_MILLION) {
+					run_a_million_instructions();
+				}
 				break;
 		}
 		next_overflow_refresh=rand()%2;
