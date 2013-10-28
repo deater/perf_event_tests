@@ -12,7 +12,7 @@
 
 #if defined(__i386__)
 #define __NR_perf_event_open    336
-#elif defined(__x86_64__) 
+#elif defined(__x86_64__)
 #define __NR_perf_event_open    298
 #elif defined __powerpc__
 #define __NR_perf_event_open    319
@@ -23,9 +23,9 @@
 
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
 		    pid_t pid, int cpu, int group_fd, unsigned long flags) {
-   
-   return syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,
-		  group_fd, flags);
+
+	return syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,
+			group_fd, flags);
 }
 
 pid_t mygettid( void )
@@ -40,153 +40,195 @@ pid_t mygettid( void )
 }
 
 
-#define VENDOR_UNKNOWN -1
-#define VENDOR_INTEL    1
-#define VENDOR_AMD      2
-
 int detect_processor(void) {
 
-   FILE *fff;
-   int vendor=VENDOR_UNKNOWN,cpu_family=0,model=0;
-   char string[BUFSIZ];
-   
-   fff=fopen("/proc/cpuinfo","r");
-   if (fff==NULL) {
-      fprintf(stderr,"ERROR!  Can't open /proc/cpuinfo\n");
-      return PROCESSOR_UNKNOWN;
-   }
-   
-   while(1) {
-      if (fgets(string,BUFSIZ,fff)==NULL) break;
+	FILE *fff;
+	int vendor=VENDOR_UNKNOWN,cpu_family=0,model=0;
+	char string[BUFSIZ];
 
-      /* Power6 */
-      if (strstr(string,"POWER6")) {
-	return PROCESSOR_POWER6;
-      }
-
-      /* ARM Cortex A9 */
-      if (strstr(string,"CPU part")) {
-	if (strstr(string,"0xc09")) {
-	  return PROCESSOR_CORTEX_A9;
+	fff=fopen("/proc/cpuinfo","r");
+	if (fff==NULL) {
+		fprintf(stderr,"ERROR!  Can't open /proc/cpuinfo\n");
+		return PROCESSOR_UNKNOWN;
 	}
-      }
-      
-      /* vendor */
-      if (strstr(string,"vendor_id")) {
-         if (strstr(string,"GenuineIntel")) {	 
-	    vendor=VENDOR_INTEL;
-	 }
-	 if (strstr(string,"AuthenticAMD")) {
-	    vendor=VENDOR_AMD;
-	 }
-      }
-      
-      /* family */
-      if (strstr(string,"cpu family")) {
-	 sscanf(string,"%*s %*s %*s %d",&cpu_family); 
-      }
-      
-      /* model */
-      if ((strstr(string,"model")) && (!strstr(string,"model name")) ) {
-	 sscanf(string,"%*s %*s %d",&model);
-      }
-   }
-       
-   fclose(fff);
 
-   if (vendor==VENDOR_AMD) {
-      if (cpu_family==0x6) {
-	 return PROCESSOR_K7;
-      }
-      if (cpu_family==0xf) {
-	 return PROCESSOR_K8;
-      }
-      if (cpu_family==0x10) {
-	 return PROCESSOR_AMD_FAM10H;
-      }
-      if (cpu_family==0x11) {
-	 return PROCESSOR_AMD_FAM11H;
-      }
-      if (cpu_family==0x14) {
-	 return PROCESSOR_AMD_FAM14H;
-      }
-      if (cpu_family==0x15) {
-	 return PROCESSOR_AMD_FAM15H;
-      }
-   }
-   
-   if (vendor==VENDOR_INTEL) {
-    
-      if (cpu_family==6) {
-	 switch(model) {
-	  case 1:
-	  case 3:
-	    return PROCESSOR_PENTIUM_PRO;
-	  case 5:
-	  case 6:
-	    return PROCESSOR_PENTIUM_II;
-	  case 7:
-	  case 8:
-	  case 10:
-	  case 11:
-	    return PROCESSOR_PENTIUM_III;
-	  case 9:
-	  case 13:
-	    return PROCESSOR_PENTIUM_M;
-	  case 14:
-	    return PROCESSOR_COREDUO;
-	  case 15:
-	  case 22:
-	  case 23:
-	  case 29:
-	    return PROCESSOR_CORE2;	    
-	  case 26:
-	  case 30:
-	  case 31:
-	    return PROCESSOR_NEHALEM;
-	  case 28:
-	  case 38:
-	    return PROCESSOR_ATOM;
-	  case 37:
-	  case 44:
-	    return PROCESSOR_WESTMERE;
-	  case 42:
-	    return PROCESSOR_SANDYBRIDGE;
-	  case 45:
-	    return PROCESSOR_SANDYBRIDGE_EP;
-	  case 46:
-	    return PROCESSOR_NEHALEM_EX;
-	  case 58:
-	    return PROCESSOR_IVYBRIDGE;  
-	 }
-      }
-      if (cpu_family==11) {
-	 return PROCESSOR_KNIGHTSCORNER;
-      }
+	while(1) {
+		if (fgets(string,BUFSIZ,fff)==NULL) break;
 
-      if (cpu_family==15) {
-	 return PROCESSOR_PENTIUM_4;
-      }
-   }
-   
-   return PROCESSOR_UNKNOWN;
+		/* Power6 */
+		if (strstr(string,"POWER6")) {
+			vendor=VENDOR_IBM;
+			return PROCESSOR_POWER6;
+		}
+
+		/* ARM */
+		if (strstr(string,"CPU part")) {
+
+			vendor=VENDOR_ARM;
+
+			if (strstr(string,"0xc05")) {
+				return PROCESSOR_CORTEX_A5;
+			}
+			if (strstr(string,"0xc09")) {
+				return PROCESSOR_CORTEX_A9;
+			}
+			if (strstr(string,"0xc08")) {
+				return PROCESSOR_CORTEX_A8;
+			}
+			if (strstr(string,"0xc0f")) {
+				return PROCESSOR_CORTEX_A15;
+			}
+			if (strstr(string,"0xb76")) {
+				return PROCESSOR_ARM1176;
+			}
+
+			// Cortex R4 - 0xc14
+			// Cortex R5 - 0xc15
+			// ARM1136 - 0xb36
+			// ARM1156 - 0xb56
+			// ARM1176 - 0xb76
+			// ARM11 MPCore - 0xb02
+
+		}
+
+		/* vendor */
+		if (strstr(string,"vendor_id")) {
+			if (strstr(string,"GenuineIntel")) {
+				vendor=VENDOR_INTEL;
+			}
+			if (strstr(string,"AuthenticAMD")) {
+				vendor=VENDOR_AMD;
+			}
+		}
+
+		/* family */
+		if (strstr(string,"cpu family")) {
+			sscanf(string,"%*s %*s %*s %d",&cpu_family); 
+		}
+
+		/* model */
+		if ((strstr(string,"model")) && (!strstr(string,"model name")) ) {
+			sscanf(string,"%*s %*s %d",&model);
+		}
+	}
+
+	fclose(fff);
+
+	if (vendor==VENDOR_AMD) {
+		if (cpu_family==0x6) {
+			return PROCESSOR_K7;
+		}
+		if (cpu_family==0xf) {
+			return PROCESSOR_K8;
+		}
+		if (cpu_family==0x10) {
+			return PROCESSOR_AMD_FAM10H;
+		}
+		if (cpu_family==0x11) {
+			return PROCESSOR_AMD_FAM11H;
+		}
+		if (cpu_family==0x14) {
+			return PROCESSOR_AMD_FAM14H;
+		}
+		if (cpu_family==0x15) {
+			return PROCESSOR_AMD_FAM15H;
+		}
+		if (cpu_family==0x16) {
+			return PROCESSOR_AMD_FAM16H;
+		}
+	}
+
+	if (vendor==VENDOR_INTEL) {
+
+		if (cpu_family==6) {
+			switch(model) {
+				case 1:
+					return PROCESSOR_PENTIUM_PRO;
+				case 3:
+				case 5:
+				case 6:
+					return PROCESSOR_PENTIUM_II;
+				case 7:
+				case 8:
+				case 10:
+				case 11:
+					return PROCESSOR_PENTIUM_III;
+				case 9:
+				case 13:
+					return PROCESSOR_PENTIUM_M;
+				case 14:
+					return PROCESSOR_COREDUO;
+				case 15:
+				case 22:
+				case 23:
+				case 29:
+					return PROCESSOR_CORE2;
+				case 28:
+				case 38:
+				case 39:
+				case 53:
+					return PROCESSOR_ATOM;
+				case 54:
+					return PROCESSOR_ATOM_CEDARVIEW;
+				case 55:
+				case 77:
+					return PROCESSOR_ATOM_SILVERMONT;
+				case 26:
+				case 30:
+				case 31:
+					return PROCESSOR_NEHALEM;
+				case 46:
+					return PROCESSOR_NEHALEM_EX;
+				case 37:
+				case 44:
+					return PROCESSOR_WESTMERE;
+				case 47:
+					return PROCESSOR_WESTMERE_EX;
+				case 42:
+					return PROCESSOR_SANDYBRIDGE;
+				case 45:
+					return PROCESSOR_SANDYBRIDGE_EP;
+				case 58:
+					return PROCESSOR_IVYBRIDGE;
+				case 62:
+					return PROCESSOR_IVYBRIDGE_EP;
+				case 60:
+				case 63:
+				case 69:
+				case 70:
+				case 71:
+					return PROCESSOR_HASWELL;
+			}
+		}
+		if (cpu_family==11) {
+			return PROCESSOR_KNIGHTSCORNER;
+		}
+
+		if (cpu_family==15) {
+			return PROCESSOR_PENTIUM_4;
+		}
+	}
+
+	return PROCESSOR_UNKNOWN;
 }
 
-void arch_adjust_domain(struct perf_event_attr *pe,int quiet) {
+void arch_adjust_domain(struct perf_event_attr *pe, int quiet) {
 
 #ifdef __arm__
-  /* currently ARM.  FIXME: when Cortex A15 comes out */
-  pe->exclude_user=0;
-  pe->exclude_kernel=0;
-  pe->exclude_hv=0;
 
-  if (!quiet) {
-     printf("Adjusting domain to 0,0,0 for ARM\n");
-  }
+	int processor=detect_processor();
 
+	if (processor!=PROCESSOR_CORTEX_A15) {
+		/* older PMUs do not support exclude_user / exclude_kernel */
+		pe->exclude_user=0;
+		pe->exclude_kernel=0;
+		pe->exclude_hv=0;
+
+		if (!quiet) {
+			printf("Adjusting domain to 0,0,0 for ARM\n");
+		}
+	}
 #endif
-
-
 }
 
 
