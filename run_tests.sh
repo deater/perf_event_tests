@@ -78,6 +78,9 @@ $TESTS_DIR/ioctl/ioctl_flag_group
 echo "  + $TESTS_DIR/ioctl/ioctl_id"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_id
+echo "  + $TESTS_DIR/ioctl/ioctl_period"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_period
 
 echo
 echo "* Checking error returns"
