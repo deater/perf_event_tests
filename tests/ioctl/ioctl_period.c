@@ -103,6 +103,8 @@ int main(int argc, char** argv) {
 	pe.exclude_hv=1;
 	pe.sample_period=10000;
 
+	arch_adjust_domain(&pe, quiet);
+
 	fd[0]=perf_event_open(&pe,0,-1,-1,0);
 	if (fd[0]<0) {
 		fprintf(stderr,"Error opening\n");

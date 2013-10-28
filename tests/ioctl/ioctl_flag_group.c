@@ -50,6 +50,9 @@ int main(int argc, char** argv) {
    pe.disabled=1;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+	arch_adjust_domain(&pe, quiet);
+
+
 
    fd[0]=perf_event_open(&pe,0,-1,-1,0);
    if (fd[0]<0) {
@@ -62,6 +65,8 @@ int main(int argc, char** argv) {
    pe.disabled=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+
+	arch_adjust_domain(&pe, quiet);
 
    fd[1]=perf_event_open(&pe,0,-1,fd[0],0);
    if (fd[1]<0) {
@@ -119,6 +124,8 @@ int main(int argc, char** argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
+	arch_adjust_domain(&pe, quiet);
+
    fd[0]=perf_event_open(&pe,0,-1,-1,0);
    if (fd[0]<0) {
       fprintf(stderr,"Error opening\n");
@@ -130,6 +137,8 @@ int main(int argc, char** argv) {
    pe.disabled=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+
+	arch_adjust_domain(&pe, quiet);
 
    fd[1]=perf_event_open(&pe,0,-1,fd[0],0);
    if (fd[1]<0) {
@@ -189,6 +198,8 @@ int main(int argc, char** argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
+	arch_adjust_domain(&pe, quiet);
+
    fd[0]=perf_event_open(&pe,0,-1,-1,0);
    if (fd[0]<0) {
       fprintf(stderr,"Error opening\n");
@@ -200,6 +211,8 @@ int main(int argc, char** argv) {
    pe.disabled=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+
+	arch_adjust_domain(&pe, quiet);
 
    fd[1]=perf_event_open(&pe,0,-1,fd[0],0);
    if (fd[1]<0) {
@@ -258,6 +271,8 @@ int main(int argc, char** argv) {
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
 
+	arch_adjust_domain(&pe, quiet);
+
    fd[0]=perf_event_open(&pe,0,-1,-1,0);
    if (fd[0]<0) {
       fprintf(stderr,"Error opening\n");
@@ -269,6 +284,8 @@ int main(int argc, char** argv) {
    pe.disabled=0;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
+
+	arch_adjust_domain(&pe, quiet);
 
    fd[1]=perf_event_open(&pe,0,-1,fd[0],0);
    if (fd[1]<0) {
