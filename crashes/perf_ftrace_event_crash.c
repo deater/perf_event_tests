@@ -27,17 +27,14 @@ CONFIG_FTRACE_MCOUNT_RECORD=y
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
 #include <poll.h>
+#include <errno.h>
+
 #include <linux/hw_breakpoint.h>
 #include <linux/perf_event.h>
 
 int fd[1024];
 struct perf_event_attr pe[1024];
 char *mmap_result[1024];
-#define MAX_READ_SIZE 65536
-static long long data[MAX_READ_SIZE];
-
-#define MAX_POLL_FDS 128
-struct pollfd pollfds[MAX_POLL_FDS];
 
 long long id;
 
@@ -45,17 +42,16 @@ int forked_pid;
 
 struct sigaction sa;
 static int overflows=0;
-static int sigios=0;
 
 static void our_handler(int signum, siginfo_t *info, void *uc) {
-	int fd = info->si_fd;
-	int ret;
+//	int fd = info->si_fd;
 
 	overflows++;
-	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
-	if (sigios) return;
-	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
+//	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
+//	if (sigios) return;
+//	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
 }
+
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
 	pid_t pid, int cpu, int group_fd, unsigned long flags) {
 
@@ -69,6 +65,10 @@ int main(int argc, char **argv) {
 	memset(&pe[5],0,sizeof(struct perf_event_attr));
 	pe[5].type=PERF_TYPE_TRACEPOINT;
 	pe[5].size=64;
+
+	/* The upper bits are ignored so this maps to */
+	/* event_id of 1 */
+	/* debugfs/events/ftrace/function/id   1      */
 	pe[5].config=0x7fffffff00000001;
 	pe[5].sample_period=0xffffffffff000000;
 
@@ -86,7 +86,15 @@ int main(int argc, char **argv) {
 
 	fd[5]=perf_event_open(&pe[5],0,0,-1,0 /*0*/ );
 
+	if (fd[5]<0) {
+		printf("Error opening event: %s\n",strerror(errno));
+		printf("This means the bug won't trigger, kernel probably too old\n");
+	}
+
+	/* below not needed if you run the test twice? */
+
 /* 2 */
+//#if 0
 	memset(&sa, 0, sizeof(struct sigaction));
 	sa.sa_sigaction = our_handler;
 	sa.sa_flags = SA_SIGINFO;
@@ -96,6 +104,7 @@ int main(int argc, char **argv) {
 	fcntl(fd[5], F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
 	fcntl(fd[5], F_SETSIG, SIGRTMIN+2);
 	fcntl(fd[5], F_SETOWN,getpid());
+//#endif
 	/* Replayed 2 syscalls */
 	return 0;
 }
