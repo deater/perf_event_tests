@@ -34,3 +34,11 @@ in Dave Jones' trinity fuzzer.
 + alpha: perf: fix out-of-bounds array access triggered from raw event
   Reported-by: Will Deacon
   Commit:
+
++ perf/ftrace bug
+  This one took months to isolate and track down.
+  ftrace function tracing can spend so much time in the kernel
+  that the kernel gets wedged and for all intents and purposes locks up.
+  The ftrace people dragged their feet on this one for months.
+  Reported-by: Vince Weaver, Dave Jones
+  Commit:
