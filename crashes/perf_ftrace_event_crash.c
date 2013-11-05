@@ -1,19 +1,46 @@
-/* log_to_code output from ./broken_trace/new.broken.7 */
-/* by Vince Weaver <vincent.weaver _at_ maine.edu */
+/* log_to_code output from ./broken_trace/new.broken.7			*/
+/* by Vince Weaver <vincent.weaver _at_ maine.edu			*/
 
-/* Found with modified perf_fuzzer with random seed 1382550501 */
+/* Found with modified perf_fuzzer with random seed 1382550501		*/
 
-/* Triggers on 3.8 to 3.12-rc6 at least, but see below */
+/* Triggers on 3.4 to 3.12 at least, but see below */
+/* Problem introduced with ced39002f5ea736b716ae233fb68b26d59783912 	*/
+/*	due to an improper check on perf_paranoid_kernel()		*/
+
+/* Fixed with:	???							*/
 
 /* Need advanced ftrace options enabled to trigger this one
-CONFIG_KPROBES_ON_FTRACE=y
+   all available at least by 3.0
 CONFIG_FUNCTION_TRACER=y
 CONFIG_FUNCTION_GRAPH_TRACER=y
 CONFIG_STACK_TRACER=y
 CONFIG_DYNAMIC_FTRACE=y
-CONFIG_DYNAMIC_FTRACE_WITH_REGS=y
-CONFIG_FUNCTION_PROFILER=y
 CONFIG_FTRACE_MCOUNT_RECORD=y
+CONFIG_FUNCTION_PROFILER=y
+
+Both Dave Jones and I found the bug independently with our fuzzers, but
+the ftrace people kept ignoring us for months saying "can't happen".
+
+Finally I laboriously narrowed down a short repro testcase,
+and posted it to lkml and my git perf_test suite on 24 October 2013.
+Still ignored.
+
+Finally I tracked down the actual bug (after wasting a day bisecting
+kernels to a wrong point caused by a misfeature in my testcode).
+
+The bug was they intended perf/ftrace to only be usable by root, but
+the perf_paranoid_kernel() check they used doesn't do what it says it
+does.
+
+So finally after weeks of wasted effort I report this to lkml on
+5 November 2013.
+
+Only to get an e-mail from the ftrace people (off list) saying they found
+and reported this problem literally hours ago and were trying to keep it
+hush-hush and off list as a major issue they just discovered.
+
+fun times.
+
 */
 
 #define _GNU_SOURCE 1
