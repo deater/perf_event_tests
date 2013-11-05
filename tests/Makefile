@@ -1,6 +1,7 @@
 all:
 	cd bugs && make
 	cd corner_cases && make
+	cd error_returns && make
 	cd generalized_events && make
 	cd ioctl && make
 	cd overflow && make
@@ -13,6 +14,7 @@ clean:
 	rm -rf *~
 	cd bugs && make clean
 	cd corner_cases && make clean
+	cd error_returns && make clean
 	cd generalized_events && make clean
 	cd ioctl && make clean
 	cd overflow && make clean
