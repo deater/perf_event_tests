@@ -3,7 +3,7 @@
 
 /* Found with modified perf_fuzzer with random seed 1382550501 */
 
-/* Triggers on 3.10 to 3.12-rc6 at least, but see below */
+/* Triggers on 3.8 to 3.12-rc6 at least, but see below */
 
 /* Need advanced ftrace options enabled to trigger this one
 CONFIG_KPROBES_ON_FTRACE=y
@@ -69,20 +69,12 @@ int main(int argc, char **argv) {
 	/* The upper bits are ignored so this maps to */
 	/* event_id of 1 */
 	/* debugfs/events/ftrace/function/id   1      */
-	pe[5].config=0x7fffffff00000001;
-	pe[5].sample_period=0xffffffffff000000;
+	pe[5].config=0x7fffffff00000001ULL;
 
-	pe[5].sample_type=PERF_SAMPLE_IP|PERF_SAMPLE_TIME|PERF_SAMPLE_READ|PERF_SAMPLE_ID|PERF_SAMPLE_PERIOD|PERF_SAMPLE_STREAM_ID|PERF_SAMPLE_WEIGHT; /* 4355 */
-//	pe[5].read_format=PERF_FORMAT_ID; /* 4 */
-//	pe[5].exclusive=1;
-//	pe[5].exclude_user=1;
-//	pe[5].exclude_idle=1;
-//	pe[5].enable_on_exec=1;
-//	pe[5].watermark=1;
-//	pe[5].precise_ip=2; /* request zero skid */
-//	pe[5].sample_id_all=1;
-//	pe[5].wakeup_watermark=255;
-//	pe[5].bp_type=HW_BREAKPOINT_EMPTY;
+	pe[5].sample_period=0xffffffffff000000ULL;
+
+	pe[5].sample_type=PERF_SAMPLE_IP|PERF_SAMPLE_TIME|PERF_SAMPLE_READ|
+		PERF_SAMPLE_ID|PERF_SAMPLE_PERIOD;
 
 	fd[5]=perf_event_open(&pe[5],0,0,-1,0 /*0*/ );
 
