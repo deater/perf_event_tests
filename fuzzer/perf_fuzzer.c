@@ -1265,6 +1265,7 @@ int main(int argc, char **argv) {
 	fff=fopen("last.seed","w");
 	if (fff!=NULL) {
 		fprintf(fff,"%d\n",seed);
+		fclose(fff);
 	}
 	if (logging) {
 		sprintf(log_buffer,"S %d\n",seed);
