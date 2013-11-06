@@ -1143,10 +1143,20 @@ void sanitise_perf_event_open(int childno)
 	memset(page_rand, 0, sizeof(struct perf_event_attr));
 
 	/* cpu */
-	/* requires ROOT to select CPU if paranoid level not 0 */
+	/* requires ROOT to select specific CPU if pid==-1 (all processes) */
 	/* -1 means all CPUs */
-	//shm->a3[childno] = cpu;
-	// the default get_cpu() is good enough here
+
+	switch(rand() % 2) {
+	case 0:
+		/* Any CPU */
+		shm->a3[childno] = -1;
+		break;
+	case 1:
+		/* Default to the get_cpu() value */
+		/* set by ARG_CPU                 */
+	default:
+		break;
+	}
 
 	/* group_fd */
 	/* should usually be -1 or another perf_event fd         */
@@ -1186,18 +1196,25 @@ void sanitise_perf_event_open(int childno)
 
 	/* pid */
 	/* requires ROOT to select pid that doesn't belong to us */
-	/* pid of 0 means current process */
-	/* pid of -1 means all processes  */
 
 	if (flags & PERF_FLAG_PID_CGROUP) {
 		/* In theory in this case we should pass in */
 		/* a file descriptor from /dev/cgroup       */
 		pid = get_random_fd();
 	} else {
-		if (rand_bool()) {
+		switch(rand() % 3) {
+		case 0:	/* use current thread */
 			pid = 0;
-		} else {
+			break;
+		case 1: /* get an arbitrary pid */
 			pid = get_pid();
+			break;
+		case 2:	/* measure *all* pids.  Might require root */
+			pid = -1;
+			break;
+		default:
+			pid = 0;
+			break;
 		}
 	}
 	shm->a2[childno] = pid;
