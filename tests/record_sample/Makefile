@@ -6,6 +6,7 @@ LIB = ../../lib
 all:	\
 	lost_record_sample \
 	multiple_mmap_sizes \
+	overwrite_mmap \
 	print_record_sample \
 	sample_branch_stack \
 	validate_record_sample
@@ -69,6 +70,23 @@ multiple_mmap_sizes.o:	multiple_mmap_sizes.c
 
 ###
 
+overwrite_mmap:	overwrite_mmap.o \
+					parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o overwrite_mmap \
+				overwrite_mmap.o \
+				parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+overwrite_mmap.o:	overwrite_mmap.c
+	$(CC) $(CFLAGS) -c overwrite_mmap.c
+
+###
+
 print_record_sample:	print_record_sample.o \
 					parse_record.o \
 					$(LIB)/test_utils.o \
@@ -126,6 +144,7 @@ clean:
 	rm -f *~ *.o \
 	lost_record_sample \
 	multiple_mmap_sizes \
+	overwrite_mmap \
 	print_record_sample \
 	sample_branch_stack \
 	validate_record_sample

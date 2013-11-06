@@ -142,6 +142,10 @@ $TESTS_DIR/record_sample/multiple_mmap_sizes
 echo "  + $TESTS_DIR/record_sample/sample_branch_stach"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_branch_stack
+echo "  + $TESTS_DIR/record_sample/overwrite_mmap"
+echo -n "    "
+$TESTS_DIR/record_sample/overwrite_mmap
+
 
 echo
 echo "* Checking bugs that PAPI has to work around"
