@@ -5,6 +5,7 @@ all:
 	cd generalized_events && make
 	cd ioctl && make
 	cd overflow && make
+	cd rdpmc && make
 	cd record_sample && make
 	cd sysfs && make
 	cd validation && make
@@ -18,6 +19,7 @@ clean:
 	cd generalized_events && make clean
 	cd ioctl && make clean
 	cd overflow && make clean
+	cd rdpmc && make clean
 	cd record_sample && make clean
 	cd sysfs && make clean
 	cd validation && make clean
