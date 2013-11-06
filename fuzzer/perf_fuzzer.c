@@ -57,7 +57,7 @@ static int log_only=0;
 static int stop_after=0;
 
 static int type=DEBUG_ALL;
-//DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
+//static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
 
 static int log_fd;
 static char log_buffer[BUFSIZ];
@@ -461,6 +461,10 @@ static void print_errno_name(int e) {
 		case EINVAL:	printf("EINVAL");
 				break;
 		case EOPNOTSUPP:	printf("EOPNOTSUPP");
+				break;
+		case ENOSPC:	printf("ENOSPC");
+				break;
+		case EMFILE:	printf("EMFILE");
 				break;
 		default:	printf("UNKNOWN %d",e);
 				break;
