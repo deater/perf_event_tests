@@ -50,14 +50,15 @@ int page_size=4096;
 #define DEBUG_POLL		0x0400
 #define DEBUG_MILLION		0x0800
 #define DEBUG_ACCESS		0x1000
+#define DEBUG_TRASH_MMAP	0x2000
 
 static int debug=0;
 static int logging=0;
 static int log_only=0;
 static int stop_after=0;
 
-static int type=DEBUG_ALL;
-//static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW;
+//static int type=DEBUG_ALL;
+static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW|DEBUG_MMAP|DEBUG_TRASH_MMAP;
 
 static int log_fd;
 static char log_buffer[BUFSIZ];
@@ -80,6 +81,7 @@ static long long ioctl_attempts=0,ioctl_successful=0;
 static long long prctl_attempts=0,prctl_successful=0;
 static long long fork_attempts=0,fork_successful=0;
 static long long poll_attempts=0,poll_successful=0;
+static long long trash_mmap_attempts=0,trash_mmap_successful=0;
 
 #define NUM_EVENTS 1024
 
@@ -725,6 +727,38 @@ static void close_random_event(void) {
 
 }
 
+static void trash_random_mmap(void) {
+
+	int i,value;
+
+	i=find_random_active_event();
+
+	/* Exit if no events */
+	if (i<0) return;
+
+	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
+
+		value=rand();
+
+		memset(event_data[i].mmap,value,getpagesize());
+
+		/* can't write high pages? */
+		//event_data[i].mmap_size);
+
+		if (logging&DEBUG_TRASH_MMAP) {
+			sprintf(log_buffer,"Q %d %d %p\n",
+				value,
+				getpagesize(),
+				event_data[i].mmap);
+			write(log_fd,log_buffer,strlen(log_buffer));
+		}
+	}
+
+	trash_mmap_attempts++;
+	trash_mmap_successful++;
+
+}
+
 static void ioctl_random_event(void) {
 
 	int i,arg,arg2,result;
@@ -1117,6 +1151,8 @@ static void dump_summary(void) {
 	       fork_attempts,fork_successful);
 	printf("\tPoll attempts: %lld  Successful: %lld\n",
 	       poll_attempts,poll_successful);
+	printf("\tTrash mmap attempts: %lld  Successful: %lld\n",
+		trash_mmap_attempts,trash_mmap_successful);
 	printf("\tOverflows: %lld\n", overflows);
 	printf("\tSIGIOs due to RT signal queue full: %lld\n",sigios);
 	open_attempts=0; open_successful=0;
@@ -1126,6 +1162,8 @@ static void dump_summary(void) {
 	mmap_attempts=0; mmap_successful=0;
 	prctl_attempts=0; prctl_successful=0;
 	fork_attempts=0; fork_successful=0;
+	poll_attempts=0; poll_successful=0;
+	trash_mmap_attempts=0; trash_mmap_successful=0;
 	overflows=0;
 	sigios=0;
 	for(i=0;i<MAX_ERRNOS;i++) {
@@ -1316,7 +1354,7 @@ int main(int argc, char **argv) {
 
 	while(1) {
 
-		switch(rand()%10) {
+		switch(rand()%11) {
 			case 0:	if (type&DEBUG_OPEN) {
 					open_random_event();
 				}
@@ -1351,6 +1389,10 @@ int main(int argc, char **argv) {
 				break;
 			case 8: if (type&DEBUG_POLL) {
 					poll_random_event();
+				}
+				break;
+			case 9: if (type&DEBUG_TRASH_MMAP) {
+					trash_random_mmap();
 				}
 				break;
 			default:
