@@ -7,7 +7,9 @@
 /* Problem introduced with ced39002f5ea736b716ae233fb68b26d59783912 	*/
 /*	due to an improper check on perf_paranoid_kernel()		*/
 
-/* Fixed with:	???							*/
+/* Fixed with:	12ae030d54ef250706da5642fc7697cc60ad0df7		*/
+/* This reproduce may only work on older machines.  It is possible	*/
+/*	to trigger this bug in other ways, via trinity and perf_fuzzer  */
 
 /* Need advanced ftrace options enabled to trigger this one
    all available at least by 3.0
