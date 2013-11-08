@@ -344,23 +344,16 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 	long band = info->si_band;
 	int code = info->si_code;
 	int i;
-	char local_buffer[BUFSIZ];
 
 	if (code & SI_KERNEL) {
-		printf("We overflowed the RT signal queue and the kernel "
-			"has rudely let us know w/o telling us which event.\n");
-		printf("Shutting down all events\n");
+		/* We overflowed the RT signal queue and the kernel	*/
+		/* has rudely let us know w/o telling us which event	*/
+		/* Close a random event in hopes of stopping		*/
+		printf("SIGIO due to RT queue overflow\n");
 
-		for(i=0;i<NUM_EVENTS;i++) {
-			if (event_data[i].active) {
-				ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
-				if (logging&DEBUG_IOCTL) {
-					sprintf(local_buffer,"I %d %d %d\n",
-						event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
-					write(log_fd,local_buffer,strlen(local_buffer));
-				}
-			}
-		}
+		i=find_random_active_event();
+		close_event(i);
+
 	}
 	else {
 		printf("SIGIO from fd %d band %lx code %d\n",fd,band,code);
