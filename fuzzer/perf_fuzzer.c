@@ -34,7 +34,9 @@
 #include "perf_attr_print.h"
 
 int user_set_seed;
-int page_size=4096;
+int page_size;
+
+#define MAX_THROTTLES		20
 
 #define DEBUG_ALL		0xffffffff
 #define DEBUG_MMAP		0x0001
@@ -100,6 +102,7 @@ struct event_data_t{
 	int mmap_size;
 	int last_refresh;
 	int overflows;
+	int throttles;
 } event_data[NUM_EVENTS];
 
 static struct sigaction sigio;
@@ -194,6 +197,63 @@ long long perf_mmap_read( void *our_mmap,
 
 }
 
+
+static void close_event(int i) {
+
+	int result;
+
+	/* Exit if no events */
+	if (i<0) return;
+
+	/* here to avoid race in overflow where we munmap or close */
+	/* but event still marked active */
+
+	event_data[i].active=0;
+
+	if (debug&DEBUG_CLOSE) {
+		printf("CLOSE, Active=%d, if %p munmap(%p,%x); close(%d);\n",
+			active_events,
+			event_data[i].mmap,
+			event_data[i].mmap,event_data[i].mmap_size,
+			event_data[i].fd);
+	}
+
+	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
+		munmap(event_data[i].mmap,event_data[i].mmap_size);
+		if (logging&DEBUG_MMAP) {
+			sprintf(log_buffer,"U %d %d %p\n",
+				event_data[i].fd,
+				event_data[i].mmap_size,
+				event_data[i].mmap);
+			write(log_fd,log_buffer,strlen(log_buffer));
+		}
+	}
+
+	close_attempts++;
+	result=close(event_data[i].fd);
+	if (result==0) close_successful++;
+
+	if (logging&DEBUG_CLOSE) {
+		sprintf(log_buffer,"C %d\n",event_data[i].fd);
+		write(log_fd,log_buffer,strlen(log_buffer));
+	}
+
+	active_events--;
+
+
+}
+
+static void close_random_event(void) {
+
+	int i;
+
+	i=find_random_active_event();
+
+	close_event(i);
+
+}
+
+
 /* The perf tool uses poll() and never sets signals */
 /* Thus they never have most of these problems      */
 static void our_handler(int signum, siginfo_t *info, void *uc) {
@@ -222,7 +282,6 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	i=lookup_event(fd);
 
-
 	if (i>=0) {
 
 		event_data[i].overflows++;
@@ -234,45 +293,47 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 				event_data[i].attr.sample_period,
 				event_data[i].attr.type);
 			event_data[i].overflows=0;
+			event_data[i].throttles++;
 
 			/* otherwise if we re-trigger next time */
 			/* with >1 refresh the throttle never   */
 			/* lasts a significant amount of time.  */
 			next_refresh=0;
-			goto done;
+
+			/* Avoid infinite throttle storms */
+			if (event_data[i].throttles > MAX_THROTTLES) {
+				close_event(i);
+			}
 		}
 
+		else {
 
-
-		prev_head=perf_mmap_read(event_data[i].mmap,
+			/* read the event */
+			prev_head=perf_mmap_read(event_data[i].mmap,
 					event_data[i].mmap_size,
 					prev_head);
+
+			/* cannot call rand() from signal handler! */
+			/* we re-enter and get stuck in a futex :( */
+
+			if (debug&DEBUG_OVERFLOW) {
+				sprintf(string,"OVERFLOW REFRESH: %d\n",next_refresh);
+				write(1,string,strlen(string));
+			}
+
+			ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,next_refresh);
+			if (ret==0) {
+				event_data[i].last_refresh=next_refresh;
+			}
+
+			if (logging&DEBUG_IOCTL) {
+				sprintf(local_buffer,"I %d %d %d\n",
+					fd,PERF_EVENT_IOC_REFRESH,next_refresh);
+				write(log_fd,local_buffer,strlen(local_buffer));
+			}
+		}
 	}
 
-	/* cannot call rand() from signal handler! */
-	/* we re-enter and get stuck in a futex :( */
-
-	/* don't re-enable event if we're stuck in a signal-handler storm */
-	if (sigios) return;
-
-	//	if (next_overflow_refresh) {
-		if (debug&DEBUG_OVERFLOW) {
-			sprintf(string,"OVERFLOW REFRESH: %d\n",next_refresh);
-			write(1,string,strlen(string));
-		}
-		ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,next_refresh);
-		if (ret==0) {
-			event_data[i].last_refresh=next_refresh;
-		}
-
-		if (logging&DEBUG_IOCTL) {
-			sprintf(local_buffer,"I %d %d %d\n",
-				fd,PERF_EVENT_IOC_REFRESH,next_refresh);
-			write(log_fd,local_buffer,strlen(local_buffer));
-		}
-
-		//}
-done:
 	(void) ret;
 
 }
@@ -545,6 +606,7 @@ static void open_random_event(void) {
 
 
 	event_data[i].overflows=0;
+	event_data[i].throttles=0;
 
 	while(1) {
 		syscall_perf_event_open.sanitise(0);
@@ -742,52 +804,7 @@ static void open_random_event(void) {
 	event_data[i].read_size=read_size*sizeof(long long);
 }
 
-static void close_random_event(void) {
 
-	int i,result;
-
-	i=find_random_active_event();
-
-	/* Exit if no events */
-	if (i<0) return;
-
-	/* here to avoid race in overflow where we munmap or close */
-	/* but event still marked active */
-
-	event_data[i].active=0;
-
-	if (debug&DEBUG_CLOSE) {
-		printf("CLOSE, Active=%d, if %p munmap(%p,%x); close(%d);\n",
-			active_events,
-			event_data[i].mmap,
-			event_data[i].mmap,event_data[i].mmap_size,
-			event_data[i].fd);
-	}
-
-	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
-		munmap(event_data[i].mmap,event_data[i].mmap_size);
-		if (logging&DEBUG_MMAP) {
-			sprintf(log_buffer,"U %d %d %p\n",
-				event_data[i].fd,
-				event_data[i].mmap_size,
-				event_data[i].mmap);
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-	}
-
-	close_attempts++;
-	result=close(event_data[i].fd);
-	if (result==0) close_successful++;
-
-	if (logging&DEBUG_CLOSE) {
-		sprintf(log_buffer,"C %d\n",event_data[i].fd);
-		write(log_fd,log_buffer,strlen(log_buffer));
-	}
-
-	active_events--;
-
-
-}
 
 static void trash_random_mmap(void) {
 
@@ -1338,10 +1355,10 @@ int main(int argc, char **argv) {
 			log_fd=1;		/* stdout */
 		}
 		else {
-			log_fd=open(logfile_name,O_WRONLY);
+			log_fd=open(logfile_name,O_WRONLY|O_CREAT,0660);
 			if (log_fd<0) {
-				fprintf(stderr,"Error opening %s\n",
-					logfile_name);
+				fprintf(stderr,"Error opening %s: %s\n",
+					logfile_name,strerror(errno));
 				exit(1);
 			}
 		}
@@ -1373,6 +1390,7 @@ int main(int argc, char **argv) {
 	}
 
 	/* Set up to match trinity setup, vaguely */
+	page_size=getpagesize();
 
 	syscall_perf_event_open.init();
 
@@ -1475,7 +1493,7 @@ int main(int argc, char **argv) {
 		if (total_iterations%10000==0) {
 			dump_summary();
 		}
-		sync();
+		//sync();
 	}
 
 	return 0;
