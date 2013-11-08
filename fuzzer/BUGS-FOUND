@@ -8,37 +8,38 @@ in Dave Jones' trinity fuzzer.
 
 + perf: Fix perf mmap bugs
   Reported-by: Vince Weaver
-  Commit: 26cb63ad11e04047a64309362674bcbbd6a6f246
+  Fixed-by-Commit: 26cb63ad11e04047a64309362674bcbbd6a6f246
 
 + perf: Fix mmap() accounting hole
   Reported-and-tested-by: Vince Weaver
-  Commit: 9bb5d40cd93c9dd4be74834b1dcb1ba03629716b
+  Fixed-by-Commit: 9bb5d40cd93c9dd4be74834b1dcb1ba03629716b
 
 + ARM: 7810/1: perf: Fix array out of bounds access in armpmu_map_hw_event()
   Reported-by: Vince Weaver
-  Commit: d9f966357b14e356dbd83b8f4a197a287ab4ff83
+  Fixed-by-Commit: d9f966357b14e356dbd83b8f4a197a287ab4ff83
 
 + ARM: 7809/1: perf: fix event validation for software group leaders
   Reported-by: Vince Weaver
-  Commit: c95eb3184ea1a3a2551df57190c81da695e2144b
+  Fixed-by-Commit: c95eb3184ea1a3a2551df57190c81da695e2144b
   CVE-2013-4254
 
 + arm64: perf: fix array out of bounds access in armpmu_map_hw_event()
   Reported-by: Will Deacon
-  Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
+  Fixed-by-Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
 
 + arm64: perf: fix event validation for software group leaders
   Reported-by: Will Deacon
-  Commit: ee7538a008a45050c8f706d38b600f55953169f9
+  Fixed-by-Commit: ee7538a008a45050c8f706d38b600f55953169f9
 
 + alpha: perf: fix out-of-bounds array access triggered from raw event
   Reported-by: Will Deacon
-  Commit:
+  Fixed-by-Commit:
 
-+ perf/ftrace bug
++ perf/ftrace: Fix paranoid level for enabling function tracer
   This one took months to isolate and track down.
   ftrace function tracing can spend so much time in the kernel
   that the kernel gets wedged and for all intents and purposes locks up.
   The ftrace people dragged their feet on this one for months.
   Reported-by: Vince Weaver, Dave Jones
-  Commit:
+  Fixed-by-Commit: 12ae030d54ef250706da5642fc7697cc60ad0df7 (in 3.13)
+  CVE-2013-2930
