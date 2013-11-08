@@ -99,6 +99,7 @@ struct event_data_t{
 	char *mmap;
 	int mmap_size;
 	int last_refresh;
+	int overflows;
 } event_data[NUM_EVENTS];
 
 static struct sigaction sigio;
@@ -201,12 +202,18 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 	int i;
 	int ret;
 	char string[BUFSIZ];
+	char local_buffer[BUFSIZ];
 
 	overflows++;
 
 	/* disable the event for the time being */
 	/* we were having trouble with signal storms */
 	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
+	if (logging&DEBUG_IOCTL) {
+		sprintf(local_buffer,"I %d %d %d\n",
+			fd,PERF_EVENT_IOC_DISABLE,0);
+		write(log_fd,local_buffer,strlen(local_buffer));
+	}
 
 	if (debug&DEBUG_OVERFLOW) {
 		sprintf(string,"OVERFLOW: fd=%d\n",fd);
@@ -215,12 +222,32 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	i=lookup_event(fd);
 
+
 	if (i>=0) {
 
-	   prev_head=perf_mmap_read(event_data[i].mmap,
+		event_data[i].overflows++;
+
+		if (event_data[i].overflows>10000) {
+			printf("Throttling event %d, last_refresh=%d, "
+				"period=%llu, type=%d\n",
+				i,event_data[i].last_refresh,
+				event_data[i].attr.sample_period,
+				event_data[i].attr.type);
+			event_data[i].overflows=0;
+
+			/* otherwise if we re-trigger next time */
+			/* with >1 refresh the throttle never   */
+			/* lasts a significant amount of time.  */
+			next_refresh=0;
+			goto done;
+		}
+
+
+
+		prev_head=perf_mmap_read(event_data[i].mmap,
 					event_data[i].mmap_size,
 					prev_head);
-        }
+	}
 
 	/* cannot call rand() from signal handler! */
 	/* we re-enter and get stuck in a futex :( */
@@ -238,13 +265,45 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			event_data[i].last_refresh=next_refresh;
 		}
 
-		//}
+		if (logging&DEBUG_IOCTL) {
+			sprintf(local_buffer,"I %d %d %d\n",
+				fd,PERF_EVENT_IOC_REFRESH,next_refresh);
+			write(log_fd,local_buffer,strlen(local_buffer));
+		}
 
+		//}
+done:
 	(void) ret;
 
 }
 
 static void sigio_handler(int signum, siginfo_t *info, void *uc) {
+
+	int fd = info->si_fd;
+	long band = info->si_band;
+	int code = info->si_code;
+	int i;
+	char local_buffer[BUFSIZ];
+
+	if (code & SI_KERNEL) {
+		printf("We overflowed the RT signal queue and the kernel "
+			"has rudely let us know w/o telling us which event.\n");
+		printf("Shutting down all events\n");
+
+		for(i=0;i<NUM_EVENTS;i++) {
+			if (event_data[i].active) {
+				ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
+				if (logging&DEBUG_IOCTL) {
+					sprintf(local_buffer,"I %d %d %d\n",
+						event_data[i].fd,PERF_EVENT_IOC_DISABLE,0);
+					write(log_fd,local_buffer,strlen(local_buffer));
+				}
+			}
+		}
+	}
+	else {
+		printf("SIGIO from fd %d band %lx code %d\n",fd,band,code);
+	}
 
 	sigios++;
 }
@@ -483,6 +542,9 @@ static void open_random_event(void) {
 
 	/* return if no free events */
 	if (i<0) return;
+
+
+	event_data[i].overflows=0;
 
 	while(1) {
 		syscall_perf_event_open.sanitise(0);
