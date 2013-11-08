@@ -29,3 +29,7 @@ sleep 5
 # Run twice, sometimes takes two runs
 ./crashes/perf_ftrace_event_crash
 ./crashes/perf_ftrace_event_crash
+# Run twice, sometimes takes two runs
+./crashes/tracepoint_irq_work_exit
+./crashes/tracepoint_irq_work_exit
+

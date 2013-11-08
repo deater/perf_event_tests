@@ -11,6 +11,7 @@ all:	pe_inherit_memleak pe_task_schedule_panic \
 	oflo_sw_cpu_clock_crash sw_event_config_overflow \
 	nmi_soft_lockup \
 	tracepoint_fork \
+	tracepoint_irq_work_exit \
 	arm_validate_event_oops arm_map_hw_event_oops \
 	perf_ftrace_event_crash
 
@@ -112,6 +113,15 @@ tracepoint_fork:	tracepoint_fork.o ../lib/perf_helpers.o
 tracepoint_fork.o:	tracepoint_fork.c
 	$(CC) $(CFLAGS) -c tracepoint_fork.c
 
+####
+
+tracepoint_irq_work_exit:	tracepoint_irq_work_exit.o
+	$(CC) $(LFLAGS) -o tracepoint_irq_work_exit tracepoint_irq_work_exit.o
+
+
+tracepoint_irq_work_exit.o:	tracepoint_irq_work_exit.c
+	$(CC) $(CFLAGS) -c tracepoint_irq_work_exit.c
+
 
 ####
 
@@ -127,7 +137,7 @@ clean:
 	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic \
 		perf_mmap_close_bug offcore_response_mask \
 		oflo_sw_cpu_clock_crash sw_event_config_overflow \
-		nmi_soft_lockup tracepoint_fork \
+		nmi_soft_lockup tracepoint_fork tracepoint_irq_work_exit \
 		arm_validate_event_oops arm_map_hw_event_oops \
 		perf_ftrace_event_crash
 
