@@ -129,6 +129,20 @@ static int find_random_active_event(void) {
 	return -1;
 }
 
+static int find_first_active_event(void) {
+
+	int i;
+
+	if (active_events<1) return -1;
+
+	for(i=0;i<NUM_EVENTS;i++) {
+		if (event_data[i].active) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 
 static int lookup_event(int fd) {
 
@@ -351,7 +365,7 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 		/* Close a random event in hopes of stopping		*/
 		printf("SIGIO due to RT queue overflow\n");
 
-		i=find_random_active_event();
+		i=find_first_active_event();
 		close_event(i);
 
 	}
