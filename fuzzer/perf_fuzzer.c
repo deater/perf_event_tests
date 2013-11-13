@@ -836,10 +836,10 @@ static void trash_random_mmap(void) {
 		//event_data[i].mmap_size);
 
 		if (logging&DEBUG_TRASH_MMAP) {
-			sprintf(log_buffer,"Q %d %d %p\n",
+			sprintf(log_buffer,"Q %d %d %d\n",
 				value,
 				getpagesize(),
-				event_data[i].mmap);
+				event_data[i].fd);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 	}
