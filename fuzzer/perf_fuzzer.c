@@ -649,9 +649,10 @@ static void open_random_event(void) {
 			perf_dump_attr(&event_data[i].attr);
 		}
 	        if (logging&DEBUG_OPEN) {
- #if 0
+#if 0
 		  /* uncomment if failing opens are causing crashes */
 			static int quit_next=0;
+			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
 	                sprintf(log_buffer,"O -1 %d %d %d %lx ",
 				event_data[i].pid,
 				event_data[i].cpu,
@@ -659,6 +660,8 @@ static void open_random_event(void) {
 				event_data[i].flags);
 			write(log_fd,log_buffer,strlen(log_buffer));
 	                perf_log_attr(&event_data[i].attr);
+			fsync(log_fd);
+			}
 			if (quit_next==1) exit(1);
 
 			if (quit_next) quit_next--;
@@ -706,6 +709,7 @@ static void open_random_event(void) {
 				event_data[i].flags);
 		write(log_fd,log_buffer,strlen(log_buffer));
 		perf_log_attr(&event_data[i].attr);
+		fsync(log_fd);
 	}
 
 	event_data[i].fd=fd;
@@ -1500,7 +1504,7 @@ int main(int argc, char **argv) {
 		if (total_iterations%10000==0) {
 			dump_summary();
 		}
-		//sync();
+//		fsync(log_fd);
 	}
 
 	return 0;
