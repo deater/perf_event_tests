@@ -129,6 +129,7 @@ static int find_random_active_event(void) {
 	return -1;
 }
 
+#if 0
 static int find_first_active_event(void) {
 
 	int i;
@@ -142,7 +143,7 @@ static int find_first_active_event(void) {
 	}
 	return -1;
 }
-
+#endif
 
 static int lookup_event(int fd) {
 
@@ -212,7 +213,7 @@ long long perf_mmap_read( void *our_mmap,
 }
 
 
-static void close_event(int i) {
+static void close_event(int i, int from_sigio) {
 
 	int result;
 
@@ -234,7 +235,7 @@ static void close_event(int i) {
 
 	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
-		if (logging&DEBUG_MMAP) {
+		if ((!from_sigio) && (logging&DEBUG_MMAP)) {
 			sprintf(log_buffer,"U %d %d %p\n",
 				event_data[i].fd,
 				event_data[i].mmap_size,
@@ -247,7 +248,7 @@ static void close_event(int i) {
 	result=close(event_data[i].fd);
 	if (result==0) close_successful++;
 
-	if (logging&DEBUG_CLOSE) {
+	if ((!from_sigio) && (logging&DEBUG_CLOSE)) {
 		sprintf(log_buffer,"C %d\n",event_data[i].fd);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
@@ -263,7 +264,7 @@ static void close_random_event(void) {
 
 	i=find_random_active_event();
 
-	close_event(i);
+	close_event(i,0);
 
 }
 
@@ -276,18 +277,15 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 	int i;
 	int ret;
 	char string[BUFSIZ];
-	char local_buffer[BUFSIZ];
 
 	overflows++;
 
 	/* disable the event for the time being */
 	/* we were having trouble with signal storms */
 	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
-	if (logging&DEBUG_IOCTL) {
-		sprintf(local_buffer,"I %d %d %d\n",
-			fd,PERF_EVENT_IOC_DISABLE,0);
-		write(log_fd,local_buffer,strlen(local_buffer));
-	}
+	/* Do not log, logging only make sense if */
+	/* we have deterministic counts which we don't */
+
 
 	if (debug&DEBUG_OVERFLOW) {
 		sprintf(string,"OVERFLOW: fd=%d\n",fd);
@@ -301,7 +299,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 		event_data[i].overflows++;
 
 		if (event_data[i].overflows>10000) {
-			printf("Throttling event %d, last_refresh=%d, "
+			if (!logging) printf("Throttling event %d, last_refresh=%d, "
 				"period=%llu, type=%d\n",
 				i,event_data[i].last_refresh,
 				event_data[i].attr.sample_period,
@@ -316,7 +314,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 			/* Avoid infinite throttle storms */
 			if (event_data[i].throttles > MAX_THROTTLES) {
-				close_event(i);
+				close_event(i,1);
 			}
 		}
 
@@ -339,12 +337,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			if (ret==0) {
 				event_data[i].last_refresh=next_refresh;
 			}
-
-			if (logging&DEBUG_IOCTL) {
-				sprintf(local_buffer,"I %d %d %d\n",
-					fd,PERF_EVENT_IOC_REFRESH,next_refresh);
-				write(log_fd,local_buffer,strlen(local_buffer));
-			}
+			/* Do not log, makes no sense */
 		}
 	}
 
@@ -363,11 +356,15 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 		/* We overflowed the RT signal queue and the kernel	*/
 		/* has rudely let us know w/o telling us which event	*/
 		/* Close a random event in hopes of stopping		*/
-		printf("SIGIO due to RT queue overflow\n");
+		if (!logging) printf("SIGIO due to RT queue overflow\n");
 
-		i=find_first_active_event();
-		close_event(i);
+		/* Close all events? */
+		/* Extreme, but easier to re-play */
+		/* Does make for non-deterministic traces :( */
 
+		for(i=0;i<NUM_EVENTS;i++) {
+			close_event(i,1);
+		}
 	}
 	else {
 		printf("SIGIO from fd %d band %lx code %d\n",fd,band,code);
@@ -385,6 +382,7 @@ static void sigquit_handler(int signum, siginfo_t *info, void *uc) {
 		if (event_data[i].active) {
 			perf_pretty_print_event(stdout,
 				event_data[i].fd,
+				getpid(),
 				&event_data[i].attr,
 				event_data[i].pid,
 				event_data[i].cpu,
