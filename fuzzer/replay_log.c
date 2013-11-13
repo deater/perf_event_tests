@@ -63,6 +63,22 @@ static void mmap_event(char *line) {
 
 }
 
+static void trash_mmap_event(char *line) {
+
+	int fd,value,size;
+
+	sscanf(line,"%*c %d %d %d",&value,&size,&fd);
+
+	if (fd_remap[fd]==-1) {
+		fprintf(stderr,"Line %lld Skipping mmap as fd %d not valid\n",
+			line_num,fd);
+		return;
+	}
+
+	memset(mmap_remap[fd_remap[fd]],value,size);
+
+}
+
 
 static void munmap_event(char *line) {
 
@@ -445,18 +461,19 @@ static void setup_overflow(char *line) {
 }
 
 
-#define REPLAY_OPEN	0x001
-#define REPLAY_CLOSE	0x002
-#define REPLAY_IOCTL	0x004
-#define REPLAY_READ	0x008
-#define REPLAY_MMAP	0x010
-#define REPLAY_MUNMAP	0x020
-#define REPLAY_PRCTL	0x040
-#define REPLAY_FORK	0x080
-#define REPLAY_POLL	0x100
-#define REPLAY_SEED	0x200
-#define REPLAY_OVERFLOW 0x400
-#define REPLAY_ALL	0xfff
+#define REPLAY_OPEN		0x001
+#define REPLAY_CLOSE		0x002
+#define REPLAY_IOCTL		0x004
+#define REPLAY_READ		0x008
+#define REPLAY_MMAP		0x010
+#define REPLAY_MUNMAP		0x020
+#define REPLAY_PRCTL		0x040
+#define REPLAY_FORK		0x080
+#define REPLAY_POLL		0x100
+#define REPLAY_SEED		0x200
+#define REPLAY_OVERFLOW		0x400
+#define REPLAY_TRASH_MMAP	0x800
+#define REPLAY_ALL		0xfff
 
 
 void print_usage(char *exec_name) {
@@ -630,6 +647,12 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 'Q':
+				if (replay_which & REPLAY_TRASH_MMAP) {
+					trash_mmap_event(line);
+					replay_syscalls++;
+				}
+				break;
+			case 'q':
 				fprintf(stderr,"Quitting early\n");
 				exit(1);
 			case 'R':
