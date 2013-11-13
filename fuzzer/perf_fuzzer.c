@@ -1400,6 +1400,12 @@ int main(int argc, char **argv) {
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
+	/* Save our pid so we can re-map on replay */
+	if (logging) {
+		sprintf(log_buffer,"G %d\n",getpid());
+		write(log_fd,log_buffer,strlen(log_buffer));
+	}
+
 	/* Set up to match trinity setup, vaguely */
 	page_size=getpagesize();
 
@@ -1412,7 +1418,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 	memset(page_rand, 0x55, page_size);
-	fprintf(stderr, "page_rand @ %p\n", page_rand);
+	//fprintf(stderr, "page_rand @ %p\n", page_rand);
 
 	/* Set up SIGIO handler */
 	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */

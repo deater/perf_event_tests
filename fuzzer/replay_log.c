@@ -31,6 +31,8 @@ static unsigned long long line_num=0;
 static int fd_remap[FD_REMAP_SIZE];
 static char *mmap_remap[FD_REMAP_SIZE];
 
+static int original_pid=-1;
+
 static void mmap_event(char *line) {
 
 	int fd,size;
@@ -150,6 +152,11 @@ static void open_event(char *line) {
 		&pe->sample_regs_user,&pe->sample_stack_user,&mmap2);
 
 	errno=0;
+
+	/* use recorded value for pid not our actual pid */
+	if (pid==original_pid) {
+		pid=getpid();
+	}
 
 	/* re-populate bitfields */
 	/* can't sscanf into them */
@@ -581,6 +588,10 @@ int main(int argc, char **argv) {
 					fork_event(line);
 					replay_syscalls++;
 				}
+				break;
+			case 'G':
+				sscanf(line,"%*c %d",&original_pid);
+				printf("Original pid was %d\n",original_pid);
 				break;
 			case 'I':
 				if (replay_which & REPLAY_IOCTL) {
