@@ -614,7 +614,7 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	fprintf(fff,"\n");
 }
 
-void perf_pretty_print_event(FILE *fff, int fd,
+void perf_pretty_print_event(FILE *fff, int fd, int original_pid,
 				struct perf_event_attr *pe,
 				pid_t pid, int cpu,
 				int group_fd, unsigned long flags) {
@@ -624,10 +624,14 @@ void perf_pretty_print_event(FILE *fff, int fd,
 
 	fprintf(fff,"\tfd[%d]=perf_event_open(&pe[%d],\n",fd,fd);
 
-	fprintf(fff,"\t\t\t\t%d, ",pid);
-	if (pid==0) fprintf(fff,"/* current thread */\n");
-	else if (pid==-1) fprintf(fff,"/* all processes */\n");
-	else fprintf(fff,"/* Only pid %d */\n",pid);
+	if (pid==original_pid) fprintf(fff,"\t\t\t\tgetpid(), /* current thread */\n");
+	else {
+		fprintf(fff,"\t\t\t\t%d, ",pid);
+
+		if (pid==0) fprintf(fff,"/* current thread */\n");
+		else if (pid==-1) fprintf(fff,"/* all processes */\n");
+		else fprintf(fff,"/* Only pid %d */\n",pid);
+	}
 
 	fprintf(fff,"\t\t\t\t%d, ",cpu);
 	if (cpu>=0) fprintf(fff,"/* Only cpu %d */\n",cpu);

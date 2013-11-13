@@ -30,6 +30,8 @@ static unsigned long long line_num=0;
 
 static int fd_remap[FD_REMAP_SIZE];
 static char *mmap_remap[FD_REMAP_SIZE];
+static int fd_overflows[FD_REMAP_SIZE];
+static int fd_throttles[FD_REMAP_SIZE];
 
 static int original_pid=-1;
 
@@ -75,6 +77,8 @@ static void trash_mmap_event(char *line) {
 		return;
 	}
 
+	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) return;
+
 	memset(mmap_remap[fd_remap[fd]],value,size);
 
 }
@@ -107,6 +111,7 @@ static void munmap_event(char *line) {
 		return;
 	}
 
+	mmap_remap[fd_remap[fd]]=MAP_FAILED;
 }
 
 
@@ -213,7 +218,7 @@ static void open_event(char *line) {
 	if (fd<0) {
 		fprintf(stderr,"Line %lld Error opening %s : %s\n",
 			line_num,line,strerror(errno));
-                perf_pretty_print_event(stderr,orig_fd,
+                perf_pretty_print_event(stderr,orig_fd,original_pid,
 				pe, pid, cpu,
 				remapped_group_fd,flags);
 
@@ -248,7 +253,13 @@ static void open_event(char *line) {
 
 	fd_remap[orig_fd]=fd;
 
-
+	if (fd>FD_REMAP_SIZE) {
+		fprintf(stderr,"overflow fd out of range\n");
+		error=1;
+		return;
+	}
+	fd_overflows[fd]=0;
+	fd_throttles[fd]=0;
 }
 
 static void close_event(char *line) {
@@ -413,22 +424,40 @@ static void fork_event(char *line) {
 }
 
 static int overflows=0;
-static int sigios=0;
 
 static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
 	int ret;
 
+	char string[BUFSIZ];
+
 	overflows++;
 	/* disable the event for the time being */
 	/* we were having trouble with signal storms */
 	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
 
-	/* don't re-enable event if we're stuck in a signal-handler storm */
-	if (sigios) return;
+	fd_overflows[fd]++;
+	if (fd_overflows[fd]>10000) {
+		sprintf(string,"Throttling event %d\n",fd);
+		write(1,string,strlen(string));
+		fd_throttles[fd]++;
+		fd_overflows[fd]=0;
 
-	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
+#define MAX_THROTTLES 20
+
+		if (fd_throttles[fd]>MAX_THROTTLES) {
+			sprintf(string,"Hit max throttles\n");
+			write(1,string,strlen(string));
+
+			close(fd);
+			fd_remap[fd]=-1;
+		}
+	}
+
+	else {
+		ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
+	}
 
         (void) ret;
 
@@ -436,7 +465,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 
-	sigios++;
+
 }
 
 

@@ -28,6 +28,17 @@ static void mmap_event(char *line) {
 		"fd[%d], 0);\n",fd,size,fd);
 }
 
+static void trash_mmap_event(char *line) {
+
+	int fd,size,value;
+
+	sscanf(line,"%*c %d %d %d",&value,&size,&fd);
+
+	printf("\tif (mmap_result[%d]>0) memset(mmap_result[%d],%d,%d);\n",
+		fd,fd,value,size);
+
+}
+
 
 static void munmap_event(char *line) {
 
@@ -35,7 +46,7 @@ static void munmap_event(char *line) {
 
 	sscanf(line,"%*c %d %d",&fd,&size);
 
-	printf("munmap(mmap_result[%d], %d);\n",fd,size);
+	printf("\tmunmap(mmap_result[%d], %d);\n",fd,size);
 }
 
 
@@ -107,7 +118,8 @@ static void open_event(char *line) {
 	pe.exclude_callchain_kernel=exclude_callchain_kernel;
 	pe.mmap2=mmap2;
 
-	perf_pretty_print_event(stdout,orig_fd,&pe,pid,cpu,group_fd,flags);
+	perf_pretty_print_event(stdout,orig_fd,original_pid,
+				&pe,pid,cpu,group_fd,flags);
 
 	printf("\n");
 
@@ -382,6 +394,9 @@ int main(int argc, char **argv) {
 			case 'F':
 				fork_event(line);
 				break;
+			case 'G':
+				sscanf(line,"%*c %d",&original_pid);
+				break;
 			case 'I':
 				ioctl_event(line);
 				break;
@@ -399,6 +414,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'p':
 				poll_event(line);
+				break;
+			case 'Q':
+				trash_mmap_event(line);
 				break;
 			case 'R':
 				read_event(line);

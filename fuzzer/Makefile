@@ -19,7 +19,7 @@ replay_log:	replay_log.o \
 		../lib/perf_helpers.o perf_attr_print.o
 	$(CC) $(LFLAGS) -o replay_log replay_log.o ../lib/perf_helpers.o perf_attr_print.o
 
-replay_log.o:	replay_log.c
+replay_log.o:	replay_log.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c replay_log.c
 
 
