@@ -15,6 +15,8 @@
 static int error=0;
 static unsigned long long line_num=0;
 
+static int original_pid=-1;
+
 static void mmap_event(char *line) {
 
 	int fd,size;
@@ -374,26 +376,23 @@ int main(int argc, char **argv) {
 		printf("/* %lld */\n",line_num);
 
 		switch(line[0]) {
+			case 'C':
+				close_event(line);
+				break;
+			case 'F':
+				fork_event(line);
+				break;
+			case 'I':
+				ioctl_event(line);
+				break;
+			case 'M':
+				mmap_event(line);
+				break;
 			case 'O':
 				open_event(line);
 				break;
 			case 'o':
 				setup_overflow(line);
-				break;
-			case 'C':
-				close_event(line);
-				break;
-			case 'I':
-				ioctl_event(line);
-				break;
-			case 'R':
-				read_event(line);
-				break;
-			case 'M':
-				mmap_event(line);
-				break;
-			case 'U':
-				munmap_event(line);
 				break;
 			case 'P':
 				prctl_event(line);
@@ -401,8 +400,11 @@ int main(int argc, char **argv) {
 			case 'p':
 				poll_event(line);
 				break;
-			case 'F':
-				fork_event(line);
+			case 'R':
+				read_event(line);
+				break;
+			case 'U':
+				munmap_event(line);
 				break;
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
