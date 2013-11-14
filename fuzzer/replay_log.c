@@ -104,6 +104,8 @@ static void munmap_event(char *line) {
 	}
 
 	result=munmap(mmap_remap[fd_remap[fd]], size);
+	mmap_remap[fd_remap[fd]]=MAP_FAILED;
+
 	if (result<0) {
 		fprintf(stderr,"Line: %lld Error with munmap of %p size %d of %d/%d\n",
 			line_num,mmap_remap[fd_remap[fd]],size,fd,fd_remap[fd]);
@@ -111,7 +113,7 @@ static void munmap_event(char *line) {
 		return;
 	}
 
-	mmap_remap[fd_remap[fd]]=MAP_FAILED;
+
 }
 
 
@@ -371,7 +373,7 @@ static void poll_event(char *line) {
         int i,result,num_fds;
 
         struct pollfd pollfds[MAX_POLL_FDS];
-        int timeout;
+        int timeout=0;
 	char *next;
 
         sscanf(line,"%*c %d",&num_fds);
@@ -383,18 +385,32 @@ static void poll_event(char *line) {
 
         for(i=0;i<num_fds;i++) {
 		next=strtok(NULL," ");
+		if (next==NULL) {
+			printf("Unexpected end! %d < %d\n",i,num_fds);
+			break;
+		}
                 pollfds[i].fd=atoi(next);
 		next=strtok(NULL," ");
+		if (next==NULL) {
+			printf("Unexpected end! %d < %d\n",i,num_fds);
+			break;
+		}
                 pollfds[i].events=atoi(next);
-//		printf("%d/%d %d ",
-//			pollfds[i].fd,
+//		printf("%d %d/%d %d\n",
+//			i,pollfds[i].fd,
 //			fd_remap[pollfds[i].fd],
 //			pollfds[i].events);
+//		printf("Next: %p\n",next);
         }
 
 	next=strtok(NULL," ");
+	if (next==NULL) {
+		printf("Unexpected no timeout \n");
+	}
+	else {
+	        timeout=atoi(next);
+	}
 
-        timeout=atoi(next);
 //	printf("%d\n",timeout);
 
 	/* quiet a warning */
