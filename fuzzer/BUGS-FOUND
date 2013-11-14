@@ -43,3 +43,12 @@ in Dave Jones' trinity fuzzer.
   Reported-by: Vince Weaver, Dave Jones
   Fixed-by-Commit: 12ae030d54ef250706da5642fc7697cc60ad0df7 (in 3.13)
   CVE-2013-2930
+
++ perf/sw_event bug?  Causes soft lockup?
+	Reported but don't have small reproducible testcase
+
++ perf/nmi dazed/confused on core2
+	Just a warning.  Reproducible but maybe not of interest?
+
++ perf/x86 BUG/oops
+	Reported but don't have small reproducible testcase
