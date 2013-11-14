@@ -13,7 +13,8 @@ all:	pe_inherit_memleak pe_task_schedule_panic \
 	tracepoint_fork \
 	tracepoint_irq_work_exit \
 	arm_validate_event_oops arm_map_hw_event_oops \
-	perf_ftrace_event_crash
+	perf_ftrace_event_crash \
+	core2_nmi_flood
 
 ####
 
@@ -35,6 +36,16 @@ arm_map_hw_event_oops:	arm_map_hw_event_oops.o
 
 arm_map_hw_event_oops.o:	arm_map_hw_event_oops.c
 	$(CC) $(CFLAGS) -c arm_map_hw_event_oops.c
+
+####
+
+core2_nmi_flood:	core2_nmi_flood.o
+	$(CC) $(LFLAGS) -o core2_nmi_flood core2_nmi_flood.o
+
+
+core2_nmi_flood.o:	core2_nmi_flood.c
+	$(CC) $(CFLAGS) -c core2_nmi_flood.c
+
 
 ####
 
@@ -139,6 +150,7 @@ clean:
 		oflo_sw_cpu_clock_crash sw_event_config_overflow \
 		nmi_soft_lockup tracepoint_fork tracepoint_irq_work_exit \
 		arm_validate_event_oops arm_map_hw_event_oops \
-		perf_ftrace_event_crash
+		perf_ftrace_event_crash \
+		core2_nmi_flood
 
 

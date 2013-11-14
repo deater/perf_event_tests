@@ -32,4 +32,5 @@ sleep 5
 # Run twice, sometimes takes two runs
 ./crashes/tracepoint_irq_work_exit
 ./crashes/tracepoint_irq_work_exit
-
+# Not really a crash, but why not
+./crashes/core2_nmi_flood
