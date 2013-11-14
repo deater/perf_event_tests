@@ -363,7 +363,7 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 		/* Does make for non-deterministic traces :( */
 
 		for(i=0;i<NUM_EVENTS;i++) {
-			close_event(i,1);
+			if (event_data[i].active) close_event(i,1);
 		}
 	}
 	else {
@@ -672,12 +672,14 @@ static void open_random_event(void) {
 #endif
 	        }
 
+#if 0
 		if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
 			if ((event_data[i].attr.config&0xffffffff)==0x18) {
 //				printf("Tracepoint 24 thwarted!\n");
 				event_data[i].attr.config=0;
 			}
 		}
+#endif
 
 		fd=perf_event_open(
 			&event_data[i].attr,
