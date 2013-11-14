@@ -59,8 +59,8 @@ static int logging=0;
 static int log_only=0;
 static int stop_after=0;
 
-//static int type=DEBUG_ALL;
-static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW|DEBUG_MMAP|DEBUG_TRASH_MMAP;
+static int type=DEBUG_ALL;
+//static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW|DEBUG_MMAP|DEBUG_TRASH_MMAP;
 
 static int log_fd;
 static char log_buffer[BUFSIZ];
@@ -672,6 +672,13 @@ static void open_random_event(void) {
 #endif
 	        }
 
+		if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
+			if ((event_data[i].attr.config&0xffffffff)==0x18) {
+//				printf("Tracepoint 24 thwarted!\n");
+				event_data[i].attr.config=0;
+			}
+		}
+
 		fd=perf_event_open(
 			&event_data[i].attr,
 			event_data[i].pid,
@@ -1107,6 +1114,7 @@ static void poll_random_event(void) {
 
 	struct pollfd pollfds[MAX_POLL_FDS];
 	int timeout;
+	char log_buffer[BUFSIZ];
 
 	num_fds=rand()%MAX_POLL_FDS;
 
