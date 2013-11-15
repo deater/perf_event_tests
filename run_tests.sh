@@ -124,6 +124,11 @@ echo "  + $TESTS_DIR/overflow/overflow_requires_wakeup"
 echo -n "    "
 $TESTS_DIR/overflow/overflow_requires_wakeup
 
+echo
+echo "* Checking tracepoint functionality"
+echo "  + $TESTS_DIR/tracepoints/tracepoint_alias"
+echo -n "    "
+$TESTS_DIR/tracepoints/tracepoint_alias
 
 echo
 echo "* Checking mmap record sample functionality"
@@ -145,7 +150,6 @@ $TESTS_DIR/record_sample/sample_branch_stack
 echo "  + $TESTS_DIR/record_sample/overwrite_mmap"
 echo -n "    "
 $TESTS_DIR/record_sample/overwrite_mmap
-
 
 echo
 echo "* Checking bugs that PAPI has to work around"
