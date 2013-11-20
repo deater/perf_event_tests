@@ -120,6 +120,12 @@ int detect_rdpmc(int quiet) {
 	struct perf_event_mmap_page *our_mmap;
 	int page_size=getpagesize();
 
+#if defined(__i386__) || defined (__x86_64__)
+#else
+        if (!quiet) printf("Test is x86 specific for now...\n");
+	return 0;
+#endif
+
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
 	pe.type=PERF_TYPE_HARDWARE;
@@ -139,12 +145,21 @@ int detect_rdpmc(int quiet) {
 
 	our_mmap=(struct perf_event_mmap_page *)addr;
 
-	if (our_mmap->cap_user_rdpmc==0) {
-		if (!quiet) {
-			printf("rdpmc support not detected (mmap->cap_user_rdpmc==%d)\n",
-					our_mmap->cap_user_rdpmc);
-
+	if (our_mmap->cap_user_rdpmc) {
+		/* new 3.12 and newerrdpmc support found */
+		return 1;
+	}
+	else {
+		if ((!our_mmap->cap_bit0_is_deprecated) &&
+			(our_mmap->cap_bit0)) {
+			/* 3.4 to 3.11 broken support */
+			return 2;
 		}
+	}
+
+	if (!quiet) {
+		printf("rdpmc support not detected (mmap->cap_user_rdpmc==%d)\n",
+				our_mmap->cap_user_rdpmc);
 
 	}
 

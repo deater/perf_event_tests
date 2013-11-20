@@ -17,7 +17,6 @@ int quiet=0;
 #include <sys/ioctl.h>
 
 #include "perf_event.h"
-//#include <linux/perf_event.h>
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
@@ -41,7 +40,8 @@ int main(int argc, char **argv) {
 
 	struct perf_event_attr pe;
 	int fd[MAX_EVENTS],ret1,ret2;
-	struct perf_event_mmap_page *our_mmap;
+//	struct perf_event_mmap_page *our_mmap;
+	int rdpmc_support=0;
 
 	int count=1;
 
@@ -52,11 +52,20 @@ int main(int argc, char **argv) {
 	}
 
 
-#if defined(__i386__) || defined (__x86_64__)
-#else
-	if (!quiet) printf("Test is x86 specific for now...\n");
-	test_skip(test_string);
-#endif
+	/* detect support */
+
+	rdpmc_support=detect_rdpmc(quiet);
+
+	if (rdpmc_support==0) {
+		test_skip(test_string);
+	}
+
+	/***************/
+	/* SIMPLE TEST */
+	/***************/
+
+
+	/* open */
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
@@ -89,20 +98,9 @@ int main(int argc, char **argv) {
 			test_fail(test_string);
 		}
 
-		our_mmap=(struct perf_event_mmap_page *)addr[i];
-		if (our_mmap->cap_user_rdpmc==0) {
-			if (!quiet) {
-				printf("rdpmc support not detected (mmap->cap_user_rdpmc==%d)\n",
-					our_mmap->cap_user_rdpmc);
-			}
-			test_skip(test_string);
-		}
+//		our_mmap=(struct perf_event_mmap_page *)addr[i];
 
 	}
-
-	/***************/
-	/* SIMPLE TEST */
-	/***************/
 
 	/* start */
 
@@ -152,6 +150,13 @@ int main(int argc, char **argv) {
 	for(i=0;i<count;i++) {
 		close(fd[i]);
 		munmap(addr[i],page_size);
+	}
+
+	if (rdpmc_support==1) {
+		test_green_new_behavior(test_string);
+	}
+	else {
+		test_yellow_old_behavior(test_string);
 	}
 
 	test_pass(test_string);

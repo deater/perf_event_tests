@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
 	void *addr[MAX_EVENTS];
 
 	struct perf_event_attr pe;
-	struct perf_event_mmap_page *our_mmap;
 
 	int fd[MAX_EVENTS],ret1,ret2;
 
@@ -52,17 +51,17 @@ int main(int argc, char **argv) {
 		printf("This test checks if userspace rdpmc() style reads work.\n\n");
 	}
 
+	/* See if we support rdpmc access */
+	if (!detect_rdpmc(quiet)) {
+		test_skip(test_string);
+	}
 
-#if defined(__i386__) || defined (__x86_64__)
-#else
-	if (!quiet) printf("Test is x86 specific for now...\n");
-	test_skip(test_string);
-#endif
 
 	/*****************************/
 	/* TEST START/WORK/READ/STOP */
 	/*****************************/
 
+	/* open */
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
 	pe.type=PERF_TYPE_HARDWARE;
@@ -92,11 +91,6 @@ int main(int argc, char **argv) {
 		if (addr[i] == (void *)(-1)) {
 			fprintf(stderr,"Error mmap()ing event %d!\n",i);
 			test_fail(test_string);
-		}
-		our_mmap=(struct perf_event_mmap_page *)addr[i];
-		if (our_mmap->cap_user_rdpmc==0) {
-			if (!quiet) printf("rdpmc support not detected\n");
-			test_skip(test_string);
 		}
 	}
 
