@@ -738,17 +738,17 @@ void perf_pretty_print_tracepoint(FILE *fff, int id) {
 		case 193:	fprintf(fff,"ext3/ext3_request_blocks"); break;
 		case 209:	fprintf(fff,"ext3/ext3_request_inode"); break;
 		case 184:	fprintf(fff,"ext3/ext3_reserved"); break;
+		case 187:	fprintf(fff,"ext3/ext3_rsv_window_add"); break;
+		case 190:	fprintf(fff,"ext3/ext3_sync_file_enter"); break;
+		case 189:	fprintf(fff,"ext3/ext3_sync_file_exit"); break;
+		case 188:	fprintf(fff,"ext3/ext3_sync_fs"); break;
+		case 177:	fprintf(fff,"ext3/ext3_truncate_enter"); break;
+		case 176:	fprintf(fff,"ext3/ext3_truncate_exit"); break;
+		case 179:	fprintf(fff,"ext3/ext3_unlink_enter"); break;
+		case 178:	fprintf(fff,"ext3/ext3_unlink_exit"); break;
+		case 202:	fprintf(fff,"ext3/ext3_writeback_write_end"); break;
+		case 199:	fprintf(fff,"ext3/ext3_writeback_writepage"); break;
 #if 0
-case :fprintf(fff,"ext3/ext3_rsv_window_add"); break;187
-case :fprintf(fff,"ext3/ext3_sync_file_enter"); break;190
-case :fprintf(fff,"ext3/ext3_sync_file_exit"); break;189
-case :fprintf(fff,"ext3/ext3_sync_fs"); break;188
-case :fprintf(fff,"ext3/ext3_truncate_enter"); break;177
-case :fprintf(fff,"ext3/ext3_truncate_exit"); break;176
-case :fprintf(fff,"ext3/ext3_unlink_enter"); break;179
-case :fprintf(fff,"ext3/ext3_unlink_exit"); break;178
-case :fprintf(fff,"ext3/ext3_writeback_write_end"); break;202
-case :fprintf(fff,"ext3/ext3_writeback_writepage"); break;199
 case :fprintf(fff,"ext3/ext3_write_begin"); break;204
 case :fprintf(fff,"ext4/ext4_allocate_blocks"); break;270
 case :fprintf(fff,"ext4/ext4_allocate_inode"); break;297
@@ -768,7 +768,9 @@ case :fprintf(fff,"ext4/ext4_discard_preallocations"); break;273
 case :fprintf(fff,"ext4/ext4_drop_inode"); break;295
 case :fprintf(fff,"ext4/ext4_es_cache_extent"); break;218
 case :fprintf(fff,"ext4/ext4_es_find_delayed_extent_range_enter"); break;216
-case :fprintf(fff,"ext4/ext4_es_find_delayed_extent_range_exit"); break;215
+#endif
+		case 215:	fprintf(fff,"ext4/ext4_es_find_delayed_extent_range_exit"); break;
+#if 0
 case :fprintf(fff,"ext4/ext4_es_insert_extent"); break;219
 case :fprintf(fff,"ext4/ext4_es_lookup_extent_enter"); break;214
 case :fprintf(fff,"ext4/ext4_es_lookup_extent_exit"); break;213
@@ -784,7 +786,9 @@ case :fprintf(fff,"ext4/ext4_ext_load_extent"); break;237
 case :fprintf(fff,"ext4/ext4_ext_map_blocks_enter"); break;241
 case :fprintf(fff,"ext4/ext4_ext_map_blocks_exit"); break;239
 case :fprintf(fff,"ext4/ext4_ext_put_in_cache"); break;229
-case :fprintf(fff,"ext4/ext4_ext_remove_space_done"); break;220
+	#endif
+		case 220:	fprintf(fff,"ext4/ext4_ext_remove_space_done"); break;
+#if 0
 case :fprintf(fff,"ext4/ext4_ext_remove_space"); break;221
 case :fprintf(fff,"ext4/ext4_ext_rm_idx"); break;222
 case :fprintf(fff,"ext4/ext4_ext_rm_leaf"); break;223
@@ -808,13 +812,13 @@ case :fprintf(fff,"ext4/ext4_free_inode"); break;299
 		case 253:	fprintf(fff,"ext4/ext4_load_inode_bitmap"); break;
 		case 236:	fprintf(fff,"ext4/ext4_load_inode"); break;
 		case 294:	fprintf(fff,"ext4/ext4_mark_inode_dirty"); break;
+		case 264:	fprintf(fff,"ext4/ext4_mballoc_alloc"); break;
+		case 262:	fprintf(fff,"ext4/ext4_mballoc_discard"); break;
+		case 261:	fprintf(fff,"ext4/ext4_mballoc_free"); break;
+		case 263:	fprintf(fff,"ext4/ext4_mballoc_prealloc"); break;
+		case 256:	fprintf(fff,"ext4/ext4_mb_bitmap_load"); break;
+		case 255:	fprintf(fff,"ext4/ext4_mb_buddy_bitmap_load"); break;
 #if 0
-case :fprintf(fff,"ext4/ext4_mballoc_alloc"); break;264
-case :fprintf(fff,"ext4/ext4_mballoc_discard"); break;262
-case :fprintf(fff,"ext4/ext4_mballoc_free"); break;261
-case :fprintf(fff,"ext4/ext4_mballoc_prealloc"); break;263
-case :fprintf(fff,"ext4/ext4_mb_bitmap_load"); break;256
-case :fprintf(fff,"ext4/ext4_mb_buddy_bitmap_load"); break;255
 case :fprintf(fff,"ext4/ext4_mb_discard_preallocations"); break;272
 case :fprintf(fff,"ext4/ext4_mb_new_group_pa"); break;276
 case :fprintf(fff,"ext4/ext4_mb_new_inode_pa"); break;277
@@ -833,20 +837,20 @@ case :fprintf(fff,"ext4/ext4_sync_fs"); break;266
 case :fprintf(fff,"ext4/ext4_trim_all_free"); break;232
 case :fprintf(fff,"ext4/ext4_trim_extent"); break;233
 case :fprintf(fff,"ext4/ext4_truncate_enter"); break;245
-case :fprintf(fff,"ext4/ext4_truncate_exit"); break;244
-case :fprintf(fff,"ext4/ext4_unlink_enter"); break;247
-case :fprintf(fff,"ext4/ext4_unlink_exit"); break;246
-case :fprintf(fff,"ext4/ext4_write_begin"); break;292
-case :fprintf(fff,"ext4/ext4_write_end"); break;290
-case :fprintf(fff,"ext4/ext4_writepage"); break;283
-case :fprintf(fff,"ext4/ext4_writepages"); break;287
-case :fprintf(fff,"ext4/ext4_writepages_result"); break;284
-case :fprintf(fff,"filemap/mm_filemap_add_to_page_cache"); break;115
-case :fprintf(fff,"filemap/mm_filemap_delete_from_page_cache"); break;116
-case :fprintf(fff,"ftrace/function"); break;1
-case :fprintf(fff,"gpio/gpio_direction"); break;451
-case :fprintf(fff,"gpio/gpio_value"); break;450
 	#endif
+		case 244:	fprintf(fff,"ext4/ext4_truncate_exit"); break;
+		case 247:	fprintf(fff,"ext4/ext4_unlink_enter"); break;
+		case 246:	fprintf(fff,"ext4/ext4_unlink_exit"); break;
+		case 292:	fprintf(fff,"ext4/ext4_write_begin"); break;
+		case 290:	fprintf(fff,"ext4/ext4_write_end"); break;
+		case 283:	fprintf(fff,"ext4/ext4_writepage"); break;
+		case 287:	fprintf(fff,"ext4/ext4_writepages"); break;
+		case 284:	fprintf(fff,"ext4/ext4_writepages_result"); break;
+		case 115:	fprintf(fff,"filemap/mm_filemap_add_to_page_cache"); break;
+		case 116:	fprintf(fff,"filemap/mm_filemap_delete_from_page_cache"); break;
+		case 1:		fprintf(fff,"ftrace/function"); break;
+		case 451:	fprintf(fff,"gpio/gpio_direction"); break;
+		case 450:	fprintf(fff,"gpio/gpio_value"); break;
 		case 47:	fprintf(fff,"irq/irq_handler_entry"); break;
 		case 46:	fprintf(fff,"irq/irq_handler_exit"); break;
 		case 45:	fprintf(fff,"irq/softirq_entry"); break;
@@ -1108,14 +1112,14 @@ case :fprintf(fff,"sched/sched_stat_sleep"); break;72
 case :fprintf(fff,"sched/sched_stat_wait"); break;73
 case :fprintf(fff,"sched/sched_switch"); break;81
 case :fprintf(fff,"sched/sched_wait_task"); break;77
-case :fprintf(fff,"sched/sched_wakeup"); break;83
-case :fprintf(fff,"sched/sched_wakeup_new"); break;82
-case :fprintf(fff,"scsi/scsi_dispatch_cmd_done"); break;483
-case :fprintf(fff,"scsi/scsi_dispatch_cmd_error"); break;484
-case :fprintf(fff,"scsi/scsi_dispatch_cmd_start"); break;485
-case :fprintf(fff,"scsi/scsi_dispatch_cmd_timeout"); break;482
-case :fprintf(fff,"scsi/scsi_eh_wakeup"); break;481
 #endif
+		case 83:	fprintf(fff,"sched/sched_wakeup"); break;
+		case 82:	fprintf(fff,"sched/sched_wakeup_new"); break;
+		case 483:	fprintf(fff,"scsi/scsi_dispatch_cmd_done"); break;
+		case 484:	fprintf(fff,"scsi/scsi_dispatch_cmd_error"); break;
+		case 485:	fprintf(fff,"scsi/scsi_dispatch_cmd_start"); break;
+		case 482:	fprintf(fff,"scsi/scsi_dispatch_cmd_timeout"); break;
+		case 481:	fprintf(fff,"scsi/scsi_eh_wakeup"); break;
 		case 61:	fprintf(fff,"signal/signal_deliver"); break;
 		case 62:	fprintf(fff,"signal/signal_generate"); break;
 #if 0
@@ -1200,10 +1204,10 @@ case :fprintf(fff,"writeback/writeback_wait"); break;163
 case :fprintf(fff,"writeback/writeback_wait_iff_congested"); break;150
 case :fprintf(fff,"writeback/writeback_wake_background"); break;160
 case :fprintf(fff,"writeback/writeback_write_inode"); break;168
-case :fprintf(fff,"writeback/writeback_write_inode_start"); break;169
-case :fprintf(fff,"writeback/writeback_written"); break;164
 #endif
-		default:	printf("Unknown");	break;
+		case 169:	fprintf(fff,"writeback/writeback_write_inode_start"); break;
+		case 164:	fprintf(fff,"writeback/writeback_written"); break;
+		default:	fprintf(fff,"Unknown");	break;
 	}
 }
 
