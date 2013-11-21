@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -O2 -Wall -g -I../include -I./include
 LFLAGS = 
 
-all:	perf_fuzzer replay_log log_to_code filter_log
+all:	perf_fuzzer replay_log log_to_code filter_log active_events
 
 perf_attr_print.o:	perf_attr_print.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c perf_attr_print.c
@@ -21,6 +21,15 @@ replay_log:	replay_log.o \
 
 replay_log.o:	replay_log.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c replay_log.c
+
+###
+
+active_events:	active_events.o \
+		../lib/perf_helpers.o perf_attr_print.o
+	$(CC) $(LFLAGS) -o active_events active_events.o ../lib/perf_helpers.o perf_attr_print.o
+
+active_events.o:	active_events.c perf_attr_print.h
+	$(CC) $(CFLAGS) -c active_events.c
 
 
 ###
@@ -71,5 +80,5 @@ random-length.o:	random-length.c
 	$(CC) $(CFLAGS) -c random-length.c
 
 clean:	
-	rm -f *~ *.o perf_fuzzer replay_log log_to_code filter_log
+	rm -f *~ *.o perf_fuzzer replay_log log_to_code filter_log active_events
 
