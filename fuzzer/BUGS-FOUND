@@ -55,6 +55,8 @@ in Dave Jones' trinity fuzzer.
 
 + perf ext4 vma error?
 
++ perf poll error?
+
 Other issues found while debugging tools:
 
 + tracepoint aliasing issue
