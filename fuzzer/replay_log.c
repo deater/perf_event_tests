@@ -730,6 +730,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	/* Kill any lingering children */
+	if (forked_pid) {
+                kill(forked_pid,SIGKILL);
+	}
+
 	printf("Replayed %lld of %lld syscalls\n",
 		replay_syscalls,total_syscalls);
 
