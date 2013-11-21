@@ -10,6 +10,9 @@
 
 #include "perf_attr_print.h"
 
+/* forward declaration */
+void perf_pretty_print_tracepoint(FILE *fff, int id);
+
 void perf_pretty_print_flags(FILE *fff,long int flags) {
 
 	long int our_flags=flags;
@@ -149,7 +152,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
                         switch(config) {
 				case PERF_COUNT_HW_CPU_CYCLES:
 					fprintf(fff,"PERF_COUNT_HW_CPU_CYCLES");
-                                        break;
+					break;
 				case PERF_COUNT_HW_INSTRUCTIONS:
 					fprintf(fff,"PERF_COUNT_HW_INSTRUCTIONS");
 					break;
@@ -181,6 +184,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 					fprintf(fff,"0x%llx",config);
 					break;
 			}
+			printf(";");
 			break;
 		case PERF_TYPE_SOFTWARE:
 			switch(type) {
@@ -217,16 +221,24 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 				default:
 					fprintf(fff,"0x%llx",config);
 			}
+			printf(";");
 			break;
+
                 case PERF_TYPE_HW_CACHE:
 			perf_pretty_print_cache(fff,config);
+			printf(";");
 			break;
 
 		case PERF_TYPE_TRACEPOINT:
+			fprintf(fff,"0x%llx; /* %lld ",config,config&0xffffffff);
+			perf_pretty_print_tracepoint(fff,config);
+			fprintf(fff," */");
+			break;
+
                 case PERF_TYPE_RAW:
                 case PERF_TYPE_BREAKPOINT:
 		default:
-			fprintf(fff,"0x%llx",config);
+			fprintf(fff,"0x%llx;",config);
 			break;
 	}
 
@@ -531,7 +543,7 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 
 	fprintf(fff,"\tpe[%d].config=",fd);
 	perf_pretty_print_config(fff,pe->type,pe->config);
-	fprintf(fff,";\n");
+	fprintf(fff,"\n");
 
 	if (pe->freq) {
 		if (pe->sample_freq) fprintf(fff,"\tpe[%d].sample_freq=0x%llx;\n",fd,pe->sample_freq);
@@ -656,3 +668,522 @@ void perf_pretty_print_event(FILE *fff, int fd, int original_pid,
 	fprintf(fff,"\n");
 
 }
+
+void perf_pretty_print_tracepoint(FILE *fff, int id) {
+
+	switch(id&0xffffffff) {
+		case 440:	fprintf(fff,"block_bio_backmerge"); break;
+		case 442:	fprintf(fff,"block_bio_bounce"); break;
+		case 441:	fprintf(fff,"block_bio_complete"); break;
+		case 439:	fprintf(fff,"block_bio_frontmerge"); break;
+		case 438:	fprintf(fff,"block_bio_queue"); break;
+		case 432:	fprintf(fff,"block/block_bio_remap"); break;
+		case 448:	fprintf(fff,"block/block_dirty_buffer"); break;
+		case 437:	fprintf(fff,"block/block_getrq"); break;
+		case 435:	fprintf(fff,"block/block_plug"); break;
+		case 447:	fprintf(fff,"block/block_rq_abort"); break;
+		case 445:	fprintf(fff,"block/block_rq_complete"); break;
+		case 444:	fprintf(fff,"block/block_rq_insert"); break;
+		case 443:	fprintf(fff,"block/block_rq_issue"); break;
+		case 431:	fprintf(fff,"block/block_rq_remap"); break;
+		case 446:	fprintf(fff,"block/block_rq_requeue"); break;
+		case 436:	fprintf(fff,"block/block_sleeprq"); break;
+		case 433:	fprintf(fff,"block/block_split"); break;
+		case 449:	fprintf(fff,"block/block_touch_buffer"); break;
+		case 434:	fprintf(fff,"block/block_unplug"); break;
+		case 192:	fprintf(fff,"ext3/ext3_allocate_blocks"); break;
+		case 208:	fprintf(fff,"ext3/ext3_allocate_inode"); break;
+		case 185:	fprintf(fff,"ext3/ext3_alloc_new_reservation"); break;
+		case 181:	fprintf(fff,"ext3/ext3_direct_IO_enter"); break;
+		case 180:	fprintf(fff,"ext3/ext3_direct_IO_exit"); break;
+		case 194:	fprintf(fff,"ext3/ext3_discard_blocks"); break;
+		case 186:	fprintf(fff,"ext3/ext3_discard_reservation"); break;
+		case 206:	fprintf(fff,"ext3/ext3_drop_inode"); break;
+		case 207:	fprintf(fff,"ext3/ext3_evict_inode"); break;
+		case 183:	fprintf(fff,"ext3/ext3_forget"); break;
+		case 191:	fprintf(fff,"ext3/ext3_free_blocks"); break;
+		case 210:	fprintf(fff,"ext3/ext3_free_inode"); break;
+		case 175:	fprintf(fff,"ext3/ext3_get_blocks_enter"); break;
+		case 174:	fprintf(fff,"ext3/ext3_get_blocks_exit"); break;
+		case 195:	fprintf(fff,"ext3/ext3_invalidatepage"); break;
+		case 201:	fprintf(fff,"ext3/ext3_journalled_write_end"); break;
+		case 198:	fprintf(fff,"ext3/ext3_journalled_writepage"); break;
+		case 173:	fprintf(fff,"ext3/ext3_load_inode"); break;
+		case 205:	fprintf(fff,"ext3/ext3_mark_inode_dirty"); break;
+		case 203:	fprintf(fff,"ext3/ext3_ordered_write_end"); break;
+		case 200:	fprintf(fff,"ext3/ext3_ordered_writepage"); break;
+		case 182:	fprintf(fff,"ext3/ext3_read_block_bitmap"); break;
+		case 197:	fprintf(fff,"ext3/ext3_readpage"); break;
+		case 196:	fprintf(fff,"ext3/ext3_releasepage"); break;
+		case 193:	fprintf(fff,"ext3/ext3_request_blocks"); break;
+		case 209:	fprintf(fff,"ext3/ext3_request_inode"); break;
+		case 184:	fprintf(fff,"ext3/ext3_reserved"); break;
+#if 0
+case :fprintf(fff,"ext3/ext3_rsv_window_add"); break;187
+case :fprintf(fff,"ext3/ext3_sync_file_enter"); break;190
+case :fprintf(fff,"ext3/ext3_sync_file_exit"); break;189
+case :fprintf(fff,"ext3/ext3_sync_fs"); break;188
+case :fprintf(fff,"ext3/ext3_truncate_enter"); break;177
+case :fprintf(fff,"ext3/ext3_truncate_exit"); break;176
+case :fprintf(fff,"ext3/ext3_unlink_enter"); break;179
+case :fprintf(fff,"ext3/ext3_unlink_exit"); break;178
+case :fprintf(fff,"ext3/ext3_writeback_write_end"); break;202
+case :fprintf(fff,"ext3/ext3_writeback_writepage"); break;199
+case :fprintf(fff,"ext3/ext3_write_begin"); break;204
+case :fprintf(fff,"ext4/ext4_allocate_blocks"); break;270
+case :fprintf(fff,"ext4/ext4_allocate_inode"); break;297
+case :fprintf(fff,"ext4/ext4_alloc_da_blocks"); break;265
+case :fprintf(fff,"ext4/ext4_begin_ordered_truncate"); break;293
+case :fprintf(fff,"ext4/ext4_da_release_space"); break;257
+case :fprintf(fff,"ext4/ext4_da_reserve_space"); break;258
+case :fprintf(fff,"ext4/ext4_da_update_reserve_space"); break;259
+case :fprintf(fff,"ext4/ext4_da_write_begin"); break;291
+case :fprintf(fff,"ext4/ext4_da_write_end"); break;288
+case :fprintf(fff,"ext4/ext4_da_write_pages_extent"); break;285
+case :fprintf(fff,"ext4/ext4_da_write_pages"); break;286
+case :fprintf(fff,"ext4/ext4_direct_IO_enter"); break;252
+case :fprintf(fff,"ext4/ext4_direct_IO_exit"); break;251
+case :fprintf(fff,"ext4/ext4_discard_blocks"); break;278
+case :fprintf(fff,"ext4/ext4_discard_preallocations"); break;273
+case :fprintf(fff,"ext4/ext4_drop_inode"); break;295
+case :fprintf(fff,"ext4/ext4_es_cache_extent"); break;218
+case :fprintf(fff,"ext4/ext4_es_find_delayed_extent_range_enter"); break;216
+case :fprintf(fff,"ext4/ext4_es_find_delayed_extent_range_exit"); break;215
+case :fprintf(fff,"ext4/ext4_es_insert_extent"); break;219
+case :fprintf(fff,"ext4/ext4_es_lookup_extent_enter"); break;214
+case :fprintf(fff,"ext4/ext4_es_lookup_extent_exit"); break;213
+case :fprintf(fff,"ext4/ext4_es_remove_extent"); break;217
+case :fprintf(fff,"ext4/ext4_es_shrink_enter"); break;212
+case :fprintf(fff,"ext4/ext4_es_shrink_exit"); break;211
+case :fprintf(fff,"ext4/ext4_evict_inode"); break;296
+case :fprintf(fff,"ext4/ext4_ext_convert_to_initialized_enter"); break;243
+case :fprintf(fff,"ext4/ext4_ext_convert_to_initialized_fastpath"); break;242
+case :fprintf(fff,"ext4/ext4_ext_handle_uninitialized_extents"); break;231
+case :fprintf(fff,"ext4/ext4_ext_in_cache"); break;228
+case :fprintf(fff,"ext4/ext4_ext_load_extent"); break;237
+case :fprintf(fff,"ext4/ext4_ext_map_blocks_enter"); break;241
+case :fprintf(fff,"ext4/ext4_ext_map_blocks_exit"); break;239
+case :fprintf(fff,"ext4/ext4_ext_put_in_cache"); break;229
+case :fprintf(fff,"ext4/ext4_ext_remove_space_done"); break;220
+case :fprintf(fff,"ext4/ext4_ext_remove_space"); break;221
+case :fprintf(fff,"ext4/ext4_ext_rm_idx"); break;222
+case :fprintf(fff,"ext4/ext4_ext_rm_leaf"); break;223
+case :fprintf(fff,"ext4/ext4_ext_show_extent"); break;225
+case :fprintf(fff,"ext4/ext4_fallocate_enter"); break;250
+case :fprintf(fff,"ext4/ext4_fallocate_exit"); break;249
+case :fprintf(fff,"ext4/ext4_find_delalloc_range"); break;227
+case :fprintf(fff,"ext4/ext4_forget"); break;260
+case :fprintf(fff,"ext4/ext4_free_blocks"); break;269
+case :fprintf(fff,"ext4/ext4_free_inode"); break;299
+#endif
+		case 230:	fprintf(fff,"ext4/ext4_get_implied_cluster_alloc_exit"); break;
+		case 226:	fprintf(fff,"ext4/ext4_get_reserved_cluster_alloc"); break;
+		case 240:	fprintf(fff,"ext4/ext4_ind_map_blocks_enter"); break;
+		case 238:	fprintf(fff,"ext4/ext4_ind_map_blocks_exit"); break;
+		case 280:	fprintf(fff,"ext4/ext4_invalidatepage"); break;
+		case 279:	fprintf(fff,"ext4/ext4_journalled_invalidatepage"); break;
+		case 289:	fprintf(fff,"ext4/ext4_journalled_write_end"); break;
+		case 235:	fprintf(fff,"ext4/ext4_journal_start"); break;
+		case 234:	fprintf(fff,"ext4/ext4_journal_start_reserved"); break;
+		case 253:	fprintf(fff,"ext4/ext4_load_inode_bitmap"); break;
+		case 236:	fprintf(fff,"ext4/ext4_load_inode"); break;
+		case 294:	fprintf(fff,"ext4/ext4_mark_inode_dirty"); break;
+#if 0
+case :fprintf(fff,"ext4/ext4_mballoc_alloc"); break;264
+case :fprintf(fff,"ext4/ext4_mballoc_discard"); break;262
+case :fprintf(fff,"ext4/ext4_mballoc_free"); break;261
+case :fprintf(fff,"ext4/ext4_mballoc_prealloc"); break;263
+case :fprintf(fff,"ext4/ext4_mb_bitmap_load"); break;256
+case :fprintf(fff,"ext4/ext4_mb_buddy_bitmap_load"); break;255
+case :fprintf(fff,"ext4/ext4_mb_discard_preallocations"); break;272
+case :fprintf(fff,"ext4/ext4_mb_new_group_pa"); break;276
+case :fprintf(fff,"ext4/ext4_mb_new_inode_pa"); break;277
+case :fprintf(fff,"ext4/ext4_mb_release_group_pa"); break;274
+case :fprintf(fff,"ext4/ext4_mb_release_inode_pa"); break;275
+case :fprintf(fff,"ext4/ext4_punch_hole"); break;248
+case :fprintf(fff,"ext4/ext4_read_block_bitmap_load"); break;254
+case :fprintf(fff,"ext4/ext4_readpage"); break;282
+case :fprintf(fff,"ext4/ext4_releasepage"); break;281
+case :fprintf(fff,"ext4/ext4_remove_blocks"); break;224
+case :fprintf(fff,"ext4/ext4_request_blocks"); break;271
+case :fprintf(fff,"ext4/ext4_request_inode"); break;298
+case :fprintf(fff,"ext4/ext4_sync_file_enter"); break;268
+case :fprintf(fff,"ext4/ext4_sync_file_exit"); break;267
+case :fprintf(fff,"ext4/ext4_sync_fs"); break;266
+case :fprintf(fff,"ext4/ext4_trim_all_free"); break;232
+case :fprintf(fff,"ext4/ext4_trim_extent"); break;233
+case :fprintf(fff,"ext4/ext4_truncate_enter"); break;245
+case :fprintf(fff,"ext4/ext4_truncate_exit"); break;244
+case :fprintf(fff,"ext4/ext4_unlink_enter"); break;247
+case :fprintf(fff,"ext4/ext4_unlink_exit"); break;246
+case :fprintf(fff,"ext4/ext4_write_begin"); break;292
+case :fprintf(fff,"ext4/ext4_write_end"); break;290
+case :fprintf(fff,"ext4/ext4_writepage"); break;283
+case :fprintf(fff,"ext4/ext4_writepages"); break;287
+case :fprintf(fff,"ext4/ext4_writepages_result"); break;284
+case :fprintf(fff,"filemap/mm_filemap_add_to_page_cache"); break;115
+case :fprintf(fff,"filemap/mm_filemap_delete_from_page_cache"); break;116
+case :fprintf(fff,"ftrace/function"); break;1
+case :fprintf(fff,"gpio/gpio_direction"); break;451
+case :fprintf(fff,"gpio/gpio_value"); break;450
+	#endif
+		case 47:	fprintf(fff,"irq/irq_handler_entry"); break;
+		case 46:	fprintf(fff,"irq/irq_handler_exit"); break;
+		case 45:	fprintf(fff,"irq/softirq_entry"); break;
+		case 44:	fprintf(fff,"irq/softirq_exit"); break;
+		case 43:	fprintf(fff,"irq/softirq_raise"); break;
+		case 23:	fprintf(fff,"irq_vectors/call_function_entry"); break;
+		case 22:	fprintf(fff,"irq_vectors/call_function_exit"); break;
+		case 21:	fprintf(fff,"irq_vectors/call_function_single_entry"); break;
+		case 20:	fprintf(fff,"irq_vectors/call_function_single_exit"); break;
+		case 29:	fprintf(fff,"irq_vectors/error_apic_entry"); break;
+		case 28:	fprintf(fff,"irq_vectors/error_apic_exit"); break;
+		case 25:	fprintf(fff,"irq_vectors/irq_work_entry"); break;
+		case 24:	fprintf(fff,"irq_vectors/irq_work_exit"); break;
+		case 35:	fprintf(fff,"irq_vectors/local_timer_entry"); break;
+		case 34:	fprintf(fff,"irq_vectors/local_timer_exit"); break;
+		case 33:	fprintf(fff,"irq_vectors/reschedule_entry"); break;
+		case 32:	fprintf(fff,"irq_vectors/reschedule_exit"); break;
+		case 31:	fprintf(fff,"irq_vectors/spurious_apic_entry"); break;
+		case 30:	fprintf(fff,"irq_vectors/spurious_apic_exit"); break;
+		case 17:	fprintf(fff,"irq_vectors/thermal_apic_entry"); break;
+		case 16:	fprintf(fff,"irq_vectors/thermal_apic_exit"); break;
+		case 19:	fprintf(fff,"irq_vectors/threshold_apic_entry"); break;
+		case 18:	fprintf(fff,"irq_vectors/threshold_apic_exit"); break;
+		case 27:	fprintf(fff,"irq_vectors/x86_platform_ipi_entry"); break;
+		case 26:	fprintf(fff,"irq_vectors/x86_platform_ipi_exit"); break;
+#if 0
+case :fprintf(fff,"jbd2/jbd2_checkpoint"); break;325
+case :fprintf(fff,"jbd2/jbd2_checkpoint_stats"); break;313
+case :fprintf(fff,"jbd2/jbd2_commit_flushing"); break;322
+case :fprintf(fff,"jbd2/jbd2_commit_locking"); break;323
+case :fprintf(fff,"jbd2/jbd2_commit_logging"); break;321
+case :fprintf(fff,"jbd2/jbd2_drop_transaction"); break;320
+case :fprintf(fff,"jbd2/jbd2_end_commit"); break;319
+case :fprintf(fff,"jbd2/jbd2_handle_extend"); break;316
+case :fprintf(fff,"jbd2/jbd2_handle_start"); break;317
+case :fprintf(fff,"jbd2/jbd2_handle_stats"); break;315
+case :fprintf(fff,"jbd2/jbd2_lock_buffer_stall"); break;310
+case :fprintf(fff,"jbd2/jbd2_run_stats"); break;314
+case :fprintf(fff,"jbd2/jbd2_start_commit"); break;324
+case :fprintf(fff,"jbd2/jbd2_submit_inode_data"); break;318
+case :fprintf(fff,"jbd2/jbd2_update_log_tail"); break;312
+case :fprintf(fff,"jbd2/jbd2_write_superblock"); break;311
+case :fprintf(fff,"jbd/jbd_checkpoint"); break;309
+case :fprintf(fff,"jbd/jbd_cleanup_journal_tail"); break;301
+case :fprintf(fff,"jbd/jbd_commit_flushing"); break;306
+case :fprintf(fff,"jbd/jbd_commit_locking"); break;307
+case :fprintf(fff,"jbd/jbd_commit_logging"); break;305
+case :fprintf(fff,"jbd/jbd_do_submit_data"); break;302
+case :fprintf(fff,"jbd/jbd_drop_transaction"); break;304
+case :fprintf(fff,"jbd/jbd_end_commit"); break;303
+case :fprintf(fff,"jbd/jbd_start_commit"); break;308
+case :fprintf(fff,"jbd/journal_write_superblock"); break;300
+case :fprintf(fff,"kmem/kfree"); break;142
+case :fprintf(fff,"kmem/kmalloc"); break;146
+case :fprintf(fff,"kmem/kmalloc_node"); break;144
+case :fprintf(fff,"kmem/kmem_cache_alloc"); break;145
+case :fprintf(fff,"kmem/kmem_cache_alloc_node"); break;143
+case :fprintf(fff,"kmem/kmem_cache_free"); break;141
+case :fprintf(fff,"kmem/mm_page_alloc_extfrag"); break;135
+case :fprintf(fff,"kmem/mm_page_alloc"); break;138
+case :fprintf(fff,"kmem/mm_page_alloc_zone_locked"); break;137
+case :fprintf(fff,"kmem/mm_page_free_batched"); break;139
+case :fprintf(fff,"kmem/mm_page_free"); break;140
+case :fprintf(fff,"kmem/mm_page_pcpu_drain"); break;136
+case :fprintf(fff,"mce/mce_record"); break;40
+case :fprintf(fff,"migrate/mm_migrate_pages"); break;147
+case :fprintf(fff,"module/module_free"); break;90
+case :fprintf(fff,"module/module_get"); break;89
+case :fprintf(fff,"module/module_load"); break;91
+case :fprintf(fff,"module/module_put"); break;88
+case :fprintf(fff,"module/module_request"); break;87
+case :fprintf(fff,"napi/napi_poll"); break;489
+case :fprintf(fff,"net/net_dev_queue"); break;492
+case :fprintf(fff,"net/net_dev_xmit"); break;493
+case :fprintf(fff,"net/netif_receive_skb"); break;491
+case :fprintf(fff,"net/netif_rx"); break;490
+case :fprintf(fff,"nfs4/nfs4_access"); break;392
+case :fprintf(fff,"nfs4/nfs4_bind_conn_to_session"); break;422
+case :fprintf(fff,"nfs4/nfs4_cb_sequence"); break;417
+case :fprintf(fff,"nfs4/nfs4_close"); break;413
+case :fprintf(fff,"nfs4/nfs4_commit"); break;374
+case :fprintf(fff,"nfs4/nfs4_create_session"); break;425
+case :fprintf(fff,"nfs4/nfs4_delegreturn_exit"); break;405
+case :fprintf(fff,"nfs4/nfs4_delegreturn"); break;386
+case :fprintf(fff,"nfs4/nfs4_destroy_clientid"); break;423
+case :fprintf(fff,"nfs4/nfs4_destroy_session"); break;424
+case :fprintf(fff,"nfs4/nfs4_exchange_id"); break;426
+case :fprintf(fff,"nfs4/nfs4_fsinfo"); break;383
+case :fprintf(fff,"nfs4/nfs4_get_acl"); break;389
+case :fprintf(fff,"nfs4/nfs4_getattr"); break;385
+case :fprintf(fff,"nfs4/nfs4_get_fs_locations"); break;396
+case :fprintf(fff,"nfs4/nfs4_get_lock"); break;412
+case :fprintf(fff,"nfs4/nfs4_layoutcommit"); break;371
+case :fprintf(fff,"nfs4/nfs4_layoutget"); break;372
+case :fprintf(fff,"nfs4/nfs4_layoutreturn"); break;370
+case :fprintf(fff,"nfs4/nfs4_lock_expired"); break;409
+case :fprintf(fff,"nfs4/nfs4_lock_reclaim"); break;410
+case :fprintf(fff,"nfs4/nfs4_lookup"); break;401
+case :fprintf(fff,"nfs4/nfs4_lookup_root"); break;384
+case :fprintf(fff,"nfs4/nfs4_map_gid_to_group"); break;379
+case :fprintf(fff,"nfs4/nfs4_map_group_to_gid"); break;381
+case :fprintf(fff,"nfs4/nfs4_map_name_to_uid"); break;382
+case :fprintf(fff,"nfs4/nfs4_map_uid_to_name"); break;380
+case :fprintf(fff,"nfs4/nfs4_mkdir"); break;399
+case :fprintf(fff,"nfs4/nfs4_mknod"); break;398
+case :fprintf(fff,"nfs4/nfs4_open_expired"); break;415
+case :fprintf(fff,"nfs4/nfs4_open_file"); break;414
+case :fprintf(fff,"nfs4/nfs4_open_reclaim"); break;416
+case :fprintf(fff,"nfs4/nfs4_pnfs_commit_ds"); break;373
+case :fprintf(fff,"nfs4/nfs4_pnfs_read"); break;377
+case :fprintf(fff,"nfs4/nfs4_pnfs_write"); break;375
+case :fprintf(fff,"nfs4/nfs4_readdir"); break;390
+case :fprintf(fff,"nfs4/nfs4_read"); break;378
+case :fprintf(fff,"nfs4/nfs4_readlink"); break;391
+case :fprintf(fff,"nfs4/nfs4_recall_delegation"); break;387
+case :fprintf(fff,"nfs4/nfs4_reclaim_complete"); break;420
+case :fprintf(fff,"nfs4/nfs4_reclaim_delegation"); break;406
+case :fprintf(fff,"nfs4/nfs4_remove"); break;397
+case :fprintf(fff,"nfs4/nfs4_rename"); break;394
+case :fprintf(fff,"nfs4/nfs4_renew_async"); break;427
+case :fprintf(fff,"nfs4/nfs4_renew"); break;428
+case :fprintf(fff,"nfs4/nfs4_secinfo"); break;395
+case :fprintf(fff,"nfs4/nfs4_sequence_done"); break;418
+case :fprintf(fff,"nfs4/nfs4_sequence"); break;421
+case :fprintf(fff,"nfs4/nfs4_set_acl"); break;388
+case :fprintf(fff,"nfs4/nfs4_setattr"); break;393
+case :fprintf(fff,"nfs4/nfs4_setclientid_confirm"); break;429
+case :fprintf(fff,"nfs4/nfs4_setclientid"); break;430
+case :fprintf(fff,"nfs4/nfs4_set_delegation"); break;407
+case :fprintf(fff,"nfs4/nfs4_set_lock"); break;411
+case :fprintf(fff,"nfs4/nfs4_setup_sequence"); break;419
+case :fprintf(fff,"nfs4/nfs4_symlink"); break;400
+case :fprintf(fff,"nfs4/nfs4_test_delegation_stateid"); break;404
+case :fprintf(fff,"nfs4/nfs4_test_lock_stateid"); break;402
+case :fprintf(fff,"nfs4/nfs4_test_open_stateid"); break;403
+case :fprintf(fff,"nfs4/nfs4_unlock"); break;408
+case :fprintf(fff,"nfs4/nfs4_write"); break;376
+case :fprintf(fff,"nfs/nfs_access_enter"); break;353
+case :fprintf(fff,"nfs/nfs_access_exit"); break;352
+case :fprintf(fff,"nfs/nfs_atomic_open_enter"); break;347
+case :fprintf(fff,"nfs/nfs_atomic_open_exit"); break;346
+case :fprintf(fff,"nfs/nfs_create_enter"); break;345
+case :fprintf(fff,"nfs/nfs_create_exit"); break;344
+case :fprintf(fff,"nfs/nfs_fsync_enter"); break;355
+case :fprintf(fff,"nfs/nfs_fsync_exit"); break;354
+case :fprintf(fff,"nfs/nfs_getattr_enter"); break;363
+case :fprintf(fff,"nfs/nfs_getattr_exit"); break;362
+case :fprintf(fff,"nfs/nfs_invalidate_mapping_enter"); break;365
+case :fprintf(fff,"nfs/nfs_invalidate_mapping_exit"); break;364
+case :fprintf(fff,"nfs/nfs_link_enter"); break;331
+case :fprintf(fff,"nfs/nfs_link_exit"); break;330
+case :fprintf(fff,"nfs/nfs_lookup_enter"); break;351
+case :fprintf(fff,"nfs/nfs_lookup_exit"); break;350
+case :fprintf(fff,"nfs/nfs_lookup_revalidate_enter"); break;349
+case :fprintf(fff,"nfs/nfs_lookup_revalidate_exit"); break;348
+case :fprintf(fff,"nfs/nfs_mkdir_enter"); break;341
+case :fprintf(fff,"nfs/nfs_mkdir_exit"); break;340
+case :fprintf(fff,"nfs/nfs_mknod_enter"); break;343
+case :fprintf(fff,"nfs/nfs_mknod_exit"); break;342
+case :fprintf(fff,"nfs/nfs_refresh_inode_enter"); break;369
+case :fprintf(fff,"nfs/nfs_refresh_inode_exit"); break;368
+case :fprintf(fff,"nfs/nfs_remove_enter"); break;337
+case :fprintf(fff,"nfs/nfs_remove_exit"); break;336
+case :fprintf(fff,"nfs/nfs_rename_enter"); break;329
+case :fprintf(fff,"nfs/nfs_rename_exit"); break;328
+case :fprintf(fff,"nfs/nfs_revalidate_inode_enter"); break;367
+case :fprintf(fff,"nfs/nfs_revalidate_inode_exit"); break;366
+case :fprintf(fff,"nfs/nfs_rmdir_enter"); break;339
+case :fprintf(fff,"nfs/nfs_rmdir_exit"); break;338
+case :fprintf(fff,"nfs/nfs_setattr_enter"); break;361
+case :fprintf(fff,"nfs/nfs_setattr_exit"); break;360
+case :fprintf(fff,"nfs/nfs_sillyrename_rename"); break;327
+case :fprintf(fff,"nfs/nfs_sillyrename_unlink"); break;326
+case :fprintf(fff,"nfs/nfs_symlink_enter"); break;333
+case :fprintf(fff,"nfs/nfs_symlink_exit"); break;332
+case :fprintf(fff,"nfs/nfs_unlink_enter"); break;335
+case :fprintf(fff,"nfs/nfs_unlink_exit"); break;334
+case :fprintf(fff,"nfs/nfs_writeback_inode_enter"); break;357
+case :fprintf(fff,"nfs/nfs_writeback_inode_exit"); break;356
+case :fprintf(fff,"nfs/nfs_writeback_page_enter"); break;359
+case :fprintf(fff,"nfs/nfs_writeback_page_exit"); break;358
+case :fprintf(fff,"nmi/nmi_handler"); break;36
+case :fprintf(fff,"oom/oom_score_adj_update"); break;117
+case :fprintf(fff,"pagemap/mm_lru_activate"); break;118
+case :fprintf(fff,"pagemap/mm_lru_insertion"); break;119
+case :fprintf(fff,"power/clock_disable"); break;103
+case :fprintf(fff,"power/clock_enable"); break;104
+case :fprintf(fff,"power/clock_set_rate"); break;102
+case :fprintf(fff,"power/cpu_frequency"); break;109
+case :fprintf(fff,"power/cpu_idle"); break;110
+case :fprintf(fff,"power/device_pm_report_time"); break;107
+case :fprintf(fff,"power/dev_pm_qos_add_request"); break;94
+case :fprintf(fff,"power/dev_pm_qos_remove_request"); break;92
+case :fprintf(fff,"power/dev_pm_qos_update_request"); break;93
+case :fprintf(fff,"power/machine_suspend"); break;108
+case :fprintf(fff,"power/pm_qos_add_request"); break;100
+case :fprintf(fff,"power/pm_qos_remove_request"); break;98
+case :fprintf(fff,"power/pm_qos_update_flags"); break;95
+case :fprintf(fff,"power/pm_qos_update_request"); break;99
+case :fprintf(fff,"power/pm_qos_update_request_timeout"); break;97
+case :fprintf(fff,"power/pm_qos_update_target"); break;96
+case :fprintf(fff,"power/power_domain_target"); break;101
+case :fprintf(fff,"power/wakeup_source_activate"); break;106
+case :fprintf(fff,"power/wakeup_source_deactivate"); break;105
+case :fprintf(fff,"printk/console"); break;86
+#endif
+	case 463:	fprintf(fff,"random/credit_entropy_bits"); break;
+	case 461:	fprintf(fff,"random/extract_entropy"); break;
+	case 460:	fprintf(fff,"random/extract_entropy_user"); break;
+	case 462:	fprintf(fff,"random/get_random_bytes"); break;
+	case 465:	fprintf(fff,"random/mix_pool_bytes"); break;
+	case 464:	fprintf(fff,"random/mix_pool_bytes_nolock"); break;
+#if 0
+case :fprintf(fff,"ras/aer_event"); break;452
+case :fprintf(fff,"raw_syscalls/sys_enter"); break;39
+case :fprintf(fff,"raw_syscalls/sys_exit"); break;38
+case :fprintf(fff,"rcu/rcu_utilization"); break;67
+case :fprintf(fff,"regmap/regcache_drop_region"); break;466
+case :fprintf(fff,"regmap/regcache_sync"); break;473
+case :fprintf(fff,"regmap/regmap_async_complete_done"); break;467
+case :fprintf(fff,"regmap/regmap_async_complete_start"); break;468
+case :fprintf(fff,"regmap/regmap_async_io_complete"); break;469
+case :fprintf(fff,"regmap/regmap_async_write_start"); break;470
+case :fprintf(fff,"regmap/regmap_cache_bypass"); break;471
+case :fprintf(fff,"regmap/regmap_cache_only"); break;472
+case :fprintf(fff,"regmap/regmap_hw_read_done"); break;476
+case :fprintf(fff,"regmap/regmap_hw_read_start"); break;477
+case :fprintf(fff,"regmap/regmap_hw_write_done"); break;474
+case :fprintf(fff,"regmap/regmap_hw_write_start"); break;475
+case :fprintf(fff,"regmap/regmap_reg_read_cache"); break;478
+case :fprintf(fff,"regmap/regmap_reg_read"); break;479
+case :fprintf(fff,"regmap/regmap_reg_write"); break;480
+case :fprintf(fff,"regulator/regulator_disable_complete"); break;455
+case :fprintf(fff,"regulator/regulator_disable"); break;456
+case :fprintf(fff,"regulator/regulator_enable_complete"); break;457
+case :fprintf(fff,"regulator/regulator_enable_delay"); break;458
+case :fprintf(fff,"regulator/regulator_enable"); break;459
+case :fprintf(fff,"regulator/regulator_set_voltage_complete"); break;453
+case :fprintf(fff,"regulator/regulator_set_voltage"); break;454
+#endif
+		case 112:	fprintf(fff,"rpm/rpm_idle"); break;
+		case 113:	fprintf(fff,"rpm/rpm_resume"); break;
+		case 111:	fprintf(fff,"rpm/rpm_return_int"); break;
+		case 114:	fprintf(fff,"rpm/rpm_suspend"); break;
+#if 0
+case :fprintf(fff,"sched/sched_kthread_stop"); break;85
+case :fprintf(fff,"sched/sched_kthread_stop_ret"); break;84
+case :fprintf(fff,"sched/sched_migrate_task"); break;80
+case :fprintf(fff,"sched/sched_pi_setprio"); break;68
+case :fprintf(fff,"sched/sched_process_exec"); break;74
+case :fprintf(fff,"sched/sched_process_exit"); break;78
+case :fprintf(fff,"sched/sched_process_fork"); break;75
+case :fprintf(fff,"sched/sched_process_free"); break;79
+case :fprintf(fff,"sched/sched_process_wait"); break;76
+case :fprintf(fff,"sched/sched_stat_blocked"); break;70
+case :fprintf(fff,"sched/sched_stat_iowait"); break;71
+case :fprintf(fff,"sched/sched_stat_runtime"); break;69
+case :fprintf(fff,"sched/sched_stat_sleep"); break;72
+case :fprintf(fff,"sched/sched_stat_wait"); break;73
+case :fprintf(fff,"sched/sched_switch"); break;81
+case :fprintf(fff,"sched/sched_wait_task"); break;77
+case :fprintf(fff,"sched/sched_wakeup"); break;83
+case :fprintf(fff,"sched/sched_wakeup_new"); break;82
+case :fprintf(fff,"scsi/scsi_dispatch_cmd_done"); break;483
+case :fprintf(fff,"scsi/scsi_dispatch_cmd_error"); break;484
+case :fprintf(fff,"scsi/scsi_dispatch_cmd_start"); break;485
+case :fprintf(fff,"scsi/scsi_dispatch_cmd_timeout"); break;482
+case :fprintf(fff,"scsi/scsi_eh_wakeup"); break;481
+#endif
+		case 61:	fprintf(fff,"signal/signal_deliver"); break;
+		case 62:	fprintf(fff,"signal/signal_generate"); break;
+#if 0
+case :fprintf(fff,"skb/consume_skb"); break;495
+case :fprintf(fff,"skb/kfree_skb"); break;496
+case :fprintf(fff,"skb/skb_copy_datagram_iovec"); break;494
+case :fprintf(fff,"sock/sock_exceed_buf_limit"); break;487
+case :fprintf(fff,"sock/sock_rcvqueue_full"); break;488
+case :fprintf(fff,"sunrpc/rpc_bind_status"); break;508
+case :fprintf(fff,"sunrpc/rpc_call_status"); break;509
+case :fprintf(fff,"sunrpc/rpc_connect_status"); break;507
+case :fprintf(fff,"sunrpc/rpc_socket_close"); break;498
+case :fprintf(fff,"sunrpc/rpc_socket_connect"); break;500
+case :fprintf(fff,"sunrpc/rpc_socket_reset_connection"); break;499
+case :fprintf(fff,"sunrpc/rpc_socket_shutdown"); break;497
+case :fprintf(fff,"sunrpc/rpc_socket_state_change"); break;501
+case :fprintf(fff,"sunrpc/rpc_task_begin"); break;506
+case :fprintf(fff,"sunrpc/rpc_task_complete"); break;504
+case :fprintf(fff,"sunrpc/rpc_task_run_action"); break;505
+case :fprintf(fff,"sunrpc/rpc_task_sleep"); break;503
+case :fprintf(fff,"sunrpc/rpc_task_wakeup"); break;502
+case :fprintf(fff,"task/task_newtask"); break;42
+case :fprintf(fff,"task/task_rename"); break;41
+case :fprintf(fff,"timer/hrtimer_cancel"); break;51
+case :fprintf(fff,"timer/hrtimer_expire_entry"); break;53
+case :fprintf(fff,"timer/hrtimer_expire_exit"); break;52
+case :fprintf(fff,"timer/hrtimer_init"); break;55
+case :fprintf(fff,"timer/hrtimer_start"); break;54
+#endif
+		case 49:	fprintf(fff,"timer/itimer_expire"); break;
+		case 50:	fprintf(fff,"timer/itimer_state"); break;
+		case 48:	fprintf(fff,"timer/tick_stop"); break;
+		case 56:	fprintf(fff,"timer/timer_cancel"); break;
+		case 58:	fprintf(fff,"timer/timer_expire_entry"); break;
+		case 57:	fprintf(fff,"timer/timer_expire_exit"); break;
+		case 60:	fprintf(fff,"timer/timer_init"); break;
+		case 59:	fprintf(fff,"timer/timer_start"); break;
+#if 0
+case :fprintf(fff,"udp/udp_fail_queue_rcv_skb"); break;486
+case :fprintf(fff,"vmscan/mm_shrink_slab_end"); break;124
+case :fprintf(fff,"vmscan/mm_shrink_slab_start"); break;125
+case :fprintf(fff,"vmscan/mm_vmscan_direct_reclaim_begin"); break;131
+case :fprintf(fff,"vmscan/mm_vmscan_direct_reclaim_end"); break;128
+case :fprintf(fff,"vmscan/mm_vmscan_kswapd_sleep"); break;134
+case :fprintf(fff,"vmscan/mm_vmscan_kswapd_wake"); break;133
+case :fprintf(fff,"vmscan/mm_vmscan_lru_isolate"); break;123
+case :fprintf(fff,"vmscan/mm_vmscan_lru_shrink_inactive"); break;120
+case :fprintf(fff,"vmscan/mm_vmscan_memcg_isolate"); break;122
+case :fprintf(fff,"vmscan/mm_vmscan_memcg_reclaim_begin"); break;130
+case :fprintf(fff,"vmscan/mm_vmscan_memcg_reclaim_end"); break;127
+case :fprintf(fff,"vmscan/mm_vmscan_memcg_softlimit_reclaim_begin"); break;129
+case :fprintf(fff,"vmscan/mm_vmscan_memcg_softlimit_reclaim_end"); break;126
+case :fprintf(fff,"vmscan/mm_vmscan_wakeup_kswapd"); break;132
+case :fprintf(fff,"vmscan/mm_vmscan_writepage"); break;121
+#endif
+		case 37:	fprintf(fff,"vsyscall/emulate_vsyscall"); break;
+#if 0
+case :fprintf(fff,"workqueue/workqueue_activate_work"); break;65
+case :fprintf(fff,"workqueue/workqueue_execute_end"); break;63
+case :fprintf(fff,"workqueue/workqueue_execute_start"); break;64
+case :fprintf(fff,"workqueue/workqueue_queue_work"); break;66
+case :fprintf(fff,"writeback/balance_dirty_pages"); break;153
+case :fprintf(fff,"writeback/bdi_dirty_ratelimit"); break;154
+case :fprintf(fff,"writeback/global_dirty_state"); break;155
+case :fprintf(fff,"writeback/wbc_writepage"); break;157
+case :fprintf(fff,"writeback/writeback_bdi_register"); break;159
+case :fprintf(fff,"writeback/writeback_bdi_unregister"); break;158
+case :fprintf(fff,"writeback/writeback_congestion_wait"); break;151
+case :fprintf(fff,"writeback/writeback_dirty_inode"); break;170
+case :fprintf(fff,"writeback/writeback_dirty_inode_start"); break;171
+case :fprintf(fff,"writeback/writeback_dirty_page"); break;172
+case :fprintf(fff,"writeback/writeback_exec"); break;166
+case :fprintf(fff,"writeback/writeback_nowork"); break;161
+case :fprintf(fff,"writeback/writeback_pages_written"); break;162
+case :fprintf(fff,"writeback/writeback_queue"); break;167
+case :fprintf(fff,"writeback/writeback_queue_io"); break;156
+case :fprintf(fff,"writeback/writeback_sb_inodes_requeue"); break;152
+case :fprintf(fff,"writeback/writeback_single_inode"); break;148
+case :fprintf(fff,"writeback/writeback_single_inode_start"); break;149
+case :fprintf(fff,"writeback/writeback_start"); break;165
+case :fprintf(fff,"writeback/writeback_wait"); break;163
+case :fprintf(fff,"writeback/writeback_wait_iff_congested"); break;150
+case :fprintf(fff,"writeback/writeback_wake_background"); break;160
+case :fprintf(fff,"writeback/writeback_write_inode"); break;168
+case :fprintf(fff,"writeback/writeback_write_inode_start"); break;169
+case :fprintf(fff,"writeback/writeback_written"); break;164
+#endif
+		default:	printf("Unknown");	break;
+	}
+}
+
