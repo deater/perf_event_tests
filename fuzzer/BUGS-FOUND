@@ -33,7 +33,7 @@ in Dave Jones' trinity fuzzer.
 
 + alpha: perf: fix out-of-bounds array access triggered from raw event
   Reported-by: Will Deacon
-  Fixed-by-Commit:
+  Fixed-by-Commit: 6e22f8f2e8d81dcab4c40bc229d53388fda63dbc (in 3.13)
 
 + perf/ftrace: Fix paranoid level for enabling function tracer
   This one took months to isolate and track down.
@@ -52,3 +52,12 @@ in Dave Jones' trinity fuzzer.
 
 + perf/x86 BUG/oops
 	Reported but don't have small reproducible testcase
+
++ perf ext4 vma error?
+
+Other issues found while debugging tools:
+
++ tracepoint aliasing issue
+
++ breakpoint leak
+
