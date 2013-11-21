@@ -669,6 +669,26 @@ void perf_pretty_print_event(FILE *fff, int fd, int original_pid,
 
 }
 
+void perf_pretty_print_event_short(FILE *fff, int fd, int original_pid,
+				struct perf_event_attr *pe,
+				pid_t pid, int cpu,
+				int group_fd, unsigned long flags) {
+
+	fprintf(fff,"%d:\t",fd);
+	perf_pretty_print_type(fff,pe->type);
+	fprintf(fff,", ");
+	if (pe->type==PERF_TYPE_BREAKPOINT) {
+		perf_pretty_print_breakpoint_type(fff,pe->bp_type);
+		fprintf(fff,", addr=0x%llx",pe->bp_addr);
+		fprintf(fff,", len=0x%llx\n",pe->bp_len);
+	}
+	else {
+		perf_pretty_print_config(fff,pe->type,pe->config);
+		fprintf(fff,"\n");
+
+	}
+}
+
 void perf_pretty_print_tracepoint(FILE *fff, int id) {
 
 	switch(id&0xffffffff) {

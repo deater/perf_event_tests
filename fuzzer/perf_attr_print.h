@@ -10,3 +10,7 @@ void perf_pretty_print_event(FILE *fff,int fd, int original_pid,
 				struct perf_event_attr *pe,
 				pid_t pid, int cpu,
 				int group_fd, unsigned long flags);
+void perf_pretty_print_event_short(FILE *fff,int fd, int original_pid,
+				struct perf_event_attr *pe,
+				pid_t pid, int cpu,
+				int group_fd, unsigned long flags);

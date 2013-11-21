@@ -474,6 +474,19 @@ int main(int argc, char **argv) {
 			printf("\n\n");
 		}
 	}
+
+	printf("SHORT EVENT SUMMARY\n\n");
+	for(i=0;i<MAX_EVENTS;i++) {
+		if (event_info[i].enabled) {
+			perf_pretty_print_event_short(stdout,
+				i,original_pid,
+				&event_info[i].attr,
+				event_info[i].pid,
+				event_info[i].cpu,
+				event_info[i].group_fd,
+				event_info[i].flags);
+		}
+	}
 	return 0;
 
 }
