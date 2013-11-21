@@ -187,7 +187,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 			printf(";");
 			break;
 		case PERF_TYPE_SOFTWARE:
-			switch(type) {
+			switch(config) {
 				case PERF_COUNT_SW_CPU_CLOCK:
 					fprintf(fff,"PERF_COUNT_SW_CPU_CLOCK");
 					break;
