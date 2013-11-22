@@ -748,10 +748,10 @@ void perf_pretty_print_tracepoint(FILE *fff, int id) {
 		case 178:	fprintf(fff,"ext3/ext3_unlink_exit"); break;
 		case 202:	fprintf(fff,"ext3/ext3_writeback_write_end"); break;
 		case 199:	fprintf(fff,"ext3/ext3_writeback_writepage"); break;
+		case 204:	fprintf(fff,"ext3/ext3_write_begin"); break;
+		case 270:	fprintf(fff,"ext4/ext4_allocate_blocks"); break;
+		case 297:	fprintf(fff,"ext4/ext4_allocate_inode"); break;
 #if 0
-case :fprintf(fff,"ext3/ext3_write_begin"); break;204
-case :fprintf(fff,"ext4/ext4_allocate_blocks"); break;270
-case :fprintf(fff,"ext4/ext4_allocate_inode"); break;297
 case :fprintf(fff,"ext4/ext4_alloc_da_blocks"); break;265
 case :fprintf(fff,"ext4/ext4_begin_ordered_truncate"); break;293
 case :fprintf(fff,"ext4/ext4_da_release_space"); break;257
@@ -781,25 +781,23 @@ case :fprintf(fff,"ext4/ext4_evict_inode"); break;296
 case :fprintf(fff,"ext4/ext4_ext_convert_to_initialized_enter"); break;243
 case :fprintf(fff,"ext4/ext4_ext_convert_to_initialized_fastpath"); break;242
 case :fprintf(fff,"ext4/ext4_ext_handle_uninitialized_extents"); break;231
-case :fprintf(fff,"ext4/ext4_ext_in_cache"); break;228
-case :fprintf(fff,"ext4/ext4_ext_load_extent"); break;237
-case :fprintf(fff,"ext4/ext4_ext_map_blocks_enter"); break;241
-case :fprintf(fff,"ext4/ext4_ext_map_blocks_exit"); break;239
-case :fprintf(fff,"ext4/ext4_ext_put_in_cache"); break;229
 	#endif
+		case 228:	fprintf(fff,"ext4/ext4_ext_in_cache"); break;
+		case 237:	fprintf(fff,"ext4/ext4_ext_load_extent"); break;
+		case 241:	fprintf(fff,"ext4/ext4_ext_map_blocks_enter"); break;
+		case 239:	fprintf(fff,"ext4/ext4_ext_map_blocks_exit"); break;
+		case 229:	fprintf(fff,"ext4/ext4_ext_put_in_cache"); break;
 		case 220:	fprintf(fff,"ext4/ext4_ext_remove_space_done"); break;
-#if 0
-case :fprintf(fff,"ext4/ext4_ext_remove_space"); break;221
-case :fprintf(fff,"ext4/ext4_ext_rm_idx"); break;222
-case :fprintf(fff,"ext4/ext4_ext_rm_leaf"); break;223
-case :fprintf(fff,"ext4/ext4_ext_show_extent"); break;225
-case :fprintf(fff,"ext4/ext4_fallocate_enter"); break;250
-case :fprintf(fff,"ext4/ext4_fallocate_exit"); break;249
-case :fprintf(fff,"ext4/ext4_find_delalloc_range"); break;227
-case :fprintf(fff,"ext4/ext4_forget"); break;260
-case :fprintf(fff,"ext4/ext4_free_blocks"); break;269
-case :fprintf(fff,"ext4/ext4_free_inode"); break;299
-#endif
+		case 221:	fprintf(fff,"ext4/ext4_ext_remove_space"); break;
+		case 222:	fprintf(fff,"ext4/ext4_ext_rm_idx"); break;
+		case 223:	fprintf(fff,"ext4/ext4_ext_rm_leaf"); break;
+		case 225:	fprintf(fff,"ext4/ext4_ext_show_extent"); break;
+		case 250:	fprintf(fff,"ext4/ext4_fallocate_enter"); break;
+		case 249:	fprintf(fff,"ext4/ext4_fallocate_exit"); break;
+		case 227:	fprintf(fff,"ext4/ext4_find_delalloc_range"); break;
+		case 260:	fprintf(fff,"ext4/ext4_forget"); break;
+		case 269:	fprintf(fff,"ext4/ext4_free_blocks"); break;
+		case 299:	fprintf(fff,"ext4/ext4_free_inode"); break;
 		case 230:	fprintf(fff,"ext4/ext4_get_implied_cluster_alloc_exit"); break;
 		case 226:	fprintf(fff,"ext4/ext4_get_reserved_cluster_alloc"); break;
 		case 240:	fprintf(fff,"ext4/ext4_ind_map_blocks_enter"); break;
@@ -818,14 +816,14 @@ case :fprintf(fff,"ext4/ext4_free_inode"); break;299
 		case 263:	fprintf(fff,"ext4/ext4_mballoc_prealloc"); break;
 		case 256:	fprintf(fff,"ext4/ext4_mb_bitmap_load"); break;
 		case 255:	fprintf(fff,"ext4/ext4_mb_buddy_bitmap_load"); break;
-#if 0
-case :fprintf(fff,"ext4/ext4_mb_discard_preallocations"); break;272
-case :fprintf(fff,"ext4/ext4_mb_new_group_pa"); break;276
-case :fprintf(fff,"ext4/ext4_mb_new_inode_pa"); break;277
-case :fprintf(fff,"ext4/ext4_mb_release_group_pa"); break;274
-case :fprintf(fff,"ext4/ext4_mb_release_inode_pa"); break;275
-case :fprintf(fff,"ext4/ext4_punch_hole"); break;248
-case :fprintf(fff,"ext4/ext4_read_block_bitmap_load"); break;254
+		case 272:	fprintf(fff,"ext4/ext4_mb_discard_preallocations"); break;
+		case 276:	fprintf(fff,"ext4/ext4_mb_new_group_pa"); break;
+		case 277:	fprintf(fff,"ext4/ext4_mb_new_inode_pa"); break;
+		case 274:	fprintf(fff,"ext4/ext4_mb_release_group_pa"); break;
+		case 275:	fprintf(fff,"ext4/ext4_mb_release_inode_pa"); break;
+		case 248:	fprintf(fff,"ext4/ext4_punch_hole"); break;
+		case 254:	fprintf(fff,"ext4/ext4_read_block_bitmap_load"); break;
+	#if 0
 case :fprintf(fff,"ext4/ext4_readpage"); break;282
 case :fprintf(fff,"ext4/ext4_releasepage"); break;281
 case :fprintf(fff,"ext4/ext4_remove_blocks"); break;224
@@ -915,8 +913,10 @@ case :fprintf(fff,"kmem/mm_page_alloc_zone_locked"); break;137
 case :fprintf(fff,"kmem/mm_page_free_batched"); break;139
 case :fprintf(fff,"kmem/mm_page_free"); break;140
 case :fprintf(fff,"kmem/mm_page_pcpu_drain"); break;136
-case :fprintf(fff,"mce/mce_record"); break;40
-case :fprintf(fff,"migrate/mm_migrate_pages"); break;147
+	#endif
+	case 40:	fprintf(fff,"mce/mce_record"); break;
+	case 147:	fprintf(fff,"migrate/mm_migrate_pages"); break;
+	#if 0
 case :fprintf(fff,"module/module_free"); break;90
 case :fprintf(fff,"module/module_get"); break;89
 case :fprintf(fff,"module/module_load"); break;91
@@ -932,9 +932,11 @@ case :fprintf(fff,"nfs4/nfs4_bind_conn_to_session"); break;422
 case :fprintf(fff,"nfs4/nfs4_cb_sequence"); break;417
 case :fprintf(fff,"nfs4/nfs4_close"); break;413
 case :fprintf(fff,"nfs4/nfs4_commit"); break;374
-case :fprintf(fff,"nfs4/nfs4_create_session"); break;425
-case :fprintf(fff,"nfs4/nfs4_delegreturn_exit"); break;405
-case :fprintf(fff,"nfs4/nfs4_delegreturn"); break;386
+	#endif
+		case 425:	fprintf(fff,"nfs4/nfs4_create_session"); break;
+		case 405:	fprintf(fff,"nfs4/nfs4_delegreturn_exit"); break;
+		case 386:	fprintf(fff,"nfs4/nfs4_delegreturn"); break;
+	#if 0
 case :fprintf(fff,"nfs4/nfs4_destroy_clientid"); break;423
 case :fprintf(fff,"nfs4/nfs4_destroy_session"); break;424
 case :fprintf(fff,"nfs4/nfs4_exchange_id"); break;426
@@ -949,7 +951,9 @@ case :fprintf(fff,"nfs4/nfs4_layoutreturn"); break;370
 case :fprintf(fff,"nfs4/nfs4_lock_expired"); break;409
 case :fprintf(fff,"nfs4/nfs4_lock_reclaim"); break;410
 case :fprintf(fff,"nfs4/nfs4_lookup"); break;401
-case :fprintf(fff,"nfs4/nfs4_lookup_root"); break;384
+	#endif
+		case 384:	fprintf(fff,"nfs4/nfs4_lookup_root"); break;
+	#if 0
 case :fprintf(fff,"nfs4/nfs4_map_gid_to_group"); break;379
 case :fprintf(fff,"nfs4/nfs4_map_group_to_gid"); break;381
 case :fprintf(fff,"nfs4/nfs4_map_name_to_uid"); break;382
@@ -971,7 +975,9 @@ case :fprintf(fff,"nfs4/nfs4_reclaim_delegation"); break;406
 case :fprintf(fff,"nfs4/nfs4_remove"); break;397
 case :fprintf(fff,"nfs4/nfs4_rename"); break;394
 case :fprintf(fff,"nfs4/nfs4_renew_async"); break;427
-case :fprintf(fff,"nfs4/nfs4_renew"); break;428
+	#endif
+		case 428:	fprintf(fff,"nfs4/nfs4_renew"); break;
+	#if 0
 case :fprintf(fff,"nfs4/nfs4_secinfo"); break;395
 case :fprintf(fff,"nfs4/nfs4_sequence_done"); break;418
 case :fprintf(fff,"nfs4/nfs4_sequence"); break;421
@@ -990,7 +996,9 @@ case :fprintf(fff,"nfs4/nfs4_unlock"); break;408
 case :fprintf(fff,"nfs4/nfs4_write"); break;376
 case :fprintf(fff,"nfs/nfs_access_enter"); break;353
 case :fprintf(fff,"nfs/nfs_access_exit"); break;352
-case :fprintf(fff,"nfs/nfs_atomic_open_enter"); break;347
+	#endif
+		case 347:	fprintf(fff,"nfs/nfs_atomic_open_enter"); break;
+	#if 0
 case :fprintf(fff,"nfs/nfs_atomic_open_exit"); break;346
 case :fprintf(fff,"nfs/nfs_create_enter"); break;345
 case :fprintf(fff,"nfs/nfs_create_exit"); break;344
@@ -1010,10 +1018,12 @@ case :fprintf(fff,"nfs/nfs_mkdir_enter"); break;341
 case :fprintf(fff,"nfs/nfs_mkdir_exit"); break;340
 case :fprintf(fff,"nfs/nfs_mknod_enter"); break;343
 case :fprintf(fff,"nfs/nfs_mknod_exit"); break;342
-case :fprintf(fff,"nfs/nfs_refresh_inode_enter"); break;369
-case :fprintf(fff,"nfs/nfs_refresh_inode_exit"); break;368
-case :fprintf(fff,"nfs/nfs_remove_enter"); break;337
-case :fprintf(fff,"nfs/nfs_remove_exit"); break;336
+	#endif
+	case 369:	fprintf(fff,"nfs/nfs_refresh_inode_enter"); break;
+	case 368:	fprintf(fff,"nfs/nfs_refresh_inode_exit"); break;
+	case 337:	fprintf(fff,"nfs/nfs_remove_enter"); break;
+	case 336:	fprintf(fff,"nfs/nfs_remove_exit"); break;
+	#if 0
 case :fprintf(fff,"nfs/nfs_rename_enter"); break;329
 case :fprintf(fff,"nfs/nfs_rename_exit"); break;328
 case :fprintf(fff,"nfs/nfs_revalidate_inode_enter"); break;367
@@ -1032,42 +1042,42 @@ case :fprintf(fff,"nfs/nfs_writeback_inode_enter"); break;357
 case :fprintf(fff,"nfs/nfs_writeback_inode_exit"); break;356
 case :fprintf(fff,"nfs/nfs_writeback_page_enter"); break;359
 case :fprintf(fff,"nfs/nfs_writeback_page_exit"); break;358
-case :fprintf(fff,"nmi/nmi_handler"); break;36
-case :fprintf(fff,"oom/oom_score_adj_update"); break;117
-case :fprintf(fff,"pagemap/mm_lru_activate"); break;118
-case :fprintf(fff,"pagemap/mm_lru_insertion"); break;119
-case :fprintf(fff,"power/clock_disable"); break;103
-case :fprintf(fff,"power/clock_enable"); break;104
-case :fprintf(fff,"power/clock_set_rate"); break;102
-case :fprintf(fff,"power/cpu_frequency"); break;109
-case :fprintf(fff,"power/cpu_idle"); break;110
-case :fprintf(fff,"power/device_pm_report_time"); break;107
-case :fprintf(fff,"power/dev_pm_qos_add_request"); break;94
-case :fprintf(fff,"power/dev_pm_qos_remove_request"); break;92
-case :fprintf(fff,"power/dev_pm_qos_update_request"); break;93
-case :fprintf(fff,"power/machine_suspend"); break;108
-case :fprintf(fff,"power/pm_qos_add_request"); break;100
-case :fprintf(fff,"power/pm_qos_remove_request"); break;98
-case :fprintf(fff,"power/pm_qos_update_flags"); break;95
-case :fprintf(fff,"power/pm_qos_update_request"); break;99
-case :fprintf(fff,"power/pm_qos_update_request_timeout"); break;97
-case :fprintf(fff,"power/pm_qos_update_target"); break;96
-case :fprintf(fff,"power/power_domain_target"); break;101
-case :fprintf(fff,"power/wakeup_source_activate"); break;106
-case :fprintf(fff,"power/wakeup_source_deactivate"); break;105
-case :fprintf(fff,"printk/console"); break;86
-#endif
-	case 463:	fprintf(fff,"random/credit_entropy_bits"); break;
-	case 461:	fprintf(fff,"random/extract_entropy"); break;
-	case 460:	fprintf(fff,"random/extract_entropy_user"); break;
-	case 462:	fprintf(fff,"random/get_random_bytes"); break;
-	case 465:	fprintf(fff,"random/mix_pool_bytes"); break;
-	case 464:	fprintf(fff,"random/mix_pool_bytes_nolock"); break;
+	#endif
+		case 36:	fprintf(fff,"nmi/nmi_handler"); break;
+		case 117:	fprintf(fff,"oom/oom_score_adj_update"); break;
+		case 118:	fprintf(fff,"pagemap/mm_lru_activate"); break;
+		case 119:	fprintf(fff,"pagemap/mm_lru_insertion"); break;
+		case 103:	fprintf(fff,"power/clock_disable"); break;
+		case 104:	fprintf(fff,"power/clock_enable"); break;
+		case 102:	fprintf(fff,"power/clock_set_rate"); break;
+		case 109:	fprintf(fff,"power/cpu_frequency"); break;
+		case 110:	fprintf(fff,"power/cpu_idle"); break;
+		case 107:	fprintf(fff,"power/device_pm_report_time"); break;
+		case 94:	fprintf(fff,"power/dev_pm_qos_add_request"); break;
+		case 92:	fprintf(fff,"power/dev_pm_qos_remove_request"); break;
+		case 93:	fprintf(fff,"power/dev_pm_qos_update_request"); break;
+		case 108:	fprintf(fff,"power/machine_suspend"); break;
+		case 100:	fprintf(fff,"power/pm_qos_add_request"); break;
+		case 98:	fprintf(fff,"power/pm_qos_remove_request"); break;
+		case 95:	fprintf(fff,"power/pm_qos_update_flags"); break;
+		case 99:	fprintf(fff,"power/pm_qos_update_request"); break;
+		case 97:	fprintf(fff,"power/pm_qos_update_request_timeout"); break;
+		case 96:	fprintf(fff,"power/pm_qos_update_target"); break;
+		case 101:	fprintf(fff,"power/power_domain_target"); break;
+		case 106:	fprintf(fff,"power/wakeup_source_activate"); break;
+		case 105:	fprintf(fff,"power/wakeup_source_deactivate"); break;
+		case 86:	fprintf(fff,"printk/console"); break;
+		case 463:	fprintf(fff,"random/credit_entropy_bits"); break;
+		case 461:	fprintf(fff,"random/extract_entropy"); break;
+		case 460:	fprintf(fff,"random/extract_entropy_user"); break;
+		case 462:	fprintf(fff,"random/get_random_bytes"); break;
+		case 465:	fprintf(fff,"random/mix_pool_bytes"); break;
+		case 464:	fprintf(fff,"random/mix_pool_bytes_nolock"); break;
+		case 452:	fprintf(fff,"ras/aer_event"); break;
+		case 39:	fprintf(fff,"raw_syscalls/sys_enter"); break;
+		case 38:	fprintf(fff,"raw_syscalls/sys_exit"); break;
+		case 67:	fprintf(fff,"rcu/rcu_utilization"); break;
 #if 0
-case :fprintf(fff,"ras/aer_event"); break;452
-case :fprintf(fff,"raw_syscalls/sys_enter"); break;39
-case :fprintf(fff,"raw_syscalls/sys_exit"); break;38
-case :fprintf(fff,"rcu/rcu_utilization"); break;67
 case :fprintf(fff,"regmap/regcache_drop_region"); break;466
 case :fprintf(fff,"regmap/regcache_sync"); break;473
 case :fprintf(fff,"regmap/regmap_async_complete_done"); break;467
@@ -1108,11 +1118,11 @@ case :fprintf(fff,"sched/sched_process_wait"); break;76
 case :fprintf(fff,"sched/sched_stat_blocked"); break;70
 case :fprintf(fff,"sched/sched_stat_iowait"); break;71
 case :fprintf(fff,"sched/sched_stat_runtime"); break;69
-case :fprintf(fff,"sched/sched_stat_sleep"); break;72
-case :fprintf(fff,"sched/sched_stat_wait"); break;73
-case :fprintf(fff,"sched/sched_switch"); break;81
-case :fprintf(fff,"sched/sched_wait_task"); break;77
 #endif
+		case 72:	fprintf(fff,"sched/sched_stat_sleep"); break;
+		case 73:	fprintf(fff,"sched/sched_stat_wait"); break;
+		case 81:	fprintf(fff,"sched/sched_switch"); break;
+		case 77:	fprintf(fff,"sched/sched_wait_task"); break;
 		case 83:	fprintf(fff,"sched/sched_wakeup"); break;
 		case 82:	fprintf(fff,"sched/sched_wakeup_new"); break;
 		case 483:	fprintf(fff,"scsi/scsi_dispatch_cmd_done"); break;
@@ -1141,14 +1151,14 @@ case :fprintf(fff,"sunrpc/rpc_task_complete"); break;504
 case :fprintf(fff,"sunrpc/rpc_task_run_action"); break;505
 case :fprintf(fff,"sunrpc/rpc_task_sleep"); break;503
 case :fprintf(fff,"sunrpc/rpc_task_wakeup"); break;502
-case :fprintf(fff,"task/task_newtask"); break;42
-case :fprintf(fff,"task/task_rename"); break;41
-case :fprintf(fff,"timer/hrtimer_cancel"); break;51
-case :fprintf(fff,"timer/hrtimer_expire_entry"); break;53
-case :fprintf(fff,"timer/hrtimer_expire_exit"); break;52
-case :fprintf(fff,"timer/hrtimer_init"); break;55
-case :fprintf(fff,"timer/hrtimer_start"); break;54
-#endif
+	#endif
+		case 42:	fprintf(fff,"task/task_newtask"); break;
+		case 41:	fprintf(fff,"task/task_rename"); break;
+		case 51:	fprintf(fff,"timer/hrtimer_cancel"); break;
+		case 53:	fprintf(fff,"timer/hrtimer_expire_entry"); break;
+		case 52:	fprintf(fff,"timer/hrtimer_expire_exit"); break;
+		case 55:	fprintf(fff,"timer/hrtimer_init"); break;
+		case 54:	fprintf(fff,"timer/hrtimer_start"); break;
 		case 49:	fprintf(fff,"timer/itimer_expire"); break;
 		case 50:	fprintf(fff,"timer/itimer_state"); break;
 		case 48:	fprintf(fff,"timer/tick_stop"); break;
@@ -1157,38 +1167,36 @@ case :fprintf(fff,"timer/hrtimer_start"); break;54
 		case 57:	fprintf(fff,"timer/timer_expire_exit"); break;
 		case 60:	fprintf(fff,"timer/timer_init"); break;
 		case 59:	fprintf(fff,"timer/timer_start"); break;
-#if 0
-case :fprintf(fff,"udp/udp_fail_queue_rcv_skb"); break;486
-case :fprintf(fff,"vmscan/mm_shrink_slab_end"); break;124
-case :fprintf(fff,"vmscan/mm_shrink_slab_start"); break;125
-case :fprintf(fff,"vmscan/mm_vmscan_direct_reclaim_begin"); break;131
-case :fprintf(fff,"vmscan/mm_vmscan_direct_reclaim_end"); break;128
-case :fprintf(fff,"vmscan/mm_vmscan_kswapd_sleep"); break;134
-case :fprintf(fff,"vmscan/mm_vmscan_kswapd_wake"); break;133
-case :fprintf(fff,"vmscan/mm_vmscan_lru_isolate"); break;123
-case :fprintf(fff,"vmscan/mm_vmscan_lru_shrink_inactive"); break;120
-case :fprintf(fff,"vmscan/mm_vmscan_memcg_isolate"); break;122
-case :fprintf(fff,"vmscan/mm_vmscan_memcg_reclaim_begin"); break;130
-case :fprintf(fff,"vmscan/mm_vmscan_memcg_reclaim_end"); break;127
-case :fprintf(fff,"vmscan/mm_vmscan_memcg_softlimit_reclaim_begin"); break;129
-case :fprintf(fff,"vmscan/mm_vmscan_memcg_softlimit_reclaim_end"); break;126
-case :fprintf(fff,"vmscan/mm_vmscan_wakeup_kswapd"); break;132
-case :fprintf(fff,"vmscan/mm_vmscan_writepage"); break;121
-#endif
+		case 486:	fprintf(fff,"udp/udp_fail_queue_rcv_skb"); break;
+		case 124:	fprintf(fff,"vmscan/mm_shrink_slab_end"); break;
+		case 125:	fprintf(fff,"vmscan/mm_shrink_slab_start"); break;
+		case 131:	fprintf(fff,"vmscan/mm_vmscan_direct_reclaim_begin"); break;
+		case 128:	fprintf(fff,"vmscan/mm_vmscan_direct_reclaim_end"); break;
+		case 134:	fprintf(fff,"vmscan/mm_vmscan_kswapd_sleep"); break;
+		case 133:	fprintf(fff,"vmscan/mm_vmscan_kswapd_wake"); break;
+		case 123:	fprintf(fff,"vmscan/mm_vmscan_lru_isolate"); break;
+		case 120:	fprintf(fff,"vmscan/mm_vmscan_lru_shrink_inactive"); break;
+		case 122:	fprintf(fff,"vmscan/mm_vmscan_memcg_isolate"); break;
+		case 130:	fprintf(fff,"vmscan/mm_vmscan_memcg_reclaim_begin"); break;
+		case 127:	fprintf(fff,"vmscan/mm_vmscan_memcg_reclaim_end"); break;
+		case 129:	fprintf(fff,"vmscan/mm_vmscan_memcg_softlimit_reclaim_begin"); break;
+		case 126:	fprintf(fff,"vmscan/mm_vmscan_memcg_softlimit_reclaim_end"); break;
+		case 132:	fprintf(fff,"vmscan/mm_vmscan_wakeup_kswapd"); break;
+		case 121:	fprintf(fff,"vmscan/mm_vmscan_writepage"); break;
 		case 37:	fprintf(fff,"vsyscall/emulate_vsyscall"); break;
+		case 65:	fprintf(fff,"workqueue/workqueue_activate_work"); break;
+		case 63:	fprintf(fff,"workqueue/workqueue_execute_end"); break;
+		case 64:	fprintf(fff,"workqueue/workqueue_execute_start"); break;
+		case 66:	fprintf(fff,"workqueue/workqueue_queue_work"); break;
+		case 153:	fprintf(fff,"writeback/balance_dirty_pages"); break;
+		case 154:	fprintf(fff,"writeback/bdi_dirty_ratelimit"); break;
+		case 155:	fprintf(fff,"writeback/global_dirty_state"); break;
+		case 157:	fprintf(fff,"writeback/wbc_writepage"); break;
+		case 159:	fprintf(fff,"writeback/writeback_bdi_register"); break;
+		case 158:	fprintf(fff,"writeback/writeback_bdi_unregister"); break;
+		case 151:	fprintf(fff,"writeback/writeback_congestion_wait"); break;
+		case 170:	fprintf(fff,"writeback/writeback_dirty_inode"); break;
 #if 0
-case :fprintf(fff,"workqueue/workqueue_activate_work"); break;65
-case :fprintf(fff,"workqueue/workqueue_execute_end"); break;63
-case :fprintf(fff,"workqueue/workqueue_execute_start"); break;64
-case :fprintf(fff,"workqueue/workqueue_queue_work"); break;66
-case :fprintf(fff,"writeback/balance_dirty_pages"); break;153
-case :fprintf(fff,"writeback/bdi_dirty_ratelimit"); break;154
-case :fprintf(fff,"writeback/global_dirty_state"); break;155
-case :fprintf(fff,"writeback/wbc_writepage"); break;157
-case :fprintf(fff,"writeback/writeback_bdi_register"); break;159
-case :fprintf(fff,"writeback/writeback_bdi_unregister"); break;158
-case :fprintf(fff,"writeback/writeback_congestion_wait"); break;151
-case :fprintf(fff,"writeback/writeback_dirty_inode"); break;170
 case :fprintf(fff,"writeback/writeback_dirty_inode_start"); break;171
 case :fprintf(fff,"writeback/writeback_dirty_page"); break;172
 case :fprintf(fff,"writeback/writeback_exec"); break;166
