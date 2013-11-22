@@ -133,6 +133,10 @@ static void open_event(char *line) {
 		&exclude_callchain_kernel,&exclude_callchain_user,
 		&pe.sample_regs_user,&pe.sample_stack_user,&mmap2);
 
+	if ((orig_fd<0) || (orig_fd>=MAX_EVENTS)) {
+		return;
+	}
+
 	event_info[orig_fd].pid=pid;
 	event_info[orig_fd].cpu=cpu;
 	event_info[orig_fd].group_fd=group_fd;
