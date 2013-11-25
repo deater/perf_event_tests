@@ -901,21 +901,21 @@ case :fprintf(fff,"jbd/jbd_drop_transaction"); break;304
 case :fprintf(fff,"jbd/jbd_end_commit"); break;303
 case :fprintf(fff,"jbd/jbd_start_commit"); break;308
 case :fprintf(fff,"jbd/journal_write_superblock"); break;300
-case :fprintf(fff,"kmem/kfree"); break;142
-case :fprintf(fff,"kmem/kmalloc"); break;146
-case :fprintf(fff,"kmem/kmalloc_node"); break;144
-case :fprintf(fff,"kmem/kmem_cache_alloc"); break;145
-case :fprintf(fff,"kmem/kmem_cache_alloc_node"); break;143
-case :fprintf(fff,"kmem/kmem_cache_free"); break;141
-case :fprintf(fff,"kmem/mm_page_alloc_extfrag"); break;135
-case :fprintf(fff,"kmem/mm_page_alloc"); break;138
-case :fprintf(fff,"kmem/mm_page_alloc_zone_locked"); break;137
-case :fprintf(fff,"kmem/mm_page_free_batched"); break;139
-case :fprintf(fff,"kmem/mm_page_free"); break;140
-case :fprintf(fff,"kmem/mm_page_pcpu_drain"); break;136
 	#endif
-	case 40:	fprintf(fff,"mce/mce_record"); break;
-	case 147:	fprintf(fff,"migrate/mm_migrate_pages"); break;
+		case 142:	fprintf(fff,"kmem/kfree"); break;
+		case 146:	fprintf(fff,"kmem/kmalloc"); break;
+		case 144:	fprintf(fff,"kmem/kmalloc_node"); break;
+		case 145:	fprintf(fff,"kmem/kmem_cache_alloc"); break;
+		case 143:	fprintf(fff,"kmem/kmem_cache_alloc_node"); break;
+		case 141:	fprintf(fff,"kmem/kmem_cache_free"); break;
+		case 135:	fprintf(fff,"kmem/mm_page_alloc_extfrag"); break;
+		case 138:	fprintf(fff,"kmem/mm_page_alloc"); break;
+		case 137:	fprintf(fff,"kmem/mm_page_alloc_zone_locked"); break;
+		case 139:	fprintf(fff,"kmem/mm_page_free_batched"); break;
+		case 140:	fprintf(fff,"kmem/mm_page_free"); break;
+		case 136:	fprintf(fff,"kmem/mm_page_pcpu_drain"); break;
+		case 40:	fprintf(fff,"mce/mce_record"); break;
+		case 147:	fprintf(fff,"migrate/mm_migrate_pages"); break;
 	#if 0
 case :fprintf(fff,"module/module_free"); break;90
 case :fprintf(fff,"module/module_get"); break;89
@@ -1093,14 +1093,14 @@ case :fprintf(fff,"regmap/regmap_hw_write_start"); break;475
 case :fprintf(fff,"regmap/regmap_reg_read_cache"); break;478
 case :fprintf(fff,"regmap/regmap_reg_read"); break;479
 case :fprintf(fff,"regmap/regmap_reg_write"); break;480
-case :fprintf(fff,"regulator/regulator_disable_complete"); break;455
-case :fprintf(fff,"regulator/regulator_disable"); break;456
-case :fprintf(fff,"regulator/regulator_enable_complete"); break;457
-case :fprintf(fff,"regulator/regulator_enable_delay"); break;458
-case :fprintf(fff,"regulator/regulator_enable"); break;459
-case :fprintf(fff,"regulator/regulator_set_voltage_complete"); break;453
-case :fprintf(fff,"regulator/regulator_set_voltage"); break;454
 #endif
+		case 455:	fprintf(fff,"regulator/regulator_disable_complete"); break;
+		case 456:	fprintf(fff,"regulator/regulator_disable"); break;
+		case 457:	fprintf(fff,"regulator/regulator_enable_complete"); break;
+		case 458:	fprintf(fff,"regulator/regulator_enable_delay"); break;
+		case 459:	fprintf(fff,"regulator/regulator_enable"); break;
+		case 453:	fprintf(fff,"regulator/regulator_set_voltage_complete"); break;
+		case 454:	fprintf(fff,"regulator/regulator_set_voltage"); break;
 		case 112:	fprintf(fff,"rpm/rpm_idle"); break;
 		case 113:	fprintf(fff,"rpm/rpm_resume"); break;
 		case 111:	fprintf(fff,"rpm/rpm_return_int"); break;
@@ -1138,20 +1138,20 @@ case :fprintf(fff,"skb/kfree_skb"); break;496
 case :fprintf(fff,"skb/skb_copy_datagram_iovec"); break;494
 case :fprintf(fff,"sock/sock_exceed_buf_limit"); break;487
 case :fprintf(fff,"sock/sock_rcvqueue_full"); break;488
-case :fprintf(fff,"sunrpc/rpc_bind_status"); break;508
-case :fprintf(fff,"sunrpc/rpc_call_status"); break;509
-case :fprintf(fff,"sunrpc/rpc_connect_status"); break;507
-case :fprintf(fff,"sunrpc/rpc_socket_close"); break;498
-case :fprintf(fff,"sunrpc/rpc_socket_connect"); break;500
-case :fprintf(fff,"sunrpc/rpc_socket_reset_connection"); break;499
-case :fprintf(fff,"sunrpc/rpc_socket_shutdown"); break;497
-case :fprintf(fff,"sunrpc/rpc_socket_state_change"); break;501
-case :fprintf(fff,"sunrpc/rpc_task_begin"); break;506
-case :fprintf(fff,"sunrpc/rpc_task_complete"); break;504
-case :fprintf(fff,"sunrpc/rpc_task_run_action"); break;505
-case :fprintf(fff,"sunrpc/rpc_task_sleep"); break;503
-case :fprintf(fff,"sunrpc/rpc_task_wakeup"); break;502
-	#endif
+#endif
+		case 508:	fprintf(fff,"sunrpc/rpc_bind_status"); break;
+		case 509:	fprintf(fff,"sunrpc/rpc_call_status"); break;
+		case 507:	fprintf(fff,"sunrpc/rpc_connect_status"); break;
+		case 498:	fprintf(fff,"sunrpc/rpc_socket_close"); break;
+		case 500:	fprintf(fff,"sunrpc/rpc_socket_connect"); break;
+		case 499:	fprintf(fff,"sunrpc/rpc_socket_reset_connection"); break;
+		case 497:	fprintf(fff,"sunrpc/rpc_socket_shutdown"); break;
+		case 501:	fprintf(fff,"sunrpc/rpc_socket_state_change"); break;
+		case 506:	fprintf(fff,"sunrpc/rpc_task_begin"); break;
+		case 504:	fprintf(fff,"sunrpc/rpc_task_complete"); break;
+		case 505:	fprintf(fff,"sunrpc/rpc_task_run_action"); break;
+		case 503:	fprintf(fff,"sunrpc/rpc_task_sleep"); break;
+		case 502:	fprintf(fff,"sunrpc/rpc_task_wakeup"); break;
 		case 42:	fprintf(fff,"task/task_newtask"); break;
 		case 41:	fprintf(fff,"task/task_rename"); break;
 		case 51:	fprintf(fff,"timer/hrtimer_cancel"); break;
