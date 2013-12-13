@@ -372,6 +372,13 @@ static void perf_pretty_print_sample_type(FILE *fff, unsigned long long sample_t
 		fprintf(fff,"|");
 	}
 
+	if (our_type&PERF_SAMPLE_TRANSACTION) {
+		fprintf(fff,"PERF_SAMPLE_TRANSACTION");
+		our_type&=~PERF_SAMPLE_TRANSACTION;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
 	fprintf(fff,"0x%llxULL",our_type);
 
 
