@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
    struct perf_event_attr pe;
 
    struct sigaction sa;
-   char test_string[]="Checking tashing of mmap buffer...";
+   char test_string[]="Checking trashing of mmap buffer...";
 
    quiet=test_quiet();
 
