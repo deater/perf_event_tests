@@ -523,7 +523,7 @@ static void setup_overflow(char *line) {
 
 void print_usage(char *exec_name) {
 
-	fprintf(stderr,"\nUsage: %s [-h] [-s lines] [-r OCIRMUPFp] filename\n\n",
+	fprintf(stderr,"\nUsage: %s [-h] [-s lines] [-p lines] [-r OCIRMUPFp] filename\n\n",
 		exec_name);
 }
 
@@ -534,7 +534,10 @@ int main(int argc, char **argv) {
 	char line[BUFSIZ];
 	char *result;
 	long long total_syscalls=0,replay_syscalls=0;
+
 	long long skip_lines=0;
+	long long stop_lines=0;
+
 	struct sigaction sigio;
 
 	int i,j;
@@ -558,6 +561,13 @@ int main(int argc, char **argv) {
 			switch(argv[i][1]) {
 			case 'h':	print_usage(argv[0]);
 					exit(1);
+					break;
+			case 'p':	i++;
+					if (i<argc) {
+						stop_lines=atoll(argv[i]);
+						printf("stopping after %lld lines\n",stop_lines);
+						i++;
+					}
 					break;
 			case 's':	i++;
 					if (i<argc) {
@@ -728,6 +738,8 @@ int main(int argc, char **argv) {
 		if (total_syscalls%1000==0) {
 			printf("%lld\n",total_syscalls);
 		}
+
+		if (stop_lines && (total_syscalls > stop_lines)) break;
 	}
 
 	/* Kill any lingering children */
