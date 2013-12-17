@@ -15,6 +15,7 @@ int fd;
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "test_utils.h"
@@ -214,7 +215,7 @@ int main(int argc, char **argv) {
 
    fd=perf_event_open(&pe,0,-1,-1,0);
    if (fd<0) {
-     fprintf(stderr,"Error opening leader %llx\n",pe.config);
+     fprintf(stderr,"Error opening leader %llx %s\n",pe.config,strerror(errno));
      test_fail(test_string);
    }
 
