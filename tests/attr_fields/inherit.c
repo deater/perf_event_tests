@@ -1,7 +1,7 @@
 /* inherit.c */
 /* simple test of the inherit flag              */
 
-/* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
+/* by Vince Weaver   vincent.weaver@maine.edu   */
 
 
 #include <stdio.h>
@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <asm/unistd.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "perf_helpers.h"
@@ -22,128 +23,131 @@ int fd;
 
 void *thread_work(void *blah) {
 
-   return NULL;
+	return NULL;
 }
 
 
 char test_string[]="Testing inherit...";
 
 int main(int argc, char** argv) {
-   
-   int j;
-   int quiet;
-   pthread_t our_thread[8];
-   int read_result;
-   long long inherit_count,count;
 
-   struct perf_event_attr pe;
+	int j;
+	int quiet;
+	pthread_t our_thread[8];
+	int read_result;
+	long long inherit_count,count;
 
-   quiet=test_quiet();
-   
-   if (!quiet) {
-      printf("This test checks inherit functionality.\n");
-      printf("Starting and stopping 8 threads\n");
-   }
+	struct perf_event_attr pe;
 
-   /*************************/
-   /* With inherit set      */
-   /*************************/
+	quiet=test_quiet();
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	if (!quiet) {
+		printf("This test checks inherit functionality.\n");
+		printf("Starting and stopping 8 threads\n");
+	}
 
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.disabled=1;
-   pe.inherit=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
-   
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-      fprintf(stderr,"Error opening\n");
-      exit(1);
-   }
-         
-   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-   ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	/*************************/
+	/* With inherit set      */
+	/*************************/
 
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   for(j=0;j<8;j++) {
-      pthread_create(&our_thread[j],NULL,thread_work,0);	 
-   }
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.disabled=1;
+	pe.inherit=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   for(j=0;j<8;j++) {
-      pthread_join(our_thread[j],NULL);	 
-   }
+	arch_adjust_domain(&pe,quiet);
 
-   ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		fprintf(stderr,"Error opening first: %s\n",strerror(errno));
+		test_fail(test_string);
+	}
 
-   read_result=read(fd,&inherit_count,sizeof(long long));
-
-   if (read_result!=sizeof(long long)) {
-     fprintf(stderr,"\tImproper return from read: %d\n",read_result);
-     test_fail(test_string); 
-   }
-
-   close(fd);
-
-   /****************************/
-   /* Without inherit      set */
-   /****************************/
-
-   memset(&pe,0,sizeof(struct perf_event_attr));
-
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.disabled=1;
-   pe.inherit=0;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
-   
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-      fprintf(stderr,"Error opening\n");
-      exit(1);
-   }
-         
-   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-   ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
 
-   for(j=0;j<8;j++) {
-      pthread_create(&our_thread[j],NULL,thread_work,0);	 
-   }
+	for(j=0;j<8;j++) {
+		pthread_create(&our_thread[j],NULL,thread_work,0);
+	}
 
-   for(j=0;j<8;j++) {
-      pthread_join(our_thread[j],NULL);	 
-   }
+	for(j=0;j<8;j++) {
+		pthread_join(our_thread[j],NULL);
+	}
 
-   ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 
-   read_result=read(fd,&count,sizeof(long long));
+	read_result=read(fd,&inherit_count,sizeof(long long));
 
-   if (read_result!=sizeof(long long)) {
-     fprintf(stderr,"\tImproper return from read: %d\n",read_result);
-     test_fail(test_string); 
-   }
+	if (read_result!=sizeof(long long)) {
+		fprintf(stderr,"\tImproper return from read: %d\n",read_result);
+		test_fail(test_string);
+	}
 
-   close(fd);
+	close(fd);
 
-   if (!quiet) {
+	/****************************/
+	/* Without inherit set      */
+	/****************************/
 
-     printf("\tFound %lld instructions with inherit enabled\n",
-	    inherit_count);
-     printf("\tFound %lld instructions with inherit disabled\n",
-	    count);
-     
-   }
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   if ((inherit_count < 6*count) || (inherit_count > 9*count)) {
-      fprintf(stderr,"\tInherit count unexpected.\n");
-      test_fail(test_string);
-   }
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.disabled=1;
+	pe.inherit=0;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   test_pass(test_string);
+	arch_adjust_domain(&pe,quiet);
 
-   return 0;
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		fprintf(stderr,"Error opening second: %s\n",
+			strerror(errno));
+		test_fail(test_string);
+	}
+
+	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+
+	for(j=0;j<8;j++) {
+		pthread_create(&our_thread[j],NULL,thread_work,0);
+	}
+
+	for(j=0;j<8;j++) {
+		pthread_join(our_thread[j],NULL);
+	}
+
+	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+
+	read_result=read(fd,&count,sizeof(long long));
+
+	if (read_result!=sizeof(long long)) {
+		fprintf(stderr,"\tImproper return from read: %d\n",read_result);
+		test_fail(test_string);
+	}
+
+	close(fd);
+
+	if (!quiet) {
+
+		printf("\tFound %lld instructions with inherit enabled\n",
+			inherit_count);
+		printf("\tFound %lld instructions with inherit disabled\n",
+			count);
+	}
+
+	if ((inherit_count < 6*count) || (inherit_count > 9*count)) {
+		fprintf(stderr,"\tInherit count unexpected.\n");
+		test_fail(test_string);
+	}
+
+	test_pass(test_string);
+
+	return 0;
 }

@@ -11,6 +11,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <sys/ioctl.h>
 
@@ -52,7 +53,7 @@ int main(int argc, char** argv) {
       if (read_result!=sizeof(long long)) printf("Unexpected read size\n");
 
       if (!quiet) printf("\tCounted %lld instructions\n",count);
-      
+
       close(fd);
 
       memset(&pe,0,sizeof(struct perf_event_attr));
@@ -63,13 +64,16 @@ int main(int argc, char** argv) {
       pe.disabled=1;
       pe.exclude_kernel=1;
       pe.enable_on_exec=1;
-   
-      fd=perf_event_open(&pe,0,-1,-1,0);
-      if (fd<0) {
-         fprintf(stderr,"Error opening\n");
-         test_fail(test_string);
-         exit(1);
-      }
+
+	arch_adjust_domain(&pe,quiet);
+
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		fprintf(stderr,"Error opening first: %s\n",
+			strerror(errno));
+		test_fail(test_string);
+		exit(1);
+	}
 
       if (count!=0) test_fail(test_string);
 
@@ -97,7 +101,7 @@ int main(int argc, char** argv) {
       if (read_result!=sizeof(long long)) printf("Unexpected read size\n");
 
       if (!quiet) printf("\tCounted %lld instructions\n",count);
-      
+
       close(fd);
 
       if (count==0) test_fail(test_string);
@@ -113,31 +117,33 @@ int main(int argc, char** argv) {
       printf("Testing if enable_on_exec works as expected.\n");
    }
 
-   /* setup perf-event */
+	/* setup perf-event */
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.enable_on_exec=0;
-   
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-      fprintf(stderr,"Error opening\n");
-      test_fail(test_string);
-      exit(1);
-   }
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.enable_on_exec=0;
 
-   sprintf(fd_string,"%d",fd);
+	arch_adjust_domain(&pe,quiet);
+
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		fprintf(stderr,"Error opening second: %s\n",strerror(errno));
+		test_fail(test_string);
+		exit(1);
+	}
+
+	sprintf(fd_string,"%d",fd);
 
 
-   /* exec ourselves, but with an argument to change behavior */
-   execl(argv[0],argv[0],fd_string,NULL);
+	/* exec ourselves, but with an argument to change behavior */
+	execl(argv[0],argv[0],fd_string,NULL);
 
-   (void) ret;
+	(void) ret;
 
-   return 0;
+	return 0;
 }
