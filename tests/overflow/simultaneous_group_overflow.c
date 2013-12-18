@@ -128,14 +128,16 @@ int main(int argc, char** argv) {
       pe.exclude_hv=1;
       pe.wakeup_events=1;
 
+	arch_adjust_domain(&pe,quiet);
+
       events[i].fd=perf_event_open(&pe,0,-1,-1,0);
       if (events[i].fd<0) {
          fprintf(stderr,"Error opening leader %llx\n",pe.config);
-         exit(1);
+         test_fail(test_string);
       }
-   
+
       /* on older kernels you need this even if you don't use it */
-      our_mmap=mmap(NULL, (1+MMAP_PAGES)*getpagesize(), 
+      our_mmap=mmap(NULL, (1+MMAP_PAGES)*getpagesize(),
          PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
    
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -206,6 +208,8 @@ int main(int argc, char** argv) {
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
       pe.wakeup_events=1;
+
+	arch_adjust_domain(&pe,quiet);
 
       events[i].fd=perf_event_open(&pe,0,-1,(i==0)?-1:events[0].fd,0);
       if (events[i].fd<0) {

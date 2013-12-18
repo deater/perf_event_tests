@@ -147,20 +147,22 @@ int main(int argc, char** argv) {
       pe.exclude_hv=1;
       pe.wakeup_events=1;
 
+	arch_adjust_domain(&pe,quiet);
+
       events[i].fd=perf_event_open(&pe,0,-1,-1,0);
       if (events[i].fd<0) {
          fprintf(stderr,"Error opening leader %llx\n",pe.config);
-         exit(1);
+         test_fail(test_string);
       }
-   
+
       our_mmap[i]=mmap(NULL, (1+MMAP_PAGES)*getpagesize(), 
          PROT_READ|PROT_WRITE, MAP_SHARED, events[i].fd, 0);
-   
+
       fcntl(events[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
       fcntl(events[i].fd, F_SETSIG, SIGRTMIN+2);
       fcntl(events[i].fd, F_SETOWN,getpid());
-      
-   
+
+
       ioctl(events[i].fd, PERF_EVENT_IOC_RESET, 0);   
 
       if (!quiet) { 
@@ -225,6 +227,8 @@ int main(int argc, char** argv) {
       pe.exclude_kernel=1;
       pe.exclude_hv=1;
       pe.wakeup_events=1;
+
+	arch_adjust_domain(&pe,quiet);
 
       events[i].fd=perf_event_open(&pe,0,-1,-1,0);
       if (events[i].fd<0) {
