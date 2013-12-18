@@ -40,13 +40,11 @@ There are various subdirectories:
 
    + validation -- tests that check low-level perf_event functionality
 
-   + validation_privledged -- tests that are low-level but require
-                   root or elevated permissions to run
-
    + unfinished -- unfinished tests
 
+   + x86_intel  -- tests specific to the x86 intel architecture
 
 ---
 
 Vince
-11 October 2013
+18 December 2013

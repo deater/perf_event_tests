@@ -45,12 +45,9 @@ $TESTS_DIR/x86_intel/offcore_response
 echo "  + $TESTS_DIR/x86_intel/offcore_response_mask"
 echo -n "    "
 $TESTS_DIR/x86_intel/offcore_response_mask
-
-echo
-echo "* Checking events that require special permissions"
-echo "  + $TESTS_DIR/validation_privileged/uncore_events"
+echo "  + $TESTS_DIR/x86_intel/uncore_events"
 echo -n "    "
-$TESTS_DIR/validation_privileged/uncore_events
+$TESTS_DIR/x86_intel/uncore_events
 
 echo
 echo "* Checking basic perf_event functionality"

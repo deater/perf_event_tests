@@ -9,7 +9,6 @@ all:
 	cd record_sample && make
 	cd sysfs && make
 	cd validation && make
-	cd validation_privileged && make
 	cd x86_intel && make
 
 clean:	
@@ -24,6 +23,5 @@ clean:
 	cd record_sample && make clean
 	cd sysfs && make clean
 	cd validation && make clean
-	cd validation_privileged && make clean
 	cd x86_intel && make clean
 
