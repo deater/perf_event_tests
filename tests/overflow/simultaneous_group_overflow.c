@@ -290,7 +290,8 @@ int main(int argc, char** argv) {
    }
 
    if (counts[0]!=counts[1]) {
-      if (!quiet) fprintf(stderr,"Counts should be the same\n");
+      if (!quiet) fprintf(stderr,"Counts should be the same %lld %lld\n",
+		counts[0],counts[1]);
       test_fail(test_string);
    }
 
