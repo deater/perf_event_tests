@@ -38,13 +38,13 @@ echo -n "    "
 $TESTS_DIR/generalized_events/l1-dcache-loads
 
 echo
-echo "* Checking offcore response events"
-echo "  + $TESTS_DIR/validation/offcore_response"
+echo "* Checking Intel x86 specific features"
+echo "  + $TESTS_DIR/x86_intel/offcore_response"
 echo -n "    "
-$TESTS_DIR/validation/offcore_response
-echo "  + $TESTS_DIR/validation/offcore_response_mask"
+$TESTS_DIR/x86_intel/offcore_response
+echo "  + $TESTS_DIR/x86_intel/offcore_response_mask"
 echo -n "    "
-$TESTS_DIR/validation/offcore_response_mask
+$TESTS_DIR/x86_intel/offcore_response_mask
 
 echo
 echo "* Checking events that require special permissions"

@@ -10,9 +10,7 @@ all:	\
 	format_id_support \
 	get_cache_info \
 	inherit \
-	inherit_stat \
-	offcore_response \
-	offcore_response_mask 
+	inherit_stat 
 
 
 ###
@@ -31,35 +29,6 @@ $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 
 $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 	cd $(LIB) && make
-
-###
-
-offcore_response:	offcore_response.o $(LIB)/test_utils.o \
-			$(LIB)/matrix_multiply.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o offcore_response offcore_response.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/matrix_multiply.o \
-			$(LIB)/perf_helpers.o
-
-offcore_response.o:	offcore_response.c
-	$(CC) $(CFLAGS) -c offcore_response.c
-
-
-
-###
-
-offcore_response_mask:	offcore_response_mask.o $(LIB)/test_utils.o \
-			$(LIB)/matrix_multiply.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o offcore_response_mask offcore_response_mask.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/matrix_multiply.o \
-			$(LIB)/perf_helpers.o
-
-offcore_response_mask.o:	offcore_response_mask.c
-	$(CC) $(CFLAGS) -c offcore_response_mask.c
-
 
 ###
 
@@ -163,7 +132,5 @@ clean:
 	get_cache_info \
 	inherit \
 	inherit_stat \
-	offcore_response \
-	offcore_response_mask \
 	rdpmc_support \
 	rdpmc_validation 
