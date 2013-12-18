@@ -6,6 +6,7 @@ all:
 	cd error_returns && make
 	cd generalized_events && make
 	cd ioctl && make
+	cd multiplexing && make
 	cd overflow && make
 	cd rdpmc && make
 	cd record_sample && make
@@ -22,6 +23,7 @@ clean:
 	cd error_returns && make clean
 	cd generalized_events && make clean
 	cd ioctl && make clean
+	cd multiplexing && make clean
 	cd overflow && make clean
 	cd rdpmc && make clean
 	cd record_sample && make clean

@@ -28,6 +28,8 @@ There are various subdirectories:
 
    + ioctl     -- tests of perf_event ioctl calls
 
+   + multiplexing -- tests that check multiplexing functionality
+
    + overflow  -- tests involving counter overflow functionality
 
    + rdpmc     -- tests user-space counter access w/o syscall

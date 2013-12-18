@@ -162,12 +162,12 @@ $TESTS_DIR/bugs/read_group_attached
 echo "  + $TESTS_DIR/bugs/check_schedulability"
 echo -n "    "
 $TESTS_DIR/bugs/check_schedulability
-echo "  + $TESTS_DIR/bugs/check_papi_multiplexing"
+echo "  + $TESTS_DIR/multiplexing/check_papi_multiplexing"
 echo -n "    "
-$TESTS_DIR/bugs/check_papi_multiplexing
-echo "  + $TESTS_DIR/bugs/check_multiplexing"
+$TESTS_DIR/multiplexing/check_papi_multiplexing
+echo "  + $TESTS_DIR/multiplexing/check_multiplexing"
 echo -n "    "
-$TESTS_DIR/bugs/check_multiplexing
+$TESTS_DIR/multiplexing/check_multiplexing
 
 echo
 echo "* Checking other bugs"
