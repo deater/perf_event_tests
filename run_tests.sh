@@ -50,13 +50,16 @@ echo -n "    "
 $TESTS_DIR/x86_intel/uncore_events
 
 echo
+echo "* Checking breakpoint support"
+echo "  + $TESTS_DIR/breakpoints/breakpoint_support"
+echo -n "    "
+$TESTS_DIR/breakpoints/breakpoint_support
+
+echo
 echo "* Checking basic perf_event functionality"
 echo "  + $TESTS_DIR/validation/format_id_support"
 echo -n "    "
 $TESTS_DIR/validation/format_id_support
-echo "  + $TESTS_DIR/validation/breakpoint_support"
-echo -n "    "
-$TESTS_DIR/validation/breakpoint_support
 echo "  + $TESTS_DIR/validation/inherit"
 echo -n "    "
 $TESTS_DIR/validation/inherit

@@ -1,4 +1,5 @@
 all:
+	cd breakpoints && make
 	cd bugs && make
 	cd corner_cases && make
 	cd error_returns && make
@@ -13,6 +14,7 @@ all:
 
 clean:	
 	rm -rf *~
+	cd breakpoints && make clean
 	cd bugs && make clean
 	cd corner_cases && make clean
 	cd error_returns && make clean
