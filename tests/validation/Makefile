@@ -6,7 +6,6 @@ LIB = ../../lib
 all:	\
 	enable_on_exec \
 	format_id_support \
-	get_cache_info \
 	inherit \
 	inherit_stat 
 
@@ -27,19 +26,6 @@ $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 
 $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 	cd $(LIB) && make
-
-###
-
-get_cache_info:	get_cache_info.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/detect_cache.o
-	$(CC) $(LFLAGS) -o get_cache_info get_cache_info.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/detect_cache.o
-
-get_cache_info.o:	get_cache_info.c
-	$(CC) $(CFLAGS) -c get_cache_info.c
 
 ###
 
@@ -101,7 +87,6 @@ clean:
 	rm -f *~ *.o \
 	enable_on_exec \
 	format_id_support \
-	get_cache_info \
 	inherit \
 	inherit_stat 
 

@@ -42,6 +42,8 @@ There are various subdirectories:
 
    + unfinished -- TODO
 
+   + utils	-- utilitiy tools
+
    + validation -- tests that check low-level perf_event functionality
 
    + unfinished -- unfinished tests

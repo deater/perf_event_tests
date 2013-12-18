@@ -11,6 +11,7 @@ all:
 	cd rdpmc && make
 	cd record_sample && make
 	cd sysfs && make
+	cd utils && make
 	cd validation && make
 	cd x86_intel && make
 
@@ -28,6 +29,7 @@ clean:
 	cd rdpmc && make clean
 	cd record_sample && make clean
 	cd sysfs && make clean
+	cd utils && make clean
 	cd validation && make clean
 	cd x86_intel && make clean
 

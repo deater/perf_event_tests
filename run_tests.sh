@@ -9,9 +9,9 @@ uname -a
 
 echo
 echo "* Checking infrastructure"
-echo "  + $TESTS_DIR/validation/get_cache_info"
+echo "  + $TESTS_DIR/utils/get_cache_info"
 echo -n "    "
-$TESTS_DIR/validation/get_cache_info
+$TESTS_DIR/utils/get_cache_info
 echo " + $TESTS_DIR/sysfs/events"
 echo -n "    "
 $TESTS_DIR/sysfs/events
