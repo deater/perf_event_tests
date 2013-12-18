@@ -5,6 +5,7 @@ LIB = ../../lib
 
 all:	\
 	enable_on_exec \
+	exclusive \
 	format_id_support \
 	inherit \
 	inherit_stat 
@@ -65,6 +66,19 @@ enable_on_exec:	enable_on_exec.o $(LIB)/test_utils.o \
 enable_on_exec.o:	enable_on_exec.c
 	$(CC) $(CFLAGS) -c enable_on_exec.c
 
+###
+
+exclusive:	exclusive.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o exclusive exclusive.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+exclusive.o:	exclusive.c
+	$(CC) $(CFLAGS) -c exclusive.c
+
 
 ###                                                                            
 
@@ -86,6 +100,7 @@ format_id_support.o:	format_id_support.c
 clean:	
 	rm -f *~ *.o \
 	enable_on_exec \
+	exclusive \
 	format_id_support \
 	inherit \
 	inherit_stat 
