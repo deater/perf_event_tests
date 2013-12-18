@@ -12,6 +12,7 @@ all:
 	cd rdpmc && make
 	cd record_sample && make
 	cd sysfs && make
+	cd tracepoints && make
 	cd utils && make
 	cd x86_intel && make
 
@@ -30,6 +31,7 @@ clean:
 	cd rdpmc && make clean
 	cd record_sample && make clean
 	cd sysfs && make clean
+	cd tracepoints && make clean
 	cd utils && make clean
 	cd x86_intel && make clean
 

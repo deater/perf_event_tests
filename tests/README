@@ -42,6 +42,8 @@ There are various subdirectories:
    + sysfs      -- test the parsing of various perf_event related
                    files under /sys/
 
+   + tracepoints -- test tracepoint events
+
    + unfinished -- TODO
 
    + utils	-- utilitiy tools
