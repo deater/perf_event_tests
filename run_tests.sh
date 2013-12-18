@@ -180,9 +180,9 @@ $TESTS_DIR/corner_cases/hw_sw_mix
 
 echo
 echo "* Checking bugs that can silently produce wrong results"
-echo "  + $TESTS_DIR/validation/check_constraints"
+echo "  + $TESTS_DIR/constraints/check_constraints"
 echo -n "    "
-$TESTS_DIR/validation/check_constraints
+$TESTS_DIR/constraints/check_constraints
 echo "  + $TESTS_DIR/corner_cases/context_switch_user_kernel"
 echo -n "    "
 $TESTS_DIR/corner_cases/context_switch_user_kernel

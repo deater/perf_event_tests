@@ -12,6 +12,8 @@ There are various subdirectories:
    + bugs      -- these contain tests for broken features of perf_events
                   that a tool like PAPI has to work around.
 
+   + constraints -- check the perf_event event constraints codepath
+
    + corner_cases -- these are tests that check unusual or uncommon
                   perf_event functionality.  They might not affect
                   common perf usage patterns but are still important

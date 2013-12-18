@@ -4,8 +4,6 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
-	breakpoint_support \
-	check_constraints \
 	enable_on_exec \
 	format_id_support \
 	get_cache_info \
@@ -29,30 +27,6 @@ $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 
 $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 	cd $(LIB) && make
-
-###
-
-breakpoint_support:	breakpoint_support.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o 
-	$(CC) $(LFLAGS) -o breakpoint_support breakpoint_support.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o 
-
-breakpoint_support.o:	breakpoint_support.c
-	$(CC) $(CFLAGS) -c breakpoint_support.c
-
-###
-
-check_constraints:	check_constraints.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o check_constraints check_constraints.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-check_constraints.o:	check_constraints.c
-	$(CC) $(CFLAGS) -c check_constraints.c
 
 ###
 
@@ -125,12 +99,9 @@ format_id_support.o:	format_id_support.c
 
 clean:	
 	rm -f *~ *.o \
-	breakpoint_support \
-	check_constraints \
 	enable_on_exec \
 	format_id_support \
 	get_cache_info \
 	inherit \
-	inherit_stat \
-	rdpmc_support \
-	rdpmc_validation 
+	inherit_stat 
+

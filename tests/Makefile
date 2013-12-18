@@ -1,6 +1,7 @@
 all:
 	cd breakpoints && make
 	cd bugs && make
+	cd constraints && make
 	cd corner_cases && make
 	cd error_returns && make
 	cd generalized_events && make
@@ -16,6 +17,7 @@ clean:
 	rm -rf *~
 	cd breakpoints && make clean
 	cd bugs && make clean
+	cd constraints && make clean
 	cd corner_cases && make clean
 	cd error_returns && make clean
 	cd generalized_events && make clean
