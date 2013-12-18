@@ -1,4 +1,5 @@
 all:
+	cd attr_fields && make
 	cd breakpoints && make
 	cd bugs && make
 	cd constraints && make
@@ -12,11 +13,11 @@ all:
 	cd record_sample && make
 	cd sysfs && make
 	cd utils && make
-	cd validation && make
 	cd x86_intel && make
 
 clean:	
 	rm -rf *~
+	cd attr_fields && make clean
 	cd breakpoints && make clean
 	cd bugs && make clean
 	cd constraints && make clean
@@ -30,6 +31,5 @@ clean:
 	cd record_sample && make clean
 	cd sysfs && make clean
 	cd utils && make clean
-	cd validation && make clean
 	cd x86_intel && make clean
 

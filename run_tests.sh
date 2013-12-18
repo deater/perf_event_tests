@@ -57,18 +57,18 @@ $TESTS_DIR/breakpoints/breakpoint_support
 
 echo
 echo "* Checking basic perf_event functionality"
-echo "  + $TESTS_DIR/validation/format_id_support"
+echo "  + $TESTS_DIR/attr_fields/format_id_support"
 echo -n "    "
-$TESTS_DIR/validation/format_id_support
-echo "  + $TESTS_DIR/validation/inherit"
+$TESTS_DIR/attr_fields/format_id_support
+echo "  + $TESTS_DIR/attr_fields/inherit"
 echo -n "    "
-$TESTS_DIR/validation/inherit
-echo "  + $TESTS_DIR/validation/inherit_stat"
+$TESTS_DIR/attr_fields/inherit
+echo "  + $TESTS_DIR/attr_fields/inherit_stat"
 echo -n "    "
-$TESTS_DIR/validation/inherit_stat
-echo "  + $TESTS_DIR/validation/enable_on_exec"
+$TESTS_DIR/attr_fields/inherit_stat
+echo "  + $TESTS_DIR/attr_fields/enable_on_exec"
 echo -n "    "
-$TESTS_DIR/validation/enable_on_exec
+$TESTS_DIR/attr_fields/enable_on_exec
 
 echo
 echo "* Checking perf_event ioctl calls"
