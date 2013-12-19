@@ -57,6 +57,9 @@ $TESTS_DIR/breakpoints/breakpoint_support
 
 echo
 echo "* Checking basic perf_event functionality"
+echo "  + $TESTS_DIR/attr_fields/disabled"
+echo -n "    "
+$TESTS_DIR/attr_fields/disabled
 echo "  + $TESTS_DIR/attr_fields/exclusive"
 echo -n "    "
 $TESTS_DIR/attr_fields/exclusive

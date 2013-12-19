@@ -4,6 +4,7 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
+	disabled \
 	enable_on_exec \
 	exclusive \
 	format_id_support \
@@ -55,6 +56,19 @@ inherit_stat.o:	inherit_stat.c
 
 ###
 
+disabled:	disabled.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o disabled disabled.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+disabled.o:	disabled.c
+	$(CC) $(CFLAGS) -c disabled.c
+
+###
+
 enable_on_exec:	enable_on_exec.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
@@ -99,6 +113,7 @@ format_id_support.o:	format_id_support.c
 
 clean:	
 	rm -f *~ *.o \
+	disabled \
 	enable_on_exec \
 	exclusive \
 	format_id_support \
