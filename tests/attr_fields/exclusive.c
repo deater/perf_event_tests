@@ -1,8 +1,16 @@
 /* exclusive.c  */
-/* Test if the exclusive bit works                    */
-/* It doesn't do useful things for most machines      */
-/* As the NMI watchdog is running and keeps exclusive */
-/* eventsets from running.                            */
+
+/* Test if the exclusive bit works                                            */
+
+/*  The exclusive bit says to only run if *no* other events are running       */
+
+/*  This fails on most distros as the NMI watchdog timer tends to be          */
+/*  enabled and it uses an always-counting performance counter.               */
+
+/*  Other counter use can also block exclusive events; for example            */
+/*  another user doing a global measurement with "perf stat -a /bin/sleep 100 */
+/*  will also lead to an exclusive event never getting scheduled (and thus    */
+/*  always return 0 as a result.                                              */
 
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
