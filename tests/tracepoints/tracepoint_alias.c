@@ -89,6 +89,10 @@ int main(int argc, char **argv) {
 
 		}
 
+	} else {
+
+		if (!quiet) printf("\tNone found\n");
+		test_skip(test_string);
 	}
 
 	return 0;
