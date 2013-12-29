@@ -40,6 +40,7 @@ static int ioctl_errors=0;
 static int ioctl_errno=0;
 
 static void our_handler(int signum, siginfo_t *info, void *uc) {
+
 	int fd = info->si_fd;
 	int ret;
 	long long value;
@@ -107,8 +108,8 @@ int main(int argc, char** argv) {
 
 	fd[0]=perf_event_open(&pe,0,-1,-1,0);
 	if (fd[0]<0) {
-		fprintf(stderr,"Error opening\n");
-		exit(1);
+		if (!quiet) fprintf(stderr,"Error opening\n");
+		test_fail(test_string);
 	}
 
 	/* Set up overflow */

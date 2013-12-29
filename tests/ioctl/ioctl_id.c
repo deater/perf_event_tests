@@ -49,8 +49,8 @@ int main(int argc, char** argv) {
 
 	fd[0]=perf_event_open(&pe,0,-1,-1,0);
 	if (fd[0]<0) {
-		fprintf(stderr,"Error opening\n");
-		exit(1);
+		if (!quiet) fprintf(stderr,"Error opening\n");
+		test_fail(test_string);
 	}
 
 	ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
