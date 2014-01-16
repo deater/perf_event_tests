@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall -g -I../include -I./include
+CFLAGS = -O2 -Wall -g -I../include -I./include -I./trinity_files/include
 LFLAGS = 
 
 all:	perf_fuzzer replay_log log_to_code filter_log active_events
@@ -46,39 +46,20 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
-		fds.o interesting-numbers.o perf_event_open.o pids.o \
-		random.o random-address.o random-length.o
+		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
-		fds.o interesting-numbers.o perf_event_open.o pids.o \
-		random.o random-address.o random-length.o
+		trinity_files/trinity_lib.a
 
 perf_fuzzer.o:	perf_fuzzer.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c perf_fuzzer.c
 
 
-perf_event_open.o:	perf_event_open.c
-	$(CC) $(CFLAGS) -c perf_event_open.c
-
-fds.o:	fds.c
-	$(CC) $(CFLAGS) -c fds.c
-
-interesting-numbers.o:	interesting-numbers.c
-	$(CC) $(CFLAGS) -c interesting-numbers.c
-
-pids.o:		pids.c
-	$(CC) $(CFLAGS) -c pids.c
-
-random.o:	random.c
-	$(CC) $(CFLAGS) -c random.c
-
-random-address.o:	random-address.c
-	$(CC) $(CFLAGS) -c random-address.c
-
-random-length.o:	random-length.c
-	$(CC) $(CFLAGS) -c random-length.c
+trinity_files/trinity_lib.a:	
+	cd trinity_files && make
 
 clean:	
 	rm -f *~ *.o perf_fuzzer replay_log log_to_code filter_log active_events
+	cd trinity_files && make clean
 

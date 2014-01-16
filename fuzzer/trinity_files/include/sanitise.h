@@ -3,7 +3,7 @@
 
 #include "syscall.h"
 
-unsigned long long rand64(void);
+u64 rand64(void);
 
 void sanitise_mmap(int childno);
 void sanitise_rt_sigaction(int childno);

@@ -108,7 +108,7 @@ struct event_data_t{
 static struct sigaction sigio;
 static struct sigaction sigquit;
 
-extern struct syscall syscall_perf_event_open;
+extern struct syscallentry syscall_perf_event_open;
 
 static int active_events=0;
 
