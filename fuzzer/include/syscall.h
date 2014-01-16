@@ -1,9 +1,10 @@
-#ifndef _TRINITY_SYSCALL_H
-#define _TRINITY_SYSCALL_H 1
+#pragma once
+
+#include "types.h"
 
 enum argtype {
 	ARG_UNDEFINED = 0,
-	ARG_RANDOM_INT = 1,
+	ARG_RANDOM_LONG = 1,
 	ARG_FD = 2,
 	ARG_LEN = 3,
 	ARG_ADDRESS = 4,
@@ -20,6 +21,7 @@ enum argtype {
 	ARG_IOVECLEN = 15,
 	ARG_SOCKADDR = 16,
 	ARG_SOCKADDRLEN = 17,
+	ARG_MMAP = 18,
 };
 
 struct arglist {
@@ -27,12 +29,14 @@ struct arglist {
 	unsigned int values[32];
 };
 
-struct syscall {
+struct syscallentry {
 	void (*sanitise)(int childno);
-	void (*post)(int);
+	void (*post)(int childno);
 	int (*init)(void);
+	char * (*decode)(int argnum, int childno);
 
 	unsigned int number;
+	unsigned int active_number;
 	const char name[80];
 	const unsigned int num_args;
 	unsigned int flags;
@@ -91,16 +95,8 @@ struct syscall {
 #define GROUP_VFS	2
 
 struct syscalltable {
-	struct syscall *entry;
+	struct syscallentry *entry;
 };
-extern const struct syscalltable *syscalls;
-extern const struct syscalltable *syscalls_32bit;
-extern const struct syscalltable *syscalls_64bit;
-
-extern unsigned long syscalls_todo;
-extern unsigned int max_nr_syscalls;
-extern unsigned int max_nr_32bit_syscalls;
-extern unsigned int max_nr_64bit_syscalls;
 
 #define CAPABILITY_CHECK (1<<0)
 #define AVOID_SYSCALL (1<<1)
@@ -110,29 +106,4 @@ extern unsigned int max_nr_64bit_syscalls;
 #define NEED_ALARM (1<<5)
 #define TO_BE_DEACTIVATED (1<<6)
 
-void select_syscall_tables(void);
-int search_syscall_table(const struct syscalltable *table, unsigned int nr_syscalls, const char *arg);
-void mark_all_syscalls_active(void);
-void toggle_syscall(const char *arg, unsigned char state);
-void dump_syscall_tables(void);
-int setup_syscall_group(unsigned int desired_group);
-int validate_syscall_tables(void);
-int validate_syscall_table_64(void);
-int validate_syscall_table_32(void);
-void sanity_check_tables(void);
-void enable_random_syscalls(void);
-int validate_specific_syscall_silent(const struct syscalltable *table, int call);
-void deactivate_disabled_syscalls(void);
-void count_syscalls_enabled(void);
-void display_enabled_syscalls(void);
-void disable_non_net_syscalls(void);
-void init_syscalls(void);
-
-#define for_each_32bit_syscall(i) \
-	for (i = 0; i < max_nr_32bit_syscalls; i++)
-#define for_each_64bit_syscall(i) \
-	for (i = 0; i < max_nr_64bit_syscalls; i++)
-#define for_each_syscall(i) \
-	for (i = 0; i < max_nr_syscalls; i++)
-
-#endif	/* _TRINITY_SYSCALL_H */
+long syscall32(unsigned int call, unsigned long a1, unsigned long a2, unsigned long a3, unsigned long a4, unsigned long a5, unsigned long a6);
