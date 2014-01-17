@@ -242,6 +242,7 @@ static void close_event(int i, int from_sigio) {
 				event_data[i].mmap);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
+		event_data[i].mmap=0;
 	}
 
 	close_attempts++;
