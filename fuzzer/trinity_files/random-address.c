@@ -71,14 +71,14 @@ static void * _get_address(unsigned char null_allowed)
 	case 7: map = get_map();
 		addr = map->ptr;
 		break;
-#endif
+
 	case 8: addr = malloc(page_size * 2);
 		// FIXME: We leak this. This is the address we need to store for later
 		// freeing, not the potentially munged version below.
 		// tricky. We want to hand the munged version out too, so we might end up
 		// having to split this into alloc_address / get_address.
 		break;
-#if 0
+
 	case 9:	addr = page_maps;
 		break;
 #endif
