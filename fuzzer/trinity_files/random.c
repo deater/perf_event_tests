@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <limits.h>
-//#include "pids.h"
+#include "pids.h"
 #include "random.h"
 #include "sanitise.h"	// interesting_numbers
 #include "types.h"
@@ -52,14 +52,14 @@ static unsigned long taviso(void)
 #endif
 		break;
 
-	case 1:	temp=rand();
-		r=rand();
-		if (!temp) r %= temp;
+	case 1:	temp = rand();
+		r = rand();
+		if (temp) r %= temp;
 #if __WORDSIZE == 64
 		r <<= 32;
 
-		temp=rand();
-		if (!temp) r |= rand() % temp;
+		temp = rand();
+		if (temp) r |= rand() % temp;
 #endif
 		break;
 
