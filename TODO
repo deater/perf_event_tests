@@ -1,3 +1,7 @@
++ Test for PERF_FLAG_FD_CLOEXEC
+
++ Fix up the test for PERF_IOC_PERIOD and if it takes place right away.
+
 + Add test for Fixed Counter 2 (retired instructions) being different.
   Basically run 5 instructions events, compare results
   
