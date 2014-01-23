@@ -14,7 +14,8 @@ all:	pe_inherit_memleak pe_task_schedule_panic \
 	tracepoint_irq_work_exit \
 	arm_validate_event_oops arm_map_hw_event_oops \
 	perf_ftrace_event_crash \
-	core2_nmi_flood
+	core2_nmi_flood \
+	css_cgroup_crash
 
 ####
 
@@ -142,6 +143,14 @@ perf_ftrace_event_crash:	perf_ftrace_event_crash.o
 perf_ftrace_event_crash.o:	perf_ftrace_event_crash.c
 	$(CC) $(CFLAGS) -c perf_ftrace_event_crash.c
 
+
+####
+css_cgroup_crash:	css_cgroup_crash.o
+	$(CC) $(LFLAGS) -o css_cgroup_crash css_cgroup_crash.o
+
+css_cgroup_crash.o:	css_cgroup_crash.c
+	$(CC) $(CFLAGS) -c css_cgroup_crash.c
+
 ####
 
 clean:	
@@ -151,6 +160,6 @@ clean:
 		nmi_soft_lockup tracepoint_fork tracepoint_irq_work_exit \
 		arm_validate_event_oops arm_map_hw_event_oops \
 		perf_ftrace_event_crash \
-		core2_nmi_flood
+		core2_nmi_flood css_cgroup_crash
 
 

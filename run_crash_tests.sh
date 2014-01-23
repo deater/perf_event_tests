@@ -34,3 +34,4 @@ sleep 5
 ./crashes/tracepoint_irq_work_exit
 # Not really a crash, but why not
 ./crashes/core2_nmi_flood
+./crashes/css_cgroup_crash
