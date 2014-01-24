@@ -5,6 +5,8 @@
 /* perf/x86: Fix offcore_rsp valid mask for SNB/IVB                 */
 /* f1923820c447e986a9da0fc6bf60c1dccdf0408e                         */
 
+/* This is CVE-2013-2146					    */
+
 /* by Vince Weaver, vweaver1 _at_ eecs.utk.edu        */
 
 #include <stdlib.h>

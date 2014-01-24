@@ -4,6 +4,8 @@
 /*                                                                           */
 /* compile with gcc -O2 -o oflo_sw_cpu_clock_crash oflo_sw_cpu_clock_crash.c */
 
+/* This is CVE-2011-2918						     */
+
 /* by Vince Weaver <vweaver1 _at_ eecs.utk.edu>                              */
 
 #define _GNU_SOURCE 1
