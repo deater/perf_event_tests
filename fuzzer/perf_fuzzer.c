@@ -315,7 +315,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 			/* Avoid infinite throttle storms */
 			if (event_data[i].throttles > MAX_THROTTLES) {
-				close_event(i,1);
+	//			close_event(i,1);
 			}
 		}
 
