@@ -1163,13 +1163,49 @@ static void poll_random_event(void) {
 
 static void access_random_file(void) {
 
-	/* FIXME -- access perf event files under /proc and /sys */
-#if 0
-	/proc/sys/kernel/perf_event_paranoid
-	/proc/sys/kernel/perf_event_max_sample_rate
-	/proc/sys/kernel/perf_event_mlock_kb
-	/sys/bus/event_source/devices/
-#endif
+	int which;
+	FILE *fff;
+	char buffer[2048];
+
+#define MAX_FILENAMES	4
+
+	char *filenames[MAX_FILENAMES]={
+		"/proc/sys/kernel/perf_cpu_time_max_percent",
+		"/proc/sys/kernel/perf_event_paranoid",
+		"/proc/sys/kernel/perf_event_max_sample_rate",
+		"/proc/sys/kernel/perf_event_mlock_kb",
+	};
+
+	/* These files typically are owned by root */
+	/* So this should never trigger any bugs   */
+	/* unless running as root (a bad idea)	   */
+
+	which=rand()%4;
+
+	if (rand()%2) {
+		/* read */
+		fff=fopen(filenames[which],"r");
+		if (fff!=NULL) {
+			fread(buffer,sizeof(char),2048,fff);
+			fclose(fff);
+		}
+	}
+	else {
+		/* write */
+		fff=fopen(filenames[which],"w");
+		if (fff!=NULL) {
+			fprintf(fff,"%lld\n",
+				((unsigned long long)rand()<<32)|rand());
+			fclose(fff);
+		}
+	}
+
+
+	/****************************************/
+	/* TODO -- try some files under 	*/
+	/*	/sys/bus/event_source/devices/	*/
+	/****************************************/
+
 }
 
 static void run_a_million_instructions(void) {
