@@ -1214,9 +1214,20 @@ static void fork_random_event(void) {
 				while(1) instructions_million();
 			}
 		}
+
 		fork_attempts++;
-		fork_successful++;
-		already_forked=1;
+
+		/* We do see failures sometimes */
+		/* And when we do, if we foolishly kill process "-1" */
+		/* It will kill *all* processes beloning to the user */
+		/* Logging you out on all windows.                   */
+		if (forked_pid==-1) {
+			already_forked=0;
+		}
+		else {
+			fork_successful++;
+			already_forked=1;
+		}
 	}
 }
 
