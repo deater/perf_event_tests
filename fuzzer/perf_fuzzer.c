@@ -36,7 +36,7 @@
 int user_set_seed;
 int page_size;
 
-#define MAX_THROTTLES		20
+#define MAX_THROTTLES		5
 
 #define DEBUG_ALL		0xffffffff
 #define DEBUG_MMAP		0x0001
@@ -84,6 +84,12 @@ static long long prctl_attempts=0,prctl_successful=0;
 static long long fork_attempts=0,fork_successful=0;
 static long long poll_attempts=0,poll_successful=0;
 static long long trash_mmap_attempts=0,trash_mmap_successful=0;
+
+static int throttle_close_event=0;
+
+static int already_forked=0;
+static pid_t forked_pid;
+
 
 #define NUM_EVENTS 1024
 
@@ -300,11 +306,12 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 		event_data[i].overflows++;
 
 		if (event_data[i].overflows>10000) {
-			if (!logging) printf("Throttling event %d, last_refresh=%d, "
-				"period=%llu, type=%d\n",
-				i,event_data[i].last_refresh,
+			if (!logging) printf("Throttling event %d fd %d, last_refresh=%d, "
+				"period=%llu, type=%d throttles %d\n",
+				i,event_data[i].fd,event_data[i].last_refresh,
 				event_data[i].attr.sample_period,
-				event_data[i].attr.type);
+				event_data[i].attr.type,
+				event_data[i].throttles);
 			event_data[i].overflows=0;
 			event_data[i].throttles++;
 
@@ -315,7 +322,12 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 			/* Avoid infinite throttle storms */
 			if (event_data[i].throttles > MAX_THROTTLES) {
-	//			close_event(i,1);
+				printf("Throttle close %d!\n",i);
+				if (already_forked) {
+					kill(forked_pid,SIGKILL);
+				}
+
+				throttle_close_event=i;
 			}
 		}
 
@@ -773,7 +785,7 @@ static void open_random_event(void) {
 	}
 
 	/* Setup overflow? */
-	if ((type&DEBUG_OVERFLOW) && (rand()%2)) {
+	if ((type&DEBUG_OVERFLOW) && 0) {//(rand()%2)) {
 
 		if (logging&DEBUG_OVERFLOW) {
 			sprintf(log_buffer,"o %d\n",event_data[i].fd);
@@ -1215,8 +1227,6 @@ static void run_a_million_instructions(void) {
 }
 
 
-static int already_forked=0;
-static pid_t forked_pid;
 
 static void fork_random_event(void) {
 
@@ -1554,6 +1564,14 @@ int main(int argc, char **argv) {
 				}
 				break;
 		}
+
+		if (throttle_close_event) {
+			printf("Closing stuck event %d\n",
+				throttle_close_event);
+			close_event(throttle_close_event,1);
+			throttle_close_event=0;
+		}
+
 		next_overflow_refresh=rand()%2;
 		next_refresh=rand_refresh();
 		total_iterations++;
