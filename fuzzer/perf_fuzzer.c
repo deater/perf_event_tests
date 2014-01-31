@@ -606,6 +606,8 @@ static void print_errno_name(int e) {
 				break;
 		case EMFILE:	printf("EMFILE");
 				break;
+		case EACCES:	printf("EACCES");
+				break;
 		default:	printf("UNKNOWN %d",e);
 				break;
 	}
