@@ -72,12 +72,14 @@ static void trash_mmap_event(char *line) {
 	sscanf(line,"%*c %d %d %d",&value,&size,&fd);
 
 	if (fd_remap[fd]==-1) {
-		fprintf(stderr,"Line %lld Skipping mmap as fd %d not valid\n",
+		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
 
 	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) return;
+
+	if (mmap_remap[fd_remap[fd]]==NULL) return;
 
 	memset(mmap_remap[fd_remap[fd]],value,size);
 
