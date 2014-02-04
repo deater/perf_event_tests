@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/prctl.h>
+#include <sys/wait.h>
 #include <poll.h>
 
 #include <fcntl.h>
@@ -428,6 +429,7 @@ static int forked_pid=0;
 static void fork_event(char *line) {
 
         int enable=0;
+	int status;
 
         sscanf(line,"%*c %d",&enable);
 
@@ -437,6 +439,11 @@ static void fork_event(char *line) {
         }
         else {
                 kill(forked_pid,SIGKILL);
+		/* We had some race conditions with breakpoints   */
+		/* If we didn't let the child finish dying before */
+		/* continuing.  Sometimes a new breakpoint would be */
+		/* attempted before the child's resources had freed */
+		waitpid(forked_pid, &status, 0);
         }
 
 }

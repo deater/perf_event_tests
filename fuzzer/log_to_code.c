@@ -266,6 +266,9 @@ static void fork_event(char *line) {
 	}
 	else {
 		printf("\tkill(forked_pid,SIGKILL);\n");
+		/* We had some race conditions with breakpoint events */
+		/* if we didn't wait for the child to finish dying    */
+		printf("\twaitpid(forked_pid, &status, 0);\n");
 	}
 
 }
@@ -328,6 +331,7 @@ int main(int argc, char **argv) {
 	printf("#include <sys/syscall.h>\n");
 	printf("#include <sys/ioctl.h>\n");
 	printf("#include <sys/prctl.h>\n");
+	printf("#include <sys/wait.h>\n");
 	printf("#include <poll.h>\n");
 	printf("#include <linux/hw_breakpoint.h>\n");
 	printf("#include <linux/perf_event.h>\n");
@@ -353,9 +357,10 @@ int main(int argc, char **argv) {
 
 	printf("\n");
 
-	printf("int forked_pid;\n\n");
+	printf("static int status;\n");
+	printf("static int forked_pid;\n\n");
 
-	printf("struct sigaction sa;\n");
+	printf("static struct sigaction sa;\n");
 	printf("static int overflows=0;\n");
 	printf("static int sigios=0;\n\n");
 
@@ -366,7 +371,7 @@ int main(int argc, char **argv) {
 	printf("\tioctl(fd,PERF_EVENT_IOC_DISABLE,0);\n");
 	printf("\tif (sigios) return;\n");
 	printf("\tret=ioctl(fd, PERF_EVENT_IOC_REFRESH,1);\n");
-	printf("}\n");
+	printf("}\n\n");
 
 	printf("int perf_event_open(struct perf_event_attr *hw_event_uptr,\n");
 	printf("\tpid_t pid, int cpu, int group_fd, unsigned long flags) {\n");
