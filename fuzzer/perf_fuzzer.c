@@ -1331,6 +1331,23 @@ static void dump_summary(FILE *fff) {
 	}
 }
 
+static int get_sample_rate(void) {
+
+	FILE *fff;
+	int sample_rate;
+
+	fff=fopen("/proc/sys/kernel/perf_event_max_sample_rate","r");
+	if (fff==NULL) {
+		return -1;
+	}
+
+	fscanf(fff,"%d",&sample_rate);
+
+	fclose(fff);
+
+	return sample_rate;
+}
+
 static void usage(char *name,int help) {
 
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
@@ -1354,6 +1371,7 @@ int main(int argc, char **argv) {
 	int i;
 	char *logfile_name=NULL;
 	unsigned int seed=0;
+	int sample_rate;
 	FILE *fff;
 
 	/* Parse command line parameters */
@@ -1473,6 +1491,15 @@ int main(int argc, char **argv) {
 	/* Save our pid so we can re-map on replay */
 	if (logging) {
 		sprintf(log_buffer,"G %d\n",getpid());
+		write(log_fd,log_buffer,strlen(log_buffer));
+	}
+
+	/* Save the content of /proc/sys/kernel/perf_event_max_sample_rate */
+	/* If it has been changed, a replay might not be perfect */
+	sample_rate=get_sample_rate();
+	printf("Kernel max sample rate currently: %d/s\n",sample_rate);
+	if (logging) {
+		sprintf(log_buffer,"R %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
