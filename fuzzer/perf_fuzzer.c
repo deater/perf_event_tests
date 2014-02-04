@@ -587,28 +587,28 @@ void perf_log_attr(struct perf_event_attr *attr) {
 
 }
 
-static void print_errno_name(int e) {
+static void print_errno_name(FILE *fff, int e) {
 
 	switch(e) {
-		case EPERM:	printf("EPERM");
+		case EPERM:	fprintf(fff,"EPERM");
 				break;
-		case ENOENT:	printf("ENOENT");
+		case ENOENT:	fprintf(fff,"ENOENT");
 				break;
-		case E2BIG:	printf("E2BIG");
+		case E2BIG:	fprintf(fff,"E2BIG");
 				break;
-		case EBADF:	printf("EBADF");
+		case EBADF:	fprintf(fff,"EBADF");
 				break;
-		case EINVAL:	printf("EINVAL");
+		case EINVAL:	fprintf(fff,"EINVAL");
 				break;
-		case EOPNOTSUPP:	printf("EOPNOTSUPP");
+		case EOPNOTSUPP:	fprintf(fff,"EOPNOTSUPP");
 				break;
-		case ENOSPC:	printf("ENOSPC");
+		case ENOSPC:	fprintf(fff,"ENOSPC");
 				break;
-		case EMFILE:	printf("EMFILE");
+		case EMFILE:	fprintf(fff,"EMFILE");
 				break;
-		case EACCES:	printf("EACCES");
+		case EACCES:	fprintf(fff,"EACCES");
 				break;
-		default:	printf("UNKNOWN %d",e);
+		default:	fprintf(fff,"UNKNOWN %d",e);
 				break;
 	}
 }
@@ -1280,39 +1280,41 @@ static void fork_random_event(void) {
 }
 
 
-static void dump_summary(void) {
+static void dump_summary(FILE *fff) {
 
 	int i;
 
-	printf("Iteration %lld\n",total_iterations);
-	printf("\tOpen attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"Iteration %lld\n",total_iterations);
+	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld\n",
 	       open_attempts,open_successful);
 	for(i=0;i<MAX_ERRNOS;i++) {
 		if (errno_count[i]!=0) {
-			printf("\t\t");
-			print_errno_name(i);
-			printf(" : %d\n",errno_count[i]);
+			fprintf(fff,"\t\t");
+			print_errno_name(fff,i);
+			fprintf(fff," : %d\n",errno_count[i]);
 		}
 	}
 
-	printf("\tClose attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tClose attempts: %lld  Successful: %lld\n",
 	       close_attempts,close_successful);
-	printf("\tRead attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tRead attempts: %lld  Successful: %lld\n",
 	       read_attempts,read_successful);
-	printf("\tIoctl attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tIoctl attempts: %lld  Successful: %lld\n",
 	       ioctl_attempts,ioctl_successful);
-	printf("\tMmap attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tMmap attempts: %lld  Successful: %lld\n",
 	       mmap_attempts,mmap_successful);
-	printf("\tPrctl attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tPrctl attempts: %lld  Successful: %lld\n",
 	       prctl_attempts,prctl_successful);
-	printf("\tFork attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tFork attempts: %lld  Successful: %lld\n",
 	       fork_attempts,fork_successful);
-	printf("\tPoll attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tPoll attempts: %lld  Successful: %lld\n",
 	       poll_attempts,poll_successful);
-	printf("\tTrash mmap attempts: %lld  Successful: %lld\n",
+	fprintf(fff,"\tTrash mmap attempts: %lld  Successful: %lld\n",
 		trash_mmap_attempts,trash_mmap_successful);
-	printf("\tOverflows: %lld\n", overflows);
-	printf("\tSIGIOs due to RT signal queue full: %lld\n",sigios);
+	fprintf(fff,"\tOverflows: %lld\n", overflows);
+	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",sigios);
+
+	/* Reset counts back to zero */
 	open_attempts=0; open_successful=0;
 	close_attempts=0; close_successful=0;
 	read_attempts=0; read_successful=0;
@@ -1579,12 +1581,17 @@ int main(int argc, char **argv) {
 		total_iterations++;
 
 		if ((stop_after) && (total_iterations>=stop_after)) {
-			dump_summary();
+			dump_summary(stderr);
 			return 0;
 		}
 
+		/* Print status update every 10000 iterations      */
+		/* Don't print if logging to stdout as it clutters */
+		/* up the trace file.				   */
 		if (total_iterations%10000==0) {
-			dump_summary();
+			if (log_fd!=1) {
+				dump_summary(stderr);
+			}
 		}
 //		fsync(log_fd);
 	}
