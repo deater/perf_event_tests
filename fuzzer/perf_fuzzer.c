@@ -1499,7 +1499,7 @@ int main(int argc, char **argv) {
 	sample_rate=get_sample_rate();
 	printf("Kernel max sample rate currently: %d/s\n",sample_rate);
 	if (logging) {
-		sprintf(log_buffer,"R %d\n",sample_rate);
+		sprintf(log_buffer,"r %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 

@@ -520,6 +520,24 @@ static void setup_overflow(char *line) {
 #define REPLAY_TRASH_MMAP	0x800
 #define REPLAY_ALL		0xfff
 
+static int get_sample_rate(void) {
+
+	FILE *fff;
+	int sample_rate;
+
+	fff=fopen("/proc/sys/kernel/perf_event_max_sample_rate","r");
+	if (fff==NULL) {
+		return -1;
+	}
+
+	fscanf(fff,"%d",&sample_rate);
+
+	fclose(fff);
+
+	return sample_rate;
+}
+
+
 
 void print_usage(char *exec_name) {
 
@@ -543,6 +561,8 @@ int main(int argc, char **argv) {
 	int i,j;
 
 	int replay_which=REPLAY_ALL;
+
+	int sample_rate,old_sample_rate;
 
 	/* init */
 
@@ -716,6 +736,17 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+			case 'r':
+				sscanf(line,"r %d",&old_sample_rate);
+				sample_rate=get_sample_rate();
+
+				if (sample_rate!=old_sample_rate) {
+					printf("Warning! The current max sample rate is %d\n",sample_rate);
+					printf("\tThis log was recorded when it was %d\n",old_sample_rate);
+					printf("\tFor proper replay you might want to (as root):\n\techo \"%d\" > /proc/sys/kernel/perf_event_max_sample_rate\n",old_sample_rate);
+				}
+				break;
+
 			case 'S':
 				if (replay_which & REPLAY_SEED) {
 					/* don't need to do anything */
