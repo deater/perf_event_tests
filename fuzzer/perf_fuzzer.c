@@ -662,29 +662,29 @@ static void open_random_event(void) {
 			perf_dump_attr(&event_data[i].attr);
 		}
 	        if (logging&DEBUG_OPEN) {
-#if 0
+//#if 0
 		  /* uncomment if failing opens are causing crashes */
-			static int quit_next=0;
-			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
-	                sprintf(log_buffer,"O -1 %d %d %d %lx ",
+//			static int quit_next=0;
+//			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
+	                sprintf(log_buffer,"# O -1 %d %d %d %lx ",
 				event_data[i].pid,
 				event_data[i].cpu,
 				event_data[i].group_fd,
 				event_data[i].flags);
 			write(log_fd,log_buffer,strlen(log_buffer));
 	                perf_log_attr(&event_data[i].attr);
-			fsync(log_fd);
-			}
-			if (quit_next==1) exit(1);
+//			fsync(log_fd);
+//			}
+//			if (quit_next==1) exit(1);
 
-			if (quit_next) quit_next--;
+//			if (quit_next) quit_next--;
 
-		        if ((event_data[i].attr.read_format==0x2d2d2d))
-                        quit_next=2;
+//		        if ((event_data[i].attr.read_format==0x2d2d2d))
+//                      quit_next=2;
 
 		        // if ((event_data[i].group_fd==152) &&
                         //    (event_data[i].flags==0x800e9e9)) quit_next=1;
-#endif
+//#endif
 	        }
 
 #if 0
@@ -1232,6 +1232,8 @@ static void run_a_million_instructions(void) {
 
 static void fork_random_event(void) {
 
+	int status;
+
 	if (already_forked) {
 		if (debug&DEBUG_FORK) {
 			printf("FORK: KILLING pid %d\n",forked_pid);
@@ -1241,8 +1243,13 @@ static void fork_random_event(void) {
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
-		if (!log_only) kill(forked_pid,SIGKILL);
-		// wait()?
+		if (!log_only) {
+			kill(forked_pid,SIGKILL);
+
+			/* not sure if this will cause us to miss bugs */
+			/* but it does make the logs more deterministic */
+			waitpid(forked_pid, &status, 0);
+		}
 		already_forked=0;
 	}
 	else {
