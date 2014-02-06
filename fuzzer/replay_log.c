@@ -768,6 +768,9 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+			case '#':
+				/* skip */
+				break;
 			default:
 				fprintf(stderr,"Line %lld Unknown log type \'%c\'\n",
 					line_num,line[0]);
