@@ -1270,6 +1270,7 @@ static void fork_random_event(void) {
 		/* It will kill *all* processes beloning to the user */
 		/* Logging you out on all windows.                   */
 		if (forked_pid==-1) {
+			printf("Fork failed! %s\n",strerror(errno));
 			already_forked=0;
 		}
 		else {
