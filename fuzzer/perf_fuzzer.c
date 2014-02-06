@@ -18,6 +18,7 @@
 #include <sys/mman.h>
 #include <sys/prctl.h>
 #include <time.h>
+#include <sys/wait.h>
 
 #include <poll.h>
 
@@ -662,7 +663,7 @@ static void open_random_event(void) {
 			perf_dump_attr(&event_data[i].attr);
 		}
 	        if (logging&DEBUG_OPEN) {
-//#if 0
+#if 0
 		  /* uncomment if failing opens are causing crashes */
 //			static int quit_next=0;
 //			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
@@ -684,7 +685,7 @@ static void open_random_event(void) {
 
 		        // if ((event_data[i].group_fd==152) &&
                         //    (event_data[i].flags==0x800e9e9)) quit_next=1;
-//#endif
+#endif
 	        }
 
 #if 0
@@ -946,7 +947,7 @@ static void ioctl_random_event(void) {
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %d\n",
-					event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
+					event_data[i].fd,(long)PERF_EVENT_IOC_PERIOD,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
@@ -972,7 +973,7 @@ static void ioctl_random_event(void) {
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %d\n",
-					event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
+					event_data[i].fd,(long)PERF_EVENT_IOC_SET_FILTER,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
@@ -984,7 +985,7 @@ static void ioctl_random_event(void) {
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
 			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
-					event_data[i].fd,PERF_EVENT_IOC_ID,id);
+					event_data[i].fd,(long)PERF_EVENT_IOC_ID,id);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
