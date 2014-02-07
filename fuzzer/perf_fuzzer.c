@@ -89,6 +89,7 @@ static long long open_attempts=0,open_successful=0;
 static long long close_attempts=0,close_successful=0;
 static long long mmap_attempts=0,mmap_successful=0;
 static long long read_attempts=0,read_successful=0;
+static long long write_attempts=0,writes_successful=0;
 static long long ioctl_attempts=0,ioctl_successful=0;
 static long long prctl_attempts=0,prctl_successful=0;
 static long long fork_attempts=0,fork_successful=0;
@@ -1007,10 +1008,20 @@ static void write_random_event(void) {
 		default: write_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
 	}
 
+	write_attempts++;
+
 	result=write(event_data[i].fd,data,write_size);
 
-	/* logging? */
-	(void) result;
+	/* logging */
+	if (result>0) {
+	        writes_successful++;
+		if (logging&TYPE_WRITE) {
+			sprintf(log_buffer,"W %d %d\n",event_data[i].fd,
+						write_size);
+			write(log_fd,log_buffer,strlen(log_buffer));
+		}
+	}
+
 }
 
 static void poll_random_event(void) {
@@ -1181,6 +1192,8 @@ static void dump_summary(FILE *fff) {
 	       close_attempts,close_successful);
 	fprintf(fff,"\tRead attempts: %lld  Successful: %lld\n",
 	       read_attempts,read_successful);
+	fprintf(fff,"\tWrite attempts: %lld  Successful: %lld\n",
+	       write_attempts,writes_successful);
 	fprintf(fff,"\tIoctl attempts: %lld  Successful: %lld\n",
 	       ioctl_attempts,ioctl_successful);
 	fprintf(fff,"\tMmap attempts: %lld  Successful: %lld\n",
@@ -1200,6 +1213,7 @@ static void dump_summary(FILE *fff) {
 	open_attempts=0; open_successful=0;
 	close_attempts=0; close_successful=0;
 	read_attempts=0; read_successful=0;
+	write_attempts=0; writes_successful=0;
 	ioctl_attempts=0; ioctl_successful=0;
 	mmap_attempts=0; mmap_successful=0;
 	prctl_attempts=0; prctl_successful=0;
