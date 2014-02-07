@@ -1235,14 +1235,37 @@ static void usage(char *name,int help) {
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
 
 	if (help) {
-		printf("%s [-h] [-v] [-l filename] [-s num] [-r num] [-t OCIRMUPFpm]\n\n",name);
+		printf("%s [-h] [-v] [-l filename] [-s num] [-r num] [-t OCIRMFQPpAoi]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
 		printf("\t-l logfile\tlog to file filename (- for stdout)\n");
 		printf("\t-r num\tseed random number generator with num\n");
 		printf("\t-s num\tstop after num system calls\n");
-		printf("\t-t OCIRMUPFpm type of calls to execute (default is all)\n");
+		printf("\t-t type of calls to execute (default is all)\n");
+		printf("\t\tO perf_event_open\tC close\n");
+		printf("\t\tI ioctl\t\t\tR read\n");
+		printf("\t\tM mmap\t\t\tF fork\n");
+		printf("\t\tQ trash-mmap\t\tW write\n");
+		printf("\t\tP prctl\t\t\tp poll\n");
+		printf("\t\tA file access\t\to overflow\n");
+		printf("\t\ti instruction loop\n");
 		printf("\n");
+#if 0
+#define TYPE_OPEN		0x0004
+#define TYPE_CLOSE		0x0008
+#define TYPE_IOCTL		0x0040
+#define TYPE_READ		0x0010
+#define TYPE_MMAP		0x0001
+#define TYPE_FORK		0x0080
+#define TYPE_TRASH_MMAP		0x2000
+#define TYPE_WRITE		0x0020
+#define TYPE_PRCTL		0x0200
+#define TYPE_POLL		0x0400
+#define TYPE_ACCESS		0x1000
+#define TYPE_OVERFLOW		0x0002
+#define TYPE_MILLION		0x0800
+#endif
+
 	}
 }
 
@@ -1297,8 +1320,32 @@ int main(int argc, char **argv) {
 						i+=2;
 						break;
 				/* type */
-				case 't':	printf("\nFIXME! Type filter currently not implemented yet!\n");
-						exit(1);
+				case 't':	{
+						int j;
+
+						type=0;
+
+						for(j=0;j<strlen(argv[i+1]);j++) {
+						switch(argv[i+1][j]) {
+						case 'O': type|=TYPE_OPEN; break;
+						case 'C': type|=TYPE_CLOSE; break;
+						case 'I': type|=TYPE_IOCTL; break;
+						case 'R': type|=TYPE_READ; break;
+						case 'M': type|=TYPE_MMAP; break;
+						case 'F': type|=TYPE_FORK; break;
+						case 'Q': type|=TYPE_TRASH_MMAP; break;
+						case 'W': type|=TYPE_WRITE; break;
+						case 'P': type|=TYPE_PRCTL; break;
+						case 'p': type|=TYPE_POLL; break;
+						case 'A': type|=TYPE_ACCESS; break;
+						case 'o': type|=TYPE_OVERFLOW; break;
+						case 'i': type|=TYPE_MILLION; break;
+						default: printf("Unknown type %c\n",
+							argv[i+1][j]);
+						}
+						}
+						}
+						i+=2;
 						break;
 				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
 						usage(argv[0],1);
