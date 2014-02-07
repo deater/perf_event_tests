@@ -51,7 +51,7 @@ char *page_rand;
 #define TYPE_WRITE		0x0020
 #define TYPE_IOCTL		0x0040
 #define TYPE_FORK		0x0080
-#define TYPE_MMAP_SUCCESS	0x0100
+/* missing */
 #define TYPE_PRCTL		0x0200
 #define TYPE_POLL		0x0400
 #define TYPE_MILLION		0x0800
@@ -69,7 +69,6 @@ static int type=TYPE_MMAP|
 		TYPE_WRITE|
 		TYPE_IOCTL|
 		TYPE_FORK|
-		TYPE_MMAP_SUCCESS|
 		TYPE_PRCTL|
 		TYPE_POLL|
 		TYPE_MILLION|
@@ -724,7 +723,6 @@ static void open_random_event(void) {
 
 	if (type & TYPE_MMAP) {
 
-
 		/* to be valid we really want to be 1+2^x pages */
 		switch(rand()%3) {
 			case 0:	event_data[i].mmap_size=(rand()%64)*getpagesize();
@@ -745,7 +743,7 @@ static void open_random_event(void) {
 			event_data[i].mmap=NULL;
 		}
 		else {
-			if (logging&TYPE_MMAP_SUCCESS) {
+			if (logging&TYPE_MMAP) {
  				sprintf(log_buffer,"M %d %d %p\n",
 					event_data[i].mmap_size,event_data[i].fd,
 					event_data[i].mmap);
