@@ -34,8 +34,11 @@
 
 #include "perf_attr_print.h"
 
-int user_set_seed;
+/* Globals from Trinity */
 int page_size;
+struct shm_s *shm;
+char *page_rand;
+
 
 #define MAX_THROTTLES		5
 
@@ -57,7 +60,6 @@ int page_size;
 
 static int debug=0;
 static int logging=0;
-static int log_only=0;
 static int stop_after=0;
 
 static int type=DEBUG_ALL;
@@ -68,10 +70,6 @@ static char log_buffer[BUFSIZ];
 
 #define MAX_ERRNOS 1023
 static int errno_count[MAX_ERRNOS];
-
-struct shm_s *shm;
-
-char *page_rand;
 
 static long long total_iterations=0;
 static long long overflows=0;
@@ -94,7 +92,7 @@ static pid_t forked_pid;
 
 #define NUM_EVENTS 1024
 
-struct event_data_t{
+struct event_data_t {
 	int active;
 	int fd;
 	struct perf_event_attr attr;
@@ -173,7 +171,6 @@ static int find_empty_event(void) {
 
 	for(i=0;i<NUM_EVENTS;i++) {
 		if (!event_data[i].active) {
-			active_events++;
 			return i;
 		}
 	}
@@ -181,51 +178,44 @@ static int find_empty_event(void) {
 
 }
 
-#if 0
-static int find_random_event(void) {
-
-	return rand()%NUM_EVENTS;
-
-}
-#endif
-
 static int next_overflow_refresh=0;
 static int next_refresh=0;
 
 static long long prev_head=0;
 
-
 long long perf_mmap_read( void *our_mmap,
 				int mmap_size,
 				long long prev_head) {
 
-   struct perf_event_mmap_page *control_page = our_mmap;
-   long long head;
+	struct perf_event_mmap_page *control_page = our_mmap;
+	long long head;
 
-   if (!our_mmap) return 0;
+	if (!our_mmap) return 0;
 
-   if (mmap_size==0) return 0;
+	if (mmap_size==0) return 0;
 
-   if (control_page==NULL) {
-      return -1;
-   }
-   head=control_page->data_head;
-   rmb(); /* Must always follow read of data_head */
+	if (control_page==NULL) {
+		return -1;
+	}
+	head=control_page->data_head;
+	rmb(); /* Must always follow read of data_head */
 
-   /* Mark all as read */
-   control_page->data_tail=head;
+	/* Mark all as read */
+	control_page->data_tail=head;
 
-   return head;
-
+	return head;
 }
 
 
 static void close_event(int i, int from_sigio) {
 
 	int result;
+	int unmap_before_close;
 
 	/* Exit if no events */
 	if (i<0) return;
+
+	unmap_before_close=rand()%2;
 
 	/* here to avoid race in overflow where we munmap or close */
 	/* but event still marked active */
@@ -240,7 +230,10 @@ static void close_event(int i, int from_sigio) {
 			event_data[i].fd);
 	}
 
-	if ((event_data[i].mmap)) {// && (rand()%2==1)) {
+	/* unmap any associated memory */
+	/* we tried not doing this randomly, */
+	/* but rapidly ran out of memory */
+	if ((event_data[i].mmap) && unmap_before_close) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
 		if ((!from_sigio) && (logging&DEBUG_MMAP)) {
 			sprintf(log_buffer,"U %d %d %p\n",
@@ -259,6 +252,19 @@ static void close_event(int i, int from_sigio) {
 	if ((!from_sigio) && (logging&DEBUG_CLOSE)) {
 		sprintf(log_buffer,"C %d\n",event_data[i].fd);
 		write(log_fd,log_buffer,strlen(log_buffer));
+	}
+
+	/* sometimes unmap after we've closed */
+	if ((event_data[i].mmap) && !unmap_before_close) {
+		munmap(event_data[i].mmap,event_data[i].mmap_size);
+		if ((!from_sigio) && (logging&DEBUG_MMAP)) {
+			sprintf(log_buffer,"U %d %d %p\n",
+				event_data[i].fd,
+				event_data[i].mmap_size,
+				event_data[i].mmap);
+			write(log_fd,log_buffer,strlen(log_buffer));
+		}
+		event_data[i].mmap=0;
 	}
 
 	active_events--;
@@ -387,8 +393,8 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 	sigios++;
 }
 
+/* Print status when ^\ pressed */
 static void sigquit_handler(int signum, siginfo_t *info, void *uc) {
-
 
 	int i;
 
@@ -409,7 +415,7 @@ static void sigquit_handler(int signum, siginfo_t *info, void *uc) {
 }
 
 
-
+/* Pick an intelligently random refresh value */
 static int rand_refresh(void) {
 
 	int refresh;
@@ -427,6 +433,7 @@ static int rand_refresh(void) {
 
 }
 
+/* pick an intelligently random period */
 static int rand_period(void) {
 
 	int period;
@@ -443,6 +450,7 @@ static int rand_period(void) {
 	return period;
 }
 
+/* pick an intelligently random ioctl argument */
 static int rand_ioctl_arg(void) {
 
 	int value=0;
@@ -462,48 +470,6 @@ static int rand_ioctl_arg(void) {
 
 }
 
-
-void perf_dump_attr(struct perf_event_attr *attr) {
-
-	printf("PERF_EVENT_ATTR: ");
-	printf("type=%x ",attr->type);
-	printf("size=%x ",attr->size);
-	printf("config=%llx ",attr->config);
-	printf("sample_period=%llx ",attr->sample_period);
-	printf("sample_type=%llx ",attr->sample_type);
-	printf("read_format=%llx ",attr->read_format);
-	printf("disabled=%d ",attr->disabled);
-	printf("inherit=%d ",attr->inherit);
-	printf("pinned=%d ",attr->pinned);
-	printf("exclusive=%d ",attr->exclusive);
-	printf("exclude_user=%d ",attr->exclude_user);
-	printf("exclude_kernel=%d ",attr->exclude_kernel);
-	printf("exclude_hv=%d ",attr->exclude_hv);
-	printf("exclude_idle=%d ",attr->exclude_idle);
-	printf("mmap=%d ",attr->mmap);
-	printf("mmap2=%d ",attr->mmap2);
-	printf("comm=%d ",attr->comm);
-	printf("freq=%d ",attr->freq);
-	printf("inherit_stat=%d ",attr->inherit_stat);
-	printf("enable_on_exec=%d ",attr->enable_on_exec);
-	printf("task=%d ",attr->task);
-	printf("watermark=%d ",attr->watermark);
-	printf("precise_ip=%d ",attr->precise_ip);
-	printf("mmap_data=%d ",attr->mmap_data);
-	printf("sample_id_all=%d ",attr->sample_id_all);
-	printf("exclude_host=%d ",attr->exclude_host);
-	printf("exclude_guest=%d ",attr->exclude_guest);
-	printf("exclude_callchain_kernel=%d ",attr->exclude_callchain_kernel);
-	printf("exclude_callchain_user=%d ",attr->exclude_callchain_user);
-	printf("wakeup_events=%d ",attr->wakeup_events);
-	printf("bp_type=%d ",attr->bp_type);
-	printf("config1=%llx ",attr->config1);
-	printf("config2=%llx ",attr->config2);
-	printf("branch_sample_type=%lld ",attr->branch_sample_type);
-	printf("sample_regs_user=%lld ",attr->sample_regs_user);
-	printf("sample_stack_user=%d ",attr->sample_stack_user);
-	printf("\n");
-}
 
 
 void perf_log_attr(struct perf_event_attr *attr) {
@@ -614,23 +580,44 @@ static void print_errno_name(FILE *fff, int e) {
 	}
 }
 
+static int update_read_size(int i) {
+
+	int read_size=1;
+
+	/* Set nominal read size */
+	if (event_data[i].attr.read_format&PERF_FORMAT_GROUP) {
+		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_ENABLED) read_size++;
+		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_RUNNING) read_size++;
+		read_size+=(1+!!(event_data[i].attr.read_format&PERF_FORMAT_ID)) * event_data[i].number_in_group;
+	}
+	else {
+		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_ENABLED) read_size++;
+		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_RUNNING) read_size++;
+		if (event_data[i].attr.read_format&PERF_FORMAT_ID) read_size++;
+	}
+
+	return read_size*sizeof(long long);
+}
+
 static void open_random_event(void) {
 
 	int fd;
 
-	int i,read_size=0;
+	int i;
 
 	i=find_empty_event();
 
 	/* return if no free events */
 	if (i<0) return;
 
-
 	event_data[i].overflows=0;
 	event_data[i].throttles=0;
 
+	/* repeat until we create a valie event */
 	while(1) {
+		/* call trinity random perf_event_open() code */
 		syscall_perf_event_open.sanitise(0);
+
 		memcpy(&event_data[i].attr,
 			(struct perf_event_attr *)shm->a1[0],
 			sizeof(struct perf_event_attr));
@@ -639,18 +626,19 @@ static void open_random_event(void) {
 		event_data[i].group_fd=shm->a4[0];
 		event_data[i].flags=shm->a5[0];
 
-
-		/* Randomly make part of a group */
+		/* Randomly make part of a group 1/4 of the time */
 		if (rand()%4==2) {
 			int j;
 			j=find_random_active_event();
+
 			/* is it a master? */
-			if (event_data[j].group_fd==-1) {
-				event_data[i].group_fd=event_data[j].fd;
-			}
+			/* can we set a group leader that isn't itself */
+			/* a leader? */
+//			if (event_data[j].group_fd==-1) {
+			event_data[i].group_fd=event_data[j].fd;
+//			}
 
 		}
-
 
 		if (debug&DEBUG_OPEN) {
 			printf("PERF_EVENT_OPEN: "
@@ -660,8 +648,14 @@ static void open_random_event(void) {
 				event_data[i].cpu,
 				event_data[i].group_fd,
 				event_data[i].flags);
-			perf_dump_attr(&event_data[i].attr);
+			perf_pretty_print_attr(stdout,
+						&event_data[i].attr,0);
 		}
+
+		/* Debugging code */
+		/* We don't usually log failed opens as there are so many */
+
+
 	        if (logging&DEBUG_OPEN) {
 #if 0
 		  /* uncomment if failing opens are causing crashes */
@@ -697,6 +691,7 @@ static void open_random_event(void) {
 		}
 #endif
 
+		/* Actually try to open the event */
 		fd=perf_event_open(
 			&event_data[i].attr,
 			event_data[i].pid,
@@ -705,8 +700,10 @@ static void open_random_event(void) {
 			event_data[i].flags);
 		open_attempts++;
 
+		/* If we succede, break out of the infinite loop */
 		if (fd>0) break;
 
+		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) errno_count[errno]++;
 
 		if (debug&DEBUG_OPEN) {
@@ -714,15 +711,19 @@ static void open_random_event(void) {
 				strerror(errno));
 		}
 
-		/* too many open files */
+		/* no more file descriptors, so give up */
 		if (errno==EMFILE) return;
 
 	}
+
+	/* We successfully opened an event! */
+
 	open_successful++;
 	if (debug&DEBUG_OPEN) {
 		printf("PERF_EVENT_OPEN: SUCCESS fd=%d Active=%d\n",
 			fd,active_events);
 	}
+
 	if (logging&DEBUG_OPEN) {
 		sprintf(log_buffer,"O %d %d %d %d %lx ",
 				fd,
@@ -737,9 +738,17 @@ static void open_random_event(void) {
 
 	event_data[i].fd=fd;
 	event_data[i].active=1;
+	active_events++;
 
+	/* if we are member of a group, update size of group */
+	/* this is needed for calcuating "proper" read size  */
+	/* Although I don't think we update that properly    */
+	/* Also I don't think we adjust this on close */
 	if (event_data[i].group_fd!=-1) {
-		event_data[event_data[i].group_fd].number_in_group++;
+		int j=lookup_event(event_data[i].group_fd);
+
+		event_data[j].number_in_group++;
+		event_data[j].read_size=update_read_size(j);
 		if (debug&DEBUG_OPEN) {
 			printf("ADDING %d to GROUP %d\n",fd,
 				event_data[i].group_fd);
@@ -750,6 +759,8 @@ static void open_random_event(void) {
 
 	if (type & DEBUG_MMAP) {
 
+
+		/* to be valid we really want to be 1+2^x pages */
 		switch(rand()%3) {
 			case 0:	event_data[i].mmap_size=(rand()%64)*getpagesize();
 				break;
@@ -765,6 +776,7 @@ static void open_random_event(void) {
 				"MAP_SHARED, %d, 0);\n",
 				event_data[i].mmap_size,event_data[i].fd);
 		}
+
 		mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
 			PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
@@ -787,8 +799,8 @@ static void open_random_event(void) {
 		}
 	}
 
-	/* Setup overflow? */
-	if ((type&DEBUG_OVERFLOW) && 0) {//(rand()%2)) {
+	/* Setup overflow 50% of the time */
+	if ((type&DEBUG_OVERFLOW) && (rand()%2)) {
 
 		if (logging&DEBUG_OVERFLOW) {
 			sprintf(log_buffer,"o %d\n",event_data[i].fd);
@@ -819,26 +831,15 @@ static void open_random_event(void) {
 
 	}
 
-
 	event_data[i].number_in_group=1;
 
-	/* Set nominal read size */
-	if (event_data[i].attr.read_format&PERF_FORMAT_GROUP) {
-		read_size=1;
-		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_ENABLED) read_size++;
-		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_RUNNING) read_size++;
-		read_size+=(1+!!(event_data[i].attr.read_format&PERF_FORMAT_ID)) * event_data[i].number_in_group;
-	}
-	else {
-		read_size=1; /* The value */
-		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_ENABLED) read_size++;
-		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_RUNNING) read_size++;
-		if (event_data[i].attr.read_format&PERF_FORMAT_ID) read_size++;
-	}
-	event_data[i].read_size=read_size*sizeof(long long);
+	event_data[i].read_size=update_read_size(i);
+
 }
 
 
+/* The first mmap() page is writeable so you can set the tail pointer */
+/* So try over-writing it to see what happens.                        */
 
 static void trash_random_mmap(void) {
 
@@ -1244,13 +1245,12 @@ static void fork_random_event(void) {
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
-		if (!log_only) {
-			kill(forked_pid,SIGKILL);
+		kill(forked_pid,SIGKILL);
 
-			/* not sure if this will cause us to miss bugs */
-			/* but it does make the logs more deterministic */
-			waitpid(forked_pid, &status, 0);
-		}
+		/* not sure if this will cause us to miss bugs */
+		/* but it does make the logs more deterministic */
+		waitpid(forked_pid, &status, 0);
+
 		already_forked=0;
 	}
 	else {
@@ -1262,13 +1262,11 @@ static void fork_random_event(void) {
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
-		if (!log_only) {
-			forked_pid=fork();
+		forked_pid=fork();
 
-			/* we're the child */
-			if (forked_pid==0) {
-				while(1) instructions_million();
-			}
+		/* we're the child */
+		if (forked_pid==0) {
+			while(1) instructions_million();
 		}
 
 		fork_attempts++;
@@ -1366,7 +1364,7 @@ static void usage(char *name,int help) {
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
 		printf("\t-d\tenable debugging\n");
-		printf("\t-l logfile\tlog to file\n");
+		printf("\t-l logfile\tlog to file (- for stdout)\n");
 		printf("\t-f only log fork syscalls; do not run\n");
 		printf("\t-r num\tseed random number generator with num\n");
 		printf("\t-s num\tstop after num system calls\n");
@@ -1413,11 +1411,6 @@ int main(int argc, char **argv) {
 						else {
 							logfile_name=strdup("out.log");
 						}
-						i++;
-						break;
-				/* fork */
-				case 'f':	log_only=1;
-						printf("Logging fork only\n");
 						i++;
 						break;
 				/* seed */
@@ -1524,7 +1517,8 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 	memset(page_rand, 0x55, page_size);
-	//fprintf(stderr, "page_rand @ %p\n", page_rand);
+
+
 
 	/* Set up SIGIO handler */
 	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */
