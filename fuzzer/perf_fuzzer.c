@@ -1235,8 +1235,7 @@ static void usage(char *name,int help) {
 		printf("%s [-h] [-v] [-l filename] [-s num] [-r num] [-t OCIRMUPFpm]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
-		printf("\t-l logfile\tlog to file (- for stdout)\n");
-		printf("\t-f only log fork syscalls; do not run\n");
+		printf("\t-l logfile\tlog to file filename (- for stdout)\n");
 		printf("\t-r num\tseed random number generator with num\n");
 		printf("\t-s num\tstop after num system calls\n");
 		printf("\t-t OCIRMUPFpm type of calls to execute (default is all)\n");
@@ -1295,7 +1294,9 @@ int main(int argc, char **argv) {
 						i+=2;
 						break;
 				/* type */
-				case 't':	break;
+				case 't':	printf("\nFIXME! Type filter currently not implemented yet!\n");
+						exit(1);
+						break;
 				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
 						usage(argv[0],1);
 						exit(1);
