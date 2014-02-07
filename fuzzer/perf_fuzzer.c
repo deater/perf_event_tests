@@ -42,28 +42,28 @@ char *page_rand;
 
 #define MAX_THROTTLES		5
 
-#define DEBUG_ALL		0xffffffff
-#define DEBUG_MMAP		0x0001
-#define DEBUG_OVERFLOW		0x0002
-#define DEBUG_OPEN		0x0004
-#define DEBUG_CLOSE		0x0008
-#define DEBUG_READ		0x0010
-#define DEBUG_WRITE		0x0020
-#define DEBUG_IOCTL		0x0040
-#define DEBUG_FORK		0x0080
-#define DEBUG_MMAP_SUCCESS	0x0100
-#define DEBUG_PRCTL		0x0200
-#define DEBUG_POLL		0x0400
-#define DEBUG_MILLION		0x0800
-#define DEBUG_ACCESS		0x1000
-#define DEBUG_TRASH_MMAP	0x2000
+#define TYPE_ALL		0xffffffff
+#define TYPE_MMAP		0x0001
+#define TYPE_OVERFLOW		0x0002
+#define TYPE_OPEN		0x0004
+#define TYPE_CLOSE		0x0008
+#define TYPE_READ		0x0010
+#define TYPE_WRITE		0x0020
+#define TYPE_IOCTL		0x0040
+#define TYPE_FORK		0x0080
+#define TYPE_MMAP_SUCCESS	0x0100
+#define TYPE_PRCTL		0x0200
+#define TYPE_POLL		0x0400
+#define TYPE_MILLION		0x0800
+#define TYPE_ACCESS		0x1000
+#define TYPE_TRASH_MMAP	0x2000
 
 static int debug=0;
 static int logging=0;
 static int stop_after=0;
 
-static int type=DEBUG_ALL;
-//static int type=DEBUG_OPEN|DEBUG_CLOSE|DEBUG_IOCTL|DEBUG_OVERFLOW|DEBUG_MMAP|DEBUG_TRASH_MMAP;
+static int type=TYPE_ALL;
+//static int type=TYPE_OPEN|TYPE_CLOSE|TYPE_IOCTL|TYPE_OVERFLOW|TYPE_MMAP|TYPE_TRASH_MMAP;
 
 static int log_fd;
 static char log_buffer[BUFSIZ];
@@ -222,7 +222,7 @@ static void close_event(int i, int from_sigio) {
 
 	event_data[i].active=0;
 
-	if (debug&DEBUG_CLOSE) {
+	if (debug&TYPE_CLOSE) {
 		printf("CLOSE, Active=%d, if %p munmap(%p,%x); close(%d);\n",
 			active_events,
 			event_data[i].mmap,
@@ -235,7 +235,7 @@ static void close_event(int i, int from_sigio) {
 	/* but rapidly ran out of memory */
 	if ((event_data[i].mmap) && unmap_before_close) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
-		if ((!from_sigio) && (logging&DEBUG_MMAP)) {
+		if ((!from_sigio) && (logging&TYPE_MMAP)) {
 			sprintf(log_buffer,"U %d %d %p\n",
 				event_data[i].fd,
 				event_data[i].mmap_size,
@@ -249,7 +249,7 @@ static void close_event(int i, int from_sigio) {
 	result=close(event_data[i].fd);
 	if (result==0) close_successful++;
 
-	if ((!from_sigio) && (logging&DEBUG_CLOSE)) {
+	if ((!from_sigio) && (logging&TYPE_CLOSE)) {
 		sprintf(log_buffer,"C %d\n",event_data[i].fd);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
@@ -257,7 +257,7 @@ static void close_event(int i, int from_sigio) {
 	/* sometimes unmap after we've closed */
 	if ((event_data[i].mmap) && !unmap_before_close) {
 		munmap(event_data[i].mmap,event_data[i].mmap_size);
-		if ((!from_sigio) && (logging&DEBUG_MMAP)) {
+		if ((!from_sigio) && (logging&TYPE_MMAP)) {
 			sprintf(log_buffer,"U %d %d %p\n",
 				event_data[i].fd,
 				event_data[i].mmap_size,
@@ -301,7 +301,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 	/* we have deterministic counts which we don't */
 
 
-	if (debug&DEBUG_OVERFLOW) {
+	if (debug&TYPE_OVERFLOW) {
 		sprintf(string,"OVERFLOW: fd=%d\n",fd);
 		write(1,string,strlen(string));
 	}
@@ -348,7 +348,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			/* cannot call rand() from signal handler! */
 			/* we re-enter and get stuck in a futex :( */
 
-			if (debug&DEBUG_OVERFLOW) {
+			if (debug&TYPE_OVERFLOW) {
 				sprintf(string,"OVERFLOW REFRESH: %d\n",next_refresh);
 				write(1,string,strlen(string));
 			}
@@ -640,7 +640,7 @@ static void open_random_event(void) {
 
 		}
 
-		if (debug&DEBUG_OPEN) {
+		if (debug&TYPE_OPEN) {
 			printf("PERF_EVENT_OPEN: "
 				"perf_event_open(%p,%d,%d,%d,%lx);\n",
 				&event_data[i].attr,
@@ -656,7 +656,7 @@ static void open_random_event(void) {
 		/* We don't usually log failed opens as there are so many */
 
 
-	        if (logging&DEBUG_OPEN) {
+	        if (logging&TYPE_OPEN) {
 #if 0
 		  /* uncomment if failing opens are causing crashes */
 //			static int quit_next=0;
@@ -706,7 +706,7 @@ static void open_random_event(void) {
 		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) errno_count[errno]++;
 
-		if (debug&DEBUG_OPEN) {
+		if (debug&TYPE_OPEN) {
 			printf("PERF_EVENT_OPEN: FAIL %s\n",
 				strerror(errno));
 		}
@@ -719,12 +719,12 @@ static void open_random_event(void) {
 	/* We successfully opened an event! */
 
 	open_successful++;
-	if (debug&DEBUG_OPEN) {
+	if (debug&TYPE_OPEN) {
 		printf("PERF_EVENT_OPEN: SUCCESS fd=%d Active=%d\n",
 			fd,active_events);
 	}
 
-	if (logging&DEBUG_OPEN) {
+	if (logging&TYPE_OPEN) {
 		sprintf(log_buffer,"O %d %d %d %d %lx ",
 				fd,
 				event_data[i].pid,
@@ -749,7 +749,7 @@ static void open_random_event(void) {
 
 		event_data[j].number_in_group++;
 		event_data[j].read_size=update_read_size(j);
-		if (debug&DEBUG_OPEN) {
+		if (debug&TYPE_OPEN) {
 			printf("ADDING %d to GROUP %d\n",fd,
 				event_data[i].group_fd);
 		}
@@ -757,7 +757,7 @@ static void open_random_event(void) {
 
 	/* Setup mmap buffer */
 
-	if (type & DEBUG_MMAP) {
+	if (type & TYPE_MMAP) {
 
 
 		/* to be valid we really want to be 1+2^x pages */
@@ -771,7 +771,7 @@ static void open_random_event(void) {
 		}
 
 		event_data[i].mmap=NULL;
-		if (debug&DEBUG_MMAP) {
+		if (debug&TYPE_MMAP) {
 			printf("MMAP: mmap(NULL, %d, PROT_READ|PROT_WRITE, "
 				"MAP_SHARED, %d, 0);\n",
 				event_data[i].mmap_size,event_data[i].fd);
@@ -780,7 +780,7 @@ static void open_random_event(void) {
 		mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
 			PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
-		if (debug&DEBUG_MMAP) {
+		if (debug&TYPE_MMAP) {
 			printf("MMAP: RESULT %p\n",event_data[i].mmap);
 		}
 
@@ -788,7 +788,7 @@ static void open_random_event(void) {
 			event_data[i].mmap=NULL;
 		}
 		else {
-			if (logging&DEBUG_MMAP_SUCCESS) {
+			if (logging&TYPE_MMAP_SUCCESS) {
  				sprintf(log_buffer,"M %d %d %p\n",
 					event_data[i].mmap_size,event_data[i].fd,
 					event_data[i].mmap);
@@ -800,9 +800,9 @@ static void open_random_event(void) {
 	}
 
 	/* Setup overflow 50% of the time */
-	if ((type&DEBUG_OVERFLOW) && (rand()%2)) {
+	if ((type&TYPE_OVERFLOW) && (rand()%2)) {
 
-		if (logging&DEBUG_OVERFLOW) {
+		if (logging&TYPE_OVERFLOW) {
 			sprintf(log_buffer,"o %d\n",event_data[i].fd);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
@@ -815,7 +815,7 @@ static void open_random_event(void) {
 			printf("Error setting up signal handler\n");
      		}
 
-		if (debug&DEBUG_OPEN) {
+		if (debug&TYPE_OPEN) {
 			printf("SIGNAL: sigaction(SIGRTMIN+2,%p,NULL); "
 			"fcntl(%d,F_SETFL,O_RDWR|O_NONBLOCK|O_ASYNC); "
 			"fcntl(%d,F_SETSIG, SIGRTMIN+2);"
@@ -859,7 +859,7 @@ static void trash_random_mmap(void) {
 		/* can't write high pages? */
 		//event_data[i].mmap_size);
 
-		if (logging&DEBUG_TRASH_MMAP) {
+		if (logging&TYPE_TRASH_MMAP) {
 			sprintf(log_buffer,"Q %d %d %d\n",
 				value,
 				getpagesize(),
@@ -886,13 +886,13 @@ static void ioctl_random_event(void) {
 	switch(rand()%9) {
 		case 0:
 			arg=rand_ioctl_arg();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: "
 					"ioctl(%d,PERF_EVENT_IOC_ENABLE,%d);\n",
 					event_data[i].fd,arg);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -900,12 +900,12 @@ static void ioctl_random_event(void) {
 			break;
 		case 1:
 			arg=rand_ioctl_arg();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_DISABLE,%d);\n",
 					event_data[i].fd,arg);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,arg);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_DISABLE,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -913,7 +913,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 2:
 			arg=rand_refresh();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_REFRESH,%d);\n",
 				event_data[i].fd,arg);
 			}
@@ -921,7 +921,7 @@ static void ioctl_random_event(void) {
 			if (result>0) {
 				event_data[i].last_refresh=arg;
 			}
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -929,62 +929,62 @@ static void ioctl_random_event(void) {
 			break;
 		case 3:
 			arg=rand_ioctl_arg();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_RESET,%d);\n",
 				event_data[i].fd,arg);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_RESET,arg);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_RESET,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 4: arg=rand_period();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_PERIOD,%d);\n",
 					event_data[i].fd,arg);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %d\n",
 					event_data[i].fd,(long)PERF_EVENT_IOC_PERIOD,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 5: arg=event_data[find_random_active_event()].fd;
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_SET_OUTPUT,%d);\n",
 					event_data[i].fd,arg);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 6: arg=rand();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_SET_FILTER,%d);\n",
 					event_data[i].fd,arg);
 			}
 			/* FIXME -- read filters from file */
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %d\n",
 					event_data[i].fd,(long)PERF_EVENT_IOC_SET_FILTER,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 		case 7: arg=rand();
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: ioctl(%d,PERF_EVENT_IOC_ID,%p);\n",
 					event_data[i].fd,&id);
 			}
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
 					event_data[i].fd,(long)PERF_EVENT_IOC_ID,id);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -994,11 +994,11 @@ static void ioctl_random_event(void) {
 		default:
 			arg=rand(); arg2=rand();
 			result=ioctl(event_data[i].fd,arg,arg2);
-			if (debug&DEBUG_IOCTL) {
+			if (debug&TYPE_IOCTL) {
 				printf("IOCTL: RANDOM ioctl(%d,%x,%x)\n",
 					event_data[i].fd,arg,arg2);
 			}
-			if ((result>=0)&&(logging&DEBUG_IOCTL)) {
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,arg,arg2);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -1006,7 +1006,7 @@ static void ioctl_random_event(void) {
 
 			break;
 	}
-	if (debug&DEBUG_IOCTL) printf("IOCTL RESULT %d %s\n",result,result<0?strerror(errno):"OK");
+	if (debug&TYPE_IOCTL) printf("IOCTL RESULT %d %s\n",result,result<0?strerror(errno):"OK");
 	ioctl_attempts++;
 	if (result>=0) ioctl_successful++;
 
@@ -1020,20 +1020,20 @@ static void prctl_random_event(void) {
 
 	if (rand()%2) {
 		ret=prctl(PR_TASK_PERF_EVENTS_ENABLE);
-		if (debug&DEBUG_PRCTL) {
+		if (debug&TYPE_PRCTL) {
 			printf("PRCTL: PR_TASK_PERF_EVENTS_ENABLE\n");
 		}
-		if ((ret==0)&&(logging&DEBUG_PRCTL)) {
+		if ((ret==0)&&(logging&TYPE_PRCTL)) {
 			sprintf(log_buffer,"P 1\n");
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 	}
 	else {
 		ret=prctl(PR_TASK_PERF_EVENTS_DISABLE);
-		if (debug&DEBUG_PRCTL) {
+		if (debug&TYPE_PRCTL) {
 			printf("PRCTL: PR_TASK_PERF_EVENTS_DISABLE\n");
 		}
-		if ((ret==0)&&(logging&DEBUG_PRCTL)) {
+		if ((ret==0)&&(logging&TYPE_PRCTL)) {
 			sprintf(log_buffer,"P 0\n");
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
@@ -1069,21 +1069,21 @@ static void read_random_event(void) {
 		default: read_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
 	}
 
-	if (debug&DEBUG_READ) printf("READ: read(%d,%p,%d);\n",
+	if (debug&TYPE_READ) printf("READ: read(%d,%p,%d);\n",
 		event_data[i].fd,&data,read_size);
 
 	read_attempts++;
 	result=read(event_data[i].fd,data,read_size);
 
-	if (debug&DEBUG_READ) printf("READ RESULT: result %d %s\n",result,
+	if (debug&TYPE_READ) printf("READ RESULT: result %d %s\n",result,
 		result<0?strerror(errno):"OK");
 	if (result>0) {
 	        read_successful++;
-		if (logging&DEBUG_READ) {
+		if (logging&TYPE_READ) {
 			sprintf(log_buffer,"R %d %d\n",event_data[i].fd,read_size);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
-		if (debug&DEBUG_READ) {
+		if (debug&TYPE_READ) {
 			printf("READ VALUES: ");
 			for(i=0;i<result/8;i++) printf("%lld ",data[i]);
 			printf("\n");
@@ -1114,12 +1114,12 @@ static void write_random_event(void) {
 		default: write_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
 	}
 
-	if (debug&DEBUG_WRITE) printf("WRITE: write(%d,%p,%d);\n",
+	if (debug&TYPE_WRITE) printf("WRITE: write(%d,%p,%d);\n",
 		event_data[i].fd,&data,write_size);
 
 	result=write(event_data[i].fd,data,write_size);
 
-	if (debug&DEBUG_WRITE) printf("WRITE RESULT: result %d %s\n",result,
+	if (debug&TYPE_WRITE) printf("WRITE RESULT: result %d %s\n",result,
 		result<0?strerror(errno):"OK");
 
 
@@ -1146,7 +1146,7 @@ static void poll_random_event(void) {
 	timeout=rand()%10;
 
 
-	if (debug&DEBUG_POLL) {
+	if (debug&TYPE_POLL) {
 		printf("POLL: poll(");
 		for(i=0;i<num_fds;i++) {
 			printf("%d,%d, ",pollfds[i].fd,pollfds[i].events);
@@ -1157,11 +1157,11 @@ static void poll_random_event(void) {
 	poll_attempts++;
 	result=poll(pollfds,num_fds,timeout);
 
-	if (debug&DEBUG_POLL) printf("POLL RESULT: result %d %s\n",result,
+	if (debug&TYPE_POLL) printf("POLL RESULT: result %d %s\n",result,
 		result<0?strerror(errno):"OK");
 	if (result>0) {
 	        poll_successful++;
-		if (logging&DEBUG_POLL) {
+		if (logging&TYPE_POLL) {
 			sprintf(log_buffer,"p %d ",num_fds);
 			write(log_fd,log_buffer,strlen(log_buffer));
 			for(i=0;i<num_fds;i++) {
@@ -1237,10 +1237,10 @@ static void fork_random_event(void) {
 	int status;
 
 	if (already_forked) {
-		if (debug&DEBUG_FORK) {
+		if (debug&TYPE_FORK) {
 			printf("FORK: KILLING pid %d\n",forked_pid);
 		}
-		if (logging&DEBUG_FORK) {
+		if (logging&TYPE_FORK) {
 			sprintf(log_buffer,"F 0\n");
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
@@ -1254,10 +1254,10 @@ static void fork_random_event(void) {
 		already_forked=0;
 	}
 	else {
-		if (debug&DEBUG_FORK) {
+		if (debug&TYPE_FORK) {
 			printf("FORKING\n");
 		}
-		if (logging&DEBUG_FORK) {
+		if (logging&TYPE_FORK) {
 			sprintf(log_buffer,"F 1\n");
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
@@ -1399,11 +1399,11 @@ int main(int argc, char **argv) {
 						exit(0);
 						break;
 				/* debug */
-				case 'd':	debug=DEBUG_ALL;
+				case 'd':	debug=TYPE_ALL;
 						i++;
 						break;
 				/* log */
-                                case 'l':       logging=DEBUG_ALL;
+                                case 'l':       logging=TYPE_ALL;
 						i++;
 						if (i<argc) {
 							logfile_name=strdup(argv[i]);
@@ -1552,48 +1552,48 @@ int main(int argc, char **argv) {
 	while(1) {
 
 		switch(rand()%11) {
-			case 0:	if (type&DEBUG_OPEN) {
+			case 0:	if (type&TYPE_OPEN) {
 					open_random_event();
 				}
 				break;
-			case 1: if (type&DEBUG_CLOSE) {
+			case 1: if (type&TYPE_CLOSE) {
 					close_random_event();
 				}
 				break;
-			case 2: if (type&DEBUG_IOCTL) {
+			case 2: if (type&TYPE_IOCTL) {
 					ioctl_random_event();
 				}
 				break;
-			case 3: if (type&DEBUG_PRCTL) {
+			case 3: if (type&TYPE_PRCTL) {
 					prctl_random_event();
 				}
 				break;
-			case 4: if (type&DEBUG_READ) {
+			case 4: if (type&TYPE_READ) {
 					read_random_event();
 				}
 				break;
-			case 5: if (type&DEBUG_WRITE) {
+			case 5: if (type&TYPE_WRITE) {
 					write_random_event();
 				}
 				break;
-			case 6: if (type&DEBUG_ACCESS) {
+			case 6: if (type&TYPE_ACCESS) {
 					access_random_file();
 				}
 				break;
-			case 7: if (type&DEBUG_FORK) {
+			case 7: if (type&TYPE_FORK) {
 					fork_random_event();
 				}
 				break;
-			case 8: if (type&DEBUG_POLL) {
+			case 8: if (type&TYPE_POLL) {
 					poll_random_event();
 				}
 				break;
-			case 9: if (type&DEBUG_TRASH_MMAP) {
+			case 9: if (type&TYPE_TRASH_MMAP) {
 					trash_random_mmap();
 				}
 				break;
 			default:
-				if (type&DEBUG_MILLION) {
+				if (type&TYPE_MILLION) {
 					run_a_million_instructions();
 				}
 				break;
