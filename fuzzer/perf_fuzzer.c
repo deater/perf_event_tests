@@ -1264,22 +1264,6 @@ static void usage(char *name,int help) {
 		printf("\t\tA file access\t\to overflow\n");
 		printf("\t\ti instruction loop\n");
 		printf("\n");
-#if 0
-#define TYPE_OPEN		0x0004
-#define TYPE_CLOSE		0x0008
-#define TYPE_IOCTL		0x0040
-#define TYPE_READ		0x0010
-#define TYPE_MMAP		0x0001
-#define TYPE_FORK		0x0080
-#define TYPE_TRASH_MMAP		0x2000
-#define TYPE_WRITE		0x0020
-#define TYPE_PRCTL		0x0200
-#define TYPE_POLL		0x0400
-#define TYPE_ACCESS		0x1000
-#define TYPE_OVERFLOW		0x0002
-#define TYPE_MILLION		0x0800
-#endif
-
 	}
 }
 
@@ -1450,7 +1434,7 @@ int main(int argc, char **argv) {
 	printf("Fuzzing the following syscalls:\n\t");
 	if (type&TYPE_MMAP) printf("mmap ");
 	if (type&TYPE_OPEN) printf("perf_event_open ");
-	if (type&TYPE_OPEN) printf("close ");
+	if (type&TYPE_CLOSE) printf("close ");
 	if (type&TYPE_READ) printf("read ");
 	if (type&TYPE_WRITE) printf("write ");
 	if (type&TYPE_IOCTL) printf("ioctl ");
@@ -1462,7 +1446,7 @@ int main(int argc, char **argv) {
 	printf("*NOT* Fuzzing the following syscalls:\n\t");
 	if (!(type&TYPE_MMAP)) printf("mmap ");
 	if (!(type&TYPE_OPEN)) printf("perf_event_open ");
-	if (!(type&TYPE_OPEN)) printf("close ");
+	if (!(type&TYPE_CLOSE)) printf("close ");
 	if (!(type&TYPE_READ)) printf("read ");
 	if (!(type&TYPE_WRITE)) printf("write ");
 	if (!(type&TYPE_IOCTL)) printf("ioctl ");
