@@ -94,6 +94,7 @@ static long long ioctl_attempts=0,ioctl_successful=0;
 static long long prctl_attempts=0,prctl_successful=0;
 static long long fork_attempts=0,fork_successful=0;
 static long long poll_attempts=0,poll_successful=0;
+static long long access_attempts=0,access_successful=0;
 static long long trash_mmap_attempts=0,trash_mmap_successful=0;
 
 static int throttle_close_event=0;
@@ -1070,6 +1071,9 @@ static void access_random_file(void) {
 	int which;
 	FILE *fff;
 	char buffer[2048];
+	int result;
+	int size;
+	long long write_value;
 
 #define MAX_FILENAMES	4
 
@@ -1084,13 +1088,25 @@ static void access_random_file(void) {
 	/* So this should never trigger any bugs   */
 	/* unless running as root (a bad idea)	   */
 
+	access_attempts++;
+
 	which=rand()%4;
 
 	if (rand()%2) {
 		/* read */
 		fff=fopen(filenames[which],"r");
 		if (fff!=NULL) {
-			fread(buffer,sizeof(char),2048,fff);
+			size=2048;
+			result=fread(buffer,sizeof(char),size,fff);
+
+			if (logging&TYPE_ACCESS) {
+				sprintf(log_buffer,"A 0 %d %d %d\n",
+					which,size,result);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			if (result>0) access_successful++;
+
 			fclose(fff);
 		}
 	}
@@ -1098,8 +1114,17 @@ static void access_random_file(void) {
 		/* write */
 		fff=fopen(filenames[which],"w");
 		if (fff!=NULL) {
-			fprintf(fff,"%lld\n",
-				((unsigned long long)rand()<<32)|rand());
+			write_value=((unsigned long long)rand()<<32)|rand();
+			result=fprintf(fff,"%lld\n",write_value);
+
+			if (logging&TYPE_ACCESS) {
+				sprintf(log_buffer,"A 1 %d %lld %d\n",
+					which,write_value,result);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			if (result>0) access_successful++;
+
 			fclose(fff);
 		}
 	}
@@ -1204,6 +1229,8 @@ static void dump_summary(FILE *fff) {
 	       fork_attempts,fork_successful);
 	fprintf(fff,"\tPoll attempts: %lld  Successful: %lld\n",
 	       poll_attempts,poll_successful);
+	fprintf(fff,"\tAccess attempts: %lld  Successful: %lld\n",
+	       access_attempts,access_successful);
 	fprintf(fff,"\tTrash mmap attempts: %lld  Successful: %lld\n",
 		trash_mmap_attempts,trash_mmap_successful);
 	fprintf(fff,"\tOverflows: %lld\n", overflows);
@@ -1219,6 +1246,7 @@ static void dump_summary(FILE *fff) {
 	prctl_attempts=0; prctl_successful=0;
 	fork_attempts=0; fork_successful=0;
 	poll_attempts=0; poll_successful=0;
+	access_attempts=0; access_successful=0;
 	trash_mmap_attempts=0; trash_mmap_successful=0;
 	overflows=0;
 	sigios=0;
