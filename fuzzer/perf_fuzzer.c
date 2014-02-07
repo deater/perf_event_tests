@@ -60,6 +60,7 @@ char *page_rand;
 
 static int logging=0;
 static int stop_after=0;
+static int attempt_determinism=1;
 
 static int type=TYPE_MMAP|
 //		TYPE_OVERFLOW|
@@ -1123,7 +1124,9 @@ static void fork_random_event(void) {
 
 		/* not sure if this will cause us to miss bugs */
 		/* but it does make the logs more deterministic */
-		waitpid(forked_pid, &status, 0);
+		if (attempt_determinism) {
+			waitpid(forked_pid, &status, 0);
+		}
 
 		already_forked=0;
 	}
@@ -1373,6 +1376,11 @@ int main(int argc, char **argv) {
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
+	if (attempt_determinism) {
+		type&=~TYPE_OVERFLOW;
+	}
+
+
 	/* Print what we are actually fuzzing */
 	/* Sometimes I comment out code and forget */
 
@@ -1415,6 +1423,14 @@ int main(int argc, char **argv) {
 	if (!(type&TYPE_ACCESS)) printf("accessing-perf-proc-and-sys-files ");
 	if (!(type&TYPE_TRASH_MMAP)) printf("trashing-the-mmap-page ");
 	printf("\n");
+
+	if (attempt_determinism) {
+		printf("\nAttempting more deterministic results by:\n\t");
+		printf("waitpid-after-killing-child ");
+		printf("disabling-overflow-signal-handler ");
+		printf("\n");
+	}
+
 
 	printf("==================================================\n");
 
