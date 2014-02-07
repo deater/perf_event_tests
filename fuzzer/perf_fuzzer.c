@@ -1332,6 +1332,8 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	printf("\n*** perf_fuzzer *** by Vince Weaver\n\n");
+
 	/* Poor Seeding */
 	/* should read /dev/urandom instead */
 	if (!seed) {
@@ -1339,7 +1341,6 @@ int main(int argc, char **argv) {
 	}
 	srand(seed);
 	printf("Seeding random number generator with %d\n",seed);
-
 
 	/* Clear errnos count */
 	for(i=0;i<MAX_ERRNOS;i++) {
@@ -1371,6 +1372,53 @@ int main(int argc, char **argv) {
 		sprintf(log_buffer,"r %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
+
+	/* Print what we are actually fuzzing */
+	/* Sometimes I comment out code and forget */
+
+	printf("==================================================\n");
+
+	printf("Fuzzing the following syscalls:\n\t");
+	if (type&TYPE_MMAP) printf("mmap ");
+	if (type&TYPE_OPEN) printf("perf_event_open ");
+	if (type&TYPE_OPEN) printf("close ");
+	if (type&TYPE_READ) printf("read ");
+	if (type&TYPE_WRITE) printf("write ");
+	if (type&TYPE_IOCTL) printf("ioctl ");
+	if (type&TYPE_FORK) printf("fork ");
+	if (type&TYPE_PRCTL) printf("prctl ");
+	if (type&TYPE_POLL) printf("poll ");
+	printf("\n");
+
+	printf("*NOT* Fuzzing the following syscalls:\n\t");
+	if (!(type&TYPE_MMAP)) printf("mmap ");
+	if (!(type&TYPE_OPEN)) printf("perf_event_open ");
+	if (!(type&TYPE_OPEN)) printf("close ");
+	if (!(type&TYPE_READ)) printf("read ");
+	if (!(type&TYPE_WRITE)) printf("write ");
+	if (!(type&TYPE_IOCTL)) printf("ioctl ");
+	if (!(type&TYPE_FORK)) printf("fork ");
+	if (!(type&TYPE_PRCTL)) printf("prctl ");
+	if (!(type&TYPE_POLL)) printf("poll ");
+	printf("\n");
+
+	printf("Also attempting the following:\n\t");
+	if (type&TYPE_OVERFLOW) printf("signal-handler-on-overflow ");
+	if (type&TYPE_MILLION) printf("busy-instruction-loop ");
+	if (type&TYPE_ACCESS) printf("accessing-perf-proc-and-sys-files ");
+	if (type&TYPE_TRASH_MMAP) printf("trashing-the-mmap-page ");
+	printf("\n");
+
+	printf("*NOT* attempting the following:\n\t");
+	if (!(type&TYPE_OVERFLOW)) printf("signal-handler-on-overflow ");
+	if (!(type&TYPE_MILLION)) printf("busy-instruction-loop ");
+	if (!(type&TYPE_ACCESS)) printf("accessing-perf-proc-and-sys-files ");
+	if (!(type&TYPE_TRASH_MMAP)) printf("trashing-the-mmap-page ");
+	printf("\n");
+
+	printf("==================================================\n");
+
+
 
 	/* Set up to match trinity setup, vaguely */
 	page_size=getpagesize();
