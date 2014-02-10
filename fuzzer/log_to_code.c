@@ -386,6 +386,10 @@ int main(int argc, char **argv) {
 
 	printf("int main(int argc, char **argv) {\n");
 
+	/* Match how replay_log implements things */
+	printf("\n\tint i;\n");
+	printf("\tfor(i=0;i<%d;i++) fd[i]=-1;\n\n",NUM_VALUES);
+
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
 		if (result==NULL) break;
