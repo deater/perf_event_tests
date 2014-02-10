@@ -303,6 +303,8 @@ int main(int argc, char **argv) {
 	char line[BUFSIZ];
 	char *result;
 	long long total_syscalls=0;
+	int random_seed;
+	int max_sample_rate;
 
 	if (argc<2) {
 		logfile=stdin;
@@ -425,6 +427,14 @@ int main(int argc, char **argv) {
 				break;
 			case 'R':
 				read_event(line);
+				break;
+			case 'r':
+				sscanf(line,"%*c %d",&max_sample_rate);
+				printf("/* /proc/sys/kernel/perf_event_max_sample_rate was %d */\n",max_sample_rate);
+				break;
+			case 'S':
+				sscanf(line,"%*c %d",&random_seed);
+				printf("/* Random Seed was %d */\n",random_seed);
 				break;
 			case 'U':
 				munmap_event(line);
