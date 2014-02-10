@@ -459,7 +459,7 @@ int main(int argc, char **argv) {
 		if (error) break;
 	}
 
-	printf("\t/* Replayed %lld syscalls */\n",total_syscalls);
+	printf("\n\n\t/* Replayed %lld syscalls */\n",total_syscalls);
 
 	printf("\treturn 0;\n");
 	printf("}\n");
