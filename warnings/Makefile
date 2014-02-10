@@ -1,7 +1,6 @@
 CC = gcc
 CFLAGS = -O2 -Wall -I../include 
 LFLAGS = 
-LFLAGS_PTHREAD = -lpthread
 
 all:	core2_nmi_flood kec_2122_warn pec_1076_warn
 
