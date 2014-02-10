@@ -340,9 +340,9 @@ int main(int argc, char **argv) {
 
 	printf("\n");
 
-	printf("int fd[%d];\n",NUM_VALUES);
-	printf("struct perf_event_attr pe[%d];\n",NUM_VALUES);
-	printf("char *mmap_result[%d];\n",NUM_VALUES);
+	printf("static int fd[%d];\n",NUM_VALUES);
+	printf("static struct perf_event_attr pe[%d];\n",NUM_VALUES);
+	printf("static char *mmap_result[%d];\n",NUM_VALUES);
 
 	printf("#define MAX_READ_SIZE 65536\n");
 	printf("static long long data[MAX_READ_SIZE];\n");
@@ -350,12 +350,12 @@ int main(int argc, char **argv) {
 	printf("\n");
 
 	printf("#define MAX_POLL_FDS 128\n");
-	printf("struct pollfd pollfds[MAX_POLL_FDS];\n");
+	printf("static struct pollfd pollfds[MAX_POLL_FDS];\n");
 
 	printf("\n");
 
 	/* For ioctl(PERF_EVENT_IOC_ID); */
-	printf("long long id;\n");
+	printf("static long long id;\n");
 
 	printf("\n");
 
@@ -397,36 +397,46 @@ int main(int argc, char **argv) {
 		switch(line[0]) {
 			case 'C':
 				close_event(line);
+				total_syscalls++;
 				break;
 			case 'F':
 				fork_event(line);
+				total_syscalls++;
 				break;
 			case 'G':
 				sscanf(line,"%*c %d",&original_pid);
 				break;
 			case 'I':
 				ioctl_event(line);
+				total_syscalls++;
 				break;
 			case 'M':
 				mmap_event(line);
+				total_syscalls++;
 				break;
 			case 'O':
 				open_event(line);
+				total_syscalls++;
 				break;
 			case 'o':
 				setup_overflow(line);
+				total_syscalls++;
 				break;
 			case 'P':
 				prctl_event(line);
+				total_syscalls++;
 				break;
 			case 'p':
 				poll_event(line);
+				total_syscalls++;
 				break;
 			case 'Q':
 				trash_mmap_event(line);
+				total_syscalls++;
 				break;
 			case 'R':
 				read_event(line);
+				total_syscalls++;
 				break;
 			case 'r':
 				sscanf(line,"%*c %d",&max_sample_rate);
@@ -438,6 +448,8 @@ int main(int argc, char **argv) {
 				break;
 			case 'U':
 				munmap_event(line);
+				total_syscalls++;
+
 				break;
 			default:
 				fprintf(stderr,"Unknown log type \'%c\'\n",
@@ -445,7 +457,6 @@ int main(int argc, char **argv) {
 				break;
 		}
 		if (error) break;
-		total_syscalls++;
 	}
 
 	printf("\t/* Replayed %lld syscalls */\n",total_syscalls);
