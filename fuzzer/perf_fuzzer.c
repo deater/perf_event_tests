@@ -1198,9 +1198,11 @@ static void fork_random_event(void) {
 }
 
 
-static void dump_summary(FILE *fff) {
+static void dump_summary(FILE *fff, int print_values) {
 
 	int i;
+
+	if (print_values) {
 
 	fprintf(fff,"Iteration %lld\n",total_iterations);
 	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld\n",
@@ -1235,6 +1237,8 @@ static void dump_summary(FILE *fff) {
 		trash_mmap_attempts,trash_mmap_successful);
 	fprintf(fff,"\tOverflows: %lld\n", overflows);
 	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",sigios);
+
+	}
 
 	/* Reset counts back to zero */
 	open_attempts=0; open_successful=0;
@@ -1429,6 +1433,7 @@ int main(int argc, char **argv) {
 		fprintf(fff,"%d\n",seed);
 		fclose(fff);
 	}
+
 	if (logging) {
 		sprintf(log_buffer,"S %d\n",seed);
 		write(log_fd,log_buffer,strlen(log_buffer));
@@ -1615,7 +1620,7 @@ int main(int argc, char **argv) {
 		total_iterations++;
 
 		if ((stop_after) && (total_iterations>=stop_after)) {
-			dump_summary(stderr);
+			dump_summary(stderr,1);
 			return 0;
 		}
 
@@ -1624,8 +1629,11 @@ int main(int argc, char **argv) {
 		/* up the trace file.				   */
 		if (total_iterations%10000==0) {
 			if (log_fd!=1) {
-				dump_summary(stderr);
-			}
+				dump_summary(stderr,1);
+			}	
+			else {
+				dump_summary(stderr,0);
+			}			
 		}
 //		fsync(log_fd);
 	}
