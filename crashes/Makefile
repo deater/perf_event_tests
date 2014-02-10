@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O2 -Wall -I../include
-LFLAGS =
+LFLAGS = 
 LFLAGS_PTHREAD = -lpthread
 
 PAPI_INCLUDE = -I/usr/local/include
@@ -10,11 +10,9 @@ all:	pe_inherit_memleak pe_task_schedule_panic \
 	perf_mmap_close_bug offcore_response_mask \
 	oflo_sw_cpu_clock_crash sw_event_config_overflow \
 	nmi_soft_lockup \
-	tracepoint_fork \
 	tracepoint_irq_work_exit \
 	arm_validate_event_oops arm_map_hw_event_oops \
 	perf_ftrace_event_crash \
-	core2_nmi_flood \
 	css_cgroup_crash
 
 ####
@@ -37,16 +35,6 @@ arm_map_hw_event_oops:	arm_map_hw_event_oops.o
 
 arm_map_hw_event_oops.o:	arm_map_hw_event_oops.c
 	$(CC) $(CFLAGS) -c arm_map_hw_event_oops.c
-
-####
-
-core2_nmi_flood:	core2_nmi_flood.o
-	$(CC) $(LFLAGS) -o core2_nmi_flood core2_nmi_flood.o
-
-
-core2_nmi_flood.o:	core2_nmi_flood.c
-	$(CC) $(CFLAGS) -c core2_nmi_flood.c
-
 
 ####
 
@@ -118,15 +106,6 @@ nmi_soft_lockup.o:	nmi_soft_lockup.c
 
 ####
 
-tracepoint_fork:	tracepoint_fork.o ../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o tracepoint_fork tracepoint_fork.o ../lib/perf_helpers.o
-
-
-tracepoint_fork.o:	tracepoint_fork.c
-	$(CC) $(CFLAGS) -c tracepoint_fork.c
-
-####
-
 tracepoint_irq_work_exit:	tracepoint_irq_work_exit.o
 	$(CC) $(LFLAGS) -o tracepoint_irq_work_exit tracepoint_irq_work_exit.o
 
@@ -157,9 +136,9 @@ clean:
 	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic \
 		perf_mmap_close_bug offcore_response_mask \
 		oflo_sw_cpu_clock_crash sw_event_config_overflow \
-		nmi_soft_lockup tracepoint_fork tracepoint_irq_work_exit \
+		nmi_soft_lockup tracepoint_irq_work_exit \
 		arm_validate_event_oops arm_map_hw_event_oops \
 		perf_ftrace_event_crash \
-		core2_nmi_flood css_cgroup_crash
+		css_cgroup_crash
 
 
