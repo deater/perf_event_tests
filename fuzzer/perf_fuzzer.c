@@ -1409,6 +1409,7 @@ int main(int argc, char **argv) {
 					logfile_name,strerror(errno));
 				exit(1);
 			}
+			fprintf(stderr,"Warning! Using a named log file might disrupt determinism due to the extra file descriptor created.  Consider logging to stdout instead\n\n");
 		}
 	}
 
