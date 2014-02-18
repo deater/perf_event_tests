@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <unistd.h>
 
 extern unsigned int seed;
 unsigned int init_seed(unsigned int seed);

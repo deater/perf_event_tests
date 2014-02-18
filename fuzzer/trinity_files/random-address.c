@@ -4,14 +4,16 @@
 #include <string.h>
 #include <sys/uio.h>
 
-//#include "trinity.h"	// page_size
+#include "trinity.h"	// page_size
 #include "arch.h"	// KERNEL_ADDR etc
 #include "log.h"
 #include "random.h"
 #include "sanitise.h"
 #include "maps.h"
 #include "shm.h"
-//#include "tables.h"
+#if VMW
+#include "tables.h"
+#endif
 
 /*
 static bool within_page(void *addr, void *check)
@@ -67,24 +69,17 @@ static void * _get_address(unsigned char null_allowed)
 		break;
 	case 6:	addr = (void *)(unsigned long)rand64();
 		break;
-#if 0
-	case 7: map = get_map();
-		addr = map->ptr;
+	case 7: addr = page_rand;
+//		map = get_map();
+//		addr = map->ptr;
 		break;
-
 	case 8: addr = malloc(page_size * 2);
 		// FIXME: We leak this. This is the address we need to store for later
 		// freeing, not the potentially munged version below.
 		// tricky. We want to hand the munged version out too, so we might end up
 		// having to split this into alloc_address / get_address.
 		break;
-
 	case 9:	addr = page_maps;
-		break;
-#endif
-	default:
-		addr = NULL;
-//		BUG("unreachable!\n");
 		break;
 	}
 
@@ -104,7 +99,7 @@ static void * _get_address(unsigned char null_allowed)
 	case 3:	addr += (page_size / 2);
 		break;
 	case 4 ... 99:
-	default: break;
+		break;
 	}
 
 	return addr;
@@ -120,7 +115,7 @@ void * get_non_null_address(void)
 	return _get_address(FALSE);
 }
 
-#if 0
+#if VMW
 unsigned long find_previous_arg_address(unsigned int argnum, unsigned int call, int childno)
 {
 	struct syscallentry *entry;
@@ -156,10 +151,6 @@ unsigned long find_previous_arg_address(unsigned int argnum, unsigned int call, 
 	return addr;
 }
 
-
-/*
- * iovec's are just special cases of the ARG_ADDRESS's
- */
 struct iovec * alloc_iovec(unsigned int num)
 {
 	struct iovec *iov;
@@ -169,8 +160,16 @@ struct iovec * alloc_iovec(unsigned int num)
 		unsigned int i;
 
 		for (i = 0; i < num; i++) {
-			iov[i].iov_base = malloc(page_size);
-			iov[i].iov_len = page_size;
+			if (rand_bool()) {
+				iov[i].iov_base = malloc(page_size);
+				iov[i].iov_len = page_size;
+			} else {
+				struct map *map;
+
+				map = get_map();
+				iov[i].iov_base = map->ptr;
+				iov[i].iov_len = rand() % map->size;
+			}
 		}
 	}
 	return iov;
