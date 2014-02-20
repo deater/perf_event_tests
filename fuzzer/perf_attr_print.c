@@ -42,6 +42,14 @@ void perf_pretty_print_flags(FILE *fff,long int flags) {
 		if (our_flags==0) return;
 		fprintf(fff,"|");
 	}
+
+	if (flags&PERF_FLAG_FD_CLOEXEC) {
+		fprintf(fff,"PERF_FLAG_FD_CLOEXEC");
+		our_flags&=~PERF_FLAG_FD_CLOEXEC;
+		if (our_flags==0) return;
+		fprintf(fff,"|");
+	}
+
 	fprintf(fff,"0x%lxULL",our_flags);
 }
 
