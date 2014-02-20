@@ -1,0 +1,617 @@
+
+############################################
+finish_task_switch()  -- kernel/sched/core.c
+############################################
+
+# calls
+
+######################################################################
+perf_event_task_sched_in(prev,current);  -- include/linux/perf_event.h
+######################################################################
+
+  this is an inline function.
+
+  calls __perf_event_task_sched_in(prev, task); only if 
+      static_key_false(&perf_sched_events.key)
+
+  The static key stuff (see Documentation/static-keys.txt) allows
+  putting uncommon blocks (in this case event scheduling) out
+  of line so it won't hurt the common case, but if you start
+  monitoring it actually modifies the code (??) to take the branch?
+  computed gotos?
+
+
+###############################################################
+__perf_event_task_sched_in(prev, task); -- kernel/events/code.c
+###############################################################
+
+
+	struct perf_event_context; defined in include/linux/perf_event.h
+        contains task events and CPU events
+        linked list of pinned groups, flexible groups, event_list
+
+         for_each_task_context_nr(ctxn) {
+                 ctx = task->perf_event_ctxp[ctxn];
+                 if (likely(!ctx))
+                         continue;
+ 
+                 perf_event_context_sched_in(ctx, task);
+         }
+
+
+  also if cgroups, perf_cgroup_sched_in(prev, task);
+
+  also if  branch stack, perf_branch_stack_sched_in(prev, task);
+
+
+#####################################################
+perf_event_context_sched_in() -- kernel/events/core.c
+#####################################################
+
+  also called by perf_event_enable_on_exec()
+
+	/* First enable all per-CPU events */
+	/* I don't follow at all what happens here */
+	cpuctx = __get_cpu_context(ctx);
+        if (cpuctx->task_ctx == ctx)
+                 return;
+
+        perf_pmu_disable(ctx->pmu);
+
+	#############################
+	perf_pmu_disable() -- kernel/event/core.c
+	#############################
+	# int *count = this_cpu_ptr(pmu->pmu_disable_count);
+	# if (!(*count)++)           // urgh, so if enabled, disable?
+	#    pmu->pmu_disable(pmu);
+	#
+
+	/* un-schedule any flexible events to be sure pinned events fit */
+	cpu_ctx_sched_out(cpuctx, EVENT_FLEXIBLE);
+
+	/* ??? */
+	if (ctx->nr_events)
+		cpuctx->task_ctx = ctx;
+
+	perf_event_sched_in(cpuctx, cpuctx->task_ctx, task);
+
+	perf_pmu_enable(ctx->pmu);
+
+	########################################
+	perf_pmu_enable() -- kernel/event/core.c
+	########################################
+	# int *count = this_cpu_ptr(pmu->pmu_disable_count);
+	# if (!--(*count))            // only enable if count drops to 0
+	#    pmu->pmu_enable(pmu);
+
+
+	perf_ctx_unlock(cpuctx, ctx);
+
+	/* ??? */
+	perf_pmu_rotate_start(ctx->pmu);
+
+
+#############################################
+perf_event_sched_in() -- kernel/events/core.c
+#############################################
+
+	cpu_ctx_sched_in(cpuctx, EVENT_PINNED, task);
+	if (ctx)
+		ctx_sched_in(ctx, cpuctx, EVENT_PINNED, task);
+
+	cpu_ctx_sched_in(cpuctx, EVENT_FLEXIBLE, task);
+	if (ctx)
+		ctx_sched_in(ctx, cpuctx, EVENT_FLEXIBLE, task);
+
+##############################################
+cpu_ctx_sched_in() -- kernel/events/core.c
+##############################################
+
+	struct perf_event_context *ctx = &cpuctx->ctx;
+	ctx_sched_in(ctx, cpuctx, event_type, task);
+
+##############################################
+ctx_sched_in() -- kernel/events/core.c
+##############################################
+
+	now = perf_clock();
+	if (!(is_active & EVENT_PINNED) && (event_type & EVENT_PINNED))
+                 ctx_pinned_sched_in(ctx, cpuctx);
+	if (!(is_active & EVENT_FLEXIBLE) && (event_type & EVENT_FLEXIBLE))
+                 ctx_flexible_sched_in(ctx, cpuctx);
+
+#############################################
+ctx_pinned_sched_in() -- kernel/events/core.c
+#############################################
+	 list_for_each_entry(event, &ctx->pinned_groups, group_entry) {
+		/* Ignore events in OFF or ERROR state */
+                if (event->state <= PERF_EVENT_STATE_OFF)
+			continue;
+		/* Listen to the 'cpu' scheduling filter constraint */
+		if (!event_filter_match(event))
+			continue;
+
+                /* may need to reset tstamp_enabled */
+                if (is_cgroup_event(event))
+                        perf_cgroup_mark_enabled(event, ctx);
+
+                if (group_can_go_on(event, cpuctx, 1))
+                        group_sched_in(event, cpuctx, ctx);
+
+                * If this pinned group hasn't been scheduled,
+                * put it in error state.
+                if (event->state == PERF_EVENT_STATE_INACTIVE) {
+                         update_group_times(event);
+                         event->state = PERF_EVENT_STATE_ERROR;
+                }
+
+
+###############################################
+ctx_flexible_sched_in() -- kernel/events/core.c
+###############################################
+
+	can_add_hw=1;
+
+         list_for_each_entry(event, &ctx->flexible_groups, group_entry) {
+                 /* Ignore events in OFF or ERROR state */
+                 if (event->state <= PERF_EVENT_STATE_OFF)
+                         continue;
+
+                  * Listen to the 'cpu' scheduling filter constraint
+                 if (!event_filter_match(event))
+                         continue;
+ 
+                 /* may need to reset tstamp_enabled */
+                 if (is_cgroup_event(event))
+                         perf_cgroup_mark_enabled(event, ctx);
+ 
+                 if (group_can_go_on(event, cpuctx, can_add_hw)) {
+                         if (group_sched_in(event, cpuctx, ctx))
+                                 can_add_hw = 0;
+                 }
+         }
+
+
+
+#########################################
+group_can_go_on() -- kernel/events/core.c
+#########################################
+
+         * Groups consisting entirely of software events can always go on.
+1788          */
+1789         if (event->group_flags & PERF_GROUP_SOFTWARE)
+1790                 return 1;
+1791         /*
+1792          * If an exclusive group is already on, no other hardware
+1793          * events can go on.
+1794          */
+1795         if (cpuctx->exclusive)
+1796                 return 0;
+1797         /*
+1798          * If this group is exclusive and there are already
+1799          * events on the CPU, it can't go on.
+1800          */
+1801         if (event->attr.exclusive && cpuctx->active_oncpu)
+1802                 return 0;
+1803         /*
+1804          * Otherwise, try to add it if all previous groups were able
+1805          * to go on.
+1806          */
+1807         return can_add_hw;
+
+########################################
+group_sched_in() -- kernel/events/core.c
+########################################
+
+{
+         struct perf_event *event, *partial_group = NULL;
+         struct pmu *pmu = group_event->pmu;
+         u64 now = ctx->time;
+         bool simulate = false;
+ 
+         if (group_event->state == PERF_EVENT_STATE_OFF)
+                 return 0;
+ 
+         pmu->start_txn(pmu);
+ 
+         if (event_sched_in(group_event, cpuctx, ctx)) {
+                 pmu->cancel_txn(pmu);
+                 perf_cpu_hrtimer_restart(cpuctx);
+                 return -EAGAIN;
+         }
+ 
+         /*
+          * Schedule in siblings as one group (if any):
+          */
+         list_for_each_entry(event, &group_event->sibling_list, group_entry) {
+                 if (event_sched_in(event, cpuctx, ctx)) {
+                         partial_group = event;
+                         goto group_error;
+                 }
+         }
+ 
+         if (!pmu->commit_txn(pmu))
+                 return 0;
+ 
+1744 group_error:
+1745         /*
+1746          * Groups can be scheduled in as one unit only, so undo any
+1747          * partial group before returning:
+1748          * The events up to the failed event are scheduled out normally,
+1749          * tstamp_stopped will be updated.
+1750          *
+1751          * The failed events and the remaining siblings need to have
+1752          * their timings updated as if they had gone thru event_sched_in()
+1753          * and event_sched_out(). This is required to get consistent timings
+1754          * across the group. This also takes care of the case where the group
+1755          * could never be scheduled by ensuring tstamp_stopped is set to mark
+1756          * the time the event was actually stopped, such that time delta
+1757          * calculation in update_event_times() is correct.
+1758          */
+1759         list_for_each_entry(event, &group_event->sibling_list, group_entry) {
+1760                 if (event == partial_group)
+1761                         simulate = true;
+1762 
+1763                 if (simulate) {
+1764                         event->tstamp_running += now - event->tstamp_stopped;
+1765                         event->tstamp_stopped = now;
+1766                 } else {
+1767                         event_sched_out(event, cpuctx, ctx);
+1768                 }
+1769         }
+1770         event_sched_out(group_event, cpuctx, ctx);
+1771 
+1772         pmu->cancel_txn(pmu);
+1773 
+1774         perf_cpu_hrtimer_restart(cpuctx);
+1775 
+1776         return -EAGAIN;
+1777 }
+
+
+########################################
+event_sched_in() -- kernel/events/core.c
+########################################
+        u64 tstamp = perf_event_time(event);
+         int ret = 0;
+ 
+         if (event->state <= PERF_EVENT_STATE_OFF)
+                 return 0;
+ 
+         event->state = PERF_EVENT_STATE_ACTIVE;
+         event->oncpu = smp_processor_id();
+1666 
+1667         /*
+1668          * Unthrottle events, since we scheduled we might have missed several
+1669          * ticks already, also for a heavily scheduling task there is little
+1670          * guarantee it'll get a tick in a timely manner.
+1671          */
+1672         if (unlikely(event->hw.interrupts == MAX_INTERRUPTS)) {
+1673                 perf_log_throttle(event, 1);
+1674                 event->hw.interrupts = 0;
+1675         }
+1676 
+1677         /*
+1678          * The new state must be visible before we turn it on in the hardware:
+1679          */
+1680         smp_wmb();
+1681 
+1682         perf_pmu_disable(event->pmu);
+1683 
+1684         if (event->pmu->add(event, PERF_EF_START)) {
+1685                 event->state = PERF_EVENT_STATE_INACTIVE;
+1686                 event->oncpu = -1;
+1687                 ret = -EAGAIN;
+1688                 goto out;
+1689         }
+1690 
+1691         event->tstamp_running += tstamp - event->tstamp_stopped;
+1692 
+1693         perf_set_shadow_time(event, ctx, tstamp);
+1694 
+1695         if (!is_software_event(event))
+1696                 cpuctx->active_oncpu++;
+1697         ctx->nr_active++;
+1698         if (event->attr.freq && event->attr.sample_freq)
+1699                 ctx->nr_freq++;
+1700 
+1701         if (event->attr.exclusive)
+1702                 cpuctx->exclusive = 1;
+1703 
+1704 out:
+1705         perf_pmu_enable(event->pmu);
+1706 
+1707         return ret;
+
+
+################################
+event->pmu->add
+################################
+on x86/intel this is x86_pmu_add
+
+
+#################################################
+x86_pmu_add() -- arch/x86/kernel/cpu/perf_event.c
+#################################################
+
+        struct cpu_hw_events *cpuc = &__get_cpu_var(cpu_hw_events);
+1027         struct hw_perf_event *hwc;
+1028         int assign[X86_PMC_IDX_MAX];
+1029         int n, n0, ret;
+1030 
+1031         hwc = &event->hw;
+1032 
+1033         perf_pmu_disable(event->pmu);
+1034         n0 = cpuc->n_events;
+         ret = n = collect_events(cpuc, event, false);
+
+	######################################################
+	# collect_events() -- arch/x86/kernel/cpu/perf_event.c
+	######################################################
+	# 
+        #  if (is_x86_event(leader)) {
+        #          if (n >= max_count)
+        #                  return -EINVAL;
+        #          cpuc->event_list[n] = leader;
+        #          n++;
+        #  }
+        #  if (!dogrp)
+        #          return n;
+	# list_for_each_entry(event, &leader->sibling_list, group_entry) {
+        #         if (!is_x86_event(event) ||
+        #             event->state <= PERF_EVENT_STATE_OFF)
+        #                 continue;
+        #
+        #        if (n >= max_count)
+        #                return -EINVAL;
+        #
+        #        cpuc->event_list[n] = event;
+        #         n++;
+        # }
+        # return n;
+	#######################################################
+
+1036         if (ret < 0)
+1037                 goto out;
+1038 
+1039         hwc->state = PERF_HES_UPTODATE | PERF_HES_STOPPED;
+1040         if (!(flags & PERF_EF_START))
+1041                 hwc->state |= PERF_HES_ARCH;
+1042 
+1043         /*
+1044          * If group events scheduling transaction was started,
+1045          * skip the schedulability test here, it will be performed
+1046          * at commit time (->commit_txn) as a whole
+1047          */
+1048         if (cpuc->group_flag & PERF_EVENT_TXN)
+1049                 goto done_collect;
+1050 
+1051         ret = x86_pmu.schedule_events(cpuc, n, assign);
+1052         if (ret)
+1053                 goto out;
+
+	#############################################################
+	#  x86_schedule_events() -- arch/x86/kernel/cpu/perf_event.c
+	#############################################################
+	# URGH--- complex
+	#
+	# for (i = 0, wmin = X86_PMC_IDX_MAX, wmax = 0; i < n; i++) {
+	#           hwc = &cpuc->event_list[i]->hw;
+	#           c = x86_pmu.get_event_constraints(cpuc, cpuc->event_list[i]);
+	#           hwc->constraint = c;
+	#
+	#           wmin = min(wmin, c->weight);
+	#           wmax = max(wmax, c->weight);
+	#   }
+	#
+	# /* fast path */
+	# ...
+	#
+	# /* slow path */
+	#   if (i != n)
+	#                 num = perf_assign_events(cpuc->event_list, n, wmin,
+	#                                          wmax, assign);
+	#
+	#############################################################
+
+		##########################################################
+		# perf_assign_events() -- arch/x86/kernel/cpu/perf_event.c
+		##########################################################
+		#
+		#         perf_sched_init(&sched, events, n, wmin, wmax);
+		#
+		#        do {
+		#                if (!perf_sched_find_counter(&sched))
+		#                        break;  /* failed */
+		#                if (assign)
+		#                        assign[sched.state.event] = sched.state.counter;
+		#        } while (perf_sched_next_event(&sched));
+		#
+		#        return sched.state.unassigned;
+		########################################################
+
+1054         /*
+1055          * copy new assignment, now we know it is possible
+1056          * will be used by hw_perf_enable()
+1057          */
+1058         memcpy(cpuc->assign, assign, n*sizeof(int));
+1059 
+1060 done_collect:
+1061         cpuc->n_events = n;
+1062         cpuc->n_added += n - n0;
+1063         cpuc->n_txn += n - n0;
+1064 
+1065         ret = 0;
+1066 out:
+1067         perf_pmu_enable(event->pmu);
+1068         return ret;
+
+
+######################################################
+# x86_pmu_enable() -- arch/x86/kernel/cpu/perf_event.c
+######################################################
+
+875 static void x86_pmu_enable(struct pmu *pmu)
+876 {
+877         struct cpu_hw_events *cpuc = &__get_cpu_var(cpu_hw_events);
+878         struct perf_event *event;
+879         struct hw_perf_event *hwc;
+880         int i, added = cpuc->n_added;
+881 
+882         if (!x86_pmu_initialized())
+883                 return;
+884 
+885         if (cpuc->enabled)
+886                 return;
+887 
+888         if (cpuc->n_added) {
+889                 int n_running = cpuc->n_events - cpuc->n_added;
+890                 /*
+891                  * apply assignment obtained either from
+892                  * hw_perf_group_sched_in() or x86_pmu_enable()
+893                  *
+894                  * step1: save events moving to new counters
+895                  * step2: reprogram moved events into new counters
+896                  */
+897                 for (i = 0; i < n_running; i++) {
+898                         event = cpuc->event_list[i];
+899                         hwc = &event->hw;
+900 
+901                         /*
+902                          * we can avoid reprogramming counter if:
+903                          * - assigned same counter as last time
+904                          * - running on same CPU as last time
+905                          * - no other event has used the counter since
+906                          */
+907                         if (hwc->idx == -1 ||
+908                             match_prev_assignment(hwc, cpuc, i))
+909                                 continue;
+910 
+911                         /*
+912                          * Ensure we don't accidentally enable a stopped
+913                          * counter simply because we rescheduled.
+914                          */
+915                         if (hwc->state & PERF_HES_STOPPED)
+916                                 hwc->state |= PERF_HES_ARCH;
+917 
+918                         x86_pmu_stop(event, PERF_EF_UPDATE);
+919                 }
+920 
+921                 for (i = 0; i < cpuc->n_events; i++) {
+922                         event = cpuc->event_list[i];
+923                         hwc = &event->hw;
+924 
+925                         if (!match_prev_assignment(hwc, cpuc, i))
+926                                 x86_assign_hw_event(event, cpuc, i);
+927                         else if (i < n_running)
+928                                 continue;
+929 
+930                         if (hwc->state & PERF_HES_ARCH)
+931                                 continue;
+932 
+933                         x86_pmu_start(event, PERF_EF_RELOAD);
+
+	#####################################################
+	# x86_pmu_start() -- arch/x86/kernel/cpu/perf_event.c
+	#####################################################
+	#
+	#    struct cpu_hw_events *cpuc = &__get_cpu_var(cpu_hw_events);
+	#         int idx = event->hw.idx;
+	#
+	#	/* HES = hardware event state */
+	#
+	#    if (WARN_ON_ONCE(!(event->hw.state & PERF_HES_STOPPED)))
+	#                 return;
+	#
+	#    if (WARN_ON_ONCE(idx == -1))
+	#            return;
+	#
+	#    if (flags & PERF_EF_RELOAD) {
+	#            WARN_ON_ONCE(!(event->hw.state & PERF_HES_UPTODATE));
+	#            x86_perf_event_set_period(event);
+	#    }
+	#
+	#    event->hw.state = 0;
+	#
+	#    cpuc->events[idx] = event;
+	#    __set_bit(idx, cpuc->active_mask);
+	#    __set_bit(idx, cpuc->running);
+	#    x86_pmu.enable(event);
+
+		#########################################
+		# on my core2, version==2 to intel_pmu
+		# intel_pmu_enable_event() -- arch/x86/kernel/cpu/perf_event_intel.c
+		#########################################
+		#        struct hw_perf_event *hwc = &event->hw;
+		#         struct cpu_hw_events *cpuc = &__get_cpu_var(cpu_hw_events);
+		#
+		#        if (unlikely(hwc->idx == INTEL_PMC_IDX_FIXED_BTS)) {
+		#                if (!__this_cpu_read(cpu_hw_events.enabled))
+		#                        return;
+		#
+		#                intel_pmu_enable_bts(hwc->config);
+		#                return;
+		#        }
+		#        /*
+		#         * must enabled before any actual event
+		#         * because any event may be combined with LBR
+		#         */
+		#        if (intel_pmu_needs_lbr_smpl(event))
+		#                intel_pmu_lbr_enable(event);
+		#
+		#        if (event->attr.exclude_host)
+		#                cpuc->intel_ctrl_guest_mask |= (1ull << hwc->idx);
+		#        if (event->attr.exclude_guest)
+		#                cpuc->intel_ctrl_host_mask |= (1ull << hwc->idx);
+		#
+		#        if (unlikely(event_is_checkpointed(event)))
+		#                cpuc->intel_cp_status |= (1ull << hwc->idx);
+		#
+		#        if (unlikely(hwc->config_base == MSR_ARCH_PERFMON_FIXED_CTR_CTRL)) {
+		#                intel_pmu_enable_fixed(hwc);
+		#                return;
+		#        }
+		#
+		#        if (unlikely(event->attr.precise_ip))
+		#                intel_pmu_pebs_enable(event);
+		#
+		#        __x86_pmu_enable_event(hwc, ARCH_PERFMON_EVENTSEL_ENABLE);
+		#########################################
+
+
+	#    perf_event_update_userpage(event);
+	#}
+	#################################################
+
+934                 }
+935                 cpuc->n_added = 0;
+936                 perf_events_lapic_init();
+937         }
+938 
+939         cpuc->enabled = 1;
+940         barrier();
+941 
+942         x86_pmu.enable_all(added);
+	###################################3
+	#static void intel_pmu_enable_all(int added)
+1061 {
+1062         struct cpu_hw_events *cpuc = &__get_cpu_var(cpu_hw_events);
+1063 
+1064         intel_pmu_pebs_enable_all();
+1065         intel_pmu_lbr_enable_all();
+1066         wrmsrl(MSR_CORE_PERF_GLOBAL_CTRL,
+1067                         x86_pmu.intel_ctrl & ~cpuc->intel_ctrl_guest_mask);
+1068 
+1069         if (test_bit(INTEL_PMC_IDX_FIXED_BTS, cpuc->active_mask)) {
+1070                 struct perf_event *event =
+1071                         cpuc->events[INTEL_PMC_IDX_FIXED_BTS];
+1072 
+1073                 if (WARN_ON_ONCE(!event))
+1074                         return;
+1075 
+1076                 intel_pmu_enable_bts(event->hw.config);
+1077         }
+1078 }
+	########################################
+943 }
+

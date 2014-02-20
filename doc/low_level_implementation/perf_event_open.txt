@@ -1,0 +1,36 @@
+#######################################################
+SYSCALL_DEFINE5(perf_event_open -- kernel/events/core.c
+#######################################################
+
+
+event = perf_event_alloc()
+
+	###########################################
+	perf_event_alloc(() -- kernel/events/core.c
+	###########################################
+	#  perf_event__state_init
+	#
+	#   pmu = perf_init_event()
+
+		###########################################
+		# perf_init_event() -- kernel/events/core.c
+		###########################################
+		# pmu = idr_find(&pmu_idr, event->attr.type);
+		# lookup in idr?
+		# if not in idr, try initializing event in each pmu?
+
+ctx = find_get_context(pmu, task, event->cpu);
+
+	############################################
+	# find_get_context() -- kernel/events/core.c
+	############################################
+	# if (!task) { then CPU
+	#    cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
+	#    ctx = &cpuctx->ctx;
+	#    get_ctx(ctx);
+	#    return;
+	# }
+	#  ctx = perf_lock_task_context()
+	#  if (ctx) good
+	#  else ctx = alloc_perf_context()
+
