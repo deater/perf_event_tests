@@ -86,32 +86,38 @@ static void trash_mmap_event(char *line) {
 
 }
 
+/* Urgh, we allow unmapping after closing now */
+void *last_mmap=NULL;
 
 static void munmap_event(char *line) {
 
 	int fd,size,result;
+	void *mmap_address;
 
 	sscanf(line,"%*c %d %d",&fd,&size);
 
 	if (fd_remap[fd]==-1) {
-		fprintf(stderr,"Line: %lld Skipping munmap as fd %d is invalid\n",
-			line_num,fd);
-		return;
+//		fprintf(stderr,"Line: %lld Skipping munmap as fd %d is invalid\n",
+//			line_num,fd);
+		mmap_address=last_mmap;
+	}
+	else {
+		mmap_address=mmap_remap[fd_remap[fd]];
+		mmap_remap[fd_remap[fd]]=MAP_FAILED;
 	}
 
-	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) {
+	if (mmap_address==MAP_FAILED) {
 		fprintf(stderr,"Line: %lld Skipping munmap as data is invalid\n",
 			line_num);
 		return;
 
 	}
 
-	result=munmap(mmap_remap[fd_remap[fd]], size);
-	mmap_remap[fd_remap[fd]]=MAP_FAILED;
+	result=munmap(mmap_address, size);
 
 	if (result<0) {
-		fprintf(stderr,"Line: %lld Error with munmap of %p size %d of %d/%d\n",
-			line_num,mmap_remap[fd_remap[fd]],size,fd,fd_remap[fd]);
+		fprintf(stderr,"Line: %lld Error with munmap of %p size %d of %d\n",
+			line_num,mmap_address,size,fd);
 		error=1;
 		return;
 	}
@@ -267,6 +273,8 @@ static void open_event(char *line) {
 	fd_throttles[fd]=0;
 }
 
+
+
 static void close_event(char *line) {
 
 	int fd;
@@ -279,6 +287,8 @@ static void close_event(char *line) {
 			line_num,fd);
 		return;
 	}
+
+	last_mmap=mmap_remap[fd_remap[fd]];
 
 	result=close(fd_remap[fd]);
 	if (result<0) {
