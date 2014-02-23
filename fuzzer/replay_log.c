@@ -355,6 +355,43 @@ static void read_event(char *line) {
 	}
 }
 
+#define MAX_FILENAMES 4
+char *filenames[MAX_FILENAMES]={
+	"/proc/sys/kernel/perf_cpu_time_max_percent",
+	"/proc/sys/kernel/perf_event_paranoid",
+	"/proc/sys/kernel/perf_event_max_sample_rate",
+	"/proc/sys/kernel/perf_event_mlock_kb",
+};
+
+static void access_event(char *line) {
+
+	long long size;
+	int which,result,type;
+	char buffer[2048];
+	FILE *fff;
+
+	sscanf(line,"%*c %d %d %lld %d",&type,&which,&size,&result);
+
+	/* read */
+	if (type==0) {
+		fff=fopen(filenames[which],"r");
+		if (fff!=NULL) {
+                        result=fread(buffer,sizeof(char),size,fff);
+			fclose(fff);
+		}
+	}
+	else {
+		fff=fopen(filenames[which],"w");
+		if (fff!=NULL) {
+			result=fprintf(fff,"%lld\n",size);
+			fclose(fff);
+		}
+
+	}
+
+
+}
+
 static void prctl_event(char *line) {
 
         int enable=0;
@@ -515,19 +552,20 @@ static void setup_overflow(char *line) {
 }
 
 
-#define REPLAY_OPEN		0x001
-#define REPLAY_CLOSE		0x002
-#define REPLAY_IOCTL		0x004
-#define REPLAY_READ		0x008
-#define REPLAY_MMAP		0x010
-#define REPLAY_MUNMAP		0x020
-#define REPLAY_PRCTL		0x040
-#define REPLAY_FORK		0x080
-#define REPLAY_POLL		0x100
-#define REPLAY_SEED		0x200
-#define REPLAY_OVERFLOW		0x400
-#define REPLAY_TRASH_MMAP	0x800
-#define REPLAY_ALL		0xfff
+#define REPLAY_OPEN		0x0001
+#define REPLAY_CLOSE		0x0002
+#define REPLAY_IOCTL		0x0004
+#define REPLAY_READ		0x0008
+#define REPLAY_MMAP		0x0010
+#define REPLAY_MUNMAP		0x0020
+#define REPLAY_PRCTL		0x0040
+#define REPLAY_FORK		0x0080
+#define REPLAY_POLL		0x0100
+#define REPLAY_SEED		0x0200
+#define REPLAY_OVERFLOW		0x0400
+#define REPLAY_TRASH_MMAP	0x0800
+#define REPLAY_ACCESS		0x1000
+#define REPLAY_ALL		0xffff
 
 static int get_sample_rate(void) {
 
@@ -678,6 +716,11 @@ int main(int argc, char **argv) {
 		if (line_num<skip_lines) continue;
 
 		switch(line[0]) {
+			case 'A':
+				if (replay_which & REPLAY_ACCESS) {
+					access_event(line);
+				}
+				break;
 			case 'C':
 				if (replay_which & REPLAY_CLOSE) {
 					close_event(line);
