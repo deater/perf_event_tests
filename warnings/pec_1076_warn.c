@@ -1,17 +1,6 @@
-/* On a core2 machine from up until 3.14-rc2 at least	*/
+/* On a core2 machine from up until 3.14-rc3 at least	*/
 /* The code generates a warning like this:		*/
 /*
-[    6.107638] usbcore: registered new interface driver MOSCHIP usb-ethernet driver
-[    6.329515] Adding 2421756k swap on /dev/sda5.  Priority:-1 extents:1 across:2421756k SS
-[    6.368692] EXT4-fs (sda1): re-mounted. Opts: (null)
-[    6.388054] random: nonblocking pool is initialized
-[    6.430139] EXT4-fs (sda1): re-mounted. Opts: errors=remount-ro
-[    6.586916] f71882fg: Found f71808e chip at 0x290, revision 50
-[    6.606554] f71882fg f71882fg.656: Fan: 1 is in duty-cycle mode
-[    6.626016] f71882fg f71882fg.656: Fan: 2 is in duty-cycle mode
-[    6.647808] f71882fg f71882fg.656: Fan: 3 is in duty-cycle mode
-[    7.173830] IPv6: ADDRCONF(NETDEV_UP): eth1: link is not ready
-[    7.872845] IPv6: ADDRCONF(NETDEV_CHANGE): eth1: link becomes ready
 [   47.296031] ------------[ cut here ]------------
 [   47.300013] WARNING: CPU: 0 PID: 2821 at arch/x86/kernel/cpu/perf_event.c:1076 x86_pmu_start+0x46/0xee()
 [   47.300013] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet evdev ohci_pci ohci_hcd pcspkr i2c_nforce2 psmouse serio_raw coretemp video wmi button acpi_cpufreq processor thermal_sys ehci_pci ehci_hcd sg sd_mod usbcore usb_common
@@ -55,7 +44,41 @@
 
 /* Note, fails to run on ivb because of the precise=1 value in fd[23] */
 
+/* The WARN_ONCE was introduced in 2.6.37 */
+/* The relevant line number moved around a lot. */
+/*	2.6.37 = 1035	*/
+/*	2.6.38 = 1058	*/
+/*	2.6.39 = 1152	*/
+/*	3.0  = 1159	*/
+/*	3.1  = 1173	*/
+/*	3.2  =  860	*/
+/*	3.3  =  989	*/
+/*	3.4  = 1054	*/
+/*	3.5  = 1051	*/
+/*	3.6  = 1046	*/
+/*	3.7  = 1054	*/
+/*	3.8  = 1048	*/
+/*	3.9  = 1048	*/
+/*	3.10 = 1054	*/
+/*	3.11 = 1076	*/
+/*	3.12 = 1076	*/
+/*	3.13 = 1076	*/
+
+
 /* Found with perf_fuzzer */
+
+/* The warning was triggered in another manner in February 2012		*/
+/*   https://lkml.org/lkml/2012/2/2/453					*/
+
+/* Reported to trinity list 23 May 2013					*/
+/*   http://www.spinics.net/lists/trinity/msg00087.html			*/
+/* Reported as part of other problem, 30 July 2013			*/
+/*   https://lkml.org/lkml/2013/7/30/666				*/
+/* Reported as part of other issue, 13 November 2013			*/
+/*   https://lkml.org/lkml/2013/11/13/472				*/
+/* Final report of issue, Dave Jones, 30 January 2014 using fuzzer 	*/
+/*   https://lkml.org/lkml/2014/1/30/355				*/
+
 
 /* by Vince Weaver <vincent.weaver _at_ maine.edu */
 
