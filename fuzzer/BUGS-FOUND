@@ -1,3 +1,11 @@
+Outstanding bugs:
++ x32 oops in filp/segfault tracing
++ double-fault/corrupted cr2 causing weird segfaults, possible reboot
++ the new warning
++ the old warnings
+
+
+
 Just a list of bugs found by the fuzzer.  May be useful if I try to 
 every get anything published about this.
 
