@@ -69,15 +69,17 @@ static void * _get_address(unsigned char null_allowed)
 		break;
 	case 6:	addr = (void *)(unsigned long)rand64();
 		break;
-	case 7: addr = page_rand;
+	case 7:
+	case 8:
+		addr = page_rand;
 //		map = get_map();
 //		addr = map->ptr;
-		break;
-	case 8: addr = malloc(page_size * 2);
-		// FIXME: We leak this. This is the address we need to store for later
-		// freeing, not the potentially munged version below.
-		// tricky. We want to hand the munged version out too, so we might end up
-		// having to split this into alloc_address / get_address.
+//		break;
+//	case 8: addr = malloc(page_size * 2);
+//		// FIXME: We leak this. This is the address we need to store for later
+//		// freeing, not the potentially munged version below.
+//		// tricky. We want to hand the munged version out too, so we might end up
+//		// having to split this into alloc_address / get_address.
 		break;
 	case 9:	addr = page_maps;
 		break;
