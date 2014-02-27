@@ -606,7 +606,7 @@ static void open_random_event(void) {
 	event_data[i].overflows=0;
 	event_data[i].throttles=0;
 
-	/* repeat until we create a valie event */
+	/* repeat until we create a valid event */
 	while(1) {
 		/* call trinity random perf_event_open() code */
 		syscall_perf_event_open.sanitise(0);
@@ -802,10 +802,12 @@ static void trash_random_mmap(void) {
 
 		value=rand();
 
-		memset(event_data[i].mmap,value,getpagesize());
-
 		/* can't write high pages? */
 		//event_data[i].mmap_size);
+
+//		*(event_data[i].mmap)=0xff;
+
+		memset(event_data[i].mmap,value, 1);//getpagesize());
 
 		if (logging&TYPE_TRASH_MMAP) {
 			sprintf(log_buffer,"Q %d %d %d\n",
@@ -814,6 +816,8 @@ static void trash_random_mmap(void) {
 				event_data[i].fd);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
+
+
 	}
 
 	trash_mmap_attempts++;
@@ -1631,10 +1635,10 @@ int main(int argc, char **argv) {
 		if (total_iterations%10000==0) {
 			if (log_fd!=1) {
 				dump_summary(stderr,1);
-			}	
+			}
 			else {
 				dump_summary(stderr,0);
-			}			
+			}
 		}
 //		fsync(log_fd);
 	}
