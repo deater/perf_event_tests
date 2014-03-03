@@ -36,23 +36,35 @@ static int fd_throttles[FD_REMAP_SIZE];
 
 static int original_pid=-1;
 
+	int page_size;
+	struct shm_s *shm;
+	char *page_rand;
+	extern struct syscallentry syscall_perf_event_open;
+
+
 static void mmap_event(char *line) {
 
 	int fd,size;
 	char *data;
+	unsigned long long address;
 
-	sscanf(line,"%*c %d %d",&size,&fd);
+	sscanf(line,"%*c %d %d %llx",&size,&fd,&address);
 
 	if (fd_remap[fd]==-1) {
 		fprintf(stderr,"Line %lld Skipping mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
-
-	data=mmap(NULL, size,
+#ifdef FORCE_SAME_MMAP_ADDR
+	data=mmap((void *)(long)address, size,
 		PROT_READ|PROT_WRITE, MAP_SHARED,
 		fd_remap[fd], 0);
 
+#else
+	data=mmap(NULL, size,
+		PROT_READ|PROT_WRITE, MAP_SHARED,
+		fd_remap[fd], 0);
+#endif
 	if (data==MAP_FAILED) {
 		fprintf(stderr,"Line %lld: Error with mmap of size %d of %d/%d\n",
 			line_num,size,fd,fd_remap[fd]);
@@ -78,9 +90,19 @@ static void trash_mmap_event(char *line) {
 		return;
 	}
 
-	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) return;
+	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) {
+		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
+			line_num,fd);
+		return;
+	}
 
-	if (mmap_remap[fd_remap[fd]]==NULL) return;
+	if (mmap_remap[fd_remap[fd]]==NULL) {
+		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
+			line_num,fd);
+		return;
+	}
+
+//	printf("Trashing %p with %x\n",mmap_remap[fd_remap[fd]],value);
 
 	memset(mmap_remap[fd_remap[fd]],value,size);
 
@@ -349,7 +371,7 @@ static void read_event(char *line) {
 	sscanf(line,"%*c %d %d",&fd,&read_size);
 
 	if (read_size>MAX_READ_SIZE*sizeof(long long)) {
-		fprintf(stderr,"Line %lld Read size of %d exceeds max of %ld\n",
+		fprintf(stderr,"Line %lld Read size of %d exceeds max of %d\n",
 			line_num,read_size,MAX_READ_SIZE*sizeof(long long));
 		error=1;
 		return;
@@ -604,7 +626,7 @@ void print_usage(char *exec_name) {
 
 int main(int argc, char **argv) {
 
-	FILE *logfile;
+	FILE *logfile,*fff;
 	char *logfile_name=NULL;
 	char line[BUFSIZ];
 	char *result;
@@ -615,7 +637,7 @@ int main(int argc, char **argv) {
 
 	struct sigaction sigio;
 
-	int i,j;
+	int i,j,seed=0xdeadbeef;
 
 	int replay_which=REPLAY_ALL;
 
@@ -625,10 +647,10 @@ int main(int argc, char **argv) {
 
 	for(i=0;i<FD_REMAP_SIZE;i++) fd_remap[i]=-1;
 
-	if (argc<2) {
-		print_usage(argv[0]);
-		exit(1);
-	}
+//	if (argc<2) {
+//		print_usage(argv[0]);
+//		exit(1);
+//	}
 
 	i=1;
 	while(1) {
@@ -696,15 +718,50 @@ int main(int argc, char **argv) {
 	}
 
 	if (logfile_name==NULL) {
-		fprintf(stderr,"Must specify logfile name\n");
-		exit(1);
+//		fprintf(stderr,"Must specify logfile name\n");
+//		exit(1);
+		logfile=stdin;
+	} else {
+
+		logfile=fopen(logfile_name,"r");
+		if (logfile==NULL) {
+			fprintf(stderr,"Error opening %s\n",logfile_name);
+			exit(1);
+		}
 	}
 
-	logfile=fopen(logfile_name,"r");
-	if (logfile==NULL) {
-		fprintf(stderr,"Error opening %s\n",logfile_name);
-		exit(1);
+	printf("Replaying...\n");
+
+	/* Write fake seed to disk */
+	/* trying to make the syscall trace more similar to the actual fuzzer */
+        fff=fopen("fake.seed","w");
+        if (fff!=NULL) {
+                fprintf(fff,"%d\n",seed);
+                fclose(fff);
+        }
+
+
+
+        /* Save the content of /proc/sys/kernel/perf_event_max_sample_rate */
+        /* If it has been changed, a replay might not be perfect */
+        sample_rate=get_sample_rate();
+
+	/* Set up to match trinity setup, vaguely */
+        page_size=getpagesize();
+
+        syscall_perf_event_open.init();
+
+	shm=calloc(1,sizeof(struct shm_s));
+
+	page_rand = memalign(page_size, page_size * 2);
+	if (!page_rand) {
+		exit(EXIT_FAILURE);
 	}
+	memset(page_rand, 0x55, page_size);
+
+
+
+
 
 	/* Set up SIGIO handler */
 	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */
@@ -716,6 +773,7 @@ int main(int argc, char **argv) {
 	if (sigaction( SIGIO, &sigio, NULL) < 0) {
 		printf("Error setting up SIGIO signal handler\n");
 	}
+
 
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
@@ -800,7 +858,7 @@ int main(int argc, char **argv) {
 				break;
 			case 'r':
 				sscanf(line,"r %d",&old_sample_rate);
-				sample_rate=get_sample_rate();
+				//sample_rate=get_sample_rate();
 
 				if (sample_rate!=old_sample_rate) {
 					printf("Warning! The current max sample rate is %d\n",sample_rate);
