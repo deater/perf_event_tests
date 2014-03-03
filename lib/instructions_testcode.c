@@ -108,8 +108,8 @@ int instructions_fldcw(void) {
 int instructions_rep(void) {
 
    char buffer_out[16384];
-   
-#if defined(__i386__) 
+
+#if defined(__i386__) || defined(__ILP32__)
    asm("\tmov       $1000,%%edx\n"
        "\tcld\n"
        "loadstore:                       # test 8-bit store\n"
@@ -124,7 +124,7 @@ int instructions_rep(void) {
        : "cc", "%esi","%edi","%edx","%ecx","%eax","memory" /* clobbered */
     );
     return 0;
-#elif defined (__x86_64__)   
+#elif defined (__x86_64__)
    asm("\tmov       $1000,%%edx\n"
        "\tcld\n"
        "loadstore:                       # test 8-bit store\n"
