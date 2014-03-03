@@ -1612,6 +1612,11 @@ int main(int argc, char **argv) {
 
 		if ((stop_after) && (total_iterations>=stop_after)) {
 			dump_summary(stderr,1);
+
+			/* Kill child, doesn't happen automatically? */
+			if (already_forked) {
+				kill(forked_pid,SIGKILL);
+			}
 			return 0;
 		}
 
