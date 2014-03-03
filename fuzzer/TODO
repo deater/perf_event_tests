@@ -1,11 +1,13 @@
+Set breakpoint events on the mmap buffers?
+Randomly mmap() existing events?
+  - be sure to unmap once the event is destroyed
+
 Forking -- make sure we clean up child threads?
 
 Attaching to more pids (?)
 
 For sysfs events, try also flipping a few random bits to try
 to catch corner cases.
-
-
 
 + ->mmap2 support
 + double check why cpu is never set to -1?
