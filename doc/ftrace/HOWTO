@@ -1,0 +1,5 @@
+trace-cmd record -p function -e all -P 11492
+trace-cmd report | less
+ ./perf_fuzzer -t OCIRMQWPpAi -r 1392938876
+./perf_fuzzer -t OCMQ -r 1393527691
+
