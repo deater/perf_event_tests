@@ -7,6 +7,8 @@
 
 #define _GNU_SOURCE 1
 
+#define LOG_FAILURES	1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -146,22 +148,6 @@ static int find_random_active_event(void) {
 	}
 	return -1;
 }
-
-#if 0
-static int find_first_active_event(void) {
-
-	int i;
-
-	if (active_events<1) return -1;
-
-	for(i=0;i<NUM_EVENTS;i++) {
-		if (event_data[i].active) {
-			return i;
-		}
-	}
-	return -1;
-}
-#endif
 
 static int lookup_event(int fd) {
 
@@ -638,7 +624,7 @@ static void open_random_event(void) {
 
 
 	        if (logging&TYPE_OPEN) {
-#if 0
+#if LOG_FAILURES
 		  /* uncomment if failing opens are causing crashes */
 //			static int quit_next=0;
 //			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
@@ -662,15 +648,6 @@ static void open_random_event(void) {
                         //    (event_data[i].flags==0x800e9e9)) quit_next=1;
 #endif
 	        }
-
-#if 0
-		if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
-			if ((event_data[i].attr.config&0xffffffff)==0x18) {
-//				printf("Tracepoint 24 thwarted!\n");
-				event_data[i].attr.config=0;
-			}
-		}
-#endif
 
 		/* Actually try to open the event */
 		fd=perf_event_open(
@@ -744,8 +721,17 @@ static void open_random_event(void) {
 
 		if (event_data[i].mmap==MAP_FAILED) {
 			event_data[i].mmap=NULL;
+#if LOG_FAILURES
+			if (logging&TYPE_MMAP) {
+ 				sprintf(log_buffer,"M %d %d %p\n",
+					event_data[i].mmap_size,event_data[i].fd,
+					event_data[i].mmap);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+#endif
 		}
 		else {
+
 			if (logging&TYPE_MMAP) {
  				sprintf(log_buffer,"M %d %d %p\n",
 					event_data[i].mmap_size,event_data[i].fd,
