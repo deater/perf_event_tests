@@ -62,10 +62,10 @@ char *page_rand;
 
 static int logging=0;
 static int stop_after=0;
-static int attempt_determinism=1;
+static int attempt_determinism=0;
 
 static int type=TYPE_MMAP|
-//		TYPE_OVERFLOW|
+		TYPE_OVERFLOW|
 		TYPE_OPEN|
 		TYPE_CLOSE|
 		TYPE_READ|
@@ -279,7 +279,7 @@ static void close_random_event(void) {
 static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
-	int i;
+	int i,j;
 	int ret;
 
 	overflows++;
@@ -315,7 +315,19 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			if (event_data[i].throttles > MAX_THROTTLES) {
 				printf("Throttle close %d!\n",i);
 				if (already_forked) {
+					int status;
+					printf("Trying to kill child\n");
 					kill(forked_pid,SIGKILL);
+					waitpid(forked_pid, &status, 0);
+					printf("Killed...\n");
+				}
+
+				/* Disable all events */
+				printf("Trying to disable all events\n");
+				for(j=0;j<NUM_EVENTS;j++) {
+					if (event_data[j].active) {
+						ioctl(event_data[j].fd,PERF_EVENT_IOC_DISABLE,0);
+					}
 				}
 
 				throttle_close_event=i;
@@ -1615,7 +1627,9 @@ int main(int argc, char **argv) {
 
 			/* Kill child, doesn't happen automatically? */
 			if (already_forked) {
+				int status;
 				kill(forked_pid,SIGKILL);
+				waitpid(forked_pid, &status, 0);
 			}
 			return 0;
 		}
