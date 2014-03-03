@@ -1,5 +1,32 @@
-trace-cmd record -p function -e all -P 11492
-trace-cmd report | less
- ./perf_fuzzer -t OCIRMQWPpAi -r 1392938876
-./perf_fuzzer -t OCMQ -r 1393527691
+Instrumenting kernel:
+
+	use trace_printk()
+	trace_dump_stack(2);
+	
+	enable tracing inside of perf_event
+
+	in kernel/events/Makefile
+	remove
+	-ifdef CONFIG_FUNCTION_TRACER
+	-CFLAGS_REMOVE_core.o = -pg
+	-endif
+
+Running:
+	
+	run fuzzer.  Current known issues
+
+	./perf_fuzzer -t OCIRMQWPpAi -r 1392938876
+	./perf_fuzzer -t OCMQ -r 1393527691
+
+	suspend with control-Z
+	get pid
+
+
+	trace-cmd record -p function -e all -P 11492
+	trace-cmd report | less
+	trace-cmd report -R | less   (withough address remapping
+					which can hide issues, i.e.
+					segfault address in userspace)
+
+
 
