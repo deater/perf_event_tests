@@ -1,6 +1,9 @@
 CC = gcc
-CFLAGS = -O2 -Wall -g -I../include -I./include -I./trinity_files/include
-LFLAGS = 
+CFLAGS_X32 = -mx32
+LFLAGS_X32 = -mx32 -static
+
+CFLAGS = -g -I../include -I./include -I./trinity_files/include
+LFLAGS =
 
 all:	perf_fuzzer replay_log log_to_code filter_log active_events
 
@@ -16,8 +19,9 @@ filter_log.o:	filter_log.c
 ###
 
 replay_log:	replay_log.o \
-		../lib/perf_helpers.o perf_attr_print.o
-	$(CC) $(LFLAGS) -o replay_log replay_log.o ../lib/perf_helpers.o perf_attr_print.o
+		../lib/perf_helpers.o perf_attr_print.o \
+		trinity_files/trinity_lib.a
+	$(CC) $(LFLAGS) -o replay_log replay_log.o ../lib/perf_helpers.o perf_attr_print.o trinity_files/trinity_lib.a
 
 replay_log.o:	replay_log.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c replay_log.c
