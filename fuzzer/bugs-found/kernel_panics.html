@@ -1,0 +1,367 @@
+<html>
+<head><title>perf_event kernel panics and crashes</title></head>
+
+<body>
+<center><h1><tt>perf_event</tt> kernel panics and crashes</h1></center>
+
+This page has some info on some kernel bugs related to the
+perf_event subsystem that can cause userspace programs (such
+as those using PAPI) to crash the system.
+<br><br>
+
+Sample code that shows some of these issues can be found in
+the <a href="validation.html">perf_event testsuite</a>.
+
+<hr>
+
+<h2>Yet to Be Fixed</h2>
+
+<ul>
+
+</ul>
+
+<hr>
+
+<h2>Fixed in 3.13</h2>
+
+<ul>
+<li><b>perf ftrace function tracer permission lockup</b>
+
+	<br><br>
+	
+	Fixed by 12ae030d54ef250706da5642fc7697cc60ad0df7
+
+	<br><br>
+
+	CVE-2013-2930
+
+	<br><br>
+
+	Found by trinity and perf_fuzzer, it is trivially easy
+	for a plain user to lock the kernel due to an improper
+	check for root permissions in the ftrace code.
+
+	<br><br>
+
+
+<li><b>Alpha bug found by perf_fuzzer</b>
+	
+	<br><br>
+
+	Fixed in: 6e22f8f2e8d81dca
+
+</ul>
+
+
+<hr>
+
+<h2>Fixed in 3.11</h2>
+
+<ul>
+<li><b>ARM and ARM64 oops due to over-running config</b>
+
+	<br><br>
+
+	Fixed by d9f966357b14e356 
+
+	<br><br>
+
+	Introduced with Linux 3.2 with 8a16b34e2119
+
+	<br><br>
+
+<li><b>CVE 2013-4254: ARM and ARM64 oops in validate event</b>
+
+	<br><br>
+
+	This bug is potentially a local root exploit, but as far
+	as I can tell there was an extremely narrow window of time
+	where it was easy to exploit (from 3.11-rc1 through 3.11-rc6)
+
+	<br><br>
+
+	Fixed by c95eb3184ea1a3a25
+
+	<br><br>
+
+	Introduced  with Linux 3.2 with 8a16b34e2119
+
+	<br><br>
+</ul>
+<hr>
+
+<h2>Fixed in 3.10</h2>
+
+<ul>
+<li><b>mmap_close bug.</b>
+
+	<br><br>
+
+	Denial of service.
+
+	<br><br>
+
+	Found by perf_fuzzer, it happens if you
+	do some complicated event setup involving mmap buffers
+	and then exiting.
+
+	<br><br>
+
+	Introduced sometime between 3.0 and 3.2?
+
+	<br><br>
+
+	Fixed in 3.10, commit 9bb5d40cd93c9dd4be74834b1dcb1ba03629716b
+</ul>
+
+<hr>
+
+<h2>Fixed in 3.9</h2>
+
+<ul>
+<li><b>CVE-2013-2094 : Software Event u64/u32 Problem</b>
+
+	<br><br>
+
+	Local root exploit.
+
+	<br><br>
+
+	Found by trinity, this panic is 
+	caused by setting attr.config too high for software events,
+	and it wasn't caught due to a 32/64-bit check?
+
+	<br><br> 
+
+	Introduced in commit b0a873ebb ("perf: Register PMU implementations").
+
+	<br><br>
+
+	Patch that fixes is:                                                
+	[PATCH] perf: treat attr.config as u64 in perf_swevent_init()       
+	vulnerable through 3.9                                              
+
+	<br><br>
+
+	Fixed in 8176cced706b5e5d15887584150764894e94e02f
+
+	<br><br>
+
+<li><b>offcore_response_mask</b>
+
+	<br><br>
+
+	Denial of service
+
+	<br><br>
+
+	On Sandybrige and Ivybridge the offcore events were not properly
+	masked to avoid setting reserved bits.
+	This could potentially cause a GPF but
+	I have not been able to cause one with a 3.8 kernel.
+
+	<br><br>
+
+	Fixed in f1923820c447e986a9da0fc6bf60c1dccdf0408e
+
+	<br><br>
+
+<li><b>perf,x86: fix kernel crash with PEBS/BTS after suspend/resume</b>
+
+	<br><br>
+
+	Denial of service
+
+	<br><br>
+
+	Fixed in 1d9d8639c063caf6efc2447f5f26aa637f844ff6
+
+	<br><br>
+  
+	The test involves suspending/resuming while perf is being used,
+ 	and there's not a good way to automate such a test.
+
+	<br><br>
+</ul>
+<hr>
+
+<h2>Fixed in 3.5</h2>
+
+<ul>
+<li><b>CGROUP reference counting problem</b><br><br>
+
+	Fixed by changeset: 9c5da09d266ca9b3
+
+</ul>
+<hr>
+
+<h2>Fixed in 3.2</h2>
+
+<ul>
+<li><b>SLUB problem</b>
+
+	<br><br>
+
+	Linux 3.1.4 and 3.1.5 hard lock or panic when under high perf_event
+	load if SLUB is enabled rather than SLAB.  See full details in
+	this thread: <a href="https://lkml.org/lkml/2011/12/16/463">
+	perf_event hard locks in 3.1.5</a>.  Still no resolution; git-bisect
+	was inconclusive.
+
+	<br><br>
+</ul>
+
+<hr>
+
+<h2>Fixed in 3.1</h2>
+
+<ul>
+<li><b>CVE 2011-2918: Software Event Overflow Bug</b>
+
+	<br><br>
+
+	Denial of service.
+
+	<br><br>
+
+	An error with overflows and perf::perf_count_sw_cpu_clock (and probably
+	any software event) will cause your test to either become unkillable, 
+	or else hard lock your system.  Sometimes generates a
+	WARN_ON first.  Affects Linux 2.6.32 - 3.0.0.
+
+	<br><br>
+
+	<a href="https://lkml.org/lkml/2011/7/22/183">Linux-kernel thread where
+	I report this issue</a>.
+
+	<br><br>
+
+	Fixed by changeset 
+	<a href="http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=a8b0ca17b80e92faab46ee7179ba9e99ccb61233">
+	a8b0ca17b80e92faab46ee7179ba9e99ccb61233</a>
+	and will be in 3.1.
+	<br><br>
+
+	Also backported to some stable releases, 462fee3af72df0de7b60b96c525ffe8baf4db0f0.
+
+	<br><br>
+</ul>
+<hr>
+
+<h2>Fixed in 2.6.39</h2>
+
+<ul>
+
+<li><b>CVE-2011-4611 : perf, powerpc</b>
+
+	<br><br>
+
+	Denial of service.
+
+	<br><br>
+
+	Fixed in 0837e3242c7
+
+	<br><br>
+
+<li><b>CVE-2011-2521 : perf, x86: fix Intel fixed counters base initialization</b>
+
+	<br><br>
+
+	Denial of service.
+  
+	<br><br>
+
+	Introduced by 41bf498, fixed by fc66c5210ec2
+
+	<br><br>
+
+<li><b>Inherit Bug</b>
+
+	<br><br>
+
+	Denial of service
+
+	<br><br>
+
+	With this bug you could quickly out-of-memory your system if your
+	program enabled the "inherit" option, counted at least two events,
+	and spawned threads.  
+
+	<br><br>
+
+	<a href="https://lkml.org/lkml/2011/3/11/411">Linux kernel thread where I report the issue</a>.
+
+	<br><br>
+
+	Fixed by changeset 
+	<a href="http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=38b435b16c36b0d863efcf3f07b34a6fac9873fd">
+	38b435b16c36b0d863efcf3f07b34a6fac9873fd</a>
+	and will be in 2.6.39.
+	Also in stable releases (2.6.38.2, etc.)
+
+	<br><br>
+
+<li><b>Task Context Scheduling Bug</b>
+
+	<br><br>
+
+	Denial of service
+
+	<br><br>
+
+	This bug is most noticable when using multiple threads.
+	The perfsuite "make -s check" test failure is what made me notice it.
+	Symptoms were hard system lockup.
+
+	<br><br>
+
+	Fixed by changeset 
+	<a href="http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab711fe08297de1485fff0a366e6db8828cafd6a">
+	ab711fe08297de1485fff0a366e6db8828cafd6a</a> and will be in 2.6.39.
+	Also in stable releases (2.6.38.4, etc.)
+
+</ul>
+
+<hr>
+
+<h2>Fixed in 2.6.37</h2>
+
+<ul>
+
+<li><b>CVE-2010-4169</b>
+
+	<br><br>
+
+	Denial of service.
+
+	<br><br>
+
+ 	Introduced by dab5855, fixed by 63bfd7384b1
+
+	<br><br>
+</ul>
+
+<hr>
+
+<h2>Fixed in 2.6.32</h2>
+
+<ul>
+<li><b>CVE-2009-3234 Buffer overflow in the perf_copy_attr</b>
+
+	<br><br>
+
+	Local root exploit.
+
+	<br><br>
+
+	Fixed in b3e62e350
+
+	<br><br>
+</ul>
+<hr>
+
+<a href="index.html">Back to the unofficial perf_event homepage</a>
+
+</body>
+</html>
