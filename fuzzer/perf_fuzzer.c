@@ -3,7 +3,7 @@
 /* fuzzes the perf_event system call */
 /* Some code shared with the trinity fuzzer */
 
-#define VERSION "0.6"
+#include "version.h"
 
 #define _GNU_SOURCE 1
 
@@ -1428,7 +1428,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printf("\n*** perf_fuzzer *** by Vince Weaver\n\n");
+	printf("\n*** perf_fuzzer %s *** by Vince Weaver\n\n",VERSION);
 
 	/* Poor Seeding */
 	/* should read /dev/urandom instead */
