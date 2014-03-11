@@ -1,9 +1,17 @@
 CC = gcc
 AR = ar
+
 CFLAGS = -O2 -Wall -g -I./include -I../../include
 LFLAGS = 
 
+CFLAGS_X32 = -mx32 -O2 -Wall -g -I./include -I../../include
+LFLAGS_X32 = -mx32
+
 all:	trinity_lib.a
+
+x32:	trinity_lib.x32.a
+
+#####
 
 trinity_lib.a:	 fds.o interesting-numbers.o perf_event_open.o pids.o \
 		random.o random-address.o random-length.o random-page.o \
@@ -13,35 +21,95 @@ trinity_lib.a:	 fds.o interesting-numbers.o perf_event_open.o pids.o \
 		random.o random-address.o random-length.o random-page.o \
 		maps-static.o unicode.o
 
+trinity_lib.x32.a:	 fds.x32.o interesting-numbers.x32.o perf_event_open.x32.o pids.x32.o \
+		random.x32.o random-address.x32.o random-length.x32.o random-page.x32.o \
+		maps-static.x32.o unicode.x32.o
+	$(AR) rv trinity_lib.x32.a \
+		fds.x32.o interesting-numbers.x32.o perf_event_open.x32.o pids.x32.o \
+		random.x32.o random-address.x32.o random-length.x32.o random-page.x32.o \
+		maps-static.x32.o unicode.x32.o
+
+#####
+
 perf_event_open.o:	perf_event_open.c
 	$(CC) $(CFLAGS) -c perf_event_open.c
+
+perf_event_open.x32.o:	perf_event_open.c
+	$(CC) $(CFLAGS_X32) -o perf_event_open.x32.o -c perf_event_open.c
+
+#####
 
 fds.o:	fds.c
 	$(CC) $(CFLAGS) -c fds.c
 
+fds.x32.o:	fds.c
+	$(CC) $(CFLAGS_X32) -o fds.x32.o -c fds.c
+
+#####
+
 interesting-numbers.o:	interesting-numbers.c
 	$(CC) $(CFLAGS) -c interesting-numbers.c
+
+interesting-numbers.x32.o:	interesting-numbers.c
+	$(CC) $(CFLAGS_X32) -o interesting-numbers.x32.o -c interesting-numbers.c
+
+#####
 
 maps-static.o:	maps-static.c
 	$(CC) $(CFLAGS) -c maps-static.c
 
+maps-static.x32.o:	maps-static.c
+	$(CC) $(CFLAGS_X32) -o maps-static.x32.o -c maps-static.c
+
+#####
+
 pids.o:		pids.c
 	$(CC) $(CFLAGS) -c pids.c
+
+pids.x32.o:		pids.c
+	$(CC) $(CFLAGS_X32) -o pids.x32.o -c pids.c
+
+#####
 
 random.o:	random.c
 	$(CC) $(CFLAGS) -c random.c
 
+random.x32.o:	random.c
+	$(CC) $(CFLAGS_X32) -o random.x32.o -c random.c
+
+#####
+
 random-address.o:	random-address.c
 	$(CC) $(CFLAGS) -c random-address.c
+
+random-address.x32.o:	random-address.c
+	$(CC) $(CFLAGS_X32) -o random-address.x32.o -c random-address.c
+
+#####
 
 random-length.o:	random-length.c
 	$(CC) $(CFLAGS) -c random-length.c
 
+random-length.x32.o:	random-length.c
+	$(CC) $(CFLAGS_X32) -o random-length.x32.o -c random-length.c
+
+######
+
 random-page.o:	random-page.c
 	$(CC) $(CFLAGS) -c random-page.c
 
+random-page.x32.o:	random-page.c
+	$(CC) $(CFLAGS_X32) -o random-page.x32.o -c random-page.c
+
+######
+
 unicode.o:	unicode.c
 	$(CC) $(CFLAGS) -c unicode.c
+
+unicode.x32.o:	unicode.c
+	$(CC) $(CFLAGS_X32) -o unicode.x32.o -c unicode.c
+
+######
 
 clean:	
 	rm -f *~ *.o *.a
