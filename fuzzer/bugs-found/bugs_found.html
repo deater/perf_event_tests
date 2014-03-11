@@ -1,10 +1,10 @@
 <html>
-<head><title>perf_fuzzer bugs found in the Linux kernel</title></head>
+<head><title>perf_event bugs found in the Linux kernel</title></head>
 
 <body>
 
-
-<h1>Linux Kernel bugs found by the perf_fuzzer</h1>
+<h1>Linux Kernel perf_event bugs</h1>
+<h2>Many of these found by the perf_fuzzer (as noted)</h2>
 
 <h3>Outstanding bugs:</h3>
 <ul>
@@ -14,72 +14,294 @@
 <h3>Outstanding (but not recently verified) bugs:</h3>
 <ul>
 <li>x32 oops in filp/segfault tracing
+<li>perf/sw_event bug?  Causes soft lockup?
+	Reported but don't have small reproducible testcase
+
+<li>perf/nmi dazed/confused on core2
+	Just a warning.  Reproducible but maybe not of interest?
+
+<li>perf/x86 BUG/oops
+	Reported but don't have small reproducible testcase
+<li>perf ext4 vma error?
+<li>perf poll error?
+
 </ul>
 
 <h2>Fixed bugs:</h2>
 
-<h3>3.14</h3>
-<ul>
-<li>double-fault/corrupted cr2 causing weird segfaults, possible reboot
-</ul>
+<h3>Fixed in 3.14</h3>
+	<ul>
+	<li>double-fault/corrupted cr2 causing weird segfaults, possible reboot
+<li>tracepoint aliasing issue
+<li>long-standing warning
+	</ul>
+
+<hr>
+
+
+<h3>Fixed in 3.13</h3>
+
+	<ul>
+	<li><b>perf ftrace function tracer permission lockup</b>
+		<br><br>
+		perf/ftrace: Fix paranoid level for enabling function tracer
+		<br><br>
+		This one took months to isolate and track down.
+  		ftrace function tracing can spend so much time in the kernel
+		that the kernel gets wedged and for all intents and purposes locks up.
+		The ftrace people dragged their feet on this one for months.
+		<br><br>
+		Reported-by: Vince Weaver, Dave Jones
+		<br><br>
+		Fixed-by-Commit: 12ae030d54ef250706da5642fc7697cc60ad0df7 (in 3.13)
+		<br><br>
+		CVE-2013-2930
+		<br><br>
+		Found by trinity and perf_fuzzer, it is trivially easy
+		for a plain user to lock the kernel due to an improper
+		check for root permissions in the ftrace code.
+		<br><br>
+	<li><b>Alpha bug found by perf_fuzzer</b>
+		<br><br>
+		alpha: perf: fix out-of-bounds array access triggered from raw event
+		<br><br>
+		Reported-by: Will Deacon
+		<br><br>
+		Fixed-by-Commit: 6e22f8f2e8d81dcab4c40bc229d53388fda63dbc (in 3.13)
+		<br><br>
+	</ul>
+
+<hr>
+
+<h3>Fixed in 3.11</h3>
+	<ul>
+	<li><b>ARM: 7810/1: perf: Fix array out of bounds access in armpmu_map_hw_event()</b>
+		<br><br>
+		Found by perf_fuzzer.
+		<br><br>
+		Reported-by: Vince Weaver
+		<br><br>
+		Fixed-by-Commit: d9f966357b14e356dbd83b8f4a197a287ab4ff83
+		<br><br>
+		Introduced with Linux 3.2 with 8a16b34e2119
+		<br><br>
+	<li><b>CVE 2013-4254: ARM and ARM64 oops in validate event</b>
+		<br><br>
+		ARM: 7809/1: perf: fix event validation for software group leaders
+		<br><br>
+		Reported-by: Vince Weaver
+		<br><br>
+		Fixed-by-Commit: c95eb3184ea1a3a2551df57190c81da695e2144b
+		<br><br>
+		Found by perf_fuzzer.
+		<br><br>
+		This bug is potentially a local root exploit, but as far
+		as I can tell there was an extremely narrow window of time
+		where it was easy to exploit (from 3.11-rc1 through 3.11-rc6)
+		<br><br>
+		Introduced  with Linux 3.2 with 8a16b34e2119
+		<br><br>
+	<li>arm64: perf: fix array out of bounds access in armpmu_map_hw_event()
+		<br><br>
+		Reported-by: Will Deacon
+		<br><br>
+		Fixed-by-Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
+	<li>arm64: perf: fix event validation for software group leaders
+		<br><br>
+		Reported-by: Will Deacon
+		Fixed-by-Commit: ee7538a008a45050c8f706d38b600f55953169f9
+		<br><br>
+	</ul>
+<hr>
+
+<h3>Fixed in 3.10</h3>
+	<ul>	
+	<li><b>perf: Fix mmap() accounting hole</b>
+		<br><br>
+		Reported-and-tested-by: Vince Weaver
+		<br><br>
+		Fixed-by-Commit: 9bb5d40cd93c9dd4be74834b1dcb1ba03629716b
+		<br><br>
+		Denial of service.
+		<br><br>
+		Found by perf_fuzzer, it happens if you
+		do some complicated event setup involving mmap buffers
+		and then exiting.
+		<br><br>
+		Introduced sometime between 3.0 and 3.2?
+	<li><b>perf: Fix perf mmap bugs</b>
+		<br><br>
+		Reported-by: Vince Weaver
+		<br><br>
+		Fixed-by-Commit: 26cb63ad11e04047a64309362674bcbbd6a6f246
+		<br><br>
+	</ul>
+
+
+<hr>
+
+<h3>Fixed in 3.9</h3>
+	<ul>
+	<li><b>CVE-2013-2094 : Software Event u64/u32 Problem</b>
+		<br><br>
+		Local root exploit.
+		<br><br>
+		Found by trinity, this panic is 
+		caused by setting attr.config too high for software events,
+		and it wasn't caught due to a 32/64-bit check?
+		<br><br> 
+		Introduced in commit b0a873ebb ("perf: Register PMU implementations").
+		<br><br>
+		Patch that fixes is:                                                
+		[PATCH] perf: treat attr.config as u64 in perf_swevent_init()       
+		vulnerable through 3.9                                              
+		<br><br>
+		Fixed in 8176cced706b5e5d15887584150764894e94e02f
+		<br><br>
+	<li><b>offcore_response_mask</b>
+		<br><br>
+		Denial of service
+		<br><br>
+		On Sandybrige and Ivybridge the offcore events were not properly
+		masked to avoid setting reserved bits.
+		This could potentially cause a GPF but
+		I have not been able to cause one with a 3.8 kernel.
+		<br><br>
+		Fixed in f1923820c447e986a9da0fc6bf60c1dccdf0408e
+		<br><br>
+	<li><b>perf,x86: fix kernel crash with PEBS/BTS after suspend/resume</b>
+		<br><br>
+		Denial of service
+		<br><br>
+		Fixed in 1d9d8639c063caf6efc2447f5f26aa637f844ff6
+		<br><br>
+  		The test involves suspending/resuming while perf is being used,
+ 		and there's not a good way to automate such a test.
+		<br><br>
+	</ul>
+<hr>
+
+<h3>Fixed in 3.5 (pre-dates perf_fuzzer)</h3>
+
+	<ul>
+	<li><b>CGROUP reference counting problem</b>
+		<br><br>
+		Fixed by changeset: 9c5da09d266ca9b3
+	</ul>
+<hr>
+
+<h3>Fixed in 3.2 (pre-dates perf_fuzzer)</h3>
+
+	<ul>
+	<li><b>SLUB problem</b>
+		<br><br>
+		Linux 3.1.4 and 3.1.5 hard lock or panic when under high perf_event
+		load if SLUB is enabled rather than SLAB.  See full details in
+		this thread: <a href="https://lkml.org/lkml/2011/12/16/463">		
+		perf_event hard locks in 3.1.5</a>.  Still no resolution; git-bisect
+		was inconclusive.
+		<br><br>
+	</ul>
+
+<hr>
+
+<h3>Fixed in 3.1 (pre-dates perf_fuzzer)</h3>
+
+	<ul>
+	<li><b>CVE 2011-2918: Software Event Overflow Bug</b>
+		<br><br>
+		Denial of service.
+		<br><br>
+		An error with overflows and perf::perf_count_sw_cpu_clock (and probably
+		any software event) will cause your test to either become unkillable, 
+		or else hard lock your system.  Sometimes generates a
+		WARN_ON first.  Affects Linux 2.6.32 - 3.0.0.
+		<br><br>
+		<a href="https://lkml.org/lkml/2011/7/22/183">Linux-kernel thread where
+		I report this issue</a>.
+		<br><br>
+		Fixed by changeset 
+		<a href="http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=a8b0ca17b80e92faab46ee7179ba9e99ccb61233">
+		a8b0ca17b80e92faab46ee7179ba9e99ccb61233</a>
+		<br><br>
+		Also backported to some stable releases, 462fee3af72df0de7b60b96c525ffe8baf4db0f0.
+		<br><br>
+	</ul>
+
+<hr>
+
+<h3>Fixed in 2.6.39 (pre-dates perf_fuzzer)</h3>
+
+	<ul>
+	<li><b>CVE-2011-4611 : perf, powerpc</b>
+		<br><br>
+		Denial of service.
+		<br><br>
+		Fixed in 0837e3242c7
+		<br><br>
+	<li><b>CVE-2011-2521 : perf, x86: fix Intel fixed counters base initialization</b>
+		<br><br>
+		Denial of service
+		<br><br>
+		Introduced by 41bf498, fixed by fc66c5210ec2
+		<br><br>
+	<li><b>Inherit Bug</b>
+		<br><br>
+		Denial of service
+		<br><br>
+		With this bug you could quickly out-of-memory your system if your
+		program enabled the "inherit" option, counted at least two events,
+		and spawned threads.  
+		<br><br>
+		<a href="https://lkml.org/lkml/2011/3/11/411">Linux kernel thread where I report the issue</a>.
+		<br><br>
+		Fixed by changeset 
+		<a href="http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=38b435b16c36b0d863efcf3f07b34a6fac9873fd">
+		38b435b16c36b0d863efcf3f07b34a6fac9873fd</a>
+	<li><b>Task Context Scheduling Bug</b>
+		<br><br>
+		Denial of service
+		<br><br>
+		This bug is most noticable when using multiple threads.
+		The perfsuite "make -s check" test failure is what made me notice it.
+		Symptoms were hard system lockup.
+		<br><br>
+		Fixed by changeset 
+		<a href="http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab711fe08297de1485fff0a366e6db8828cafd6a">
+		ab711fe08297de1485fff0a366e6db8828cafd6a</a>
+	</ul>
+
+<hr>
+
+<h3>Fixed in 2.6.37 (pre-dates perf_fuzzer)</h3>
+	<ul>
+	<li><b>CVE-2010-4169</b>
+		<br><br>
+		Denial of service.
+		<br><br>
+ 		Introduced by dab5855, fixed by 63bfd7384b1
+		<br><br>
+	</ul>
+
+<hr>
+
+<h3>Fixed in 2.6.32 (pre-dates perf_fuzzer)</h3>
+
+	<ul>
+	<li><b>CVE-2009-3234 Buffer overflow in the perf_copy_attr</b>
+		<br><br>
+		Local root exploit.
+		<br><br>
+		Fixed in b3e62e350
+		<br><br>
+	</ul>
+<hr>
 
 
 
 
-+ perf: Fix perf mmap bugs
-  Reported-by: Vince Weaver
-  Fixed-by-Commit: 26cb63ad11e04047a64309362674bcbbd6a6f246
 
-+ perf: Fix mmap() accounting hole
-  Reported-and-tested-by: Vince Weaver
-  Fixed-by-Commit: 9bb5d40cd93c9dd4be74834b1dcb1ba03629716b
 
-+ ARM: 7810/1: perf: Fix array out of bounds access in armpmu_map_hw_event()
-  Reported-by: Vince Weaver
-  Fixed-by-Commit: d9f966357b14e356dbd83b8f4a197a287ab4ff83
-
-+ ARM: 7809/1: perf: fix event validation for software group leaders
-  Reported-by: Vince Weaver
-  Fixed-by-Commit: c95eb3184ea1a3a2551df57190c81da695e2144b
-  CVE-2013-4254
-
-+ arm64: perf: fix array out of bounds access in armpmu_map_hw_event()
-  Reported-by: Will Deacon
-  Fixed-by-Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
-
-+ arm64: perf: fix event validation for software group leaders
-  Reported-by: Will Deacon
-  Fixed-by-Commit: ee7538a008a45050c8f706d38b600f55953169f9
-
-+ alpha: perf: fix out-of-bounds array access triggered from raw event
-  Reported-by: Will Deacon
-  Fixed-by-Commit: 6e22f8f2e8d81dcab4c40bc229d53388fda63dbc (in 3.13)
-
-+ perf/ftrace: Fix paranoid level for enabling function tracer
-  This one took months to isolate and track down.
-  ftrace function tracing can spend so much time in the kernel
-  that the kernel gets wedged and for all intents and purposes locks up.
-  The ftrace people dragged their feet on this one for months.
-  Reported-by: Vince Weaver, Dave Jones
-  Fixed-by-Commit: 12ae030d54ef250706da5642fc7697cc60ad0df7 (in 3.13)
-  CVE-2013-2930
-
-+ perf/sw_event bug?  Causes soft lockup?
-	Reported but don't have small reproducible testcase
-
-+ perf/nmi dazed/confused on core2
-	Just a warning.  Reproducible but maybe not of interest?
-
-+ perf/x86 BUG/oops
-	Reported but don't have small reproducible testcase
-
-+ perf ext4 vma error?
-
-+ perf poll error?
-
-Other issues found while debugging tools:
-
-+ tracepoint aliasing issue
 
 
 
@@ -89,3 +311,5 @@ Other issues found while debugging tools:
 
 </body>
 </html>
+
+
