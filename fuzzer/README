@@ -1,0 +1,127 @@
+                      **** PERF_FUZZER ****
+                               by
+                           Vince Weaver
+                     vincent.weaver@maine.edu
+
+This is the perf_fuzzer, a system call fuzzer specifically designed
+to find flaws in the complex Linux perf_event system call interface.
+
+http://web.eece.maine.edu/~vweaver/projects/perf_events/fuzzer/
+
+
+HISTORY:
+
+	I originally started this work by contributing better perf_event
+	support to Dave Jones' trinity fuzzer
+		http://codemonkey.org.uk/projects/trinity/
+
+	Trinity at the time only supports calling the perf_event_open()
+	system call with fuzzed inputs (as part of larger system-wide
+	fuzzing).  While this is useful and finds bugs, it only
+	explores a subset of the perf_event interface.
+
+	The perf_fuzzer arose in May of 2013 as an extended perf_event
+	fuzzer after a major root exploit was found in the perf_event
+	interface by trinity.  It had been lurking for years, and I 
+	thought more comprehensive tests were needed.
+
+	The perf_event_open() code (which I was a major contributer to)
+	from trinity is re-used more or less verbatim 
+	(see the ./trinity_files directory).  I try to keep it in sync
+	to keep down maintenance costs.  Everything else here has been
+	written by me and perf_fuzzer is operated as a separate project
+	from trinity except for occasional updates to the perf_event_open.c
+	file and other bugfixes.
+
+USING THE FUZZER:
+
+	It should be enough to run
+		./make
+	And then
+		./perf_fuzzer
+
+	Although that runs with some pretty intense results and runs
+	forever.
+
+	To generate more easily reproduced bugs you can run the
+		./fast_repro.sh
+	shell script which halts and restarts after only a few iterations,
+	that way bugs can be more easily reproduced from a random seed.
+
+	There are more and complicated command line options that test
+	more of the perf_event interface, sadly things like forking and
+	signal handlers tend to expose bugs that are hard to reproduce.
+
+
+REPRODUCING A BUG:
+
+	If you run perf_fuzzer, eventually a bug will appear in the
+	system log.  You might need a serial console to capture it.
+	It's best if you capture the status output as well as the
+	kernel debug message.  The important value to get is the
+	random number seed, which is also written to "last.seed".
+
+	You can first try to reproduce the issue with
+		./perf_fuzzer -r XXXXXXXXX
+	where XXXXXXXX is the last seed value.
+
+	If you're lucky the code will be deterministic and repeat
+	the same bug, and you can start reporting things to the
+	proper locations.
+
+	It is hard to get exact deterministic output.  Things like
+	kernel auto-throttling and things like overflows due to
+	non-deterministic events (such as interrupt tracepoints
+	and page-fault counts) can make it hard to get a good
+	random seed value.
+
+	Once you have a random seed, you can try to generate a log
+	file.  Run
+		./perf_fuzzer -l outfile -r XXXXXXXX
+	and a tracefile will be written to outfile (use "-l -" 
+	for stdout).
+
+	Then try running
+		./replay_log < outfile
+
+	And if you're lucky the replay log will also exhibit the problem.
+	(There are many reasons this doesn't work, especially on bugs
+	that are race conditions or otherwise depend on subtle things
+	like page faults, the size of the executable, the exact value
+	of mmap addresses, etc.  I take care to try to replicate things
+	but it is harder than you think.  It can help to turn off
+	address space randomization).  Another problem is if it's a lockup
+	bug then the system often locks up before the last few lines of
+	the trace make it to the log file.  It can be difficult getting
+	those values.
+
+	If the above works, you can "bisect" things down by chipping away
+	events from the logfile and doing a binary search to see what
+	syscalls actually trigger the bug.  Best case you can reduce
+	this to less than 10.  Worst case you can't reduce at all :(
+
+	Assuming you get a small trace file, you can run the
+		./log_to_code < outfile > out.c
+	Program and it will generate a valid C program that
+	exhibits your syscall trace.  Try running this, if it works
+	then you have a small reproducible test case you can send
+	to the kernel developers.
+
+OTHER TOOLS:
+
+	There are a few other tools included that I use sometimes.
+
+		./active_events
+
+	Shows what events were enabled/active at the end of a trace.
+	This can be useful when trying to figure out what kinds of
+	events were active at the time of a crash.
+
+		./filter_log
+
+	Can help filter syscalls out of a trace by type, and aid
+	in the binary search.
+
+
+
+
