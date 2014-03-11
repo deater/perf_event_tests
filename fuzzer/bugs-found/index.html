@@ -1,0 +1,39 @@
+<html>
+<head><title>perf_fuzzer perf_event syscall fuzzer</title></head>
+
+<body>
+
+<h1><center><tt>perf_fuzzer</tt> perf_event syscall fuzzer</h1>
+
+The <tt>perf_fuzzer</tt> tool automatically tests the 
+perf_event_open() system call and attempts to find mostly-valid
+inputs that potentially crash (or worse) the Linux kernel.
+<br><br>
+
+The code has already found numerous denial of service bugs and at
+least one local root exploit.
+<br><br>
+
+I'm currently working on a paper describing how things work in more
+detail.  I will post that when it is ready.
+<br><br>
+
+The <tt>perf_fuzzer</tt> is available as part of the
+<a href="../validation/">perf_event_test</a> test suite.
+<br><br>
+
+Currently development is done via git at
+<a href="https://github.com/deater/perf_event_tests">
+https://github.com/deater/perf_event_tests</a>
+; you can check out a version
+of the development tree via:
+<pre>
+git clone git://github.com/deater/perf_event_tests
+</pre>
+
+<hr>
+
+<a href="..">Back to unofficial perf_events page</a>
+
+</body>
+</html>

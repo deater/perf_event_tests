@@ -1,17 +1,29 @@
-Outstanding bugs:
-+ x32 oops in filp/segfault tracing
-+ double-fault/corrupted cr2 causing weird segfaults, possible reboot
-+ the new warning
-+ the old warnings
+<html>
+<head><title>perf_fuzzer bugs found in the Linux kernel</title></head>
+
+<body>
 
 
+<h1>Linux Kernel bugs found by the perf_fuzzer</h1>
 
-Just a list of bugs found by the fuzzer.  May be useful if I try to 
-every get anything published about this.
+<h3>Outstanding bugs:</h3>
+<ul>
+<li><a href="3.14-rc5.breakpoint_bug.html">3.14-rc6 breakpoint bug</a>
+</h3>
 
-These are bugs specifically found by my fuzzer tool.  Additional bugs
-have been found in perf_event due to my changes to syscalls/perf_event_open.c
-in Dave Jones' trinity fuzzer.
+<h3>Outstanding (but not recently verified) bugs:</h3>
+<ul>
+<li>x32 oops in filp/segfault tracing
+</ul>
+
+<h2>Fixed bugs:</h2>
+
+<h3>3.14</h3>
+<ul>
+<li>double-fault/corrupted cr2 causing weird segfaults, possible reboot
+</ul>
+
+
 
 
 + perf: Fix perf mmap bugs
@@ -69,5 +81,11 @@ Other issues found while debugging tools:
 
 + tracepoint aliasing issue
 
-+ breakpoint leak
 
+
+<hr>
+
+<a href="index.html">Back to the perf_fuzzer page</a>
+
+</body>
+</html>
