@@ -1474,6 +1474,9 @@ int main(int argc, char **argv) {
 		type&=~TYPE_OVERFLOW;
 	}
 
+	printf("Pid=%d, sleeping 1s\n",getpid());
+	sleep(1);
+
 
 	/* Print what we are actually fuzzing */
 	/* Sometimes I comment out code and forget */
