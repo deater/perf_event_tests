@@ -134,6 +134,7 @@ static void open_event(char *line) {
 		&pe.sample_regs_user,&pe.sample_stack_user,&mmap2);
 
 	if ((orig_fd<0) || (orig_fd>=MAX_EVENTS)) {
+		fprintf(stderr,"Error! fd %d out of range\n",orig_fd);
 		return;
 	}
 
@@ -360,6 +361,8 @@ int main(int argc, char **argv) {
 		if (line_num<skip_lines) continue;
 
 		switch(line[0]) {
+			case 'A':
+				break;
 			case 'C':
 				if (replay_which & REPLAY_CLOSE) {
 					close_event(line);
@@ -450,6 +453,7 @@ int main(int argc, char **argv) {
 			printf("%lld\n",total_syscalls);
 		}
 	}
+	printf("VMW: %s",line);
 
 	printf("ACTIVE EVENT REPORT\n");
 	printf("~~~~~~~~~~~~~~~~~~~\n");
@@ -479,9 +483,23 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printf("SHORT EVENT SUMMARY\n\n");
+	printf("SHORT ENABLED EVENT SUMMARY\n\n");
 	for(i=0;i<MAX_EVENTS;i++) {
 		if (event_info[i].enabled) {
+			perf_pretty_print_event_short(stdout,
+				i,original_pid,
+				&event_info[i].attr,
+				event_info[i].pid,
+				event_info[i].cpu,
+				event_info[i].group_fd,
+				event_info[i].flags);
+		}
+	}
+
+
+	printf("SHORT OPENED EVENT SUMMARY\n\n");
+	for(i=0;i<MAX_EVENTS;i++) {
+		if (event_info[i].opened) {
 			perf_pretty_print_event_short(stdout,
 				i,original_pid,
 				&event_info[i].attr,
