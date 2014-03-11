@@ -1,0 +1,108 @@
+[ 6788.080994] ------------[ cut here ]------------
+[ 6788.084003] WARNING: CPU: 0 PID: 10823 at arch/x86/kernel/cpu/perf_event.c:1)
+[ 6788.084003] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[ 6788.084003] CPU: 0 PID: 10823 Comm: perf_fuzzer Not tainted 3.12.0-rc4+ #76
+[ 6788.084003] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[ 6788.084003]  0000000000000434 ffff88011fc03e18 ffffffff8151ab96 0000000000000
+[ 6788.084003]  ffffffff8103cd68 ffffffff8103cd8c ffffffff810127b3 ffff8800c4660
+[ 6788.084003]  0000000000000000 0000000000000001 0000000000000001 ffff88011fc00
+[ 6788.084003] Call Trace:
+[ 6788.084003]  <IRQ>  [<ffffffff8151ab96>] ? dump_stack+0x41/0x53
+[ 6788.084003]  [<ffffffff8103cd68>] ? warn_slowpath_common+0x81/0x9c
+[ 6788.084003]  [<ffffffff8103cd8c>] ? warn_slowpath_null+0x9/0x1b
+[ 6788.084003]  [<ffffffff810127b3>] ? x86_pmu_start+0x46/0xee
+[ 6788.084003]  [<ffffffff810127b3>] ? x86_pmu_start+0x46/0xee
+[ 6788.084003]  [<ffffffff81012a2e>] ? x86_pmu_enable+0x1d3/0x285
+[ 6788.084003]  [<ffffffff810c78cf>] ? perf_cpu_hrtimer_handler+0x145/0x1b0
+[ 6788.084003]  [<ffffffff8105be69>] ? __run_hrtimer+0xba/0x145
+[ 6788.084003]  [<ffffffff810c778a>] ? __perf_install_in_context+0xe2/0xe2
+[ 6788.084003]  [<ffffffff8151dd3f>] ? _raw_spin_lock+0x9/0x2a
+[ 6788.084003]  [<ffffffff8105c13e>] ? hrtimer_interrupt+0xd5/0x1c6
+[ 6788.084003]  [<ffffffff81526a95>] ? smp_trace_apic_timer_interrupt+0x44/0x91
+[ 6788.084003]  [<ffffffff81526aa4>] ? smp_trace_apic_timer_interrupt+0x53/0x91
+[ 6788.084003]  [<ffffffff81525a3a>] ? trace_apic_timer_interrupt+0x6a/0x70
+[ 6788.084003]  <EOI> 
+[ 6788.084003] ---[ end trace 636d8425bf8286e4 ]---
+[53398.025354] ------------[ cut here ]------------
+[53398.025354] WARNING: CPU: 0 PID: 5975 at kernel/watchdog.c:245 watchdog_over)
+[53398.025354] Watchdog detected hard LOCKUP on cpu 0
+[53398.025354] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[53398.025354] CPU: 0 PID: 5975 Comm: perf_fuzzer Tainted: G        W    3.12.06
+[53398.025354] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[53398.025354]  00000000000000f5 ffff88011fc07c48 ffffffff8151ab96 ffff88011fc08
+[53398.025354]  ffffffff8103cd68 ffffffff817fac92 ffffffff810a0fe3 ffff88011b310
+[53398.025354]  ffff88011fc07ef8 ffff88011fc07d58 0000000000000000 ffff88011fc08
+[53398.025354] Call Trace:
+[53398.025354]  <NMI>  [<ffffffff8151ab96>] ? dump_stack+0x41/0x53
+[53398.025354]  [<ffffffff8103cd68>] ? warn_slowpath_common+0x81/0x9c
+[53398.025354]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[53398.025354]  [<ffffffff8103ce25>] ? warn_slowpath_fmt+0x46/0x48
+[53398.025354]  [<ffffffff810a0f51>] ? watchdog_overflow_callback+0x9/0xa6
+[53398.025354]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[53398.025354]  [<ffffffff810ca469>] ? __perf_event_overflow+0x12e/0x1ab
+[53398.025354]  [<ffffffff81018047>] ? intel_pmu_save_and_restart+0xe/0x22
+[53398.025354]  [<ffffffff81018c95>] ? intel_pmu_handle_irq+0x2b8/0x34d
+[53398.025354]  [<ffffffff8151ee25>] ? nmi_handle+0x11/0x13a
+[53398.025354]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[53398.025354]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[53398.025354]  [<ffffffff810caa1e>] ? __perf_sw_event+0xa5/0x1a5
+[53398.025354]  [<ffffffff8151f533>] ? perf_event_nmi_handler+0x24/0x3d
+[53398.025354]  [<ffffffff8151ee72>] ? nmi_handle+0x5e/0x13a
+[53398.025354]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[53398.025354]  [<ffffffff810a17f8>] ? rcu_nmi_enter+0x9/0x5b
+[53398.025354]  [<ffffffff8151eff5>] ? do_nmi+0xa7/0x2bd
+[53398.025354]  [<ffffffff8151e5f7>] ? end_repeat_nmi+0x1e/0x2e
+[53398.025354]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[53398.025354]  [<ffffffff810caa1e>] ? __perf_sw_event+0xa5/0x1a5
+[53398.025354]  [<ffffffff810caa1e>] ? __perf_sw_event+0xa5/0x1a5
+[53398.025354]  [<ffffffff810caa1e>] ? __perf_sw_event+0xa5/0x1a5
+[53398.025354]  <<EOE>>  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[53398.025354]  [<ffffffff81065e5c>] ? set_task_cpu+0xdb/0xf1
+[53398.025354]  [<ffffffff81065e48>] ? set_task_cpu+0xc7/0xf1
+[53398.025354]  [<ffffffff81066418>] ? try_to_wake_up+0xf2/0x1ab
+[53398.025354]  [<ffffffff810664da>] ? default_wake_function+0x9/0x13
+[53398.025354]  [<ffffffff8105fb44>] ? __wake_up_common+0x4e/0x84
+[53398.025354]  [<ffffffff8151dcd9>] ? _raw_spin_lock_irqsave+0x9/0x2d
+[53398.025354]  [<ffffffff81061d99>] ? __wake_up_sync_key+0x44/0x60
+[53398.025354]  [<ffffffff8103d813>] ? __wake_up_parent+0x9/0x27
+[53398.025354]  [<ffffffff8104b93e>] ? do_notify_parent_cldstop+0x153/0x170
+[53398.025354]  [<ffffffff8151daf2>] ? _raw_read_lock+0x9/0x15
+[53398.025354]  [<ffffffff8104bc6d>] ? ptrace_stop+0x1f6/0x213
+[53398.025354]  [<ffffffff8151dcae>] ? _raw_spin_lock_irq+0x9/0x2b
+[53398.025354]  [<ffffffff8104c45e>] ? get_signal_to_deliver+0x24c/0x48a
+[53398.025354]  [<ffffffff81002a92>] ? do_notify_resume+0x9/0x6a
+[53398.025354]  [<ffffffff810024da>] ? do_signal+0x46/0x5f5
+[53398.025354]  [<ffffffff81002a92>] ? do_notify_resume+0x9/0x6a
+[53398.025354]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[53398.025354]  [<ffffffff8100bb97>] ? ptrace_report_syscall+0x27/0x77
+[53398.025354]  [<ffffffff8100bc22>] ? tracehook_report_syscall_exit+0x3b/0x45
+[53398.025354]  [<ffffffff81002ab5>] ? do_notify_resume+0x2c/0x6a
+[53398.025354]  [<ffffffff81524f60>] ? int_signal+0x12/0x17
+[53398.025354] ---[ end trace 636d8425bf8286e5 ]---
+[53947.152000] ------------[ cut here ]------------
+[53947.152000] WARNING: CPU: 1 PID: 13062 at kernel/watchdog.c:245 watchdog_ove)
+[53947.152000] Watchdog detected hard LOCKUP on cpu 1
+[53947.152000] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[53947.152000] CPU: 1 PID: 13062 Comm: perf_fuzzer Tainted: G        W    3.12.6
+[53947.152000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[53947.152000]  00000000000000f5 ffff88011fc87c48 ffffffff8151ab96 ffff88011fc88
+[53947.152000]  ffffffff8103cd68 ffffffff817fac92 ffffffff810a0fe3 ffff88011b380
+[53947.152000]  ffff88011fc87ef8 ffff88011fc87d58 0000000000000000 ffff88011fc88
+[53947.152000] Call Trace:
+[53947.152000]  <NMI>  [<ffffffff8151ab96>] ? dump_stack+0x41/0x53
+[53947.152000]  [<ffffffff8103cd68>] ? warn_slowpath_common+0x81/0x9c
+[53947.152000]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[53947.152000]  [<ffffffff8103ce25>] ? warn_slowpath_fmt+0x46/0x48
+[53947.152000]  [<ffffffff810a0f51>] ? watchdog_overflow_callback+0x9/0xa6
+[53947.152000]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[53947.152000]  [<ffffffff810ca469>] ? __perf_event_overflow+0x12e/0x1ab
+[53947.152000]  [<ffffffff81018047>] ? intel_pmu_save_and_restart+0xe/0x22
+[53947.152000]  [<ffffffff81018c95>] ? intel_pmu_handle_irq+0x2b8/0x34d
+[53947.152000]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[53947.152000]  [<ffffffff8151f533>] ? perf_event_nmi_handler+0x24/0x3d
+[53947.152000]  [<ffffffff8151ee72>] ? nmi_handle+0x5e/0x13a
+[53947.152000]  [<ffffffff810a17f8>] ? rcu_nmi_enter+0x9/0x5b
+[53947.152000]  [<ffffffff8151eff5>] ? do_nmi+0xa7/0x2bd
+[53947.152000]  [<ffffffff8151e5f7>] ? end_repeat_nmi+0x1e/0x2e
+[53947.152000]  <<EOE>> 
+[53947.152000] ---[ end trace 636d8425bf8286e6 ]---

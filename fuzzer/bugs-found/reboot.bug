@@ -1,0 +1,262 @@
+1393878223
+
+5000B?
+
+10000B
+
+*** perf_fuzzer *** by Vince Weaver
+
+Seeding random number generator with 1393878223
+Kernel max sample rate currently: 6250/s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+[ 4330.676015] BUG: unable to handle kernel NULL pointer dereference at 00000000
+00000040
+
+
+[ 4330.676015] BUG: unable to handle kernel NULL pointer dereference at 0000000000000040
+[ 4330.684003] IP: [<ffffffff812a3867>] rb_insert_color+0x18/0x12d
+[ 4330.684003] PGD bd2e1067 PUD adffa067 PMD 0 
+[ 4330.684003] Oops: 0000 [#1] SMP 
+[ 4330.684003] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg acpi_cpufreq evdev mcs7830 usbnet coretemp psmouse serio_raw pcspkr video wmi processor button thermal_sys ohci_pci ohci_hcd i2c_nforce2 sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[ 4330.684003] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G        W    3.14.0-rc5 #32
+[ 4330.684003] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[ 4330.684003] task: ffff88011b2b37e0 ti: ffff88011b340000 task.ti: ffff88011b340000
+[ 4330.684003] RIP: 0010:[<ffffffff812a3867>]  [<ffffffff812a3867>] rb_insert_color+0x18/0x12d
+[ 4330.684003] RSP: 0018:ffff88011fc83de8  EFLAGS: 00010002
+[ 4330.684003] RAX: ffff8800cb3b0010 RBX: ffff88011fc8da60 RCX: ffff8800b799c000
+[ 4330.684003] RDX: 0000000000000040 RSI: ffff88011fc8d060 RDI: ffff8800cb3b0010
+[ 4330.684003] RBP: ffff88011fc83de8 R08: ffff88011fc8dbd0 R09: 0000000000000002
+[ 4330.684003] R10: 0000000000000001 R11: ffff88011b359028 R12: ffff88011fc8d060
+[ 4330.684003] R13: 0000000000000000 R14: 0000000000000000 R15: ffff88011fc8d050
+[ 4330.684003] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:0000000000000000
+[ 4330.684003] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 4330.684003] CR2: 0000000000000040 CR3: 00000000adff8000 CR4: 00000000000407e0
+[ 4330.684003] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000001cfd000
+[ 4330.684003] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 000000000ff00628
+[ 4330.684003] Stack:
+[ 4330.684003]  ffff88011fc83e08 ffffffff812a447e ffff88011fc8da60 ffff88011fc8d050
+[ 4330.684003]  ffff88011fc83e38 ffffffff8105e022 ffff8800c7b27340 ffff88011fc8da60
+[ 4330.684003]  000003f57aac8f00 0000000000000000 ffff88011fc83ed8 ffffffff8105e265
+[ 4330.684003] Call Trace:
+[ 4330.684003]  <IRQ> 
+[ 4330.684003]  [<ffffffff812a447e>] timerqueue_add+0x7a/0x98
+[ 4330.684003]  [<ffffffff8105e022>] enqueue_hrtimer+0x51/0x7c
+[ 4330.684003]  [<ffffffff8105e265>] __hrtimer_start_range_ns+0x218/0x2ff
+[ 4330.684003]  [<ffffffff8105e364>] hrtimer_start+0x18/0x1a
+[ 4330.684003]  [<ffffffff81091885>] __tick_nohz_idle_enter+0x2ce/0x387
+[ 4330.684003]  [<ffffffff81091962>] tick_nohz_irq_exit+0x24/0x26
+[ 4330.684003]  [<ffffffff81044582>] irq_exit+0x95/0x9c
+[ 4330.684003]  [<ffffffff8102b85e>] smp_apic_timer_interrupt+0x2f/0x3c
+[ 4330.684003]  [<ffffffff8153cbca>] apic_timer_interrupt+0x6a/0x70
+[ 4330.684003]  <EOI> 
+[ 4330.684003]  [<ffffffff8106a13c>] ? sched_clock_idle_sleep_event+0x11/0x13
+[ 4330.684003]  [<ffffffff8100a7a3>] ? default_idle+0x1d/0x2f
+[ 4330.684003]  [<ffffffff8100a7a1>] ? default_idle+0x1b/0x2f
+[ 4330.684003]  [<ffffffff8100a290>] arch_cpu_idle+0x18/0x1d
+[ 4330.684003]  [<ffffffff8107fb82>] cpu_startup_entry+0xd1/0x133
+[ 4330.684003]  [<ffffffff8102a34d>] start_secondary+0x196/0x19b
+[ 4330.684003] Code: 24 48 89 de 4c 89 ef 41 ff d6 5b 41 5c 41 5d 41 5e c9 c3 55 48 8b 17 48 89 e5 48 85 d2 75 0c 48 c7 07 01 00 00 00 e9 13 01 00 00 <48> 8b 02 a8 01 0f 85 08 01 00 00 48 8b 48 08 48 39 ca 74 66 48 
+[ 4330.684003] RIP  [<ffffffff812a3867>] rb_insert_color+0x18/0x12d
+[ 4330.684003]  RSP <ffff88011fc83de8>
+[ 4330.684003] CR2: 0000000000000040
+[ 4330.684003] ---[ end trace 680f8979aa2ba0dc ]---
+[ 4330.684003] Kernel panic - not syncing: Attempted to kill the idle task!
+[ 4330.684003] Shutting down cpus with NMI
+[ 4330.684003] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)
+
+
+[  232.642581] BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+[  232.646569] IP: [<ffffffff812a3872>] rb_insert_color+0x23/0x12d
+[  232.646569] PGD c4ce0067 PUD c566a067 PMD 0 
+[  232.646569] Oops: 0000 [#1] SMP 
+[  232.646569] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg acpi_cpufreq evdev mcs7830 usbnet video wmi coretemp pcspkr psmouse button serio_raw ohci_pci processor thermal_sys i2c_nforce2 ohci_hcd sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[  232.646569] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 3.14.0-rc5 #32
+[  232.646569] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[  232.646569] task: ffffffff81a11450 ti: ffffffff81a00000 task.ti: ffffffff81a00000
+[  232.646569] RIP: 0010:[<ffffffff812a3872>]  [<ffffffff812a3872>] rb_insert_color+0x23/0x12d
+[  232.646569] RSP: 0018:ffff88011fc03c38  EFLAGS: 00010046
+[  232.646569] RAX: 0000000000000000 RBX: ffff880037cf3290 RCX: ffff88011fc0da61
+[  232.646569] RDX: ffff88011a34d928 RSI: ffff88011fc0d060 RDI: ffff88011fc0da60
+[  232.646569] RBP: ffff88011fc03c38 R08: ffff8800c48c1a48 R09: 0000000000000000
+[  232.646569] R10: ffff88011fc0da60 R11: ffff88011fc03f58 R12: ffff88011fc0d060
+[  232.646569] R13: 00000000000f4240 R14: 0000000000000000 R15: ffff88011fc0d050
+[  232.646569] FS:  0000000000000000(0000) GS:ffff88011fc00000(0000) knlGS:0000000000000000
+[  232.646569] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[  232.646569] CR2: 0000000000000008 CR3: 00000000c7027000 CR4: 00000000000407f0
+[  232.646569] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 000000000201d000
+[  232.646569] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[  232.646569] Stack:
+[  232.646569]  ffff88011fc03c58 ffffffff812a447e ffff880037cf3290 ffff88011fc0d050
+[  232.646569]  ffff88011fc03c88 ffffffff8105e022 ffff880037cf3290 ffff880037cf3290
+[  232.646569]  000000362ae03831 00000000000f4240 ffff88011fc03d28 ffffffff8105e265
+[  232.646569] Call Trace:
+[  232.646569]  <IRQ> 
+[  232.646569]  [<ffffffff812a447e>] timerqueue_add+0x7a/0x98
+[  232.646569]  [<ffffffff8105e022>] enqueue_hrtimer+0x51/0x7c
+[  232.646569]  [<ffffffff8105e265>] __hrtimer_start_range_ns+0x218/0x2ff
+[  232.646569]  [<ffffffff8105e37a>] hrtimer_start_range_ns+0x14/0x16
+[  232.646569]  [<ffffffffa008b7cc>] ehci_enable_event+0x5f/0x68 [ehci_hcd]
+[  232.646569]  [<ffffffffa008d6cf>] ehci_work+0x1d4/0x7a6 [ehci_hcd]
+[  232.646569]  [<ffffffff81069dd4>] ? sched_clock_local+0x1c/0x82
+[  232.646569]  [<ffffffffa0090afa>] ehci_irq+0x264/0x296 [ehci_hcd]
+[  232.646569]  [<ffffffff810cccc5>] ? free_event_rcu+0x31/0x36
+[  232.646569]  [<ffffffffa000aa7c>] usb_hcd_irq+0x25/0x33 [usbcore]
+[  232.646569]  [<ffffffff81080404>] handle_irq_event_percpu+0x6b/0x19c
+[  232.646569]  [<ffffffff81009ab2>] ? native_sched_clock+0x21/0x3e
+[  232.646569]  [<ffffffff81080574>] handle_irq_event+0x3f/0x5b
+[  232.646569]  [<ffffffff81069f10>] ? sched_clock_idle_wakeup_event+0x17/0x19
+[  232.646569]  [<ffffffff81082b8d>] handle_fasteoi_irq+0x9a/0xec
+[  232.646569]  [<ffffffff810044e2>] handle_irq+0x27/0x2f
+[  232.646569]  [<ffffffff81003cbe>] do_IRQ+0x53/0xd9
+[  232.646569]  [<ffffffff8153536a>] common_interrupt+0x6a/0x6a
+[  232.646569]  <EOI> 
+[  232.646569]  [<ffffffff8106a13c>] ? sched_clock_idle_sleep_event+0x11/0x13
+[  232.646569]  [<ffffffff8100a7a3>] ? default_idle+0x1d/0x2f
+[  232.646569]  [<ffffffff8100a7a1>] ? default_idle+0x1b/0x2f
+[  232.646569]  [<ffffffff8100a290>] arch_cpu_idle+0x18/0x1d
+[  232.646569]  [<ffffffff8107fb82>] cpu_startup_entry+0xd1/0x133
+[  232.646569]  [<ffffffff8152a1c3>] rest_init+0x77/0x79
+[  232.646569]  [<ffffffff81abbf19>] start_kernel+0x3f0/0x3fd
+[  232.646569]  [<ffffffff81abb95e>] ? repair_env_string+0x58/0x58
+[  232.646569]  [<ffffffff81530ac5>] ? memblock_reserve+0x49/0x4e
+[  232.646569]  [<ffffffff81abb47e>] x86_64_start_reservations+0x2a/0x2c
+[  232.646569]  [<ffffffff81abb5c5>] x86_64_start_kernel+0x145/0x14c
+[  232.646569] Code: 41 5c 41 5d 41 5e c9 c3 55 48 8b 17 48 89 e5 48 85 d2 75 0c 48 c7 07 01 00 00 00 e9 13 01 00 00 48 8b 02 a8 01 0f 85 08 01 00 00 <48> 8b 48 08 48 39 ca 74 66 48 85 c9 74 14 f6 01 01 75 0f 48 89 
+[  232.646569] RIP  [<ffffffff812a3872>] rb_insert_color+0x23/0x12d
+[  232.646569]  RSP <ffff88011fc03c38>
+[  232.646569] CR2: 0000000000000008
+[  232.646569] ---[ end trace 7507cc820e7ff92c ]---
+[  232.646569] Kernel panic - not syncing: Fatal exception in interrupt
+[  232.646569] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)
+
+[  108.484011] BUG: unable to handle kernel NULL pointer derefere
+nce at 0000000000000008
+[  108.488001] IP: [<ffffffff812a3872>] rb_insert_color+0x23/0x12d
+[  108.488001] PGD cba58067 PUD cb859067 PMD 0 
+[  108.488001] Oops: 0000 [#1] SMP 
+[  108.488001] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powers
+ave cpufreq_conservative f71882fg mcs7830 usbnet acpi_cpufreq psmouse evdev core
+temp video serio_raw wmi ohci_pci button pcspkr processor thermal_sys ohci_hcd i
+2c_nforce2 sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[  108.488001] CPU: 0 PID: 2906 Comm: perf_fuzzer Not tainted 3.14.0-rc5 #32
+[  108.488001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[  108.488001] task: ffff8800ca0f37e0 ti: ffff880037ca2000 task.ti: ffff880037ca
+2000
+[  108.488001] RIP: 0010:[<ffffffff812a3872>]  [<ffffffff812a3872>] rb_insert_color+0x23/0x12d
+[  108.488001] RSP: 0000:ffff88011fc03e48  EFLAGS: 00010046
+[  108.488001] RAX: 0000000000000000 RBX: ffff88011fc0da60 RCX: ffff8800cba6b928
+[  108.488001] RDX: ffff8800cba6b928 RSI: ffff88011fc0d060 RDI: ffff88011fc0da60
+[  108.488001] RBP: ffff88011fc03e48 R08: 0000000000000005 R09: 0000000000000001
+[  108.488001] R10: ffff88011fc12ae0 R11: ffffffff8160b7d5 R12: ffff88011fc0d060
+[  108.488001] R13: ffff88011fc0d050 R14: ffff88011fc03f28 R15: 0000000000000001
+[  108.488001] FS:  0000000001f6c840(0063) GS:ffff88011fc00000(0000) knlGS:0000000000000000
+[  108.488001] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
+[  108.488001] CR2: 0000000000000008 CR3: 00000000ca137000 CR4: 00000000000407f0
+[  108.488001] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  108.488001] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[  108.488001] Stack:
+[  108.488001]  ffff88011fc03e68 ffffffff812a447e ffff88011fc0da60 ffff88011fc0d050
+[  108.488001]  ffff88011fc03e98 ffffffff8105e022 ffff88011fc0d010 ffff88011fc0da60
+[  108.488001]  ffff88011fc0d010 ffff88011fc0d050 ffff88011fc03ee8 ffffffff8105e621
+[  108.488001] Call Trace:
+[  108.488001]  <IRQ> 
+[  108.488001]  [<ffffffff812a447e>] timerqueue_add+0x7a/0x98
+[  108.488001]  [<ffffffff8105e022>] enqueue_hrtimer+0x51/0x7c
+[  108.488001]  [<ffffffff8105e621>] __run_hrtimer+0x10a/0x145
+[  108.488001]  [<ffffffff8109100d>] ? tick_nohz_handler+0xb0/0xb0
+[  108.488001]  [<ffffffff8105e8a6>] hrtimer_interrupt+0xd5/0x1c3
+[  108.488001]  [<ffffffff8102b2b3>] local_apic_timer_interrupt+0x58/0x5d
+[  108.488001]  [<ffffffff8102b859>] smp_apic_timer_interrupt+0x2a/0x3c
+[  108.488001]  [<ffffffff8153cbca>] apic_timer_interrupt+0x6a/0x70
+[  108.488001]  <EOI> 
+[  108.488001]  [<ffffffff8153bf26>] ? system_call_fastpath+0x1a/0x1f
+[  108.488001] Code: 41 5c 41 5d 41 5e c9 c3 55 48 8b 17 48 89 e5 48 85 d2 75 0c 48 c7 07 01 00 00 00 e9 13 01 00 00 48 8b 02 a8 01 0f 85 08 01 00 00 <48> 8b 48 08 48 39 ca 74 66 48 85 c9 74 14 f6 01 01 75 0f 48 89 
+[  108.488001] RIP  [<ffffffff812a3872>] rb_insert_color+0x23/0x12d
+[  108.488001]  RSP <ffff88011fc03e48>
+[  108.488001] CR2: 0000000000000008
+[  108.488001] ---[ end trace a0e99ca42e22c24f ]---
+[  108.488001] Kernel panic - not syncing: Fatal exception in interrupt
+[  108.488001] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)
+
+
+
+[  107.100035] BUG: unable to handle kernel NULL pointer derefere
+nce at 0000000000000040
+[  107.109164] IP: [<ffffffff812a3867>] rb_insert_color+0x18/0x12d
+[  107.129085] PGD 0 
+[  107.129085] Oops: 0000 [#1] SMP 
+[  107.129085] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powers
+ave cpufreq_conservative f71882fg mcs7830 usbnet ohci_pci pcspkr i2c_nforce2 psm
+ouse ohci_hcd serio_raw evdev coretemp wmi video button acpi_cpufreq processor t
+hermal_sys ehci_pci sg ehci_hcd sd_mod usbcore usb_common
+[  107.129085] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 3.14.0-rc5+ #33
+[  107.129085] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[  107.129085] task: ffffffff81a11450 ti: ffffffff81a00000 task.ti: ffffffff81a0
+0000
+[  107.129085] RIP: 0010:[<ffffffff812a3867>]  [<ffffffff812a3867>] rb_insert_co
+lor+0x18/0x12d
+[  107.129085] RSP: 0000:ffff88011fc03de8  EFLAGS: 00010002
+[  107.129085] RAX: ffff880037dc77e0 RBX: ffff88011fc0da60 RCX: ffff880037dc0000
+[  107.129085] RDX: 0000000000000040 RSI: ffff88011fc0d060 RDI: ffff880037dc77e0
+[  107.129085] RBP: ffff88011fc03de8 R08: ffff88011fc03d98 R09: 0000000000000002
+[  107.129085] R10: 0000000000000001 R11: ffffffff81c090a8 R12: ffff88011fc0d060
+[  107.129085] R13: 0000000000000000 R14: 0000000000000000 R15: ffff88011fc0d050
+[  107.129085] FS:  0000000000000000(0000) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000
+[  107.129085] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[  107.129085] CR2: 0000000000000040 CR3: 0000000001a0c000 CR4: 00000000000407f0
+[  107.129085] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  107.129085] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[  107.129085] Stack:
+[  107.129085]  ffff88011fc03e08 ffffffff812a447e ffff88011fc0da60 ffff88011fc0d
+050
+[  107.129085]  ffff88011fc03e38 ffffffff8105e022 0000000000000286 ffff88011fc0d
+a60
+[  107.129085]  0000001965e9bf00 0000000000000000 ffff88011fc03ed8 ffffffff8105e
+265
+[  107.129085] Call Trace:
+[  107.129085]  <IRQ> 
+[  107.129085]  [<ffffffff812a447e>] timerqueue_add+0x7a/0x98
+[  107.129085]  [<ffffffff8105e022>] enqueue_hrtimer+0x51/0x7c
+[  107.129085]  [<ffffffff8105e265>] __hrtimer_start_range_ns+0x218/0x2ff
+[  107.129085]  [<ffffffff8105e364>] hrtimer_start+0x18/0x1a
+[  107.129085]  [<ffffffff81091885>] __tick_nohz_idle_enter+0x2ce/0x387
+[  107.129085]  [<ffffffff81091962>] tick_nohz_irq_exit+0x24/0x26
+[  107.129085]  [<ffffffff81044582>] irq_exit+0x95/0x9c
+[  107.129085]  [<ffffffff8102bc9f>] smp_trace_apic_timer_interrupt+0x83/0x91
+[  107.129085]  [<ffffffff8153cc3a>] trace_apic_timer_interrupt+0x6a/0x70
+[  107.129085]  <EOI> 
+[  107.129085]  [<ffffffff8106a13c>] ? sched_clock_idle_sleep_event+0x11/0x13
+[  107.129085]  [<ffffffff8100a7a3>] ? default_idle+0x1d/0x2f
+[  107.129085]  [<ffffffff8100a7a1>] ? default_idle+0x1b/0x2f
+[  107.129085]  [<ffffffff8100a290>] arch_cpu_idle+0x18/0x1d
+[  107.129085]  [<ffffffff8107fb82>] cpu_startup_entry+0xd1/0x133
+[  107.129085]  [<ffffffff8152a1d3>] rest_init+0x77/0x79
+[  107.129085]  [<ffffffff81abbf19>] start_kernel+0x3f0/0x3fd
+[  107.129085]  [<ffffffff81abb95e>] ? repair_env_string+0x58/0x58
+[  107.129085]  [<ffffffff81530ad5>] ? memblock_reserve+0x49/0x4e
+[  107.129085]  [<ffffffff81abb47e>] x86_64_start_reservations+0x2a/0x2c
+[  107.129085]  [<ffffffff81abb5c5>] x86_64_start_kernel+0x145/0x14c
+[  107.129085] Code: 24 48 89 de 4c 89 ef 41 ff d6 5b 41 5c 41 5d 41 5e c9 c3 55
+ 48 8b 17 48 89 e5 48 85 d2 75 0c 48 c7 07 01 00 00 00 e9 13 01 00 00 <48> 8b 02
+ a8 01 0f 85 08 01 00 00 48 8b 48 08 48 39 ca 74 66 48 
+[  107.129085] RIP  [<ffffffff812a3867>] rb_insert_color+0x18/0x12d
+[  107.129085]  RSP <ffff88011fc03de8>
+[  107.129085] CR2: 0000000000000040
+[  107.129085] ---[ end trace 05819cea8e48bcd9 ]---
+[  107.129085] Kernel panic - not syncing: Attempted to kill the idle task!
+[  107.129085] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xf
+fffffff80000000-0xffffffff9fffffff)
+

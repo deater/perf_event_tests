@@ -1,0 +1,354 @@
+** perf_fuzzer *** by Vince Weaver                                             
+                                                                                
+Seeding random number generator with 1394468067                                 
+Kernel max sample rate currently: 6250/s                                        
+==================================================                              
+Fuzzing the following syscalls:                                                 
+        mmap perf_event_open close read write ioctl fork prctl poll             
+*NOT* Fuzzing the following syscalls:                                           
+                                                                                
+Also attempting the following:                                                  
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page                                               
+*NOT* attempting the following:                                                 
+                                                                                
+==================================================                              
+Iteration 10000                                                                 
+        Open attempts: 376054  Successful: 922                                  
+                EPERM : 19                                                      
+                ENOENT : 955                                                    
+                E2BIG : 40741                                                   
+                EBADF : 5786                                                    
+                EINVAL : 327034                                                 
+                ENOSPC : 31                                                     
+                EOPNOTSUPP : 566                                                
+        Close attempts: 907  Successful: 907                                    
+        Read attempts: 888  Successful: 752                                     
+        Write attempts: 821  Successful: 0                                      
+        Ioctl attempts: 838  Successful: 311                                    
+        Mmap attempts: 922  Successful: 248                                     
+        Prctl attempts: 964  Successful: 964                                    
+        Fork attempts: 459  Successful: 459                                     
+        Poll attempts: 885  Successful: 3                                       
+        Access attempts: 941  Successful: 471                                   
+        Trash mmap attempts: 832  Successful: 832                               
+        Overflows: 0                                                            
+        SIGIOs due to RT signal queue full: 0                                   
+[ 2696.228000] BUG: soft lockup - CPU#0 stuck for 23s! [perf_fuzzer:10256]      
+[ 2696.228000] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powers
+ave cpufreq_conservative f71882fg ohci_pci acpi_cpufreq coretemp evdev video mcs
+7830 usbnet wmi psmouse processor button thermal_sys serio_raw pcspkr ohci_hcd i
+2c_nforce2 sg ehci_pci ehci_hcd sd_mod usbcore usb_common                       
+[ 2696.228000] CPU: 0 PID: 10256 Comm: perf_fuzzer Not tainted 3.14.0-rc6 #36   
+[ 2696.228000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 2696.228000] task: ffff88011a6a17e0 ti: ffff8800cbab6000 task.ti: ffff8800cbab
+6000                                                                            
+[ 2696.228000] RIP: 0010:[<ffffffff810d0767>]  [<ffffffff810d0767>] __perf_sw_ev
+ent+0x117/0x192                                                                 
+[ 2696.228000] RSP: 0000:ffff8800cbab7c88  EFLAGS: 00000246                     
+[ 2696.228000] RAX: ffff88011a7b5cba RBX: 0000000000000000 RCX: ffff88011a9c4000
+[ 2696.228000] RDX: ffff88011a7b5c00 RSI: 0400000000000000 RDI: 4000000000000000
+[ 2696.228000] RBP: ffff8800cbab7d48 R08: 0010000000000000 R09: ffff88011fc12ac0
+[ 2696.228000] R10: 0000000000000000 R11: ffff880119dfcb60 R12: 0000000000000000
+[ 2696.228000] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[ 2696.228000] FS:  0000000000bd5840(0063) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000                                                                     
+[ 2696.228000] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 2696.228000] CR2: 0000000000bd5ac8 CR3: 00000000ca4c8000 CR4: 00000000000407f0
+[ 2696.228000] DR0: 0000000000bd7000 DR1: 0000000000bd7000 DR2: 0000000000000000
+[ 2696.228000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2696.228000] Stack:                                                           
+[ 2696.228000]  0000000000000000 0000000000000000 0000000000000000 0000000000000
+000                                                                             
+[ 2696.228000]  0000000000bd5ac8 0000000000000000 0000000000000000 0000000000000
+000                                                                             
+[ 2696.228000]  0000000000000000 0000000000000000 0000000000000000 0000000000000
+000                                                                             
+[ 2696.228000] Call Trace:                                                      
+[ 2696.228000]  [<ffffffff81538273>] __do_page_fault+0x1b1/0x3ed                
+[ 2696.228000]  [<ffffffff81009ab2>] ? native_sched_clock+0x21/0x3e             
+[ 2696.228000]  [<ffffffff81069de7>] ? sched_clock_local+0x1c/0x82              
+[ 2696.228000]  [<ffffffff8106a0e2>] ? sched_clock_cpu+0x8e/0xaa                
+[ 2696.228000]  [<ffffffff8106a119>] ? local_clock+0x1b/0x24                    
+[ 2696.228000]  [<ffffffff810cd2ad>] ? ctx_sched_in+0x35/0x185                  
+[ 2696.228000]  [<ffffffff8153854e>] do_page_fault+0xc/0xe                      
+[ 2696.228000]  [<ffffffff815355a2>] page_fault+0x22/0x30                       
+[ 2696.228000]  [<ffffffff812a8280>] ? __put_user_4+0x20/0x30                   
+[ 2696.228000]  [<ffffffff81069373>] ? schedule_tail+0x5c/0x60                  
+[ 2696.228000]  [<ffffffff8153be0f>] ret_from_fork+0xf/0xb0                     
+[ 2696.228000] Code: 00 48 8d 50 c0 48 85 c0 4c 0f 45 ea eb 50 41 83 bd c0 00 00
+ 00 01 75 39 4d 39 bd c8 00 00 00 75 30 41 f6 85 90 01 00 00 01 75 26 <48> 85 db
+ 74 4d 41 8a 85 e8 00 00 00 a8 10 74 09 f6 83 88 00 00                          
+                                                                                
+Message from syslogd@core2 at Mar 10 12:15:02 ...                               
+ kernel:[ 2696.228000] BUG: soft lockup - CPU#0 stuck for 23s! [perf_fuzzer:1025
+6]                                                                              
+[ 2724.228000] BUG: soft lockup - CPU#0 stuck for 23s! [perf_fuzzer:10256]      
+[ 2724.228000] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powers
+ave cpufreq_conservative f71882fg ohci_pci acpi_cpufreq coretemp evdev video mcs
+7830 usbnet wmi psmouse processor button thermal_sys serio_raw pcspkr ohci_hcd i
+2c_nforce2 sg ehci_pci ehci_hcd sd_mod usbcore usb_common                       
+[ 2724.228000] CPU: 0 PID: 10256 Comm: perf_fuzzer Not tainted 3.14.0-rc6 #36   
+[ 2724.228000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 2724.228000] task: ffff88011a6a17e0 ti: ffff8800cbab6000 task.ti: ffff8800cbab
+6000                                                                            
+[ 2724.228000] RIP: 0010:[<ffffffff810d0784>]  [<ffffffff810d0784>] __perf_sw_ev
+ent+0x134/0x192                                                                 
+[ 2724.228000] RSP: 0000:ffff8800cbab7c88  EFLAGS: 00000202                     
+[ 2724.228000] RAX: ffff88011a7b5cba RBX: 0000000000000000 RCX: ffff88011a9c4000
+[ 2724.228000] RDX: ffff88011a7b5c00 RSI: 0400000000000000 RDI: 4000000000000000
+[ 2724.228000] RBP: ffff8800cbab7d48 R08: 0010000000000000 R09: ffff88011fc12ac0
+[ 2724.228000] R10: 0000000000000000 R11: ffff880119dfcb60 R12: 0000000000000000
+[ 2724.228000] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[ 2724.228000] FS:  0000000000bd5840(0063) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000                                                                     
+[ 2724.228000] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 2724.228000] CR2: 0000000000bd5ac8 CR3: 00000000ca4c8000 CR4: 00000000000407f0
+[ 2724.228000] DR0: 0000000000bd7000 DR1: 0000000000bd7000 DR2: 0000000000000000
+[ 2724.228000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2724.228000] Stack:                                                           
+[ 2724.228000]  0000000000000000 0000000000000000 0000000000000000 0000000000000
+000                                                                             
+[ 2724.228000]  0000000000bd5ac8 0000000000000000 0000000000000000 0000000000000
+000                                                                             
+[ 2724.228000]  0000000000000000 0000000000000000 0000000000000000 0000000000000
+000                                                                             
+[ 2724.228000] Call Trace:                                                      
+[ 2724.228000]  [<ffffffff81538273>] __do_page_fault+0x1b1/0x3ed                
+[ 2724.228000]  [<ffffffff81009ab2>] ? native_sched_clock+0x21/0x3e             
+[ 2724.228000]  [<ffffffff81069de7>] ? sched_clock_local+0x1c/0x82              
+[ 2724.228000]  [<ffffffff8106a0e2>] ? sched_clock_cpu+0x8e/0xaa                
+[ 2724.228000]  [<ffffffff8106a119>] ? local_clock+0x1b/0x24                    
+[ 2724.228000]  [<ffffffff810cd2ad>] ? ctx_sched_in+0x35/0x185                  
+[ 2724.228000]  [<ffffffff8153854e>] do_page_fault+0xc/0xe                      
+[ 2724.228000]  [<ffffffff815355a2>] page_fault+0x22/0x30                       
+[ 2724.228000]  [<ffffffff812a8280>] ? __put_user_4+0x20/0x30                   
+[ 2724.228000]  [<ffffffff81069373>] ? schedule_tail+0x5c/0x60                  
+[ 2724.228000]  [<ffffffff8153be0f>] ret_from_fork+0xf/0xb0                     
+[ 2724.228000] Code: 00 00 75 30 41 f6 85 90 01 00 00 01 75 26 48 85 db 74 4d 41
+ 8a 85 e8 00 00 00 a8 10 74 09 f6 83 88 00 00 00 03 75 0d a8 20 74 35 <f6> 83 88
+ 00 00 00 03 75 2c 4d 8b 6d 40 4d 85 ed 74 09 49 83 ed                          
+                                                                                
+Message from syslogd@core2 at Mar 10 12:15:30 ...                               
+ kernel:[ 2724.228000] BUG: soft lockup - CPU#0 stuck for 23s! [perf_fuzzer:1025
+6]                                                                              
+[ 2730.179999] INFO: rcu_sched self-detected stall on CPU[ 2730.184002] INFO: rc
+u_sched detected stalls on CPUs/tasks: { 0} (detected by 1, t=15002 jiffies, g=4
+8897, c=48896, q=46)                                                            
+[ 2730.184005] sending NMI to all CPUs:                                         
+[ 2730.180000] NMI backtrace for cpu 0                                          
+[ 2730.180000] CPU: 0 PID: 10256 Comm: perf_fuzzer Not tainted 3.14.0-rc6 #36   
+[ 2730.180000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 2730.180000] task: ffff88011a6a17e0 ti: ffff8800cbab6000 task.ti: ffff8800cbab
+6000                                                                            
+[ 2730.180000] RIP: 0010:[<ffffffff8133b6d5>]  [<ffffffff8133b6d5>] io_serial_in
++0x15/0x1a                                                                      
+[ 2730.180000] RSP: 0000:ffff88011fc03b98  EFLAGS: 00000002                     
+[ 2730.180000] RAX: 00000000b9cc8400 RBX: ffffffff81c914d0 RCX: 0000000000000000
+[ 2730.180000] RDX: 00000000000003fd RSI: 00000000000003fd RDI: ffffffff81c914d0
+[ 2730.180000] RBP: ffff88011fc03b98 R08: 0000000000000000 R09: ffffffff81a9ec20
+[ 2730.180000] R10: 0000000000000000 R11: 0000000000000005 R12: 00000000000026ef
+[ 2730.180000] R13: 0000000000000020 R14: ffffffff81c112e2 R15: ffffffff8133bd4d
+[ 2730.180000] FS:  0000000000bd5840(0063) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000                                                                     
+[ 2730.180000] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 2730.180000] CR2: 0000000000bd5ac8 CR3: 00000000ca4c8000 CR4: 00000000000407f0
+[ 2730.180000] DR0: 0000000000bd7000 DR1: 0000000000bd7000 DR2: 0000000000000000
+[ 2730.180000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2730.180000] Stack:                                                           
+[ 2730.180000]  ffff88011fc03bc8 ffffffff8133bce3 ffff88011fc03c28 ffffffff81c91
+4d0                                                                             
+[ 2730.180000]  0000000000000046 0000000000000039 ffff88011fc03be8 ffffffff8133b
+d69                                                                             
+[ 2730.180000]  ffffffff81c112d0 ffffffff81c914d0 ffff88011fc03c28 ffffffff81338
+31b                                                                             
+[ 2730.180000] Call Trace:                                                      
+[ 2730.180000]  <IRQ>  [<ffffffff8133bce3>] wait_for_xmitr+0x29/0x93            
+[ 2730.180000]  [<ffffffff8133bd69>] serial8250_console_putchar+0x1c/0x2c       
+[ 2730.180000]  [<ffffffff8133831b>] uart_console_write+0x45/0x5b               
+[ 2730.180000]  [<ffffffff8133db9c>] serial8250_console_write+0xb4/0x102        
+[ 2730.180000]  [<ffffffff8107e519>] T.950+0xb9/0xcb                            
+[ 2730.180000]  [<ffffffff8107e654>] console_unlock+0x129/0x321                 
+[ 2730.180000]  [<ffffffff8107ed85>] vprintk_emit+0x3cc/0x3f5                   
+[ 2730.180000]  [<ffffffff81531ce2>] printk+0x4d/0x4f                           
+[ 2730.180000]  [<ffffffff81087be5>] rcu_check_callbacks+0x164/0x5dd            
+[ 2730.180000]  [<ffffffff81043f08>] ? raise_softirq_irqoff+0x9/0x35            
+[ 2730.180000]  [<ffffffff8104a14c>] update_process_times+0x41/0x6a             
+[ 2730.180000]  [<ffffffff81090ebd>] tick_sched_handle+0x4a/0x59                
+[ 2730.180000]  [<ffffffff8109108e>] tick_sched_timer+0x5d/0x7c                 
+[ 2730.180000]  [<ffffffff8105e5e4>] __run_hrtimer+0xba/0x145                   
+[ 2730.180000]  [<ffffffff81091031>] ? tick_nohz_handler+0xb0/0xb0              
+[ 2730.180000]  [<ffffffff8105e8b9>] hrtimer_interrupt+0xd5/0x1c3               
+[ 2730.180000]  [<ffffffff8102b2a3>] local_apic_timer_interrupt+0x58/0x5d       
+[ 2730.180000]  [<ffffffff8102b849>] smp_apic_timer_interrupt+0x2a/0x3c         
+[ 2730.180000]  [<ffffffff8153cbca>] apic_timer_interrupt+0x6a/0x70             
+[ 2730.180000]  <EOI>  [<ffffffff810d0767>] ? __perf_sw_event+0x117/0x192       
+[ 2730.180000]  [<ffffffff810d0675>] ? __perf_sw_event+0x25/0x192               
+[ 2730.180000]  [<ffffffff81538273>] __do_page_fault+0x1b1/0x3ed                
+[ 2730.180000]  [<ffffffff81009ab2>] ? native_sched_clock+0x21/0x3e             
+[ 2730.180000]  [<ffffffff81069de7>] ? sched_clock_local+0x1c/0x82              
+[ 2730.180000]  [<ffffffff8106a0e2>] ? sched_clock_cpu+0x8e/0xaa                
+[ 2730.180000]  [<ffffffff8106a119>] ? local_clock+0x1b/0x24                    
+[ 2730.180000]  [<ffffffff810cd2ad>] ? ctx_sched_in+0x35/0x185                  
+[ 2730.180000]  [<ffffffff8153854e>] do_page_fault+0xc/0xe                      
+[ 2730.180000]  [<ffffffff815355a2>] page_fault+0x22/0x30                       
+[ 2730.180000]  [<ffffffff812a8280>] ? __put_user_4+0x20/0x30                   
+[ 2730.180000]  [<ffffffff81069373>] ? schedule_tail+0x5c/0x60                  
+[ 2730.180000]  [<ffffffff8153be0f>] ret_from_fork+0xf/0xb0                     
+[ 2730.180000] Code: 66 66 66 66 90 0f b6 4f 61 d3 e6 48 63 f6 48 03 77 10 8b 06
+ c9 c3 55 48 89 e5 66 66 66 66 90 0f b6 4f 61 d3 e6 03 77 08 89 f2 ec <0f> b6 c0
+ c9 c3 55 48 89 e5 66 66 66 66 90 0f b6 4f 61 89 d0 d3                          
+[ 2730.184114] NMI backtrace for cpu 1                                          
+[ 2730.184116] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 3.14.0-rc6 #36         
+[ 2730.184117] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 2730.184118] task: ffff88011b2b37e0 ti: ffff88011b340000 task.ti: ffff88011b34
+0000                                                                            
+[ 2730.184119] RIP: 0010:[<ffffffff812a72c7>]  [<ffffffff812a72c7>] delay_tsc+0x
+19/0x52                                                                         
+[ 2730.184121] RSP: 0018:ffff88011fc83d88  EFLAGS: 00000803                     
+[ 2730.184122] RAX: 00000000b9cc92b0 RBX: 0000000000000001 RCX: 0000000000000003
+[ 2730.184123] RDX: 0000000000000656 RSI: 0000000000000001 RDI: 00000000002658d7
+[ 2730.184124] RBP: ffff88011fc83d88 R08: 0000000000000000 R09: 0000000000000008
+[ 2730.184125] R10: 0000000000000000 R11: 0000000000000000 R12: ffff88011fc8d510
+[ 2730.184125] R13: 0000000000000001 R14: ffffffff81a37300 R15: 0000000000000001
+[ 2730.184126] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:00000
+00000000000                                                                     
+[ 2730.184127] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b                
+[ 2730.184128] CR2: 0000000000f47000 CR3: 00000000cb8b9000 CR4: 00000000000407e0
+[ 2730.184129] DR0: 0000000000bd7000 DR1: 0000000000000000 DR2: 0000000000bd7000
+[ 2730.184130] DR3: 0000000000bd7000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2730.184130] Stack:                                                           
+[ 2730.184131]  ffff88011fc83d98 ffffffff812a7281 ffff88011fc83db8 ffffffff8102c
+1ed                                                                             
+[ 2730.184133]  000000000000bf00 ffffffff81a37300 ffff88011fc83e18 ffffffff81087
+ee3                                                                             
+[ 2730.184135]  0000000000000000 000000000000002e ffffffff81a9eb60 0000000000000
+083                                                                             
+[ 2730.184136] Call Trace:                                                      
+[ 2730.184137]  <IRQ>  [<ffffffff812a7281>] __const_udelay+0x25/0x27            
+[ 2730.184139]  [<ffffffff8102c1ed>] arch_trigger_all_cpu_backtrace+0x79/0x8d   
+[ 2730.184141]  [<ffffffff81087ee3>] rcu_check_callbacks+0x462/0x5dd            
+[ 2730.184143]  [<ffffffff8104a14c>] update_process_times+0x41/0x6a             
+[ 2730.184145]  [<ffffffff81090ebd>] tick_sched_handle+0x4a/0x59                
+[ 2730.184147]  [<ffffffff8109108e>] tick_sched_timer+0x5d/0x7c                 
+[ 2730.184148]  [<ffffffff8105e5e4>] __run_hrtimer+0xba/0x145                   
+[ 2730.184150]  [<ffffffff81091031>] ? tick_nohz_handler+0xb0/0xb0              
+[ 2730.184151]  [<ffffffff8105e8b9>] hrtimer_interrupt+0xd5/0x1c3               
+[ 2730.184153]  [<ffffffff8102b2a3>] local_apic_timer_interrupt+0x58/0x5d       
+[ 2730.184155]  [<ffffffff8102b849>] smp_apic_timer_interrupt+0x2a/0x3c         
+[ 2730.184156]  [<ffffffff8153cbca>] apic_timer_interrupt+0x6a/0x70             
+[ 2730.184158]  <EOI>  [<ffffffff8106a14f>] ? sched_clock_idle_sleep_event+0x11/
+0x13                                                                            
+[ 2730.184161]  [<ffffffff8100a7a3>] ? default_idle+0x1d/0x2f                   
+[ 2730.184163]  [<ffffffff8100a7a1>] ? default_idle+0x1b/0x2f                   
+[ 2730.184164]  [<ffffffff8100a290>] arch_cpu_idle+0x18/0x1d                    
+[ 2730.184166]  [<ffffffff8107fbd8>] cpu_startup_entry+0xd1/0x133               
+[ 2730.184168]  [<ffffffff8102a33d>] start_secondary+0x196/0x19b                
+[ 2730.184170] Code: 89 e5 66 66 66 66 90 48 8d 3c bf e8 b0 ff ff ff c9 c3 55 48
+ 89 e5 66 66 66 66 90 65 8b 34 25 d0 b0 00 00 66 66 90 0f ae e8 0f 31 <89> c1 66
+ 66 90 0f ae e8 0f 31 89 c2 29 ca 39 fa 73 23 f3 90 65                          
+                                                                                
+[ 2730.180000]  { 0}  (t=15471 jiffies g=48897 c=48896 q=46)                    
+[ 2730.180000] sending NMI to all CPUs:                                         
+[ 2730.180000] NMI backtrace for cpu 0                                          
+[ 2730.180000] CPU: 0 PID: 10256 Comm: perf_fuzzer Not tainted 3.14.0-rc6 #36   
+[ 2730.180000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 2730.180000] task: ffff88011a6a17e0 ti: ffff8800cbab6000 task.ti: ffff8800cbab
+6000                                                                            
+[ 2730.180000] RIP: 0010:[<ffffffff812a72c7>]  [<ffffffff812a72c7>] delay_tsc+0x
+19/0x52                                                                         
+[ 2730.180000] RSP: 0000:ffff88011fc03d88  EFLAGS: 00000803                     
+[ 2730.180000] RAX: 00000000d8b85e08 RBX: 0000000000000001 RCX: 0000000000000003
+[ 2730.180000] RDX: 0000000000000657 RSI: 0000000000000000 RDI: 00000000002658d7
+[ 2730.180000] RBP: ffff88011fc03d88 R08: 0000000000000000 R09: 0000000000000008
+[ 2730.180000] R10: 0000000000000000 R11: 0000000000000005 R12: ffff88011fc0d510
+[ 2730.180000] R13: ffffffff81a38c08 R14: ffffffff81a37300 R15: 0000000000000000
+[ 2730.180000] FS:  0000000000bd5840(0063) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000                                                                     
+[ 2730.180000] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 2730.180000] CR2: 0000000000bd5ac8 CR3: 00000000ca4c8000 CR4: 00000000000407f0
+[ 2730.180000] DR0: 0000000000bd7000 DR1: 0000000000bd7000 DR2: 0000000000000000
+[ 2730.180000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2730.180000] Stack:                                                           
+[ 2730.180000]  ffff88011fc03d98 ffffffff812a7281 ffff88011fc03db8 ffffffff8102c
+1ed                                                                             
+[ 2730.180000]  000000000000002e ffffffff81a37300 ffff88011fc03e18 ffffffff81087
+c88                                                                             
+[ 2730.180000]  0000000000000092 000000000000002e ffffffff81a9eb60 ffffffff81043
+f08                                                                             
+[ 2730.180000] Call Trace:                                                      
+[ 2730.180000]  <IRQ>                                                           
+[ 2730.180000]  [<ffffffff812a7281>] __const_udelay+0x25/0x27                   
+[ 2730.180000]  [<ffffffff8102c1ed>] arch_trigger_all_cpu_backtrace+0x79/0x8d   
+[ 2730.180000]  [<ffffffff81087c88>] rcu_check_callbacks+0x207/0x5dd            
+[ 2730.180000]  [<ffffffff81043f08>] ? raise_softirq_irqoff+0x9/0x35            
+[ 2730.180000]  [<ffffffff8104a14c>] update_process_times+0x41/0x6a             
+[ 2730.180000]  [<ffffffff81090ebd>] tick_sched_handle+0x4a/0x59                
+[ 2730.180000]  [<ffffffff8109108e>] tick_sched_timer+0x5d/0x7c                 
+[ 2730.180000]  [<ffffffff8105e5e4>] __run_hrtimer+0xba/0x145                   
+[ 2730.180000]  [<ffffffff81091031>] ? tick_nohz_handler+0xb0/0xb0              
+[ 2730.180000]  [<ffffffff8105e8b9>] hrtimer_interrupt+0xd5/0x1c3               
+[ 2730.180000]  [<ffffffff8102b2a3>] local_apic_timer_interrupt+0x58/0x5d       
+[ 2730.180000]  [<ffffffff8102b849>] smp_apic_timer_interrupt+0x2a/0x3c         
+[ 2730.180000]  [<ffffffff8153cbca>] apic_timer_interrupt+0x6a/0x70             
+[ 2730.180000]  <EOI>                                                           
+[ 2730.180000]  [<ffffffff810d0767>] ? __perf_sw_event+0x117/0x192              
+[ 2730.180000]  [<ffffffff810d0675>] ? __perf_sw_event+0x25/0x192               
+[ 2730.180000]  [<ffffffff81538273>] __do_page_fault+0x1b1/0x3ed                
+[ 2730.180000]  [<ffffffff81009ab2>] ? native_sched_clock+0x21/0x3e             
+[ 2730.180000]  [<ffffffff81069de7>] ? sched_clock_local+0x1c/0x82              
+[ 2730.180000]  [<ffffffff8106a0e2>] ? sched_clock_cpu+0x8e/0xaa                
+[ 2730.180000]  [<ffffffff8106a119>] ? local_clock+0x1b/0x24                    
+[ 2730.180000]  [<ffffffff810cd2ad>] ? ctx_sched_in+0x35/0x185                  
+[ 2730.180000]  [<ffffffff8153854e>] do_page_fault+0xc/0xe                      
+[ 2730.180000]  [<ffffffff815355a2>] page_fault+0x22/0x30                       
+[ 2730.180000]  [<ffffffff812a8280>] ? __put_user_4+0x20/0x30                   
+[ 2730.180000]  [<ffffffff81069373>] ? schedule_tail+0x5c/0x60                  
+[ 2730.180000]  [<ffffffff8153be0f>] ret_from_fork+0xf/0xb0                     
+[ 2730.180000] Code: 89 e5 66 66 66 66 90 48 8d 3c bf e8 b0 ff ff ff c9 c3 55 48
+ 89 e5 66 66 66 66 90 65 8b 34 25 d0 b0 00 00 66 66 90 0f ae e8 0f 31 <89> c1 66
+ 66 90 0f ae e8 0f 31 89 c2 29 ca 39 fa 73 23 f3 90 65                          
+[ 2732.088001] NMI backtrace for cpu 1                                          
+[ 2730.180000] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
+oo long to run: 932.372 msecs                                                   
+[ 2732.088001] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 3.14.0-rc6 #36         
+[ 2732.088001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 2732.088001] task: ffff88011b2b37e0 ti: ffff88011b340000 task.ti: ffff88011b34
+0000                                                                            
+[ 2732.088001] RIP: 0010:[<ffffffff8100a7a3>]  [<ffffffff8100a7a3>] default_idle
++0x1d/0x2f                                                                      
+[ 2732.088001] RSP: 0018:ffff88011b341ed8  EFLAGS: 00000246                     
+[ 2732.088001] RAX: 0000000000000000 RBX: ffff88011b340000 RCX: 0000000000012ac0
+[ 2732.088001] RDX: ffffffff81a3a900 RSI: 0000000000000001 RDI: 0000000000000001
+[ 2732.088001] RBP: ffff88011b341ed8 R08: 0000000000000000 R09: ffff88011b341eb8
+[ 2732.088001] R10: 00000000000003ff R11: ffff88011ad83d08 R12: ffff88011b340000
+[ 2732.088001] R13: ffff88011b340010 R14: ffff88011b340010 R15: ffff88011b340010
+[ 2732.088001] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:00000
+00000000000                                                                     
+[ 2732.088001] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b                
+[ 2732.088001] CR2: 0000000000f47000 CR3: 00000000cb8b9000 CR4: 00000000000407e0
+[ 2732.088001] DR0: 0000000000bd7000 DR1: 0000000000000000 DR2: 0000000000bd7000
+[ 2732.088001] DR3: 0000000000bd7000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2732.088001] Stack:                                                           
+[ 2732.088001]  ffff88011b341ee8 ffffffff8100a290 ffff88011b341f28 ffffffff8107f
+bd8                                                                             
+[ 2732.088001]  0000000000000001 0000000000000001 0000000000000001 0000000000000
+000                                                                             
+[ 2732.088001]  0000000000000000 0000000000000000 ffff88011b341f48 ffffffff8102a
+33d                                                                             
+[ 2732.088001] Call Trace:                                                      
+[ 2732.088001]  [<ffffffff8100a290>] arch_cpu_idle+0x18/0x1d                    
+[ 2732.088001]  [<ffffffff8107fbd8>] cpu_startup_entry+0xd1/0x133               
+[ 2732.088001]  [<ffffffff8102a33d>] start_secondary+0x196/0x19b                
+[ 2732.088001] Code: e8 1e ca 07 00 41 59 5b 41 5c 41 5d c9 c3 55 48 89 e5 66 66
+ 66 66 90 bf 01 00 00 00 65 8b 34 25 d0 b0 00 00 e8 93 ff ff ff fb f4 <83> cf ff
+ 65 8b 34 25 d0 b0 00 00 e8 81 ff ff ff c9 c3 55 48 89                          
+[ 2732.088001] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
+oo long to run: 1479.539 msecs                                                  
+
