@@ -1,3 +1,9 @@
+Put flag settings in debug messages
+Put define settings in debug messages
+Put architecture in debug messages
+Put CPU model/family/stepping in debug messages
+
+
 Set breakpoint events on the mmap buffers?
 Randomly mmap() existing events?
   - be sure to unmap once the event is destroyed
