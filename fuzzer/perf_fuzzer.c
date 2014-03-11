@@ -7,7 +7,8 @@
 
 #define _GNU_SOURCE 1
 
-#define LOG_FAILURES	1
+#define LOG_FAILURES	0
+#define FSYNC_EVERY	0
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1622,6 +1623,10 @@ int main(int argc, char **argv) {
 				}
 				break;
 		}
+
+#if FSYNC_EVERY
+		if (logging) fsync(log_fd);
+#endif
 
 		if (throttle_close_event) {
 			printf("Closing stuck event %d\n",
