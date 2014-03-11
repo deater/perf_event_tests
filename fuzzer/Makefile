@@ -77,7 +77,7 @@ perf_fuzzer:	perf_fuzzer.o perf_attr_print.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 
-perf_fuzzer.o:	perf_fuzzer.c perf_attr_print.h
+perf_fuzzer.o:	perf_fuzzer.c perf_attr_print.h version.h
 	$(CC) $(CFLAGS) -c perf_fuzzer.c
 
 ####
@@ -90,7 +90,7 @@ perf_fuzzer.x32:	perf_fuzzer.x32.o perf_attr_print.x32.o \
 		../lib/perf_helpers.x32.o ../lib/instructions_testcode.x32.o \
 		trinity_files/trinity_lib.x32.a
 
-perf_fuzzer.x32.o:	perf_fuzzer.c perf_attr_print.h
+perf_fuzzer.x32.o:	perf_fuzzer.c perf_attr_print.h version.h
 	$(CC) $(CFLAGS_X32) -o perf_fuzzer.x32.o -c perf_fuzzer.c
 
 ####
