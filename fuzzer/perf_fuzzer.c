@@ -278,9 +278,19 @@ static void close_random_event(void) {
 /* Thus they never have most of these problems      */
 static void our_handler(int signum, siginfo_t *info, void *uc) {
 
+	static int already_handling=0;
+
 	int fd = info->si_fd;
 	int i,j;
 	int ret;
+
+
+	/* In some cases (syscall tracepoint) */
+	/* The act of disabling an event would trigger */
+	/* Another overflow, leading to a recursive storm */
+	if (already_handling) return;
+
+	already_handling=1;
 
 	overflows++;
 
@@ -351,6 +361,8 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			/* Do not log, makes no sense */
 		}
 	}
+
+	already_handling=0;
 
 	(void) ret;
 
