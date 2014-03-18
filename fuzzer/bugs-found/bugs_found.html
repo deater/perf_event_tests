@@ -25,10 +25,6 @@
 <li>x32 oops in filp/segfault tracing
 <li>perf/sw_event bug?  Causes soft lockup?
 	Reported but don't have small reproducible testcase
-
-<li>perf/nmi dazed/confused on core2
-	Just a warning.  Reproducible but maybe not of interest?
-
 <li>perf/x86 BUG/oops
 	Reported but don't have small reproducible testcase
 <li>perf ext4 vma error?
@@ -112,16 +108,19 @@
 		<br><br>
 		Introduced  with Linux 3.2 with 8a16b34e2119
 		<br><br>
-	<li>arm64: perf: fix array out of bounds access in armpmu_map_hw_event()
+	<li><b>arm64: perf: fix array out of bounds access in armpmu_map_hw_event()</b>
 		<br><br>
 		Reported-by: Will Deacon
 		<br><br>
 		Fixed-by-Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
-	<li>arm64: perf: fix event validation for software group leaders
+		<br><br>
+	<li><b>arm64: perf: fix event validation for software group leaders</b>
 		<br><br>
 		Reported-by: Will Deacon
 		Fixed-by-Commit: ee7538a008a45050c8f706d38b600f55953169f9
 		<br><br>
+	<li><a href="3.10-rc5.kernel_events_2122_warning.html">
+		WARNING: at kernel/events/core.c:2122</a>
 	</ul>
 <hr>
 
@@ -140,6 +139,7 @@
 		and then exiting.
 		<br><br>
 		Introduced sometime between 3.0 and 3.2?
+		<br><br>
 	<li><b>perf: Fix perf mmap bugs</b>
 		<br><br>
 		Reported-by: Vince Weaver
