@@ -1,0 +1,81 @@
+<html>
+<head><title>WARNING at arch/x86/kernel/cpu/perf_event.c:1076</title></head>
+
+<body>
+
+<center>
+<h1>WARNING at arch/x86/kernel/cpu/perf_event.c:1076
+</h1>
+</center>
+
+<h3>Severity</h3>
+Minor, a warn-once in the syslog file.
+
+<h3>Fixed in</h3>
+26e61e8939b1fe8729572dabe9a9e97d930dd4f6
+
+<h3>Linux-kernel reports</h3>
+<ul>
+<li><a href="https://lkml.org/lkml/2012/2/2/453">2 February 2012 lkml</a>
+<li><a href="http://www.spinics.net/lists/trinity/msg00087.html">
+	23 May 2013 trinity</a>
+<li><a href="https://lkml.org/lkml/2013/7/30/666">30 July 2013 lkml</a>
+<li><a href="https://lkml.org/lkml/2013/11/13/472">13 November 2013 lkml</a>
+<li><a href="https://lkml.org/lkml/2014/1/30/355">30 January 2014 lkml</a>
+</ul>
+
+
+<h3>Kernel Spew</h3>
+<ol>
+<li>
+<pre>
+[   47.296031] ------------[ cut here ]------------
+[   47.300013] WARNING: CPU: 0 PID: 2821 at arch/x86/kernel/cpu/perf_event.c:1076 x86_pmu_start+0x46/0xee()
+[   47.300013] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet evdev ohci_pci ohci_hcd pcspkr i2c_nforce2 psmouse serio_raw coretemp video wmi button acpi_cpufreq processor thermal_sys ehci_pci ehci_hcd sg sd_mod usbcore usb_common
+[   47.300013] CPU: 0 PID: 2821 Comm: out Not tainted 3.14.0-rc2 #2
+[   47.300013] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[   47.300013]  0000000000000000 ffffffff817f25ad ffffffff814e746b 0000000000000000
+[   47.300013]  ffffffff8103bf1c ffff880037e62420 ffffffff81012126 ffff88011fc13400
+[   47.300013]  ffff88011b2b1800 ffff88011fc0b940 0000000000000021 0000000000000000
+[   47.300013] Call Trace:
+[   47.300013]  [<ffffffff814e746b>] ? dump_stack+0x41/0x56
+[   47.300013]  [<ffffffff8103bf1c>] ? warn_slowpath_common+0x79/0x92
+[   47.300013]  [<ffffffff81012126>] ? x86_pmu_start+0x46/0xee
+[   47.300013]  [<ffffffff81012126>] ? x86_pmu_start+0x46/0xee
+[   47.300013]  [<ffffffff810123a1>] ? x86_pmu_enable+0x1d3/0x285
+[   47.300013]  [<ffffffff810bca0d>] ? perf_event_context_sched_in+0x6d/0x8d
+[   47.300013]  [<ffffffff810bca4e>] ? __perf_event_task_sched_in+0x21/0x108
+[   47.300013]  [<ffffffff810666bc>] ? idle_balance+0x11a/0x157
+[   47.300013]  [<ffffffff810628f5>] ? finish_task_switch+0x40/0xa5
+[   47.300013]  [<ffffffff814e7e45>] ? __schedule+0x46a/0x4bd
+[   47.300013]  [<ffffffff814e749d>] ? schedule_timeout+0x1d/0xb4
+[   47.300013]  [<ffffffff8108bba6>] ? generic_exec_single+0x3f/0x52
+[   47.300013]  [<ffffffff8102f017>] ? perf_reg_value+0x4c/0x4c
+[   47.300013]  [<ffffffff8108bd33>] ? smp_call_function_single+0xdc/0xf2
+[   47.300013]  [<ffffffff814e7480>] ? dump_stack+0x56/0x56
+[   47.300013]  [<ffffffff814e8587>] ? __wait_for_common+0xce/0x14a
+[   47.300013]  [<ffffffff8106286d>] ? try_to_wake_up+0x19a/0x19a
+[   47.300013]  [<ffffffff810a1b47>] ? get_tracepoint+0x20/0x53
+[   47.300013]  [<ffffffff8107ea47>] ? T.944+0x1c8/0x1c8
+[   47.300013]  [<ffffffff8107c9f9>] ? wait_rcu_gp+0x3f/0x46
+[   47.300013]  [<ffffffff8107ca00>] ? wait_rcu_gp+0x46/0x46
+[   47.300013]  [<ffffffff810b2014>] ? perf_trace_event_unreg+0x2e/0xbd
+[   47.300013]  [<ffffffff810b20d1>] ? perf_trace_destroy+0x2e/0x3b
+[   47.300013]  [<ffffffff810bc0bf>] ? __free_event+0x2d/0x52
+[   47.300013]  [<ffffffff810bfdec>] ? perf_event_release_kernel+0x74/0x7b
+[   47.300013]  [<ffffffff810bfe9d>] ? perf_release+0x10/0x14
+[   47.300013]  [<ffffffff81105b03>] ? __fput+0xdf/0x1a4
+[   47.300013]  [<ffffffff810538d9>] ? task_work_run+0x7f/0x96
+[   47.300013]  [<ffffffff814f09f0>] ? int_signal+0x12/0x17
+[   47.300013] ---[ end trace 9ccad2f02057baa8 ]---
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to perf_fuzzer bugs found list</a>
+
+</body>
+</html>
+
+
