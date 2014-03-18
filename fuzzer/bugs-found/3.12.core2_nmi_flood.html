@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>Core2 NMI Flood</title>
+</head>
+
+<body>
+
+<center>
+<h1>Core2 NMI Flood</h1>
+</center>
+
+<h3>Severity</h3>
+Minor, mostly just syslog spam
+
+<h3>Summary</h3>
+
+Included with the perf_event tests suite is a small chunk of
+code found by the tester that will flood the syslog of
+a core2 machine with NMI messages.
+
+<h3>First Reported</h3>
+3.12
+
+<h3>Last Noticed</h3>
+3.14
+
+<h3>Reported to lkml</h3>
+<a href="https://lkml.org/lkml/2013/11/14/537">
+14 November 2013 -- perf/nmi : NMI Dazed and confused messages on core2</a>
+
+
+<h3>Kernel Spew</h3>
+<ol>
+<li>
+<pre>
+[ 7911.810186] Uhhuh. NMI received for unknown reason 3d on CPU 0.
+[ 7911.812756] Do you have a strange power saving mode enabled?
+[ 7911.812756] Dazed and confused, but trying to continue
+[ 7912.554225] Uhhuh. NMI received for unknown reason 2d on CPU 1.
+[ 7912.556758] Do you have a strange power saving mode enabled?
+[ 7912.556758] Dazed and confused, but trying to continue
+[ 7912.838169] Uhhuh. NMI received for unknown reason 2d on CPU 0.
+[ 7912.840726] Do you have a strange power saving mode enabled?
+[ 7912.840726] Dazed and confused, but trying to continue
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to perf_event bug list</a>
+
+</body>
+</html>
+
