@@ -1,0 +1,66 @@
+<html>
+<head>
+<title>WARNING: CPU: 1 PID: 6274 at arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>WARNING: CPU: 1 PID: 6274 at arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop
+</h1>
+</center>
+
+<h3>First Reported</h3>
+3.14-rc3
+
+<h3>Reported Machine</h3>
+core2
+
+
+<h3>Linux Kernel</h3>
+<a href="https://lkml.org/lkml/2014/2/21/730">
+21 February 2014 -- perf_fuzzer: WARNING arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop</a>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+[13044.385262] ------------[ cut here ]------------
+[13044.388007] WARNING: CPU: 1 PID: 6274 at arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop+0x71/0xa6()
+[13044.388007] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet wmi ohci_pci acpi_cpufreq video evdev pcspkr psmouse processor coretemp thermal_sys serio_raw button ohci_hcd i2c_nforce2 ehci_pci ehci_hcd sg sd_mod usbcore usb_common
+[13044.388007] CPU: 1 PID: 6274 Comm: perf_fuzzer Not tainted 3.14.0-rc3+ #18
+[13044.388007] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[13044.388007]  0000000000000486 ffff88011fc83ca8 ffffffff81530d11 0000000000000486
+[13044.388007]  0000000000000000 ffff88011fc83ce8 ffffffff8103fce4 ffffffff810691ac
+[13044.388007]  ffffffff81012ce3 ffff8800cae0e800 0000000000000004 ffff88011fc8b940
+[13044.388007] Call Trace:
+[13044.388007]  <IRQ>  [<ffffffff81530d11>] dump_stack+0x49/0x60
+[13044.388007]  [<ffffffff8103fce4>] warn_slowpath_common+0x81/0x9b
+[13044.388007]  [<ffffffff810691ac>] ? default_wake_function+0x12/0x14
+[13044.388007]  [<ffffffff81012ce3>] ? x86_pmu_stop+0x71/0xa6
+[13044.388007]  [<ffffffff8103fd18>] warn_slowpath_null+0x1a/0x1c
+[13044.388007]  [<ffffffff81012ce3>] x86_pmu_stop+0x71/0xa6
+[13044.388007]  [<ffffffff81012fd2>] x86_pmu_del+0x41/0xd2
+[13044.388007]  [<ffffffff810ca936>] event_sched_out+0x92/0x121
+[13044.388007]  [<ffffffff810cd124>] group_sched_in+0xf7/0x147
+[13044.388007]  [<ffffffff810cd2d2>] ctx_sched_in+0x15e/0x185
+[13044.388007]  [<ffffffff810cd362>] perf_event_sched_in+0x69/0x71
+[13044.388007]  [<ffffffff810cd594>] perf_cpu_hrtimer_handler+0x13a/0x1b0
+[13044.388007]  [<ffffffff8105e5b5>] __run_hrtimer+0xba/0x145
+[13044.388007]  [<ffffffff810cd45a>] ? __perf_install_in_context+0xf0/0xf0
+[13044.388007]  [<ffffffff8105e88a>] hrtimer_interrupt+0xd5/0x1c3
+[13044.388007]  [<ffffffff8102b2d3>] local_apic_timer_interrupt+0x58/0x5d
+[13044.388007]  [<ffffffff8102bc8f>] smp_trace_apic_timer_interrupt+0x53/0x91
+[13044.388007]  [<ffffffff8153bafa>] trace_apic_timer_interrupt+0x6a/0x70
+[13044.388007]  <EOI>  [<ffffffff8153ade6>] ? system_call_fastpath+0x1a/0x1f
+[13044.388007] ---[ end trace 8007361335c0fe73 ]---
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to perf_fuzzer bugs</a>
+
+</body>
+</html>
