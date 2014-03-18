@@ -1,8 +1,27 @@
 <html>
-<head><title></title></head>
+<head><title>3.14-rc x86_schedule_events bug</title></head>
 
 <body>
 
+<center>
+<h1>
+3.14-rc x86_schedule_events bug
+</h1>
+</center>
+
+Triggered by perf_fuzzer.<br><br>
+
+First seen 3.14-rc6<br><br>
+
+Seen on core2 machine<br><br>
+
+Reported to linux-kernel: <a href="https://lkml.org/lkml/2014/3/10/342">
+10 March 2014: "another perf_fuzzer hard lockup"</a>
+
+<hr>
+
+<ol>
+<li>
 <pre>
 *** perf_fuzzer *** by Vince Weaver                                             
                                                                                 
@@ -235,6 +254,7 @@ b20
 [ 7322.969219] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
 oo long to run: 1971.954 msecs                                                  
 </pre>
+</ol>
 
 <hr>
 
