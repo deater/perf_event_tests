@@ -1,9 +1,26 @@
 <html>
 
-<head><title></title></head>
+<head><title>3.14-rc __perf_sw_event bug</title></head>
 
 <body>
 
+<center>
+<h1>3.14-rc __perf_sw_event bug</h1>
+</center>
+
+<h3>First Noticed</h3>
+3.14-rc6
+
+<h3>Affected Machines</h3>
+core2
+
+<h3>Linux-kernel postings</h3>
+n/a
+
+
+<h3>Kernel Spews</h3>
+<ol>
+<li>
 <pre>
 ** perf_fuzzer *** by Vince Weaver                                             
                                                                                 
@@ -359,6 +376,7 @@ bd8
 [ 2732.088001] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
 oo long to run: 1479.539 msecs                                                  
 </pre>
+</ol>
 
 <hr>
 
@@ -366,3 +384,4 @@ oo long to run: 1479.539 msecs
 
 
 </body>
+</html>
