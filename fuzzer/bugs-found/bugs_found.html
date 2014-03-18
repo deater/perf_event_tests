@@ -40,7 +40,6 @@
 	<ul>
 	<li><a href="3.14-rc3.cr2_corruption.html">
 		double-fault/corrupted cr2 causing weird segfaults</a>
-	<li>tracepoint aliasing issue
 	<li><a href="3.3.perf_event_1076_warning.html">long-standing
 	perf_event.c:1076 WARNING</a>
 	</ul>
@@ -69,6 +68,15 @@
 		Found by trinity and perf_fuzzer, it is trivially easy
 		for a plain user to lock the kernel due to an improper
 		check for root permissions in the ftrace code.
+		<br><br>
+	<li><b>Tracepoint aliasing issue</b>
+		<br><br>
+		Linux-kernel: <a href="https://lkml.org/lkml/2013/11/15/346">
+		15 November 2013 -- [patch] perf/trace properly use u64 to hold event_id</a>
+		<br><br>
+		Reported-by: Vince Weaver (noticed in fuzzer trace)
+		<br><br>
+		Fixed-by-Commit: 0022cedd4a7d8a87841351e2b018bb6794cf2e67 (in 3.13-rc3)
 		<br><br>
 	<li><b>Alpha bug found by perf_fuzzer</b>
 		<br><br>
