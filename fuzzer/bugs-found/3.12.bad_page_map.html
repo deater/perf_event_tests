@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>BUG: Bad page map in process perf_fuzzer
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>BUG: Bad page map in process perf_fuzzer</h1>
+</center>
+
+<h3>Found with</h3>
+perf_fuzzer
+
+<h3>Reproducible</h3>
+No
+
+<h3>Found On</h3>
+Core2
+
+<h3>Linux-kernel</h3>
+<a href="https://lkml.org/lkml/2013/11/15/359">15 November 2013 -- Re: perf bug: bad page map</a>
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[ 1618.118179] BUG: Bad page map in process perf_fuzzer  pte:ffff8800c4d60040 pmd:bd86a067
+[ 1618.142177] addr:0000000000409000 vm_flags:00000875 anon_vma:          (null) mapping:ffff8800cb74adf0 index:9
+[ 1618.172142] vma->vm_ops->fault: filemap_fault+0x0/0x358
+[ 1618.187783] vma->vm_file->f_op->mmap: ext4_file_mmap+0x0/0x48
+[ 1618.204981] CPU: 1 PID: 24819 Comm: perf_fuzzer Not tainted 3.12.0 #4
+[ 1618.224256] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[ 1618.250825]  0000000000409000 ffff8800bf6dfaa8 ffffffff8151d8ec 0000000000000000
+[ 1618.273081]  ffff8800c89ac928 ffff8800bf6dfaf8 ffffffff810ed692 dead000000200200
+[ 1618.295345]  00000000c03df067 ffff8800bf6dfbe8 0000000000409000 ffffea0002bc2fe8
+[ 1618.317603] Call Trace:
+[ 1618.324951]  [<ffffffff8151d8ec>] dump_stack+0x49/0x5d
+[ 1618.340355]  [<ffffffff810ed692>] print_bad_pte+0x1f5/0x213
+[ 1618.357059]  [<ffffffff810ef43c>] unmap_single_vma+0x511/0x666
+[ 1618.374540]  [<ffffffff810ef5c3>] unmap_vmas+0x32/0x49
+[ 1618.389934]  [<ffffffff810f3804>] exit_mmap+0x84/0x10d
+[ 1618.405343]  [<ffffffff8105bb15>] ? hrtimer_try_to_cancel+0x41/0x4b
+[ 1618.424129]  [<ffffffff8103ac43>] mmput+0x4b/0xd1
+[ 1618.438227]  [<ffffffff8103ec76>] do_exit+0x36c/0x936
+[ 1618.453366]  [<ffffffff810c7312>] ? update_context_time+0x11/0x34
+[ 1618.471628]  [<ffffffff8100951b>] ? native_sched_clock+0x3b/0x3d
+[ 1618.489635]  [<ffffffff8106730d>] ? sched_clock_local+0x1c/0x82
+[ 1618.507376]  [<ffffffff8103f2b8>] do_group_exit+0x78/0xa0
+[ 1618.523563]  [<ffffffff8104c898>] get_signal_to_deliver+0x46d/0x48a
+[ 1618.542347]  [<ffffffff810c8ac7>] ? ctx_sched_in+0x35/0x185
+[ 1618.559051]  [<ffffffff810c8c80>] ? perf_event_sched_in+0x69/0x72
+[ 1618.577318]  [<ffffffff81002513>] do_signal+0x46/0x5f5
+[ 1618.592724]  [<ffffffff810c8ffe>] ? __perf_event_task_sched_in+0x3a/0x10e
+[ 1618.613071]  [<ffffffff8106699f>] ? finish_task_switch+0x46/0x98
+[ 1618.631075]  [<ffffffff8151f832>] ? __schedule+0x51c/0x54b
+[ 1618.647516]  [<ffffffff81002aee>] do_notify_resume+0x2c/0x64
+[ 1618.664486]  [<ffffffff81520ef5>] retint_signal+0x3d/0x78
+[ 1618.680661] Disabling lock debugging due to kernel taint
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
