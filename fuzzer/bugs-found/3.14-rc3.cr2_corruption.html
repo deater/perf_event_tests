@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>pagefault ftrace cr2 corruption
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>pagefault ftrace cr2 corruption
+</h1>
+</center>
+
+<h3>Summary</h3>
+
+Problem: perf_fuzzer segfaulting at impossible address.  It turns out
+the ftrace code when tracing the page fault handler would corrupt
+the x86 cr2 register (pagefault source address register) causing
+a secondary fault (to write out event data) to improperly segfault.
+
+<h3>Found by</h3>
+perf_fuzzer<br><br>
+Independently found later by Jiri Olsa
+
+<h3>Fixed-by</h3>
+x86, trace: Fix CR2 corruption when tracing page faults<br><br>
+0ac09f9f8cd1fb028a48330edba6023d347d3cea<br><br>
+3.14-rc6
+<br><br>
+Also: he has proposed a patch to avoid constructing user stack
+traces that might be related.
+
+
+<h3>Linux-kernel</h3>
+<a href="https://lkml.org/lkml/2014/2/21/579">21 February 2014 -- perf_fuzzer causes reboot</a>
+
+
+<hr>
+
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

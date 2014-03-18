@@ -29,6 +29,7 @@
 	Reported but don't have small reproducible testcase
 <li>perf ext4 vma error?
 <li>perf poll error?
+<li>x32 reboot issue (related to cr2 problem?)
 </ul>
 
 <hr><hr>
@@ -37,7 +38,8 @@
 
 <h3>Fixed in 3.14</h3>
 	<ul>
-	<li>double-fault/corrupted cr2 causing weird segfaults, possible reboot
+	<li><a href="3.14-rc3.cr2_corruption.html">
+		double-fault/corrupted cr2 causing weird segfaults</a>
 	<li>tracepoint aliasing issue
 	<li><a href="3.3.perf_event_1076_warning.html">long-standing
 	perf_event.c:1076 WARNING</a>
