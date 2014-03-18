@@ -1,24 +1,31 @@
 <html>
-<head><title></title></head>
+<head><title>rbtree hrtimer lockup bug</title></head>
 
 <body>
 
+<center>
+<h1>rbtree hrtimer lockup bug</h1>
+</center>
+
+<h3>Severity</h3>
+System locks up
+
+<h3>Summary</h3>
 This bug involves an oops in the rbtrees associated with hrtimers.
-<br><br>
 
-First noticed: 3.14-rc5
-<br><br>
+<h3>First noticed</h3>
+3.14-rc5
 
-Most recently reproduced: 3.14-rc7
-<br><br>
+<h3>Recently reproduced</h3>
+3.14-rc7
 
-Reported to linux-kernel: <a href="https://lkml.org/lkml/2014/3/3/431">3 March 2014</a>
+<h3>Linux Kernel</h3>
+<a href="https://lkml.org/lkml/2014/3/3/431">3 March 2014 -- perf_fuzzer: lockup/reboot bug</a>
 
-<br><br>
+<h3>Problem Machines</h3>
+core2, haswell
 
-Noticed on machines: core2, haswell
-
-<br><br>
+<h3>Kernel Splats</h3>
 
 <ol>
 <li>Haswell reproduction
@@ -632,7 +639,7 @@ fffffff80000000-0xffffffff9fffffff)
 
 <hr>
 
-<a href="bugs_found.html">Back to bugs found page</a>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found page</a>
 
 </body>
 </html>
