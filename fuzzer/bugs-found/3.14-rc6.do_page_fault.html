@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>__do_page_fault lockup
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+__do_page_fault lockup
+</h1>
+</center>
+
+<h3>Linux Kernel</h3>
+<a href="https://lkml.org/lkml/2014/3/10/364">
+10 March 2014 -- Re: another perf_fuzzer hard lockup</a>
+
+
+<h3>Problem Found With</h3>
+perf_fuzzer
+
+<h3>Problem First Seen</h3>
+3.14-rc6
+
+<h3>Problem System</h3>
+core2
+
+<h3>Kernep Splats</h3>
+
+<ol>
+<li>
+<pre>
+[ 2696.228000] BUG: soft lockup - CPU#0 stuck for 23s! [perf_fuzzer:10256]      
+[ 2696.228000] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg ohci_pci acpi_cpufreq coretemp evdev video mcs7830 usbnet wmi psmouse processor button thermal_sys serio_raw pcspkr ohci_hcd i2c_nforce2 sg ehci_pci ehci_hcd sd_mod usbcore usb_common                       
+[ 2696.228000] CPU: 0 PID: 10256 Comm: perf_fuzzer Not tainted 3.14.0-rc6 #36   
+[ 2696.228000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012                                                            
+[ 2696.228000] task: ffff88011a6a17e0 ti: ffff8800cbab6000 task.ti: ffff8800cbab6000                                                                            
+[ 2696.228000] RIP: 0010:[<ffffffff810d0767>]  [<ffffffff810d0767>] __perf_sw_event+0x117/0x192                                                                 
+[ 2696.228000] RSP: 0000:ffff8800cbab7c88  EFLAGS: 00000246                     
+[ 2696.228000] RAX: ffff88011a7b5cba RBX: 0000000000000000 RCX: ffff88011a9c4000
+[ 2696.228000] RDX: ffff88011a7b5c00 RSI: 0400000000000000 RDI: 4000000000000000
+[ 2696.228000] RBP: ffff8800cbab7d48 R08: 0010000000000000 R09: ffff88011fc12ac0
+[ 2696.228000] R10: 0000000000000000 R11: ffff880119dfcb60 R12: 0000000000000000
+[ 2696.228000] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[ 2696.228000] FS:  0000000000bd5840(0063) GS:ffff88011fc00000(0000) knlGS:0000000000000000                                                                     
+[ 2696.228000] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 2696.228000] CR2: 0000000000bd5ac8 CR3: 00000000ca4c8000 CR4: 00000000000407f0
+[ 2696.228000] DR0: 0000000000bd7000 DR1: 0000000000bd7000 DR2: 0000000000000000
+[ 2696.228000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2696.228000] Stack:                                                           
+[ 2696.228000]  0000000000000000 0000000000000000 0000000000000000 0000000000000000                                                                             
+[ 2696.228000]  0000000000bd5ac8 0000000000000000 0000000000000000 0000000000000000                                                                             
+[ 2696.228000]  0000000000000000 0000000000000000 0000000000000000 0000000000000000                                                                             
+[ 2696.228000] Call Trace:                                                      
+[ 2696.228000]  [<ffffffff81538273>] __do_page_fault+0x1b1/0x3ed                
+[ 2696.228000]  [<ffffffff81009ab2>] ? native_sched_clock+0x21/0x3e             
+[ 2696.228000]  [<ffffffff81069de7>] ? sched_clock_local+0x1c/0x82              
+[ 2696.228000]  [<ffffffff8106a0e2>] ? sched_clock_cpu+0x8e/0xaa                
+[ 2696.228000]  [<ffffffff8106a119>] ? local_clock+0x1b/0x24                    
+[ 2696.228000]  [<ffffffff810cd2ad>] ? ctx_sched_in+0x35/0x185                  
+[ 2696.228000]  [<ffffffff8153854e>] do_page_fault+0xc/0xe                      
+[ 2696.228000]  [<ffffffff815355a2>] page_fault+0x22/0x30                       
+[ 2696.228000]  [<ffffffff812a8280>] ? __put_user_4+0x20/0x30                   
+[ 2696.228000]  [<ffffffff81069373>] ? schedule_tail+0x5c/0x60                  
+[ 2696.228000]  [<ffffffff8153be0f>] ret_from_fork+0xf/0xb0                     
+[ 2696.228000] Code: 00 48 8d 50 c0 48 85 c0 4c 0f 45 ea eb 50 41 83 bd c0 00 00 00 01 75 39 4d 39 bd c8 00 00 00 75 30 41 f6 85 90 01 00 00 01 75 26 <48> 85 db 74 4d 41 8a 85 e8 00 00 00 a8 10 74 09 f6 83 88 00 00   
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

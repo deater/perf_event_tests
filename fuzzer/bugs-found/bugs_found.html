@@ -10,24 +10,28 @@
 
 <h2>Outstanding bugs:</h2>
 <ul>
+<li><a href="3.12.core2_nmi_flood.html">3.12 core2_nmi_flood messages</a>
 <li><a href="3.14-rc5.breakpoint_bug.html">3.14-rc6 breakpoint bug</a>
+<li><a href="3.14-rc5.rbtree_hrtimer.html">3.14-rc7 rbtree hrtimer bug</a>
+<li><a href="3.14-rc5.perf_event_overflow.html">3.14 rc5.perf_event_overflow bug</a>
+<li><a href="3.14-rc6.x86_schedule_events.html">3.14-rc6 x86_schedule_events bug</a>
+<li><a href="3.14-rc6.perf_sw_event.html">3.14-rc6 __perf_sw_event bug</a>
+<li><a href="3.14-rc6.do_page_fault.html">3.14-rc6 __do_page_fault bug</a>
 </ul>
 
 
 
 <h3>Outstanding (but not recently verified) bugs:</h3>
 <ul>
-<li>x32 oops in filp/segfault tracing
-<li>perf/sw_event bug?  Causes soft lockup?
-	Reported but don't have small reproducible testcase
 
-<li>perf/nmi dazed/confused on core2
-	Just a warning.  Reproducible but maybe not of interest?
-
-<li>perf/x86 BUG/oops
-	Reported but don't have small reproducible testcase
-<li>perf ext4 vma error?
-<li>perf poll error?
+<li><a href="3.12.bad_page_map.html">3.12 perf ext4 vma error</a>
+<li><a href="3.14-rc1.x32_filp_reboot.html">
+	3.14-rc1 x32 oops reboot in filp</a>
+<li><a href="3.14-rc3.perf_event_1158_warning.html">
+	3.14-rc3 perf_event.c:1158 Warning</a>
+<li><a href="3.13.task_output.html">
+	3.13 task_output lockup
+	</a>
 </ul>
 
 <hr><hr>
@@ -36,9 +40,10 @@
 
 <h3>Fixed in 3.14</h3>
 	<ul>
-	<li>double-fault/corrupted cr2 causing weird segfaults, possible reboot
-	<li>tracepoint aliasing issue
-	<li>long-standing warning
+	<li><a href="3.14-rc3.cr2_corruption.html">
+		double-fault/corrupted cr2 causing weird segfaults</a>
+	<li><a href="3.3.perf_event_1076_warning.html">long-standing
+	perf_event.c:1076 WARNING</a>
 	</ul>
 
 <hr>
@@ -65,6 +70,15 @@
 		Found by trinity and perf_fuzzer, it is trivially easy
 		for a plain user to lock the kernel due to an improper
 		check for root permissions in the ftrace code.
+		<br><br>
+	<li><b>Tracepoint aliasing issue</b>
+		<br><br>
+		Linux-kernel: <a href="https://lkml.org/lkml/2013/11/15/346">
+		15 November 2013 -- [patch] perf/trace properly use u64 to hold event_id</a>
+		<br><br>
+		Reported-by: Vince Weaver (noticed in fuzzer trace)
+		<br><br>
+		Fixed-by-Commit: 0022cedd4a7d8a87841351e2b018bb6794cf2e67 (in 3.13-rc3)
 		<br><br>
 	<li><b>Alpha bug found by perf_fuzzer</b>
 		<br><br>
@@ -106,16 +120,19 @@
 		<br><br>
 		Introduced  with Linux 3.2 with 8a16b34e2119
 		<br><br>
-	<li>arm64: perf: fix array out of bounds access in armpmu_map_hw_event()
+	<li><b>arm64: perf: fix array out of bounds access in armpmu_map_hw_event()</b>
 		<br><br>
 		Reported-by: Will Deacon
 		<br><br>
 		Fixed-by-Commit: 868f6fea8fa63f09acbfa93256d0d2abdcabff79
-	<li>arm64: perf: fix event validation for software group leaders
+		<br><br>
+	<li><b>arm64: perf: fix event validation for software group leaders</b>
 		<br><br>
 		Reported-by: Will Deacon
 		Fixed-by-Commit: ee7538a008a45050c8f706d38b600f55953169f9
 		<br><br>
+	<li><a href="3.10-rc5.kernel_events_2122_warning.html">
+		WARNING: at kernel/events/core.c:2122</a>
 	</ul>
 <hr>
 
@@ -134,6 +151,7 @@
 		and then exiting.
 		<br><br>
 		Introduced sometime between 3.0 and 3.2?
+		<br><br>
 	<li><b>perf: Fix perf mmap bugs</b>
 		<br><br>
 		Reported-by: Vince Weaver

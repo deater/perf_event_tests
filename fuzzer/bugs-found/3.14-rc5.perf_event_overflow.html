@@ -1,0 +1,376 @@
+<html>
+<head><title>3.14-rc5 perf_event_overflow_hang</title></head>
+
+<body>
+
+<center>
+<h1>3.14-rc5 perf_event_overflow_hang</h1>
+</center>
+
+<h3>Severity</h3>
+System Lockup/Hang
+
+<h3>First noticed</h3>
+3.14-rc5
+
+<h3>Systems noticed</h3>
+core2
+
+<h3>Linux-kernel posting</h3>
+<a href="https://lkml.org/lkml/2013/11/21/559">
+21 November 2013 -- perf/poll: another perf_fuzzer lockup</a>
+<br><br>
+<a href="https://lkml.org/lkml/2013/11/8/383">
+8 November 2013 -- perf/tracepoint: another fuzzer generated lockup</a>
+
+
+<h3>Kernel Spews</h3>
+<ol>
+<li>
+<pre>
+Mar  3 13:36:36 core2 kernel: [ 4178.687490] perf_fuzzer[31546]: segfault at b ip 000000000042f399 sp 00000000ff9d94f0 error 14 in perf_fuzzer[400000+d1000]
+Mar  3 13:36:36 core2 kernel: [ 4178.904372] perf_fuzzer[31551]: segfault at 536d3257 ip 000000000042f399 sp 00000000ff9d94f0 error 14 in perf_fuzzer[400000+d1000]
+Mar  3 13:36:36 core2 kernel: [ 4179.002053] perf_fuzzer[31554]: segfault at 0 ip 000000000042f399 sp 00000000ff9d94f0 error 14 in perf_fuzzer[400000+d1000]
+Mar  3 13:36:36 core2 kernel: [ 4179.045956] perf_fuzzer[31555]: segfault at 0 ip 000000000042f399 sp 00000000ff9d94f0 error 14 in perf_fuzzer[400000+d1000]
+
+*** perf_fuzzer *** by Vince Weaver
+
+Seeding random number generator with 1393871875
+Kernel max sample rate currently: 12500/s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	
+==================================================
+Iteration 10000
+	Open attempts: 377075  Successful: 909
+		EPERM : 19
+		ENOENT : 968
+		E2BIG : 40726
+		EBADF : 5466
+		EINVAL : 328191
+		ENOSPC : 216
+		EOPNOTSUPP : 580
+	Close attempts: 862  Successful: 862
+	Read attempts: 827  Successful: 686
+	Write attempts: 870  Successful: 0
+	Ioctl attempts: 884  Successful: 312
+	Mmap attempts: 909  Successful: 258
+	Prctl attempts: 941  Successful: 941
+	Fork attempts: 458  Successful: 458
+	Poll attempts: 889  Successful: 11
+	Access attempts: 941  Successful: 452
+	Trash mmap attempts: 876  Successful: 876
+	Overflows: 3
+	SIGIOs due to RT signal queue full: 0
+
+
+[ 5736.556003] ------------[ cut here ]------------
+[ 5736.556003] WARNING: CPU: 1 PID: 1636 at kernel/watchdog.c:245 watchdog_overflow_callback+0x9b/0xa6()
+[ 5736.556003] Watchdog detected hard LOCKUP on cpu 1
+[ 5736.556003] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 ohci_pci usbnet evdev pcspkr psmouse serio_raw coretemp ohci_hcd i2c_nforce2 video wmi button acpi_cpufreq processor thermal_sys sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[ 5736.556003] CPU: 1 PID: 1636 Comm: perf_fuzzer Tainted: G        W    3.14.0-rc5 #32
+[ 5736.556003] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[ 5736.556003]  00000000000000f5 ffff88011fc87bb8 ffffffff81531e61 00000000000000f5
+[ 5736.556003]  ffff88011fc87c08 ffff88011fc87bf8 ffffffff8103fce4 000078bc000078bc
+[ 5736.556003]  ffffffff810a95e0 ffff88011b37bc00 0000000000000000 ffff88011fc87d38
+[ 5736.556003] Call Trace:
+[ 5736.556003]  <NMI>  [<ffffffff81531e61>] dump_stack+0x49/0x60
+[ 5736.556003]  [<ffffffff8103fce4>] warn_slowpath_common+0x81/0x9b
+[ 5736.556003]  [<ffffffff810a95e0>] ? watchdog_overflow_callback+0x9b/0xa6
+[ 5736.556003]  [<ffffffff8103fda1>] warn_slowpath_fmt+0x46/0x48
+[ 5736.556003]  [<ffffffff810a95e0>] watchdog_overflow_callback+0x9b/0xa6
+[ 5736.556003]  [<ffffffff810d0085>] __perf_event_overflow+0x137/0x1c1
+[ 5736.556003]  [<ffffffff810d074e>] perf_event_overflow+0x14/0x16
+[ 5736.556003]  [<ffffffff810197ec>] intel_pmu_handle_irq+0x2c9/0x35e
+[ 5736.556003]  [<ffffffff815367a4>] perf_event_nmi_handler+0x2d/0x4a
+[ 5736.556003]  [<ffffffff815360d9>] nmi_handle+0x5e/0x13a
+[ 5736.556003]  [<ffffffff8153625c>] do_nmi+0xa7/0x2be
+[ 5736.556003]  [<ffffffff815358a7>] end_repeat_nmi+0x1e/0x2e
+[ 5736.556003]  [<ffffffff810d02bb>] ? perf_swevent_event+0x18/0x74
+[ 5736.556003]  [<ffffffff810d02bb>] ? perf_swevent_event+0x18/0x74
+[ 5736.556003]  [<ffffffff810d02bb>] ? perf_swevent_event+0x18/0x74
+[ 5736.556003]  <<EOE>>  [<ffffffff810d0726>] __perf_sw_event+0x17e/0x192
+[ 5736.556003]  [<ffffffff81068940>] perf_event_task_sched_out+0x43/0x66
+[ 5736.556003]  [<ffffffff8106892c>] ? perf_event_task_sched_out+0x2f/0x66
+[ 5736.556003]  [<ffffffff8153280c>] __schedule+0x3c4/0x4e8
+[ 5736.556003]  [<ffffffff810ccd22>] ? put_ctx+0x58/0x5d
+[ 5736.556003]  [<ffffffff81532aa3>] schedule+0x73/0x75
+[ 5736.556003]  [<ffffffff81042128>] do_exit+0x943/0x947
+[ 5736.556003]  [<ffffffff8106a0cf>] ? sched_clock_cpu+0x8e/0xaa
+[ 5736.556003]  [<ffffffff810cbad7>] ? update_context_time+0x11/0x34
+[ 5736.556003]  [<ffffffff810421a4>] do_group_exit+0x78/0xa0
+[ 5736.556003]  [<ffffffff8104f706>] get_signal_to_deliver+0x46d/0x48a
+[ 5736.556003]  [<ffffffff81002526>] do_signal+0x46/0x5e8
+[ 5736.556003]  [<ffffffff810692ae>] ? finish_task_switch+0x57/0xad
+[ 5736.556003]  [<ffffffff81532901>] ? __schedule+0x4b9/0x4e8
+[ 5736.556003]  [<ffffffff81002af4>] do_notify_resume+0x2c/0x64
+[ 5736.556003]  [<ffffffff81535435>] retint_signal+0x3d/0x78
+[ 5736.556003] ---[ end trace e316e2bd7d603a0a ]---
+[ 5736.556003] perf samples too long (6336110 > 20000), lowering kernel.perf_event_max_sample_rate to 6250
+[ 5736.556003] INFO: NMI handler (perf_event_nmi_handler) took too long to run: 838.791 msecs
+[ 5736.556003] perf samples too long (6286628 > 40000), lowering kernel.perf_event_max_sample_rate to 3250
+[ 5736.556003] perf samples too long (6237530 > 76923), lowering kernel.perf_event_max_sample_rate to 1750
+[ 5736.556003] perf samples too long (6188816 > 142857), lowering kernel.perf_event_max_sample_rate to 1000
+[ 5736.556003] perf samples too long (6140483 > 250000), lowering kernel.perf_event_max_sample_rate to 500
+[ 5736.556003] perf samples too long (6092526 > 500000), lowering kernel.perf_event_max_sample_rate to 250
+</pre>
+<li>Possibly related seed 1381331721 core2
+<pre>
+[  319.579277] perf samples too long (2519 > 2500), lowering kerne0
+[  332.220001] ------------[ cut here ]------------
+[  332.220001] WARNING: CPU: 0 PID: 2807 at kernel/watchdog.c:245 watchdog_over)
+[  332.220001] Watchdog detected hard LOCKUP on cpu 0
+[  332.220001] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[  332.220001] CPU: 0 PID: 2807 Comm: perf_fuzzer Not tainted 3.12.0-rc4+ #76
+[  332.220001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[  332.220001]  00000000000000f5 ffff88011fc07c48 ffffffff8151ab96 ffff88011fc08
+[  332.220001]  ffffffff8103cd68 ffffffff817fac92 ffffffff810a0fe3 ffff88011b310
+[  332.220001]  ffff88011fc07ef8 ffff88011fc07d58 0000000000000000 ffff88011fc08
+[  332.220001] Call Trace:
+[  332.220001]  <NMI>  [<ffffffff8151ab96>] ? dump_stack+0x41/0x53
+[  332.220001]  [<ffffffff8103cd68>] ? warn_slowpath_common+0x81/0x9c
+[  332.220001]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[  332.220001]  [<ffffffff8103ce25>] ? warn_slowpath_fmt+0x46/0x48
+[  332.220001]  [<ffffffff810a0f51>] ? watchdog_overflow_callback+0x9/0xa6
+[  332.220001]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[  332.220001]  [<ffffffff810ca469>] ? __perf_event_overflow+0x12e/0x1ab
+[  332.220001]  [<ffffffff81018047>] ? intel_pmu_save_and_restart+0xe/0x22
+[  332.220001]  [<ffffffff81018c95>] ? intel_pmu_handle_irq+0x2b8/0x34d
+[  332.220001]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  332.220001]  [<ffffffff81004446>] ? dump_trace+0x229/0x248
+[  332.220001]  [<ffffffff8151f533>] ? perf_event_nmi_handler+0x24/0x3d
+[  332.220001]  [<ffffffff8151ee72>] ? nmi_handle+0x5e/0x13a
+[  332.220001]  [<ffffffff810a17f8>] ? rcu_nmi_enter+0x9/0x5b
+[  332.220001]  [<ffffffff8151eff5>] ? do_nmi+0xa7/0x2bd
+[  332.220001]  [<ffffffff8151e5f7>] ? end_repeat_nmi+0x1e/0x2e
+[  332.220001]  [<ffffffff81004446>] ? dump_trace+0x229/0x248
+[  332.220001]  [<ffffffff81004446>] ? dump_trace+0x229/0x248
+[  332.220001]  [<ffffffff81004446>] ? dump_trace+0x229/0x248
+[  332.220001]  <<EOE>>  <IRQ>  [<ffffffff810ccece>] ? perf_output_begin+0x19/07
+[  332.220001]  [<ffffffff810cd18e>] ? perf_callchain+0x102/0x1a3
+[  332.220001]  [<ffffffff810c9cc9>] ? perf_prepare_sample+0x77/0x2f4
+[  332.220001]  [<ffffffff810ca481>] ? __perf_event_overflow+0x146/0x1ab
+[  332.220001]  [<ffffffff810ca4d7>] ? __perf_event_overflow+0x19c/0x1ab
+[  332.220001]  [<ffffffff810ca86c>] ? perf_tp_event+0xe9/0x1f6
+[  332.220001]  [<ffffffff810ca652>] ? perf_swevent_overflow+0x3f/0x58
+[  332.220001]  [<ffffffff810ca86c>] ? perf_tp_event+0xe9/0x1f6
+[  332.220001]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  332.220001]  [<ffffffff810cabc0>] ? perf_event_wakeup+0x8c/0xa1
+[  332.220001]  [<ffffffff8111f726>] ? kill_fasync+0xb/0x86
+[  332.220001]  [<ffffffff810cabc0>] ? perf_event_wakeup+0x8c/0xa1
+[  332.220001]  [<ffffffff810be8d9>] ? perf_ftrace_function_call+0xc7/0xd1
+[  332.220001]  [<ffffffff8111f726>] ? kill_fasync+0xb/0x86
+[  332.220001]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  332.220001]  [<ffffffff8111f726>] ? kill_fasync+0xb/0x86
+[  332.220001]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  332.220001]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  332.220001]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  332.220001]  [<ffffffff8105fb0c>] ? __wake_up_common+0x16/0x84
+[  332.220001]  [<ffffffff8111f72b>] ? kill_fasync+0x10/0x86
+[  332.220001]  [<ffffffff81061dff>] ? __wake_up+0x39/0x4c
+[  332.220001]  [<ffffffff8151dac1>] ? _raw_spin_unlock_irqrestore+0x9/0x11
+[  332.220001]  [<ffffffff8111f72b>] ? kill_fasync+0x10/0x86
+[  332.220001]  [<ffffffff810cabc0>] ? perf_event_wakeup+0x8c/0xa1
+[  332.220001]  [<ffffffff81040e1d>] ? irq_enter+0xe/0x6d
+[  332.220001]  [<ffffffff810c4914>] ? __irq_work_run+0x5f/0x7b
+[  332.220001]  [<ffffffff81005f45>] ? smp_trace_irq_work_interrupt+0xe/0x7e
+[  332.220001]  [<ffffffff81005f82>] ? smp_trace_irq_work_interrupt+0x4b/0x7e
+[  332.220001]  [<ffffffff8152628a>] ? trace_irq_work_interrupt+0x6a/0x70
+[  332.220001]  <EOI>  [<ffffffff81066587>] ? finish_task_switch+0x57/0x98
+[  332.220001]  [<ffffffff81066576>] ? finish_task_switch+0x46/0x98
+[  332.220001]  [<ffffffff8151caae>] ? __schedule+0x4f7/0x54b
+[  332.220001]  [<ffffffff8151ce07>] ? schedule+0x9/0x65
+[  332.220001]  [<ffffffff81049648>] ? freezable_schedule+0x16/0x23
+[  332.220001]  [<ffffffff8104bbb3>] ? ptrace_stop+0x13c/0x213
+[  332.220001]  [<ffffffff81055604>] ? __task_pid_nr_ns+0x9/0x7b
+[  332.220001]  [<ffffffff8104bd0f>] ? ptrace_do_notify+0x85/0x92
+[  332.220001]  [<ffffffff8104bd81>] ? ptrace_notify+0x65/0x7a
+[  332.220001]  [<ffffffff8100bb97>] ? ptrace_report_syscall+0x27/0x77
+[  332.220001]  [<ffffffff8100bc8d>] ? syscall_trace_enter+0x61/0xce
+[  332.220001]  [<ffffffff81524e6e>] ? tracesys+0x71/0xd9
+[  332.220001] ---[ end trace 7596bd3ddfbf3920 ]---
+</pre>
+<li>
+<pre>Another possible: 1281331721 core2
+[  849.348017] ------------[ cut here ]------------
+[  849.348017] WARNING: CPU: 0 PID: 2763 at kernel/watchdog.c:245 watchdog_over)
+[  849.348017] Watchdog detected hard LOCKUP on cpu 0
+[  849.348017] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[  849.348017] CPU: 0 PID: 2763 Comm: perf_fuzzer Not tainted 3.12.0-rc4+ #76
+[  849.348017] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[  849.348017]  00000000000000f5 ffff88011fc07c48 ffffffff8151ab96 ffff88011fc08
+[  849.348017]  ffffffff8103cd68 ffffffff817fac92 ffffffff810a0fe3 ffff88011b310
+[  849.348017]  ffff88011fc07ef8 ffff88011fc07d58 0000000000000000 ffff88011fc08
+[  849.348017] Call Trace:
+[  849.348017]  <NMI>  [<ffffffff8151ab96>] ? dump_stack+0x41/0x53
+[  849.348017]  [<ffffffff8103cd68>] ? warn_slowpath_common+0x81/0x9c
+[  849.348017]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[  849.348017]  [<ffffffff8103ce25>] ? warn_slowpath_fmt+0x46/0x48
+[  849.348017]  [<ffffffff810a0f51>] ? watchdog_overflow_callback+0x9/0xa6
+[  849.348017]  [<ffffffff810a0fe3>] ? watchdog_overflow_callback+0x9b/0xa6
+[  849.348017]  [<ffffffff810ca469>] ? __perf_event_overflow+0x12e/0x1ab
+[  849.348017]  [<ffffffff81018047>] ? intel_pmu_save_and_restart+0xe/0x22
+[  849.348017]  [<ffffffff81018c95>] ? intel_pmu_handle_irq+0x2b8/0x34d
+[  849.348017]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  849.348017]  [<ffffffff810ca80b>] ? perf_tp_event+0x88/0x1f6
+[  849.348017]  [<ffffffff8151f533>] ? perf_event_nmi_handler+0x24/0x3d
+[  849.348017]  [<ffffffff8151ee72>] ? nmi_handle+0x5e/0x13a
+[  849.348017]  [<ffffffff810a17f8>] ? rcu_nmi_enter+0x9/0x5b
+[  849.348017]  [<ffffffff8151eff5>] ? do_nmi+0xa7/0x2bd
+[  849.348017]  [<ffffffff8151e5f7>] ? end_repeat_nmi+0x1e/0x2e
+[  849.348017]  [<ffffffff810ca80b>] ? perf_tp_event+0x88/0x1f6
+[  849.348017]  [<ffffffff810ca80b>] ? perf_tp_event+0x88/0x1f6
+[  849.348017]  [<ffffffff810ca80b>] ? perf_tp_event+0x88/0x1f6
+[  849.348017]  <<EOE>>  <IRQ>  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  849.348017]  [<ffffffff810ca86c>] ? perf_tp_event+0xe9/0x1f6
+[  849.348017]  [<ffffffff810cabc0>] ? perf_event_wakeup+0x8c/0xa1
+[  849.348017]  [<ffffffff8111f726>] ? kill_fasync+0xb/0x86
+[  849.348017]  [<ffffffff810cabc0>] ? perf_event_wakeup+0x8c/0xa1
+[  849.348017]  [<ffffffff810be8d9>] ? perf_ftrace_function_call+0xc7/0xd1
+[  849.348017]  [<ffffffff8111f726>] ? kill_fasync+0xb/0x86
+[  849.348017]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  849.348017]  [<ffffffff8111f726>] ? kill_fasync+0xb/0x86
+[  849.348017]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  849.348017]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  849.348017]  [<ffffffff810a2aec>] ? rcu_irq_enter+0xd/0x75
+[  849.348017]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  849.348017]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  849.348017]  [<ffffffff81005f45>] ? smp_trace_irq_work_interrupt+0xe/0x7e
+[  849.348017]  [<ffffffff8111f72b>] ? kill_fasync+0x10/0x86
+[  849.348017]  [<ffffffff8111f72b>] ? kill_fasync+0x10/0x86
+[  849.348017]  [<ffffffff810cabc0>] ? perf_event_wakeup+0x8c/0xa1
+[  849.348017]  [<ffffffff81040e1d>] ? irq_enter+0xe/0x6d
+[  849.348017]  [<ffffffff810c4914>] ? __irq_work_run+0x5f/0x7b
+[  849.348017]  [<ffffffff81005f45>] ? smp_trace_irq_work_interrupt+0xe/0x7e
+[  849.348017]  [<ffffffff81005f82>] ? smp_trace_irq_work_interrupt+0x4b/0x7e
+[  849.348017]  [<ffffffff8152628a>] ? trace_irq_work_interrupt+0x6a/0x70
+[  849.348017]  [<ffffffff8151dac7>] ? _raw_spin_unlock_irqrestore+0xf/0x11
+[  849.348017]  [<ffffffff810a3a50>] ? rcu_process_callbacks+0x4a4/0x4b8
+[  849.348017]  [<ffffffff810a8f16>] ? ftrace_ops_control_func+0x9a/0xc8
+[  849.348017]  [<ffffffff81047a51>] ? run_timer_softirq+0x16/0x1ef
+[  849.348017]  [<ffffffff810a14f2>] ? rcu_bh_qs+0x9/0x22
+[  849.348017]  [<ffffffff81041027>] ? __do_softirq+0x102/0x208
+[  849.348017]  [<ffffffff815249fc>] ? ftrace_call+0x5/0x2f
+[  849.348017]  [<ffffffff8152649c>] ? call_softirq+0x1c/0x30
+[  849.348017]  [<ffffffff810041b9>] ? do_softirq+0x38/0x6d
+[  849.348017]  [<ffffffff81040d1c>] ? irq_exit+0x45/0xa1
+[  849.348017]  [<ffffffff81526ad4>] ? smp_trace_apic_timer_interrupt+0x83/0x91
+[  849.348017]  [<ffffffff81525a3a>] ? trace_apic_timer_interrupt+0x6a/0x70
+[  849.348017]  <EOI>  [<ffffffff81066587>] ? finish_task_switch+0x57/0x98
+[  849.348017]  [<ffffffff8151caae>] ? __schedule+0x4f7/0x54b
+[  849.348017]  [<ffffffff8151ce07>] ? schedule+0x9/0x65
+[  849.348017]  [<ffffffff8151e164>] ? retint_careful+0xd/0x21
+</pre>
+<li>
+<pre>
+  199.784001] ------------[ cut here ]------------                             
+[  199.784001] WARNING: CPU: 0 PID: 2801 at kernel/watchdog.c:245 watchdog_overflow_callback+0x9b/0xa6()                                                        
+[  199.784001] Watchdog detected hard LOCKUP on cpu 0                           
+[  199.784001] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg evdev mcs7830 usbnet coretemp pcspkr psmouse serio_raw acpi_cpufreq wmi video ohci_pci processor button ohci_hcd i2c_nforce2 thermal_sys sg ehci_pci ehci_hcd sd_mod usbcore usb_common                       
+[  199.784001] CPU: 0 PID: 2801 Comm: perf_fuzzer Not tainted 3.12.0 #4         
+[  199.784001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012                                                            
+[  199.784001]  00000000000000f5 ffff88011fc07bc8 ffffffff8151d8ec 00000000000000f5                                                                             
+[  199.784001]  ffff88011fc07c18 ffff88011fc07c08 ffffffff8103cda9 ffff88011fc07bf8                                                                             
+[  199.784001]  ffffffff810a137f ffff88011b313400 0000000000000000 ffff88011fc07d48                                                                             
+[  199.784001] Call Trace:                                                      
+[  199.784001]  <NMI>  [<ffffffff8151d8ec>] dump_stack+0x49/0x5d                
+[  199.784001]  [<ffffffff8103cda9>] warn_slowpath_common+0x81/0x9b             
+[  199.784001]  [<ffffffff810a137f>] ? watchdog_overflow_callback+0x9b/0xa6     
+[  199.784001]  [<ffffffff8103ce66>] warn_slowpath_fmt+0x46/0x48                
+[  199.784001]  [<ffffffff810a137f>] watchdog_overflow_callback+0x9b/0xa6       
+[  199.784001]  [<ffffffff810cbb94>] __perf_event_overflow+0x137/0x1c1          
+[  199.784001]  [<ffffffff810cc23a>] perf_event_overflow+0x14/0x16              
+[  199.784001]  [<ffffffff81018fbd>] intel_pmu_handle_irq+0x2b8/0x34d           
+[  199.784001]  [<ffffffff81522253>] perf_event_nmi_handler+0x2d/0x4a           
+[  199.784001]  [<ffffffff81521b86>] nmi_handle+0x5e/0x13a                      
+[  199.784001]  [<ffffffff81521d0a>] do_nmi+0xa8/0x2c0                          
+[  199.784001]  [<ffffffff81521337>] end_repeat_nmi+0x1e/0x2e                   
+[  199.784001]  [<ffffffff81520abf>] ? _raw_spin_lock+0x26/0x2a                 
+[  199.784001]  [<ffffffff81520abf>] ? _raw_spin_lock+0x26/0x2a                 
+[  199.784001]  [<ffffffff81520abf>] ? _raw_spin_lock+0x26/0x2a                 
+[  199.784001]  <<EOE>>  [<ffffffff81069ed5>] load_balance+0x2f2/0x609          
+[  199.784001]  [<ffffffff8106a3d8>] idle_balance+0x9a/0x10c                    
+[  199.784001]  [<ffffffff8151f5a6>] __schedule+0x290/0x54b                     
+[  199.784001]  [<ffffffff8105beae>] ? __hrtimer_start_range_ns+0x2ed/0x2ff     
+[  199.784001]  [<ffffffff8151fbbf>] schedule+0x64/0x66                         
+[  199.784001]  [<ffffffff8151ed18>] schedule_hrtimeout_range_clock+0xed/0x134  
+[  199.784001]  [<ffffffff8105b659>] ? update_rmtp+0x65/0x65                    
+[  199.784001]  [<ffffffff8105beee>] ? hrtimer_start_range_ns+0x14/0x16         
+[  199.784001]  [<ffffffff8151ed72>] schedule_hrtimeout_range+0x13/0x15         
+[  199.784001]  [<ffffffff8112274d>] poll_schedule_timeout+0x48/0x64            
+[  199.784001]  [<ffffffff81123453>] do_sys_poll+0x437/0x4d5                    
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff811228cf>] ? __pollwait+0xcc/0xcc                     
+[  199.784001]  [<ffffffff81123544>] SyS_poll+0x53/0xbc                         
+[  199.784001]  [<ffffffff81527b56>] system_call_fastpath+0x1a/0x1f             
+[  199.784001] ---[ end trace 1de1e48ddacc5178 ]---
+</pre>
+<li>
+<pre>
+[106657.412003] ------------[ cut here ]------------
+[106657.412003] WARNING: CPU: 1 PID: 4131 at kernel/watchdog.c:245 watchdog_ove)
+[106657.412003] Watchdog detected hard LOCKUP on cpu 1
+[106657.412003] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powed
+[106657.412003] CPU: 1 PID: 4131 Comm: perf_fuzzer Not tainted 3.12.0 #2
+[106657.412003] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, B2
+[106657.412003]  00000000000000f5 ffff88011fc87c48 ffffffff8151aad6 ffff88011fc8
+[106657.412003]  ffffffff8103cd68 0000000100000000 ffffffff810a101c ffff88011b30
+[106657.412003]  ffff88011fc87ef8 ffff88011fc87d58 0000000000000000 ffff88011fc8
+[106657.412003] Call Trace:
+[106657.412003]  <NMI>  [<ffffffff8151aad6>] ? dump_stack+0x41/0x53
+[106657.412003]  [<ffffffff8103cd68>] ? warn_slowpath_common+0x81/0x9c
+[106657.412003]  [<ffffffff810a101c>] ? watchdog_overflow_callback+0x9b/0xa6
+[106657.412003]  [<ffffffff8103ce25>] ? warn_slowpath_fmt+0x46/0x48
+[106657.412003]  [<ffffffff810a101c>] ? watchdog_overflow_callback+0x9b/0xa6
+[106657.412003]  [<ffffffff810ca4a2>] ? __perf_event_overflow+0x12e/0x1ab
+[106657.412003]  [<ffffffff810167d3>] ? intel_pmu_lbr_read+0x253/0x349
+[106657.412003]  [<ffffffff81018c95>] ? intel_pmu_handle_irq+0x2b8/0x34d
+[106657.412003]  [<ffffffff8151edfc>] ? nmi_handle+0xa8/0x13a
+[106657.412003]  [<ffffffff8151f473>] ? perf_event_nmi_handler+0x24/0x3d
+[106657.412003]  [<ffffffff8151edb2>] ? nmi_handle+0x5e/0x13a
+[106657.412003]  [<ffffffff8151ef35>] ? do_nmi+0xa7/0x2bd
+[106657.412003]  [<ffffffff8151e537>] ? end_repeat_nmi+0x1e/0x2e
+[106657.412003]  [<ffffffff8104b09c>] ? do_send_sig_info+0x73/0x75
+[106657.412003]  [<ffffffff8104b09c>] ? do_send_sig_info+0x73/0x75
+[106657.412003]  [<ffffffff8104b09c>] ? do_send_sig_info+0x73/0x75
+[106657.412003]  <<EOE>>  <IRQ>  [<ffffffff8111f683>] ? send_sigio_to_task+0xeb5
+[106657.412003]  [<ffffffff8111f737>] ? send_sigio+0xaa/0xdd
+[106657.412003]  [<ffffffff8111f7d3>] ? kill_fasync+0x69/0x86
+[106657.412003]  [<ffffffff810cabf9>] ? perf_event_wakeup+0x8c/0xa1
+[106657.412003]  [<ffffffff810c494d>] ? __irq_work_run+0x5f/0x7b
+[106657.412003]  [<ffffffff81005f82>] ? smp_trace_irq_work_interrupt+0x4b/0x7e
+[106657.412003]  [<ffffffff815261ca>] ? trace_irq_work_interrupt+0x6a/0x70
+[106657.412003]  [<ffffffff8151da07>] ? _raw_spin_unlock_irqrestore+0xf/0x11
+[106657.412003]  [<ffffffff810a3a89>] ? rcu_process_callbacks+0x4a4/0x4b8
+[106657.412003]  [<ffffffff81041027>] ? __do_softirq+0x102/0x208
+[106657.412003]  [<ffffffff815263dc>] ? call_softirq+0x1c/0x30
+[106657.412003]  [<ffffffff810041b9>] ? do_softirq+0x38/0x6d
+[106657.412003]  [<ffffffff81040d1c>] ? irq_exit+0x45/0xa1
+[106657.412003]  [<ffffffff81526a14>] ? smp_trace_apic_timer_interrupt+0x83/0x91
+[106657.412003]  [<ffffffff8152597a>] ? trace_apic_timer_interrupt+0x6a/0x70
+[106657.412003]  <EOI> 
+[106657.412003] ---[ end trace ff266ee4a75ddbbf ]---
+</pre>
+
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to bugs found page</a>
+
+</body>
+</html>
+

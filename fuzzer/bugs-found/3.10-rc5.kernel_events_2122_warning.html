@@ -1,0 +1,113 @@
+<html>
+<head>
+<title>WARNING: at kernel/events/core.c:2122
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: at kernel/events/core.c:2122
+</h1>
+</center>
+
+<h3>Severity</h3>
+Locks up machine
+
+<h3>Info</h3>
+There is a code snippet in perf_event_tests that can reproduce this
+on core2.
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+3.10-rc5
+
+<h3>Seen on</h3>
+core2
+
+<h3>Linux-kernel report</h3>
+<a href="https://lkml.org/lkml/2013/6/12/534">
+12 June 2013 -- perf: yet another fuzzer triggered crash</a>
+
+<h3>Fixed by</h3>
+[PATCH 1/2] perf: Clone child context from parent context pmu
+<br><br>
+perf: Remove WARN_ON_ONCE() check in __perf_event_enable() for valid scenario
+<br><br>
+734df5ab549ca44f40de0f07af1c8803856dfb18<br><br>
+06f417968beac6e6b614e17b37d347aa6a6b1d30
+<br><br>
+3.11-rc1
+
+<h3>Kernel Spew</h3>
+<ol>
+<li>
+<pre>
+[   44.688044] ------------[ cut here ]------------
+[   44.692023] WARNING: at kernel/events/core.c:2122 task_ctx_sched_out+0x3c/0x5f()
+[   44.692023] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd dns_resolver fscache sunrpc loop fuse snd_hda_codec_hdmi snd_hda_codec_realtek coretemp kvm_intel kvm nouveau mxm_wmi evdev ttm microcode drm_kms_helper drm i2c_algo_bit video wmi snd_hda_intel acpi_cpufreq snd_hda_codec mperf snd_hwdep snd_pcm snd_page_alloc snd_seq snd_seq_device snd_timer shpchp snd soundcore button psmouse pcspkr processor i2c_nforce2 thermal_sys serio_raw i2c_core ext4 crc16 jbd2 mbcache sg sd_mod crc_t10dif ata_generic ahci libahci ohci_hcd libata ehci_pci ehci_hcd r8169 mii scsi_mod usbcore usb_common
+[   44.692023] CPU: 0 PID: 2992 Comm: out Not tainted 3.10.0-rc5 #2
+[   44.692023] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[   44.692023]  0000000000000000 ffffffff8102e215 0000000000000000 ffff88011fc15b28
+[   44.692023]  ffff8801165a10c0 0000000000000000 ffff88011977458c ffffffff810ab2e1
+[   44.692023]  ffff880119774580 ffffffff810af04e 0000000000000009 ffff8801165a10c0
+[   44.692023] Call Trace:
+[   44.692023]  [<ffffffff8102e215>] ? warn_slowpath_common+0x5b/0x70
+[   44.692023]  [<ffffffff810ab2e1>] ? task_ctx_sched_out+0x3c/0x5f
+[   44.692023]  [<ffffffff810af04e>] ? perf_event_exit_task+0xbf/0x194
+[   44.692023]  [<ffffffff81032a37>] ? do_exit+0x3e7/0x90c
+[   44.692023]  [<ffffffff810cd5cf>] ? __do_fault+0x359/0x394
+[   44.692023]  [<ffffffff81032fe6>] ? do_group_exit+0x66/0x98
+[   44.692023]  [<ffffffff8103dbcd>] ? get_signal_to_deliver+0x479/0x4ad
+[   44.692023]  [<ffffffff810cdd24>] ? __pte_alloc+0x83/0xf2
+[   44.692023]  [<ffffffff8100205d>] ? do_signal+0x3c/0x432
+[   44.692023]  [<ffffffff81368160>] ? __do_page_fault+0x31c/0x3ba
+[   44.692023]  [<ffffffff81002473>] ? do_notify_resume+0x20/0x5d
+[   44.692023]  [<ffffffff813655b5>] ? retint_signal+0x3d/0x78
+[   44.692023] ---[ end trace 38bad7d3252e7847 ]---
+</pre>
+<li>Related, triggered by same reproducible code by Peter Zijlstra
+<pre>
+[  324.983534] ------------[ cut here ]------------
+[  324.984420] WARNING: at kernel/events/core.c:1953 __perf_event_enable+0x187/0x190()
+[  324.984420] Modules linked in:
+[  324.984420] CPU: 19 PID: 2715 Comm: nmi_bug_snb Not tainted 3.10.0+ #246
+[  324.984420] Hardware name: Supermicro X8DTN/X8DTN, BIOS 4.6.3 01/08/2010
+[  324.984420]  0000000000000009 ffff88043fce3ec8 ffffffff8160ea0b ffff88043fce3f00
+[  324.984420]  ffffffff81080ff0 ffff8802314fdc00 ffff880231a8f800 ffff88043fcf7860
+[  324.984420]  0000000000000286 ffff880231a8f800 ffff88043fce3f10 ffffffff8108103a
+[  324.984420] Call Trace:
+[  324.984420]  <IRQ>  [<ffffffff8160ea0b>] dump_stack+0x19/0x1b
+[  324.984420]  [<ffffffff81080ff0>] warn_slowpath_common+0x70/0xa0
+[  324.984420]  [<ffffffff8108103a>] warn_slowpath_null+0x1a/0x20
+[  324.984420]  [<ffffffff81134437>] __perf_event_enable+0x187/0x190
+[  324.984420]  [<ffffffff81130030>] remote_function+0x40/0x50
+[  324.984420]  [<ffffffff810e51de>] generic_smp_call_function_single_interrupt+0xbe/0x130
+[  324.984420]  [<ffffffff81066a47>] smp_call_function_single_interrupt+0x27/0x40
+[  324.984420]  [<ffffffff8161fd2f>] call_function_single_interrupt+0x6f/0x80
+[  324.984420]  <EOI>  [<ffffffff816161a1>] ? _raw_spin_unlock_irqrestore+0x41/0x70
+[  324.984420]  [<ffffffff8113799d>] perf_event_exit_task+0x14d/0x210
+[  324.984420]  [<ffffffff810acd04>] ? switch_task_namespaces+0x24/0x60
+[  324.984420]  [<ffffffff81086946>] do_exit+0x2b6/0xa40
+[  324.984420]  [<ffffffff8161615c>] ? _raw_spin_unlock_irq+0x2c/0x30
+[  324.984420]  [<ffffffff81087279>] do_group_exit+0x49/0xc0
+[  324.984420]  [<ffffffff81096854>] get_signal_to_deliver+0x254/0x620
+[  324.984420]  [<ffffffff81043057>] do_signal+0x57/0x5a0
+[  324.984420]  [<ffffffff8161a164>] ? __do_page_fault+0x2a4/0x4e0
+[  324.984420]  [<ffffffff8161665c>] ? retint_restore_args+0xe/0xe
+[  324.984420]  [<ffffffff816166cd>] ? retint_signal+0x11/0x84
+[  324.984420]  [<ffffffff81043605>] do_notify_resume+0x65/0x80
+[  324.984420]  [<ffffffff81616702>] retint_signal+0x46/0x84
+[  324.984420] ---[ end trace 442ec2f04db3771a ]---
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to perf_fuzzer bug list</a>
+
+</body>
+</html>

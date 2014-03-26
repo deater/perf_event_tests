@@ -1,4 +1,7 @@
-/* On a core2 machine from up until 3.14-rc3 at least	*/
+/* Fixed in 26e61e8939b1fe8729572dabe9a9e97d930dd4f6    */
+/* 3.14-rc5                                             */
+
+/* On a core2 machine from ?? until 3.14-rc5 		*/
 /* The code generates a warning like this:		*/
 /*
 [   47.296031] ------------[ cut here ]------------
