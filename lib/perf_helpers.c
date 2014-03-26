@@ -327,6 +327,25 @@ static int ivybridge_events[MAX_TEST_EVENTS]={
   0x534f2e, // "LAST_LEVEL_CACHE_REFERENCES",  /* PAPI_L2_TCM  */
 };
 
+static int haswell_events[MAX_TEST_EVENTS]={
+  0x53003c, // "UNHALTED_CORE_CYCLES",         /* PAPI_TOT_CYC */
+  0x5300c0, // "INSTRUCTIONS_RETIRED",         /* PAPI_TOT_INS */
+  0x5300c4, // "BRANCH_INSTRUCTIONS_RETIRED",  /* PAPI_BR_INS  */
+  0x5300c5, // "MISPREDICTED_BRANCH_RETIRED",  /* PAPI_BR_MSP  */
+  0x530185, // "ITLB_MISSES:MISS_CAUSES_A_WALK",    /* PAPI_TLB_IM  */
+  0x538108, // "DTLB_LOAD_MISSES:MISS_CAUSES_A_WALK", /* PAPI_TLB_DM  */
+  0x534424, // "L2_RQSTS:CODE_RD_HIT",         /* PAPI_L1_ICA  */ /* nope */
+  0x530280, // "ICACHE:MISSES",                /* PAPI_L1_ICM  */
+  0x532424, // "L2_RQSTS:CODE_RD_MISS"         /* PAPI_L1_DCA  */ /* nope */
+  0x530151, // "L1D:REPLACEMENT",              /* PAPI_L1_DCM  */
+  0x5301cb, // "HW_INTERRUPTS",                /* PAPI_HW_INT  */ /* not doc? */
+  0x531eca, // "FP_ASSIST:ANY",                /* PAPI_FP_OPS  */ /* nope */
+  0x5381d0, // "MEM_UOPS_RETIRED:ALL_LOADS",    /* PAPI_LD_INS  */
+  0x5382d0, // "MEM_UOPS_RETIRED:ALL_STORES",   /* PAPI_SR_INS  */
+  0x53e424, // "L2_RQSTS:ALL_CODE_RD",         /* PAPI_L2_TCA  */ /*not quite*/
+  0x534f2e, // "LONGEST_LAT_CACHE:REFERENCE",  /* PAPI_L2_TCM  */
+};
+
 static int power6_events[MAX_TEST_EVENTS]={
   0x10000a, // "PM_RUN_CYC",         	       /* PAPI_TOT_CYC */
   0x2,      // "PM_INST_CMPL",         	       /* PAPI_TOT_INS */
@@ -368,58 +387,61 @@ static int cortexA9_events[MAX_TEST_EVENTS]={
 
 int copy_events(int *eventset) {
 
-  int processor,processor_notfound=0;
+	int processor,processor_notfound=0;
 
-  processor=detect_processor();
+	processor=detect_processor();
 
-  switch(processor) {
-  case PROCESSOR_CORE2:
-      memcpy(eventset,core2_events,MAX_TEST_EVENTS*sizeof(int));
-      break;
-  case PROCESSOR_NEHALEM:
-     memcpy(eventset,nehalem_events,MAX_TEST_EVENTS*sizeof(int));
-     break;
-  case PROCESSOR_IVYBRIDGE:
-     memcpy(eventset,ivybridge_events,MAX_TEST_EVENTS*sizeof(int));
-     break;
-  case PROCESSOR_ATOM:
-     memcpy(eventset,atom_events,MAX_TEST_EVENTS*sizeof(int));
-     break;
-  case PROCESSOR_K7:
-  case PROCESSOR_K8:
-  case PROCESSOR_AMD_FAM10H:
-  case PROCESSOR_AMD_FAM11H:
-  case PROCESSOR_AMD_FAM14H:
-  case PROCESSOR_AMD_FAM15H:
-     memcpy(eventset,amd10h_events,MAX_TEST_EVENTS*sizeof(int));
-     break;
-  case PROCESSOR_POWER6:
-     memcpy(eventset,power6_events,MAX_TEST_EVENTS*sizeof(int));
-     break;
-  case PROCESSOR_CORTEX_A8:
-     memcpy(eventset,cortexA9_events,MAX_TEST_EVENTS*sizeof(int));
-     break;
-  default:
-    processor_notfound=1;
-  }
+	switch(processor) {
+	case PROCESSOR_CORE2:
+		memcpy(eventset,core2_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_NEHALEM:
+		memcpy(eventset,nehalem_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_IVYBRIDGE:
+		memcpy(eventset,ivybridge_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_HASWELL:
+		memcpy(eventset,haswell_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_ATOM:
+		memcpy(eventset,atom_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_K7:
+	case PROCESSOR_K8:
+	case PROCESSOR_AMD_FAM10H:
+	case PROCESSOR_AMD_FAM11H:
+	case PROCESSOR_AMD_FAM14H:
+	case PROCESSOR_AMD_FAM15H:
+		memcpy(eventset,amd10h_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_POWER6:
+		memcpy(eventset,power6_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	case PROCESSOR_CORTEX_A8:
+ 		memcpy(eventset,cortexA9_events,MAX_TEST_EVENTS*sizeof(int));
+		break;
+	default:
+		processor_notfound=1;
+	}
 
-  return processor_notfound;
+	return processor_notfound;
 
 }
 
 
 int detect_nmi_watchdog(void) {
 
-  int watchdog_detected=0,watchdog_value=0;
-  FILE *fff;
+	int watchdog_detected=0,watchdog_value=0;
+	FILE *fff;
 
-  fff=fopen("/proc/sys/kernel/nmi_watchdog","r");
-  if (fff!=NULL) {
-    if (fscanf(fff,"%d",&watchdog_value)==1) {
-      if (watchdog_value>0) watchdog_detected=1;
-    }
-    fclose(fff);
-  }
+	fff=fopen("/proc/sys/kernel/nmi_watchdog","r");
+	if (fff!=NULL) {
+		if (fscanf(fff,"%d",&watchdog_value)==1) {
+			if (watchdog_value>0) watchdog_detected=1;
+		}
+		fclose(fff);
+	}
 
-  return watchdog_detected;
+	return watchdog_detected;
 }

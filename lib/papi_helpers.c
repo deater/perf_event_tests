@@ -15,7 +15,6 @@ int detect_processor(void) {
    hwinfo = PAPI_get_hardware_info(  );
    if (hwinfo==NULL) return PROCESSOR_UNKNOWN;
 
-   
    /* Power6 */
    /* PAPI_VENDOR_IBM */
    if (strstr(hwinfo->model_string,"POWER6")) {
@@ -263,16 +262,16 @@ int copy_events(char *eventset) {
 
 int detect_nmi_watchdog(void) {
 
-  int watchdog_detected=0,watchdog_value=0;
-  FILE *fff;
+	int watchdog_detected=0,watchdog_value=0;
+	FILE *fff;
 
-  fff=fopen("/proc/sys/kernel/nmi_watchdog","r");
-  if (fff!=NULL) {
-    if (fscanf(fff,"%d",&watchdog_value)==1) {
-      if (watchdog_value>0) watchdog_detected=1;
-    }
-    fclose(fff);
-  }
+	fff=fopen("/proc/sys/kernel/nmi_watchdog","r");
+	if (fff!=NULL) {
+		if (fscanf(fff,"%d",&watchdog_value)==1) {
+			if (watchdog_value>0) watchdog_detected=1;
+		}
+		fclose(fff);
+	}
 
-  return watchdog_detected;
+ 	return watchdog_detected;
 }
