@@ -1292,6 +1292,24 @@ static int get_sample_rate(void) {
 	return sample_rate;
 }
 
+static int get_paranoid_value(void) {
+
+	FILE *fff;
+	int paranoid;
+
+	fff=fopen("/proc/sys/kernel/perf_event_paranoid","r");
+	if (fff==NULL) {
+		return -1;
+	}
+
+	fscanf(fff,"%d",&paranoid);
+
+	fclose(fff);
+
+	return paranoid;
+
+}
+
 static void usage(char *name,int help) {
 
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
@@ -1320,7 +1338,7 @@ int main(int argc, char **argv) {
 	int i;
 	char *logfile_name=NULL;
 	unsigned int seed=0;
-	int sample_rate;
+	int sample_rate,paranoid;
 	FILE *fff;
 	struct utsname uname_info;
 
@@ -1438,7 +1456,7 @@ int main(int argc, char **argv) {
 
 	uname(&uname_info);
 
-	printf("%s version %s %s\n",
+	printf("\t%s version %s %s\n",
 		uname_info.sysname,uname_info.release,uname_info.machine);
 
 	/* Poor Seeding */
@@ -1447,7 +1465,7 @@ int main(int argc, char **argv) {
 		seed=time(NULL);
 	}
 	srand(seed);
-	printf("Seeding random number generator with %d\n",seed);
+	printf("\tSeeding random number generator with %d\n",seed);
 
 	/* Clear errnos count */
 	for(i=0;i<MAX_ERRNOS;i++) {
@@ -1475,12 +1493,19 @@ int main(int argc, char **argv) {
 	/* Save the content of /proc/sys/kernel/perf_event_max_sample_rate */
 	/* If it has been changed, a replay might not be perfect */
 	sample_rate=get_sample_rate();
-	printf("Kernel max sample rate currently: %d/s\n",sample_rate);
+	printf("\t/proc/sys/kernel/perf_event_max_sample_rate currently: %d/s\n",
+		sample_rate);
 	if (logging) {
 		sprintf(log_buffer,"r %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
+	/* Check paranoid setting */
+	paranoid=get_paranoid_value();
+	printf("\t/proc/sys/kernel/perf_event_paranoid currently: %d\n",
+		paranoid);
+
+	printf("\n");
 
 	if (attempt_determinism) {
 		type&=~TYPE_OVERFLOW;
