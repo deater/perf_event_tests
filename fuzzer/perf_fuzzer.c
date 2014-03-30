@@ -22,6 +22,7 @@
 #include <sys/prctl.h>
 #include <time.h>
 #include <sys/wait.h>
+#include <sys/utsname.h>
 
 #include <poll.h>
 
@@ -1321,6 +1322,8 @@ int main(int argc, char **argv) {
 	unsigned int seed=0;
 	int sample_rate;
 	FILE *fff;
+	struct utsname uname_info;
+
 
 	/* Parse command line parameters */
 
@@ -1430,6 +1433,14 @@ int main(int argc, char **argv) {
 
 	printf("\n*** perf_fuzzer %s *** by Vince Weaver\n\n",VERSION);
 
+
+
+
+	uname(&uname_info);
+
+	printf("%s version %s %s\n",
+		uname_info.sysname,uname_info.release,uname_info.machine);
+
 	/* Poor Seeding */
 	/* should read /dev/urandom instead */
 	if (!seed) {
@@ -1469,6 +1480,7 @@ int main(int argc, char **argv) {
 		sprintf(log_buffer,"r %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
+
 
 	if (attempt_determinism) {
 		type&=~TYPE_OVERFLOW;
