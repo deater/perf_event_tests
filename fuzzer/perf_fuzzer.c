@@ -1559,6 +1559,11 @@ int main(int argc, char **argv) {
 	printf("\t/proc/sys/kernel/perf_event_paranoid currently: %d\n",
 		paranoid);
 
+	printf("\tLogging perf_event_open() failures: %s\n",
+		LOG_FAILURES?"yes":"no");
+	printf("\tRunning fsync after every syscall: %s\n",
+		FSYNC_EVERY?"yes":"no");
+
 	/* Print command line */
 	printf("\tRun as: ");
 	for(i=0;i<argc;i++) {
