@@ -1559,7 +1559,13 @@ int main(int argc, char **argv) {
 	printf("\t/proc/sys/kernel/perf_event_paranoid currently: %d\n",
 		paranoid);
 
-	printf("\n");
+	/* Print command line */
+	printf("\tRun as: ");
+	for(i=0;i<argc;i++) {
+		printf("%s ",argv[i]);
+	}
+
+	printf("\n\n");
 
 	if (attempt_determinism) {
 		type&=~TYPE_OVERFLOW;
