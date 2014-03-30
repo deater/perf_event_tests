@@ -1335,9 +1335,9 @@ static void get_cpuinfo(char *cpuinfo) {
 			sscanf(temp_string,"%*s%*s%s",temp_string2);
 
 			if (!strncmp(temp_string2,"GenuineIntel",12)) {
-				strcpy(vendor,"Intel ");
+				strcpy(vendor,"Intel");
 			} else if (!strncmp(temp_string2,"AuthenticAMD",12)) {
-				strcpy(vendor,"AMD ");
+				strcpy(vendor,"AMD");
 			}
 		}
 
