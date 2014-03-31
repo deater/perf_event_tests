@@ -22,6 +22,7 @@
 #include <sys/prctl.h>
 #include <time.h>
 #include <sys/wait.h>
+#include <sys/utsname.h>
 
 #include <poll.h>
 
@@ -1291,6 +1292,78 @@ static int get_sample_rate(void) {
 	return sample_rate;
 }
 
+static int get_paranoid_value(void) {
+
+	FILE *fff;
+	int paranoid;
+
+	fff=fopen("/proc/sys/kernel/perf_event_paranoid","r");
+	if (fff==NULL) {
+		return -1;
+	}
+
+	fscanf(fff,"%d",&paranoid);
+
+	fclose(fff);
+
+	return paranoid;
+
+}
+
+/* FIXME -- this is x86 specific for now */
+static void get_cpuinfo(char *cpuinfo) {
+
+	FILE *fff;
+	char temp_string[BUFSIZ],temp_string2[BUFSIZ];
+	char vendor[BUFSIZ];
+	char *result;
+	int family,model,stepping;
+
+	fff=fopen("/proc/cpuinfo","r");
+	if (fff==NULL) {
+		strcpy(cpuinfo,"UNKNOWN");
+		return;
+	}
+
+	strcpy(vendor,"UNKNOWN ");
+
+	while(1) {
+		result=fgets(temp_string,BUFSIZ,fff);
+		if (result==NULL) break;
+
+		if (!strncmp(temp_string,"vendor_id",9)) {
+			sscanf(temp_string,"%*s%*s%s",temp_string2);
+
+			if (!strncmp(temp_string2,"GenuineIntel",12)) {
+				strcpy(vendor,"Intel");
+			} else if (!strncmp(temp_string2,"AuthenticAMD",12)) {
+				strcpy(vendor,"AMD");
+			}
+		}
+
+		if (!strncmp(temp_string,"cpu family",10)) {
+			sscanf(temp_string,"%*s%*s%*s%d",&family);
+		}
+
+ 		if (!strncmp(temp_string,"model",5)) {
+			sscanf(temp_string,"%*s%s",temp_string2);
+			if (temp_string2[0]==':') {
+				sscanf(temp_string,"%*s%*s%d",&model);
+			}
+		}
+
+		if (!strncmp(temp_string,"stepping",8)) {
+			sscanf(temp_string,"%*s%*s%d",&stepping);
+		}
+
+	}
+	fclose(fff);
+
+	sprintf(cpuinfo,"%s %d/%d/%d\n",vendor,family,model,stepping);
+
+}
+
+
 static void usage(char *name,int help) {
 
 	printf("\nPerf Fuzzer version %s\n\n",VERSION);
@@ -1319,8 +1392,10 @@ int main(int argc, char **argv) {
 	int i;
 	char *logfile_name=NULL;
 	unsigned int seed=0;
-	int sample_rate;
+	int sample_rate,paranoid;
 	FILE *fff;
+	struct utsname uname_info;
+	char cpuinfo[BUFSIZ];
 
 	/* Parse command line parameters */
 
@@ -1430,13 +1505,21 @@ int main(int argc, char **argv) {
 
 	printf("\n*** perf_fuzzer %s *** by Vince Weaver\n\n",VERSION);
 
+	uname(&uname_info);
+
+	printf("\t%s version %s %s\n",
+		uname_info.sysname,uname_info.release,uname_info.machine);
+
+	get_cpuinfo(cpuinfo);
+	printf("\tProcessor: %s\n",cpuinfo);
+
 	/* Poor Seeding */
 	/* should read /dev/urandom instead */
 	if (!seed) {
 		seed=time(NULL);
 	}
 	srand(seed);
-	printf("Seeding random number generator with %d\n",seed);
+	printf("\tSeeding random number generator with %d\n",seed);
 
 	/* Clear errnos count */
 	for(i=0;i<MAX_ERRNOS;i++) {
@@ -1464,11 +1547,30 @@ int main(int argc, char **argv) {
 	/* Save the content of /proc/sys/kernel/perf_event_max_sample_rate */
 	/* If it has been changed, a replay might not be perfect */
 	sample_rate=get_sample_rate();
-	printf("Kernel max sample rate currently: %d/s\n",sample_rate);
+	printf("\t/proc/sys/kernel/perf_event_max_sample_rate currently: %d/s\n",
+		sample_rate);
 	if (logging) {
 		sprintf(log_buffer,"r %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
+
+	/* Check paranoid setting */
+	paranoid=get_paranoid_value();
+	printf("\t/proc/sys/kernel/perf_event_paranoid currently: %d\n",
+		paranoid);
+
+	printf("\tLogging perf_event_open() failures: %s\n",
+		LOG_FAILURES?"yes":"no");
+	printf("\tRunning fsync after every syscall: %s\n",
+		FSYNC_EVERY?"yes":"no");
+
+	/* Print command line */
+	printf("\tRun as: ");
+	for(i=0;i<argc;i++) {
+		printf("%s ",argv[i]);
+	}
+
+	printf("\n\n");
 
 	if (attempt_determinism) {
 		type&=~TYPE_OVERFLOW;
