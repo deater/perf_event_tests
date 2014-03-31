@@ -14,16 +14,284 @@
 <h3>First Reported</h3>
 3.14-rc3
 
-<h3>Reported Machine</h3>
-core2
+<h3>Most recently seen</h3>
+3.14
+
+<h3>Reported Machines</h3>
+core2, haswell
 
 
 <h3>Linux Kernel</h3>
 <a href="https://lkml.org/lkml/2014/2/21/730">
 21 February 2014 -- perf_fuzzer: WARNING arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop</a>
+31 March 2014 -- perf_fuzzer: BUG in kfree() in ftrace_graph_exit_task
 
 <h3>Kernel Splat</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+	Linux version 3.14.0+ x86_64
+	Processor: Intel 6/60/3
+
+	Seeding random number generator with 1396284114
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 6250/s
+	/proc/sys/kernel/perf_event_paranoid currently: 1
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	Run as: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 
+
+Pid=6898, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	signal-handler-on-overflow 
+==================================================
+Iteration 10000
+	Open attempts: 359737  Successful: 945
+		EPERM : 27
+		ENOENT : 943
+		E2BIG : 41422
+		EBADF : 6142
+		EACCES : 265
+		EINVAL : 309260
+		ENOSPC : 17
+		EOPNOTSUPP : 716
+	Close attempts: 895  Successful: 895
+	Read attempts: 890  Successful: 772
+	Write attempts: 895  Successful: 0
+	Ioctl attempts: 940  Successful: 439
+	Mmap attempts: 945  Successful: 264
+	Prctl attempts: 925  Successful: 925
+	Fork attempts: 431  Successful: 431
+	Poll attempts: 856  Successful: 7
+	Access attempts: 907  Successful: 459
+	Trash mmap attempts: 955  Successful: 955
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+Iteration 20000
+	Open attempts: 360356  Successful: 920
+		EPERM : 14
+		ENOENT : 1050
+		E2BIG : 41910
+		EBADF : 5659
+		EACCES : 246
+		EINVAL : 309413
+		ENOSPC : 444
+		EOPNOTSUPP : 700
+	Close attempts: 881  Successful: 881
+	Read attempts: 907  Successful: 756
+	Write attempts: 887  Successful: 0
+	Ioctl attempts: 893  Successful: 427
+	Mmap attempts: 920  Successful: 231
+	Prctl attempts: 900  Successful: 900
+	Fork attempts: 478  Successful: 478
+	Poll attempts: 922  Successful: 16
+	Access attempts: 942  Successful: 447
+	Trash mmap attempts: 907  Successful: 907
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+Iteration 30000
+	Open attempts: 351279  Successful: 944
+		EPERM : 12
+		ENOENT : 992
+		E2BIG : 40572
+		EBADF : 5252
+		EACCES : 266
+		EINVAL : 301899
+		ENOSPC : 603
+		EOPNOTSUPP : 739
+	Close attempts: 901  Successful: 901
+	Read attempts: 923  Successful: 776
+	Write attempts: 878  Successful: 0
+	Ioctl attempts: 944  Successful: 463
+	Mmap attempts: 944  Successful: 248
+	Prctl attempts: 893  Successful: 893
+	Fork attempts: 436  Successful: 436
+	Poll attempts: 886  Successful: 62
+	Access attempts: 920  Successful: 464
+	Trash mmap attempts: 950  Successful: 950
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+Iteration 40000
+	Open attempts: 356536  Successful: 945
+		EPERM : 17
+		ENOENT : 1028
+		E2BIG : 41425
+		EBADF : 5193
+		EACCES : 312
+		EINVAL : 306227
+		ENOSPC : 607
+		EOPNOTSUPP : 782
+	Close attempts: 925  Successful: 925
+	Read attempts: 914  Successful: 762
+	Write attempts: 919  Successful: 0
+	Ioctl attempts: 853  Successful: 402
+	Mmap attempts: 945  Successful: 233
+	Prctl attempts: 947  Successful: 947
+	Fork attempts: 474  Successful: 474
+	Poll attempts: 913  Successful: 24
+	Access attempts: 859  Successful: 434
+	Trash mmap attempts: 884  Successful: 884
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+[ 2050.581230] ------------[ cut here ]------------
+[ 2050.586215] WARNING: CPU: 6 PID: 8998 at arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop+0xb9/0xd0()
+[ 2050.596289] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd fscache sunrpc fuse snd_hda_codec_hdmi i915 x86_pkg_temp_thermal intel_powerclamp coretemp drm_kms_helper drm kvm crct10dif_pclmul crc32_pclmul parport_pc ghash_clmulni_intel snd_hda_codec_realtek snd_hda_codec_generic snd_hda_intel aesni_intel snd_hda_codec snd_hwdep aes_x86_64 snd_pcm lrw gf128mul glue_helper tpm_tis iTCO_wdt iTCO_vendor_support parport tpm video battery ablk_helper lpc_ich snd_seq snd_seq_device i2c_algo_bit snd_timer psmouse button pcspkr i2c_i801 mei_me serio_raw wmi i2c_core processor mei cryptd snd mfd_core soundcore evdev sg sd_mod sr_mod crc_t10dif cdrom crct10dif_common hid_generic usbhid hid ahci libahci libata scsi_mod e1000e ehci_pci xhci_hcd ehci_hcd ptp pps_core crc32c_intel usbcore usb_common thermal fan thermal_sys
+[ 2050.676999] CPU: 6 PID: 8998 Comm: perf_fuzzer Not tainted 3.14.0+ #14
+[ 2050.683988] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 2050.691963]  0000000000000009 ffff88011eb83cd8 ffffffff8155a210 0000000000000000
+[ 2050.700000]  ffff88011eb83d10 ffffffff810651ad ffff88011eb8ca60 ffff88011488a800
+[ 2050.708030]  0000000000000004 ffff88011488a800 ffff880118689eac ffff88011eb83d20
+[ 2050.716066] Call Trace:
+[ 2050.718678]  <IRQ>  [<ffffffff8155a210>] dump_stack+0x45/0x56
+[ 2050.724895]  [<ffffffff810651ad>] warn_slowpath_common+0x7d/0xa0
+[ 2050.731318]  [<ffffffff8106528a>] warn_slowpath_null+0x1a/0x20
+[ 2050.737589]  [<ffffffff810292c9>] x86_pmu_stop+0xb9/0xd0
+[ 2050.743317]  [<ffffffff8102932a>] x86_pmu_del+0x4a/0x130
+[ 2050.749014]  [<ffffffff8112c242>] event_sched_out.isra.75+0x102/0x1f0
+[ 2050.755927]  [<ffffffff8112cf54>] group_sched_in+0x154/0x1e0
+[ 2050.761975]  [<ffffffff8112d0ee>] ctx_sched_in+0x10e/0x1d0
+[ 2050.767828]  [<ffffffff8112d210>] perf_event_sched_in+0x60/0x90
+[ 2050.774183]  [<ffffffff8112d7d3>] perf_cpu_hrtimer_handler+0xd3/0x1e0
+[ 2050.781085]  [<ffffffff8108ae03>] __run_hrtimer+0x83/0x1e0
+[ 2050.787020]  [<ffffffff8112d700>] ? perf_event_context_sched_in+0xc0/0xc0
+[ 2050.794232]  [<ffffffff8108b637>] hrtimer_interrupt+0xf7/0x240
+[ 2050.800497]  [<ffffffff81046617>] local_apic_timer_interrupt+0x37/0x60
+[ 2050.807527]  [<ffffffff8156b1d6>] smp_trace_apic_timer_interrupt+0x46/0xb9
+[ 2050.814856]  [<ffffffff81569b5d>] trace_apic_timer_interrupt+0x6d/0x80
+[ 2050.821998]  <EOI> 
+[ 2050.824085] ---[ end trace 15b4d5d0a680d662 ]---
+[ 2050.829306] ------------[ cut here ]------------
+[ 2050.834213] WARNING: CPU: 6 PID: 8998 at arch/x86/kernel/cpu/perf_event.c:1076 x86_pmu_start+0xc6/0x100()
+[ 2050.844504] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd fscache sunrpc fuse snd_hda_codec_hdmi i915 x86_pkg_temp_thermal intel_powerclamp coretemp drm_kms_helper drm kvm crct10dif_pclmul crc32_pclmul parport_pc ghash_clmulni_intel snd_hda_codec_realtek snd_hda_codec_generic snd_hda_intel aesni_intel snd_hda_codec snd_hwdep aes_x86_64 snd_pcm lrw gf128mul glue_helper tpm_tis iTCO_wdt iTCO_vendor_support parport tpm video battery ablk_helper lpc_ich snd_seq snd_seq_device i2c_algo_bit snd_timer psmouse button pcspkr i2c_i801 mei_me serio_raw wmi i2c_core processor mei cryptd snd mfd_core soundcore evdev sg sd_mod sr_mod crc_t10dif cdrom crct10dif_common hid_generic usbhid hid ahci libahci libata scsi_mod e1000e ehci_pci xhci_hcd ehci_hcd ptp pps_core crc32c_intel usbcore usb_common thermal fan thermal_sys
+[ 2050.924872] CPU: 6 PID: 8998 Comm: perf_fuzzer Tainted: G        W    3.14.0+ #14
+[ 2050.932842] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 2050.940706]  0000000000000009 ffff88011eb83dd0 ffffffff8155a210 0000000000000000
+[ 2050.949738]  ffff88011eb83e08 ffffffff810651ad ffff880117f6e000 ffff88011eb8ca60
+[ 2050.958782]  0000000000000000 ffff88011eb8cc84 0000000000000001 ffff88011eb83e18
+[ 2050.967803] Call Trace:
+[ 2050.971434]  <IRQ>  [<ffffffff8155a210>] dump_stack+0x45/0x56
+[ 2050.978676]  [<ffffffff810651ad>] warn_slowpath_common+0x7d/0xa0
+[ 2050.986132]  [<ffffffff8106528a>] warn_slowpath_null+0x1a/0x20
+[ 2050.993497]  [<ffffffff8102a006>] x86_pmu_start+0xc6/0x100
+[ 2051.000365]  [<ffffffff8102a7b5>] x86_pmu_enable+0x295/0x310
+[ 2051.007338]  [<ffffffff8112c137>] perf_pmu_enable+0x27/0x30
+[ 2051.014319]  [<ffffffff8112d7df>] perf_cpu_hrtimer_handler+0xdf/0x1e0
+[ 2051.022186]  [<ffffffff8108ae03>] __run_hrtimer+0x83/0x1e0
+[ 2051.028997]  [<ffffffff8112d700>] ? perf_event_context_sched_in+0xc0/0xc0
+[ 2051.037241]  [<ffffffff8108b637>] hrtimer_interrupt+0xf7/0x240
+[ 2051.044559]  [<ffffffff81046617>] local_apic_timer_interrupt+0x37/0x60
+[ 2051.052577]  [<ffffffff8156b1d6>] smp_trace_apic_timer_interrupt+0x46/0xb9
+[ 2051.060924]  [<ffffffff81569b5d>] trace_apic_timer_interrupt+0x6d/0x80
+[ 2051.068908]  <EOI> 
+[ 2051.071006] ---[ end trace 15b4d5d0a680d663 ]---
+</pre>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+	Linux version 3.14.0+ x86_64
+	Processor: Intel 6/60/3
+
+	Seeding random number generator with 1396278115
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 12500/s
+	/proc/sys/kernel/perf_event_paranoid currently: 1
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	Run as: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 
+
+Pid=599, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	signal-handler-on-overflow 
+==================================================
+Iteration 10000
+	Open attempts: 332172  Successful: 914
+		EPERM : 17
+		ENOENT : 912
+		E2BIG : 38780
+		EBADF : 5640
+		EACCES : 275
+		EINVAL : 284850
+		ENOSPC : 108
+		EOPNOTSUPP : 676
+	Close attempts: 881  Successful: 881
+	Read attempts: 860  Successful: 714
+	Write attempts: 918  Successful: 0
+	Ioctl attempts: 893  Successful: 431
+	Mmap attempts: 914  Successful: 259
+	Prctl attempts: 872  Successful: 872
+	Fork attempts: 473  Successful: 473
+	Poll attempts: 862  Successful: 16
+	Access attempts: 949  Successful: 472
+	Trash mmap attempts: 909  Successful: 909
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+[ 4362.748859] ------------[ cut here ]------------
+[ 4362.753905] WARNING: CPU: 3 PID: 599 at arch/x86/kernel/cpu/perf_event.c:1158 x86_pmu_stop+0xb9/0xd0()
+[ 4362.763903] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd fscache sunrpc fuse snd_hda_codec_hdmi x86_pkg_temp_thermal intel_powerclamp coretemp i915 kvm crct10dif_pclmul crc32_pclmul ghash_clmulni_intel drm_kms_helper snd_hda_codec_realtek tpm_tis tpm snd_hda_codec_generic aesni_intel aes_x86_64 drm lrw mei_me mei parport_pc gf128mul iTCO_wdt iTCO_vendor_support battery video parport i2c_algo_bit i2c_i801 snd_hda_intel snd_hda_codec snd_hwdep snd_pcm wmi psmouse pcspkr i2c_core button processor serio_raw snd_seq snd_seq_device lpc_ich snd_timer glue_helper ablk_helper evdev cryptd snd mfd_core soundcore sg sd_mod sr_mod crc_t10dif cdrom crct10dif_common hid_generic usbhid hid ehci_pci ahci xhci_hcd e1000e ehci_hcd libahci libata ptp crc32c_intel usbcore scsi_mod pps_core usb_common fan thermal thermal_sys
+[ 4362.845450] CPU: 3 PID: 599 Comm: perf_fuzzer Not tainted 3.14.0+ #14
+[ 4362.852382] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 4362.860349]  0000000000000009 ffff88011eac3cd8 ffffffff8155a210 0000000000000000
+[ 4362.868360]  ffff88011eac3d10 ffffffff810651ad ffff88011eacca60 ffff880116b4a400
+[ 4362.876390]  0000000000000004 ffff880116b4a400 ffff880118689b2c ffff88011eac3d20
+[ 4362.884429] Call Trace:
+[ 4362.887020]  <IRQ>  [<ffffffff8155a210>] dump_stack+0x45/0x56
+[ 4362.893271]  [<ffffffff810651ad>] warn_slowpath_common+0x7d/0xa0
+[ 4362.899704]  [<ffffffff8106528a>] warn_slowpath_null+0x1a/0x20
+[ 4362.905954]  [<ffffffff810292c9>] x86_pmu_stop+0xb9/0xd0
+[ 4362.911667]  [<ffffffff8102932a>] x86_pmu_del+0x4a/0x130
+[ 4362.917370]  [<ffffffff8112c242>] event_sched_out.isra.75+0x102/0x1f0
+[ 4362.924239]  [<ffffffff8112cf54>] group_sched_in+0x154/0x1e0
+[ 4362.930299]  [<ffffffff8112d0ee>] ctx_sched_in+0x10e/0x1d0
+[ 4362.936166]  [<ffffffff8112d210>] perf_event_sched_in+0x60/0x90
+[ 4362.942446]  [<ffffffff8112d7d3>] perf_cpu_hrtimer_handler+0xd3/0x1e0
+[ 4362.949331]  [<ffffffff8108ae03>] __run_hrtimer+0x83/0x1e0
+[ 4362.955221]  [<ffffffff8112d700>] ? perf_event_context_sched_in+0xc0/0xc0
+[ 4362.962511]  [<ffffffff8108b637>] hrtimer_interrupt+0xf7/0x240
+[ 4362.968734]  [<ffffffff81046617>] local_apic_timer_interrupt+0x37/0x60
+[ 4362.975790]  [<ffffffff8156b1d6>] smp_trace_apic_timer_interrupt+0x46/0xb9
+[ 4362.983146]  [<ffffffff81569b5d>] trace_apic_timer_interrupt+0x6d/0x80
+[ 4362.990105]  <EOI>  [<ffffffff81568d6d>] ? system_call_fastpath+0x1a/0x1f
+[ 4362.997432] ---[ end trace 9fd1de8fe3e4ee9f ]---
+[ 4363.002315] ------------[ cut here ]------------
+[ 4363.007251] WARNING: CPU: 3 PID: 599 at arch/x86/kernel/cpu/perf_event.c:1076 x86_pmu_start+0xc6/0x100()
+[ 4363.017272] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd fscache sunrpc fuse snd_hda_codec_hdmi x86_pkg_temp_thermal intel_powerclamp coretemp i915 kvm crct10dif_pclmul crc32_pclmul ghash_clmulni_intel drm_kms_helper snd_hda_codec_realtek tpm_tis tpm snd_hda_codec_generic aesni_intel aes_x86_64 drm lrw mei_me mei parport_pc gf128mul iTCO_wdt iTCO_vendor_support battery video parport i2c_algo_bit i2c_i801 snd_hda_intel snd_hda_codec snd_hwdep snd_pcm wmi psmouse pcspkr i2c_core button processor serio_raw snd_seq snd_seq_device lpc_ich snd_timer glue_helper ablk_helper evdev cryptd snd mfd_core soundcore sg sd_mod sr_mod crc_t10dif cdrom crct10dif_common hid_generic usbhid hid ehci_pci ahci xhci_hcd e1000e ehci_hcd libahci libata ptp crc32c_intel usbcore scsi_mod pps_core usb_common fan thermal thermal_sys
+[ 4363.097857] CPU: 3 PID: 599 Comm: perf_fuzzer Tainted: G        W    3.14.0+ #14
+[ 4363.106961] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 4363.115942]  0000000000000009 ffff88011eac3dd0 ffffffff8155a210 0000000000000000
+[ 4363.125052]  ffff88011eac3e08 ffffffff810651ad ffff880117497400 ffff88011eacca60
+[ 4363.134083]  0000000000000000 ffff88011eaccc84 0000000000000001 ffff88011eac3e18
+[ 4363.143127] Call Trace:
+[ 4363.146714]  <IRQ>  [<ffffffff8155a210>] dump_stack+0x45/0x56
+[ 4363.153920]  [<ffffffff810651ad>] warn_slowpath_common+0x7d/0xa0
+[ 4363.161359]  [<ffffffff8106528a>] warn_slowpath_null+0x1a/0x20
+[ 4363.168548]  [<ffffffff8102a006>] x86_pmu_start+0xc6/0x100
+[ 4363.175354]  [<ffffffff8102a7b5>] x86_pmu_enable+0x295/0x310
+[ 4363.182279]  [<ffffffff8112c137>] perf_pmu_enable+0x27/0x30
+[ 4363.189126]  [<ffffffff8112d7df>] perf_cpu_hrtimer_handler+0xdf/0x1e0
+[ 4363.196838]  [<ffffffff8108ae03>] __run_hrtimer+0x83/0x1e0
+[ 4363.203551]  [<ffffffff8112d700>] ? perf_event_context_sched_in+0xc0/0xc0
+[ 4363.211665]  [<ffffffff8108b637>] hrtimer_interrupt+0xf7/0x240
+[ 4363.218730]  [<ffffffff81046617>] local_apic_timer_interrupt+0x37/0x60
+[ 4363.226517]  [<ffffffff8156b1d6>] smp_trace_apic_timer_interrupt+0x46/0xb9
+[ 4363.234684]  [<ffffffff81569b5d>] trace_apic_timer_interrupt+0x6d/0x80
+[ 4363.242473]  <EOI>  [<ffffffff81568d6d>] ? system_call_fastpath+0x1a/0x1f
+[ 4363.250604] ---[ end trace 9fd1de8fe3e4eea0 ]---
+</pre>
 <li>
 <pre>
 [13044.385262] ------------[ cut here ]------------
