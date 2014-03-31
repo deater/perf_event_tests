@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>WARNING: CPU: 0 PID: 16043 at kernel/events/core.c:5659
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>WARNING: CPU: 0 PID: 16043 at kernel/events/core.c:5659
+</h1>
+</center>
+
+<h3>Severity</h3>
+Just a warning.
+
+<h3>Found with</h3>
+trinity by Sasha Levin
+
+<h3>Reproducible</h3>
+??
+
+<h3>First Reported</h3>
+3.14-rc
+
+<h3>Most recently seen</h3>
+??
+
+<h3>Reported Machines</h3>
+??
+
+
+<h3>Linux Kernel</h3>
+24 February 2014: "perf: WARNING: CPU: 0 PID: 16043 at kernel/events/core.c:5659"
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+[ 1399.472224] WARNING: CPU: 0 PID: 16043 at kernel/events/core.c:5659 perf_swevent_add+0x158/0x190()
+[ 1399.473458] Modules linked in:
+[ 1399.473880] CPU: 0 PID: 16043 Comm: trinity-c164 Tainted: G W 3.14.0-rc3-next-20140221-sasha-01594-gd494348 #34
+[ 1399.475232]  000000000000161b ffff880488af1c70 ffffffff84383938 ffffffff8549cd88
+[ 1399.476314]  0000000000000000 ffff880488af1cb0 ffffffff8113ad07 0000000000000001
+[ 1399.477325]  ffff880488bae618 00000000001d1ea0 ffff880054400000 0000000000000007
+[ 1399.478383] Call Trace:
+[ 1399.478720]  [<lib/dump_stack.c:52>] dump_stack+0x52/0x7f
+[ 1399.479499]  [<kernel/panic.c:417>] warn_slowpath_common+0x87/0xb0
+[ 1399.480159]  [<kernel/panic.c:451>] warn_slowpath_null+0x15/0x20
+[ 1399.480159]  [<kernel/events/core.c:5659>] perf_swevent_add+0x158/0x190
+[ 1399.480159]  [<kernel/events/core.c:1689>] event_sched_in+0xd0/0x1c0
+[ 1399.480159]  [<kernel/events/core.c:1730>] group_sched_in+0x4c/0x180
+[ 1399.480159]  [<kernel/events/core.c:2423 kernel/events/core.c:2480>] ctx_sched_in+0x176/0x300
+[ 1399.480159]  [<kernel/events/core.c:2493 kernel/events/core.c:1841>] perf_event_sched_in+0x45/0xa0
+[ 1399.480159]  [<kernel/events/core.c:2519>] perf_event_context_sched_in+0x8d/0xc0
+[ 1399.480159]  [<kernel/sched/cputime.c:392>] ? vtime_common_task_switch+0x2d/0x40
+[ 1399.480159]  [<kernel/events/core.c:2611>] __perf_event_task_sched_in+0x4c/0x1c0
+[ 1399.480159]  [<include/linux/perf_event.h:679 kernel/sched/core.c:2147>] finish_task_switch+0x65/0x160
+[ 1399.480159]  [<kernel/sched/core.c:2721>] __schedule+0x793/0x840
+[ 1399.480159]  [<include/linux/spinlock_api_smp.h:152 kernel/locking/spinlock.c:183>] ? _raw_spin_unlock+0x41/0x50
+[ 1399.480159]  [<kernel/sched/core.c:2751>] schedule+0x65/0x70
+[ 1399.480159]  [<arch/x86/include/asm/atomic.h:26 include/linux/jump_label.h:148 include/linux/context_tracking_state.h:27 include/linux/context_tracking.h:20 kernel/sched/core.c:2765>] schedule_user+0x1d/0x40
+[ 1399.480159]  [<arch/x86/kernel/entry_64.S:1080>] retint_careful+0x19/0x3c
+
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to perf_fuzzer bugs</a>
+
+</body>
+</html>
