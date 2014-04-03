@@ -210,6 +210,9 @@ echo "* Checking for corner-cases in the ABI (not necessarily bugs)"
 echo "  + $TESTS_DIR/corner_cases/multiple_active"
 echo -n "    "
 $TESTS_DIR/corner_cases/multiple_active
+echo "  + $TESTS_DIR/corner_cases/max_num_events"
+echo -n "    "
+$TESTS_DIR/corner_cases/max_num_events
 echo "  + $TESTS_DIR/corner_cases/max_multiplex"
 echo -n "    "
 $TESTS_DIR/corner_cases/max_multiplex

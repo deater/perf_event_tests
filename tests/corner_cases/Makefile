@@ -9,6 +9,7 @@ all:	\
 	hw_sw_mix \
 	ioctl_refresh_0 \
 	max_multiplex \
+	max_num_events \
 	multiple_active \
 	overflow_requires_mmap \
 	reset_leader \
@@ -126,6 +127,20 @@ max_multiplex.o:	max_multiplex.c
 
 ###
 
+max_num_events:	max_num_events.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o max_num_events max_num_events.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/instructions_testcode.o
+
+max_num_events.o:	max_num_events.c
+	$(CC) $(CFLAGS) -c max_num_events.c
+
+###
+
 
 
 signal_after_exec:	signal_after_exec.o \
@@ -209,6 +224,7 @@ clean:
 	hw_sw_mix \
 	ioctl_refresh_0 \
 	max_multiplex \
+	max_num_events \
 	multiple_active \
 	overflow_requires_mmap \
 	reset_leader \
