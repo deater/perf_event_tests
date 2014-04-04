@@ -6,6 +6,7 @@ LIB = ../../lib
 all:	\
 	e2big \
 	eacces \
+	ebadf \
 	efault \
 	emfile \
 	non-existent
@@ -51,6 +52,17 @@ eacces.o:	eacces.c
 
 ###
 
+ebadf:	ebadf.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o ebadf ebadf.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+ebadf.o:	ebadf.c
+	$(CC) $(CFLAGS) -c ebadf.c
+
+###
+
 efault:	efault.o $(LIB)/test_utils.o \
 			$(LIB)/perf_helpers.o
 	$(CC) $(LFLAGS) -o efault efault.o \
@@ -91,6 +103,7 @@ clean:
 	rm -f *~ *.o \
 		e2big \
 		eacces \
+		ebadf \
 		efault \
 		emfile \
 		non-existent
