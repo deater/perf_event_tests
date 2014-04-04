@@ -5,6 +5,7 @@ LIB = ../../lib
 
 all:	\
 	e2big \
+	efault \
 	non-existent
 
 ###
@@ -37,6 +38,17 @@ e2big.o:	e2big.c
 
 ###
 
+efault:	efault.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o efault efault.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+efault.o:	efault.c
+	$(CC) $(CFLAGS) -c efault.c
+
+###
+
 non-existent:	non-existent.o $(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/matrix_multiply.o
@@ -54,4 +66,5 @@ non-existent.o:	non-existent.c
 clean:	
 	rm -f *~ *.o \
 		e2big \
+		efault \
 		non-existent
