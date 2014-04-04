@@ -93,6 +93,9 @@ echo "* Checking error returns"
 echo "  + $TESTS_DIR/error_returns/e2big"
 echo -n "    "
 $TESTS_DIR/error_returns/e2big
+echo "  + $TESTS_DIR/error_returns/eacces"
+echo -n "    "
+$TESTS_DIR/error_returns/eacces
 echo "  + $TESTS_DIR/error_returns/efault"
 echo -n "    "
 $TESTS_DIR/error_returns/efault
