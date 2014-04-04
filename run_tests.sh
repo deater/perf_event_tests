@@ -96,6 +96,9 @@ $TESTS_DIR/error_returns/e2big
 echo "  + $TESTS_DIR/error_returns/efault"
 echo -n "    "
 $TESTS_DIR/error_returns/efault
+echo "  + $TESTS_DIR/error_returns/emfile"
+echo -n "    "
+$TESTS_DIR/error_returns/emfile
 echo "  + $TESTS_DIR/error_returns/non-existent"
 echo -n "    "
 $TESTS_DIR/error_returns/non-existent
