@@ -11,6 +11,6 @@ Not covered:
 	EBUSY	-- can this get to userspace?
 	EAGAIN	-- can this get to userspace?
 	ENOTTY	-- ioctl only
-	ENOSYS	-- ?
+	ENOSYS	-- doesn't get to userspace
 	ENODEV	-- require unsupported hardware
 	
