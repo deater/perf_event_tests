@@ -9,6 +9,7 @@ all:	\
 	ebadf \
 	efault \
 	emfile \
+	esrch \
 	non-existent
 
 ###
@@ -85,6 +86,17 @@ emfile.o:	emfile.c
 
 ###
 
+esrch:	esrch.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o esrch esrch.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+esrch.o:	esrch.c
+	$(CC) $(CFLAGS) -c esrch.c
+
+###
+
 non-existent:	non-existent.o $(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/matrix_multiply.o
@@ -106,4 +118,5 @@ clean:
 		ebadf \
 		efault \
 		emfile \
+		esrch \
 		non-existent
