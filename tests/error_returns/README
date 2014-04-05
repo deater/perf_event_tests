@@ -1,35 +1,16 @@
-As of 3.8 these are various ways to get errors in perf_event_open()
+The tests in this directory try to trigger the various errno
+returns from perf_event_open().
 
-EINVAL
-   Extra bits in config1
-   Cache generalized event parameter is out of range
-   Generalized event setting in kernel is -1
-   Scheduling the events failed (conflict)
-   Too many events
-   Invalid flags setting
-   Invalid parameters in attr
-   frequency setting higher than value set by sysctl
-   specified CPU does not exist
-   non-group leader marked as exclusive or pinned 
-EACCES
-   Requires root permissions (CAP_SYS_?) or paranoid CPU setting 
-ENODEV
-   Hardware not supported 
-ENOENT
-   Generalized event set to 0 in kernel
-   Invalid attr.type setting 
-ENOSYS
-   PERF_SOUREC_STACK_TRACE not supported 
-EOPNOTSUPP
-   PMU interrupt not available and requested sampling
-   Request branch tracing and not available
-   Request low-skid events and not available 
-EBUSY
-EAGAIN
-ENOMEM
-   Kernel failed while allocating memory 
-E2BIG
-	size value too low (below PERF_ATTR_SIZE_VER0 but 0 is OK)
-	size value too high (above pagesize)
-	size value high and padding is non-zero	
+See ../../doc/low_level_implementation/ERRORS.txt for more info
+
+TODO:
+	the same for the various perf-related ioctls
+
+Not covered:
+	ENOMEM	-- how to trigger out of memory?
+	EBUSY	-- can this get to userspace?
+	EAGAIN	-- can this get to userspace?
+	ENOTTY	-- ioctl only
+	ENOSYS	-- ?
+	ENODEV	-- require unsupported hardware
 	
