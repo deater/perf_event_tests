@@ -8,6 +8,7 @@ all:	\
 	eacces \
 	ebadf \
 	efault \
+	einval \
 	emfile \
 	esrch \
 	non-existent
@@ -75,6 +76,17 @@ efault.o:	efault.c
 
 ###
 
+einval:	einval.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o einval einval.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+einval.o:	einval.c
+	$(CC) $(CFLAGS) -c einval.c
+
+###
+
 emfile:	emfile.o $(LIB)/test_utils.o \
 			$(LIB)/perf_helpers.o
 	$(CC) $(LFLAGS) -o emfile emfile.o \
@@ -117,6 +129,7 @@ clean:
 		eacces \
 		ebadf \
 		efault \
+		einval \
 		emfile \
 		esrch \
 		non-existent

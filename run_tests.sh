@@ -102,6 +102,9 @@ $TESTS_DIR/error_returns/ebadf
 echo "  + $TESTS_DIR/error_returns/efault"
 echo -n "    "
 $TESTS_DIR/error_returns/efault
+echo "  + $TESTS_DIR/error_returns/einval"
+echo -n "    "
+$TESTS_DIR/error_returns/einval
 echo "  + $TESTS_DIR/error_returns/emfile"
 echo -n "    "
 $TESTS_DIR/error_returns/emfile
