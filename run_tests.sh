@@ -108,6 +108,9 @@ $TESTS_DIR/error_returns/einval
 echo "  + $TESTS_DIR/error_returns/emfile"
 echo -n "    "
 $TESTS_DIR/error_returns/emfile
+echo "  + $TESTS_DIR/error_returns/enoent"
+echo -n "    "
+$TESTS_DIR/error_returns/enoent
 echo "  + $TESTS_DIR/error_returns/esrch"
 echo -n "    "
 $TESTS_DIR/error_returns/esrch

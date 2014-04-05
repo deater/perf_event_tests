@@ -10,6 +10,7 @@ all:	\
 	efault \
 	einval \
 	emfile \
+	enoent \
 	esrch \
 	non-existent
 
@@ -98,6 +99,17 @@ emfile.o:	emfile.c
 
 ###
 
+enoent:	enoent.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o enoent enoent.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+enoent.o:	enoent.c
+	$(CC) $(CFLAGS) -c enoent.c
+
+###
+
 esrch:	esrch.o $(LIB)/test_utils.o \
 			$(LIB)/perf_helpers.o
 	$(CC) $(LFLAGS) -o esrch esrch.o \
@@ -131,5 +143,6 @@ clean:
 		efault \
 		einval \
 		emfile \
+		enoent \
 		esrch \
 		non-existent
