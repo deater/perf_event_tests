@@ -12,6 +12,7 @@ all:	\
 	emfile \
 	enoent \
 	enospc \
+	eopnotsupp \
 	esrch \
 	non-existent
 
@@ -122,6 +123,17 @@ enospc.o:	enospc.c
 
 ###
 
+eopnotsupp:	eopnotsupp.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o eopnotsupp eopnotsupp.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+eopnotsupp.o:	eopnotsupp.c
+	$(CC) $(CFLAGS) -c eopnotsupp.c
+
+###
+
 esrch:	esrch.o $(LIB)/test_utils.o \
 			$(LIB)/perf_helpers.o
 	$(CC) $(LFLAGS) -o esrch esrch.o \
@@ -157,5 +169,6 @@ clean:
 		emfile \
 		enoent \
 		enospc \
+		eopnotsupp \
 		esrch \
 		non-existent
