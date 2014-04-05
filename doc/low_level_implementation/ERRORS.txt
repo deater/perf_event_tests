@@ -1,0 +1,144 @@
+Will vary and not always consistent between PMUs.
+
+E2BIG -- 
+	Returned if the perf_event_attr size value is too small (smaller
+	than  PERF_ATTR_SIZE_VER0), too big (larger than the page size),
+	or larger than the kernel supports and the extra bytes  are  not
+	zero.  When E2BIG is returned, the perf_event_attr size field is
+	overwritten by the kernel to be the size of the structure it was
+	expecting.
+
+EACCES -
+	p4 and hyperthreaded (shared) event
+	x86: ARCH_PERFMON_EVENTSEL_ANY
+	attach to process not us
+	attach to CPU and not root
+	branch sampling in kernel/hv and not root
+	not exclude_kernel and paranoid set high enough
+
+EBADF -
+	cgroup not valid
+	group_fd not valid
+
+	ioctl: ioc_set_output and fd not valid
+
+
+EFAULT -
+	attr point at invalid memory location
+
+
+EINVAL -
+	$$$$$$$$$$$$$$$$
+	tested
+	$$$$$$$$$$$$$$$$
+	sample frequency higher than max sample rate
+	invalid CPU value
+	read_format out of range
+	sample_type out of range	
+	exclusive or pinned and not a group leader
+	Invalid flags setting
+
+	$$$$$$$$$$$$$$$$
+	Code inspection:
+	$$$$$$$$$$$$$$$$
+
+	breakpoint: measure kernel bp but exclude-kernel
+	arm: invalid event
+	p4: unsupported, out of range, reserved bits
+	improper combination of attr settings
+	improper fields set in raw event
+	improper exclude values
+	out of range
+	Extra bits in config1
+	Cache generalized event parameter is out of range
+	Generalized event setting in kernel is -1
+	Scheduling the events failed (conflict)
+	Too many events
+	Invalid parameters in attr
+	
+	core:
+		all cgroups in group must match
+		group leader cannot be child of another group leader
+
+	ioctl:
+		set filter and not tracepoint
+		ioc-refresh on not-sampled or inherited event
+		period set and not sampling event
+		set period to zero 
+
+	mmap:
+		mmap of inherited per-task counter
+		mmap and not VM_SHARED
+		mmap and not power of two plus one page
+		mmap and vm_pgoff != 0
+
+		x86 cache maps: 0 = ENOENT -1 = EINVAL.  Why?
+
+EMFILE -
+	too many file descriptors open
+
+
+ENODEV - some of these not exposed to user?
+	ibs not supported?
+	iommu not supported
+	uncore device not there
+	unsupported CPU
+	offline CPU?
+
+
+ENOENT -
+	Invalid attr.type
+	Event not supported (generalized event set to 0 in kernel)
+	ibs event and arbitrary skid
+	PMU does not support attr.type
+
+
+ENOMEM -	out of memory (hard to trigger?)
+
+
+ENOSPC -- Linus in 3.3?
+		perf: Don't use -ENOSPC for out of PMU resources
+		Various "won't fit in available counters" errors now EINVAL
+	Still used in:
+		perf_read_hw() read on a perf_event fd if buffer not big enough
+		ring buffer code, but not returned to user?
+		*** breakpoints: no room for new breakpoint
+		perf_event_amd_iommu(),ibs
+
+
+ENOSYS -
+	PERF_SAMPLE_STACK_USER and not supported by hardware
+	(so CONFIG_HAVE_PERF_USER_STACK_DUMP not set)
+
+EOPNOTSUPP -
+	hardware support missing
+	ARM: mode exclusion
+	x86: no APIC and sampling requested
+	x86: hsw checkpointing some cases if sampling too fast?
+	x86: no bts support
+	x86: no pebs support
+	x86: no lbr support
+	x86: no branch stack support
+	* core: no branch stack for software events
+	PMU interrupt not available and requested sampling
+	Request branch tracing and not available
+	Request low-skid events and not available
+
+
+EPERM -
+	ARM: exclude_idle?
+	breakpoint: in kernel and not CAP_SYS_ADMIN
+	tracepoint: ftrace function trace root only, subset of some trace
+
+
+ESRCH -
+	trying to find task but not there
+
+
+
+
+
+ENOTTY -
+	ioctl and invalid value
+
+	

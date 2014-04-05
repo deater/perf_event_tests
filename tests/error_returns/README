@@ -11,6 +11,6 @@ Not covered:
 	EBUSY	-- can this get to userspace?
 	EAGAIN	-- can this get to userspace?
 	ENOTTY	-- ioctl only
-	ENOSYS	-- doesn't get to userspace
+	ENOSYS	-- only if arch doesn't have CONFIG_HAVE_PERF_USER_STACK_DUMP
 	ENODEV	-- require unsupported hardware
 	

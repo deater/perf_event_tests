@@ -1,3 +1,6 @@
+4 April 2014
++ Add a bunch of tests under tests/error_returns
+
 18 December 2013
 + re-arrange a lot of files
 + Fix some tests on ARM
