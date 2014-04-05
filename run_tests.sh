@@ -111,6 +111,9 @@ $TESTS_DIR/error_returns/emfile
 echo "  + $TESTS_DIR/error_returns/enoent"
 echo -n "    "
 $TESTS_DIR/error_returns/enoent
+echo "  + $TESTS_DIR/error_returns/enospc"
+echo -n "    "
+$TESTS_DIR/error_returns/enospc
 echo "  + $TESTS_DIR/error_returns/esrch"
 echo -n "    "
 $TESTS_DIR/error_returns/esrch

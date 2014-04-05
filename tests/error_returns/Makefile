@@ -11,6 +11,7 @@ all:	\
 	einval \
 	emfile \
 	enoent \
+	enospc \
 	esrch \
 	non-existent
 
@@ -110,6 +111,17 @@ enoent.o:	enoent.c
 
 ###
 
+enospc:	enospc.o $(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o enospc enospc.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/perf_helpers.o
+
+enospc.o:	enospc.c
+	$(CC) $(CFLAGS) -c enospc.c
+
+###
+
 esrch:	esrch.o $(LIB)/test_utils.o \
 			$(LIB)/perf_helpers.o
 	$(CC) $(LFLAGS) -o esrch esrch.o \
@@ -144,5 +156,6 @@ clean:
 		einval \
 		emfile \
 		enoent \
+		enospc \
 		esrch \
 		non-existent
