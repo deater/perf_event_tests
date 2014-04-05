@@ -117,6 +117,9 @@ $TESTS_DIR/error_returns/enospc
 echo "  + $TESTS_DIR/error_returns/eopnotsupp"
 echo -n "    "
 $TESTS_DIR/error_returns/eopnotsupp
+echo "  + $TESTS_DIR/error_returns/eperm"
+echo -n "    "
+$TESTS_DIR/error_returns/eperm
 echo "  + $TESTS_DIR/error_returns/esrch"
 echo -n "    "
 $TESTS_DIR/error_returns/esrch
