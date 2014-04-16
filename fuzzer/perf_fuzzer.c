@@ -1396,6 +1396,7 @@ int main(int argc, char **argv) {
 	FILE *fff;
 	struct utsname uname_info;
 	char cpuinfo[BUFSIZ];
+	int seed_specified=0;
 
 	/* Parse command line parameters */
 
@@ -1429,6 +1430,7 @@ int main(int argc, char **argv) {
 				case 'r':	if (i+1<argc) {
 							seed=atoi(argv[i+1]);
 						}
+						seed_specified=1;
 						printf("Using user-specified random seed of %d\n",seed);
 						i+=2;
 						break;
@@ -1565,10 +1567,12 @@ int main(int argc, char **argv) {
 		FSYNC_EVERY?"yes":"no");
 
 	/* Print command line */
-	printf("\tRun as: ");
+	printf("\tTo reproduce, try: ");
 	for(i=0;i<argc;i++) {
 		printf("%s ",argv[i]);
 	}
+
+	if (!seed_specified) printf("-r %d",seed);
 
 	printf("\n\n");
 
