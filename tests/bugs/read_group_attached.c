@@ -33,7 +33,7 @@
 #include "matrix_multiply.h"
 
 int main(int argc, char** argv) {
-   
+
    int ret,fd1,fd2,quiet,i;
    int result,status;
    pid_t pid;
@@ -41,9 +41,9 @@ int main(int argc, char** argv) {
    struct perf_event_attr pe;
 
    char test_string[]="Testing if FORMAT_GROUP works on attached processes...";
-   
+
    quiet=test_quiet();
-   
+
    pid = fork(  );
 
    if ( pid < 0 ) {
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 	       child,
 	       WTERMSIG(status) , strsignal(WTERMSIG( status )) );
    }
-   
+
    /* set up group leader */
    memset(&pe,0,sizeof(struct perf_event_attr));
    pe.type=PERF_TYPE_HARDWARE;
@@ -103,9 +103,9 @@ int main(int argc, char** argv) {
    }
 
    /* setup event 2 */
-   memset(&pe,0,sizeof(struct perf_event_attr));   
+   memset(&pe,0,sizeof(struct perf_event_attr));
    pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);   
+   pe.size=sizeof(struct perf_event_attr);
    pe.config=PERF_COUNT_HW_CPU_CYCLES;
    pe.exclude_kernel=1;
    pe.exclude_hv=1;
@@ -118,8 +118,8 @@ int main(int argc, char** argv) {
       test_fail(test_string);
    }
 
-   ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
-   ioctl(fd2, PERF_EVENT_IOC_RESET, 0);   
+   ioctl(fd1, PERF_EVENT_IOC_RESET, 0);
+   ioctl(fd2, PERF_EVENT_IOC_RESET, 0);
 
    /* enable counting */
    ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
        }
      if (WIFSIGNALED( status )) {
        if (!quiet) printf( "Child %d received signal %d (%s)\n",
-		           child, WTERMSIG(status) , 
+		           child, WTERMSIG(status) ,
 			   strsignal(WTERMSIG( status )) );
        }
    } while (!WIFEXITED( status ));
@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
 
    /* disable counting */
    ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
-   if (ret<0) {   
+   if (ret<0) {
       if (!quiet) printf("Error disabling\n");
    }
 
@@ -159,30 +159,30 @@ int main(int argc, char** argv) {
    for(i=0;i<BUFFER_SIZE;i++) {
       buffer[i]=-1;
    }
-     
+
    result=read(fd1,buffer,BUFFER_SIZE*sizeof(long long));
    if (result<0) {
      if (!quiet) fprintf(stderr,"Unexpected read result %d\n",result);
       test_fail(test_string);
    }
-   
+
    /* should be 1 + 2*num_events */
    /* which is 5 in our case     */
    if (result!=(5)*sizeof(long long)) {
      if (!quiet) fprintf(stderr,"Unexpected read result %d\n",result);
       test_fail(test_string);
    }
-   
+
    if (!quiet) {
       printf("Number of events: %lld\n",buffer[0]);
-      for(i=0;i<buffer[0];i++) { 
+      for(i=0;i<buffer[0];i++) {
          printf("Value    [%d] : %lld\n",i,buffer[1+(i*2)]);
          printf("Format ID[%d] : %lld\n",i,buffer[1+((i*2)+1)]);
       }
    }
-      
+
    test_pass(test_string);
-      
+
    return 0;
 }
 
