@@ -3,6 +3,9 @@
 
 /* by Vince Weaver   vincent.weaver _at_ maine.edu	*/
 
+/* Linux 3.14 updated all architectures to match 	*/
+/*	the ARM behavior.				*/
+
 /* Since 3.7 (3581fe0ef37) ARM behaves differently	*/
 /*	and updates the period immediately rather	*/
 /*	than after the next overflow.			*/
@@ -82,6 +85,7 @@ int main(int argc, char** argv) {
 	int fd[2],i;
 	int quiet;
 	int validation_errors=0;
+	int old_behavior=1;
 
 	long long diff;
 
@@ -153,10 +157,9 @@ int main(int argc, char** argv) {
 	}
 
 	/* validate results */
-	/* should be 10k apart for 0,1,2,3,4,5	*/
-	/* 5-6 and after should be 100k		*/
+	/* should be 10k apart for 0,1,2,3,4	*/
 
-	for(i=0;i<5;i++) {
+	for(i=0;i<4;i++) {
 		diff=overflow_counts[i+1]-overflow_counts[i];
 
 		if ((diff>11000) || (diff<9000)) {
@@ -167,6 +170,31 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	/* 4-5 should be 10k (old behavior) or 100k (new behavior) */
+
+	diff=overflow_counts[5]-overflow_counts[4];
+
+	if ((diff<11000) && (diff>9000)) {
+		if (!quiet) {
+			fprintf(stderr,"Overflow %i-%i near 10,000 (%lld), old behavior\n",i,i+1,diff);
+		}
+		old_behavior=1;
+	}
+	else if ((diff<101000) && (diff>99000)) {
+		if (!quiet) {
+			fprintf(stderr,"Overflow %i-%i near 100,000 (%lld), new behavior\n",i,i+1,diff);
+		}
+		old_behavior=0;
+	}
+	else {
+		if (!quiet) {
+			fprintf(stderr,"Overflow %i-%i %lld, unexpected\n",i,i+1,diff);
+		}
+		validation_errors++;
+	}
+
+
+	/* 5-6 and after should be 100k		*/
 	for(i=5;i<overflows-1;i++) {
 		diff=overflow_counts[i+1]-overflow_counts[i];
 
@@ -182,10 +210,14 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-	test_pass(test_string);
+	if (old_behavior) {
+		test_yellow_old_behavior(test_string);
+	}
+	else {
+		test_green_new_behavior(test_string);
+	}
 
-	/* TODO: properly handle ARM post 3.7 case */
-	/* also check for case where we reset
+	/* FIXME: also check for case where we reset
 		overflow on running counter?
 	*/
 
