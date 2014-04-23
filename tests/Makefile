@@ -5,6 +5,7 @@ all:
 	cd constraints && make
 	cd corner_cases && make
 	cd error_returns && make
+	cd flags && make
 	cd generalized_events && make
 	cd ioctl && make
 	cd multiplexing && make
@@ -24,6 +25,7 @@ clean:
 	cd constraints && make clean
 	cd corner_cases && make clean
 	cd error_returns && make clean
+	cd flags && make clean
 	cd generalized_events && make clean
 	cd ioctl && make clean
 	cd multiplexing && make clean

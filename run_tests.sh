@@ -75,6 +75,9 @@ $TESTS_DIR/attr_fields/inherit_stat
 echo "  + $TESTS_DIR/attr_fields/enable_on_exec"
 echo -n "    "
 $TESTS_DIR/attr_fields/enable_on_exec
+echo "  + $TESTS_DIR/flags/flags_range_check"
+echo -n "    "
+$TESTS_DIR/flags/flags_range_check
 
 echo
 echo "* Checking perf_event ioctl calls"
