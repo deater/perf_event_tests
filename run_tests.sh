@@ -72,9 +72,12 @@ $TESTS_DIR/attr_fields/inherit
 echo "  + $TESTS_DIR/attr_fields/inherit_stat"
 echo -n "    "
 $TESTS_DIR/attr_fields/inherit_stat
-echo "  + $TESTS_DIR/attr_fields/enable_on_exec"
+echo "  + $TESTS_DIR/attr_fields/read_format_range_check"
 echo -n "    "
-$TESTS_DIR/attr_fields/enable_on_exec
+$TESTS_DIR/attr_fields/read_format_range_check
+echo "  + $TESTS_DIR/attr_fields/sample_type_range_check"
+echo -n "    "
+$TESTS_DIR/attr_fields/sample_type_range_check
 echo "  + $TESTS_DIR/flags/flags_range_check"
 echo -n "    "
 $TESTS_DIR/flags/flags_range_check

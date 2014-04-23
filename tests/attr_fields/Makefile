@@ -9,8 +9,9 @@ all:	\
 	exclusive \
 	format_id_support \
 	inherit \
-	inherit_stat 
-
+	inherit_stat \
+	read_format_range_check \
+	sample_type_range_check
 
 ###
 
@@ -111,6 +112,32 @@ format_id_support.o:	format_id_support.c
 ###
 
 
+read_format_range_check:	read_format_range_check.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o read_format_range_check read_format_range_check.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+read_format_range_check.o:	read_format_range_check.c
+	$(CC) $(CFLAGS) -c read_format_range_check.c
+
+###
+
+sample_type_range_check:	sample_type_range_check.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_type_range_check sample_type_range_check.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+sample_type_range_check.o:	sample_type_range_check.c
+	$(CC) $(CFLAGS) -c sample_type_range_check.c
+
+###
+
 clean:	
 	rm -f *~ *.o \
 	disabled \
@@ -118,5 +145,7 @@ clean:
 	exclusive \
 	format_id_support \
 	inherit \
-	inherit_stat 
+	inherit_stat \
+	read_format_range_check \
+	sample_type_range_check
 
