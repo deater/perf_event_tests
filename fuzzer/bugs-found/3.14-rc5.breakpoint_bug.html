@@ -1,8 +1,8 @@
 <html>
-<head><title>BUG: 3.13-rc4:  Can't find any breakpoint slot</title></head>
+<head><title>WARNING: Can't find any breakpoint slot</title></head>
 </body>
 
-<h1>BUG: 3.14-rc4 :  WARNING: Can't find any breakpoint slot</h1>
+<h1>WARNING: at arch/x86/kernel/hw_breakpoint.c:120 Can't find any breakpoint slot</h1>
 
 <h3>Severity</h3>
 
@@ -20,7 +20,7 @@ yes
 attempt bisection.
 
 <h3>Most Recently Seen</h3>
-
+3.15-rc1<br>
 3.14-rc6.  Hard to reproduce.  Reproducible from seed, but enabling
 logging or ftrace makes it not happen (possibly is a context-switch
 on fork bug).
@@ -36,6 +36,101 @@ No response.
 
 <h3>Kernel Spews</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver                                        
+                                                                                
+        Linux version 3.15.0-rc1+ x86_64                                        
+        Processor: Intel 6/60/3                                                 
+                                                                                
+        Seeding random number generator with 1398194843                         
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 12500/s          
+        /proc/sys/kernel/perf_event_paranoid currently: 1                       
+        Logging perf_event_open() failures: no                                  
+        Running fsync after every syscall: no                                   
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1398194843 
+                                                                                
+Pid=4819, sleeping 1s                                                           
+==================================================                              
+Fuzzing the following syscalls:                                                 
+        mmap perf_event_open close read write ioctl fork prctl poll             
+*NOT* Fuzzing the following syscalls:                                           
+                                                                                
+Also attempting the following:                                                  
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mma
+p-page                                                                          
+*NOT* attempting the following:                                                 
+        signal-handler-on-overflow                                              
+==================================================                              
+Iteration 10000                                                                 
+        Open attempts: 348324  Successful: 912                                  
+                EPERM : 22                                                      
+                ENOENT : 940                                                    
+                E2BIG : 40398                                                   
+                EBADF : 5838                                                    
+                EACCES : 275                                                    
+                EINVAL : 299029                                                 
+                ENOSPC : 187                                                    
+                EOPNOTSUPP : 723                                                
+        Close attempts: 886  Successful: 886                                    
+        Read attempts: 850  Successful: 734                                     
+        Write attempts: 927  Successful: 0                                      
+        Ioctl attempts: 909  Successful: 430                                    
+        Mmap attempts: 912  Successful: 246                                     
+        Prctl attempts: 921  Successful: 921                                    
+        Fork attempts: 451  Successful: 451                                     
+        Poll attempts: 867  Successful: 8                                       
+        Access attempts: 873  Successful: 448                                   
+        Trash mmap attempts: 837  Successful: 837                               
+        Overflows: 0                                                            
+        SIGIOs due to RT signal queue full: 0                                   
+[  438.849695] ------------[ cut here ]------------                             
+[  438.854589] WARNING: CPU: 3 PID: 4819 at arch/x86/kernel/hw_breakpoint.c:120 
+arch_install_hw_breakpoint+0xf1/0x100()                                         
+[  438.865872] Can't find any breakpoint slot                                   
+[  438.870021] Modules linked in: fuse snd_hda_codec_realtek snd_hda_codec_hdmi 
+snd_hda_codec_generic x86_pkg_temp_thermal intel_powerclamp coretemp kvm snd_hda
+_intel i915 crct10dif_pclmul snd_hda_controller crc32_pclmul snd_hda_codec snd_h
+wdep ghash_clmulni_intel snd_pcm aesni_intel iTCO_wdt drm_kms_helper snd_seq drm
+ parport_pc aes_x86_64 lrw evdev gf128mul psmouse snd_timer glue_helper snd_seq_
+device i2c_i801 i2c_algo_bit iTCO_vendor_support ablk_helper parport serio_raw p
+cspkr i2c_core lpc_ich snd tpm_tis cryptd soundcore mfd_core mei_me wmi mei proc
+essor video battery tpm button sg sd_mod sr_mod crc_t10dif crct10dif_common cdro
+m ahci e1000e libahci ehci_pci libata ptp ehci_hcd xhci_hcd crc32c_intel pps_cor
+e scsi_mod usbcore usb_common thermal fan thermal_sys                           
+[  438.944269] CPU: 3 PID: 4819 Comm: perf_fuzzer Not tainted 3.15.0-rc1+ #85   
+[  438.951634] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2
+014                                                                             
+[  438.959552]  0000000000000009 ffff8800cf21bc20 ffffffff8164f7b3 ffff8800cf21b
+c68                                                                             
+[  438.967590]  ffff8800cf21bc58 ffffffff810647cd 0000000000000004 ffff880118799
+000                                                                             
+[  438.975619]  ffff88011ead7f20 ffff88011ead7f24 00000061b10c77c1 ffff8800cf21b
+cb8                                                                             
+[  438.983681] Call Trace:                                                      
+[  438.986309]  [<ffffffff8164f7b3>] dump_stack+0x45/0x56                       
+[  438.991835]  [<ffffffff810647cd>] warn_slowpath_common+0x7d/0xa0             
+[  438.998271]  [<ffffffff8106483c>] warn_slowpath_fmt+0x4c/0x50                
+[  439.004484]  [<ffffffff8101a241>] arch_install_hw_breakpoint+0xf1/0x100      
+[  439.011600]  [<ffffffff8113ccf4>] hw_breakpoint_add+0x44/0x50                
+[  439.017767]  [<ffffffff811367a0>] event_sched_in.isra.76+0x90/0x1e0          
+[  439.024479]  [<ffffffff81136959>] group_sched_in+0x69/0x1e0                  
+[  439.030471]  [<ffffffff81136fa5>] __perf_event_enable+0x255/0x260            
+[  439.037001]  [<ffffffff81132360>] remote_function+0x40/0x50                  
+[  439.042994]  [<ffffffff810de126>] generic_exec_single+0x126/0x170            
+[  439.049566]  [<ffffffff81132320>] ? task_clock_event_add+0x40/0x40           
+[  439.056217]  [<ffffffff810de1d7>] smp_call_function_single+0x67/0xa0         
+[  439.063056]  [<ffffffff811312d4>] task_function_call+0x44/0x50               
+[  439.069343]  [<ffffffff81136d50>] ? perf_event_sched_in+0x90/0x90            
+[  439.075802]  [<ffffffff81131370>] perf_event_enable+0x90/0xf0                
+[  439.081965]  [<ffffffff811312e0>] ? task_function_call+0x50/0x50             
+[  439.088379]  [<ffffffff8113144a>] perf_event_for_each_child+0x3a/0xa0        
+[  439.095283]  [<ffffffff81137b0f>] perf_event_task_enable+0x4f/0x80           
+[  439.101918]  [<ffffffff8107c015>] SyS_prctl+0x255/0x4b0                      
+[  439.107480]  [<ffffffff81660c84>] tracesys+0xe1/0xe6                         
+[  439.112785] ---[ end trace eea548b4adf51169 ]---                             
+</pre>
+
 <li>
 <pre>
 *** perf_fuzzer *** by Vince Weaver
@@ -198,3 +293,4 @@ Iteration 10000
 
 </body>
 </html>
+

@@ -1,0 +1,85 @@
+<html>
+<head>
+<title>WARNING: CPU: 0 PID: 25574 at kernel/events/core.c:2384
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>WARNING: CPU: 0 PID: 25574 at kernel/events/core.c:2384</h1>
+</center>
+
+<h3>Found by</h3>
+trinity / Dave Jones
+
+<h3>First Seen</h3>
+3.14-rc2
+
+<h3>Most recently Seen</h3>
+3.14-rc2
+
+<h3>Reproducible</h3>
+??
+
+<h3>Found On</h3>
+???
+
+<h3>Linux-kernel</h3>
+<A href="http://permalink.gmane.org/gmane.linux.kernel/1648614">
+29 Jan 2014 -- task_ctx_sched_out WARN_ON triggered.</a><br>
+24 April 2014 -- return of perf task_ctx_sched_out bug.<br>
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+WARNING: CPU: 0 PID: 25574 at kernel/events/core.c:2384 task_ctx_sched_out+0x6b/0x80()
+Modules linked in: 8021q garp dccp_ipv4 dccp bridge stp snd_seq_dummy sctp fuse hidp bnep tun rfcomm llc2 af_key nfnetlink scsi_transport_iscsi ipt_ULOG can_bcm can_raw nfc caif_socket caif af_802154 ieee802154 phonet af_rxrpc can pppoe pppox ppp_generic slhc irda crc_ccitt rds rose x25 atm netrom appletalk ipx p8023 psnap p8022 llc ax25 cfg80211 coretemp hwmon x86_pkg_temp_thermal kvm_intel kvm snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic snd_hda_intel snd_hda_controller xfs snd_hda_codec snd_hwdep e1000e libcrc32c crct10dif_pclmul snd_seq snd_seq_device crc32c_intel snd_pcm btusb bluetooth ghash_clmulni_intel snd_timer snd ptp pcspkr pps_core serio_raw microcode shpchp 6lowpan_iphc usb_debug rfkill soundcore
+CPU: 0 PID: 25574 Comm: trinity-c76 Not tainted 3.15.0-rc2+ #197
+ 0000000000000009 000000006f572b93 ffff8802389b3df0 ffffffff8b74671d
+ 0000000000000000 ffff8802389b3e28 ffffffff8b06d45d ffff8802441d7ad8
+ ffff880111e6adf0 0000000000000286 ffff88023fb8b5c0 ffff880111e6adf0
+Call Trace:
+ [<ffffffff8b74671d>] dump_stack+0x4e/0x7a
+ [<ffffffff8b06d45d>] warn_slowpath_common+0x7d/0xa0
+ [<ffffffff8b06d58a>] warn_slowpath_null+0x1a/0x20
+ [<ffffffff8b14f6eb>] task_ctx_sched_out+0x6b/0x80
+ [<ffffffff8b152988>] perf_event_comm+0x108/0x260
+ [<ffffffff8b152880>] ? perf_event_fork+0x20/0x20
+ [<ffffffff8b0bf746>] ? lock_release_holdtime.part.24+0xe6/0x160
+ [<ffffffff8b0a3ccd>] ? get_parent_ip+0xd/0x50
+ [<ffffffff8b1ce63f>] set_task_comm+0x4f/0xc0
+ [<ffffffff8b086829>] SyS_prctl+0x1d9/0x480
+ [<ffffffff8b75aa64>] tracesys+0xdd/0xe2
+</pre>
+<li>
+<pre>
+WARNING: CPU: 0 PID: 12579 at kernel/events/core.c:2539 task_ctx_sched_out+0x503/0x8a0()
+Modules linked in: nf_conntrack_netlink nf_conntrack pn_pep llc2 af_key rfcomm bnep snd_seq_dummy tun fuse hidp nfnetlink scsi_transport_iscsi can_raw can_bcm ipt_ULOG nfc caif_socket caif af_802154 phonet af_rxrpc can pppoe pppox ppp_generic slhc irda crc_ccitt rds rose x25 atm netrom appletalk ipx p8023 psnap p8022 llc ax25 cfg80211 snd_hda_codec_hdmi xfs snd_hda_codec_realtek coretemp hwmon snd_hda_codec_generic x86_pkg_temp_thermal snd_hda_intel kvm_intel snd_hda_codec kvm btusb snd_hwdep bluetooth snd_seq snd_seq_device crct10dif_pclmul snd_pcm crc32c_intel e1000e ghash_clmulni_intel 6lowpan_iphc libcrc32c microcode rfkill snd_timer serio_raw pcspkr usb_debug shpchp snd ptp soundcore pps_core
+CPU: 0 PID: 12579 Comm: trinity-c5 Not tainted 3.14.0-rc2+ #117
+ 0000000000000009 0000000044d442b6 ffff88009e1b7de0 ffffffff9972b1d1
+ 0000000000000000 ffff88009e1b7e18 ffffffff9906d0cd ffff88024d017700
+ ffff8801185e5898 0000000000000282 ffff88023a892e60 ffff8801185e5898
+Call Trace:
+ [<ffffffff9972b1d1>] dump_stack+0x4e/0x7a
+ [<ffffffff9906d0cd>] warn_slowpath_common+0x7d/0xa0
+ [<ffffffff9906d1fa>] warn_slowpath_null+0x1a/0x20
+ [<ffffffff991458f3>] task_ctx_sched_out+0x503/0x8a0
+ [<ffffffff99148ea8>] perf_event_comm+0x108/0x260
+ [<ffffffff99148da0>] ? perf_event_fork+0x20/0x20
+ [<ffffffff991c4c95>] ? set_task_comm+0x25/0xc0
+ [<ffffffff990a4f0d>] ? get_parent_ip+0xd/0x50
+ [<ffffffff991c4cbf>] set_task_comm+0x4f/0xc0
+ [<ffffffff99086ecb>] SyS_prctl+0x22b/0x3d0
+ [<ffffffff9973ea2a>] tracesys+0xd4/0xd9
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

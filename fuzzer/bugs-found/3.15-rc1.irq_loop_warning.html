@@ -1,0 +1,229 @@
+<html>
+<head>
+<title>WARNING: at arch/x86/kernel/cpu/perf_event_intel.c:1373 perfevents: irq loop stuck!
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>WARNING: at arch/x86/kernel/cpu/perf_event_intel.c:1373 perfevents: irq loop stuck!</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+3.15-rc1
+
+<h3>Most recently Seen</h3>
+3.15-rc1
+
+<h3>Reproducible</h3>
+??
+
+<h3>Found On</h3>
+???
+
+<h3>Linux-kernel</h3>
+N/A
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+	Linux version 3.15.0-rc1+ x86_64
+	Processor: Intel 6/60/3
+
+	Seeding random number generator with 1398101771
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+	/proc/sys/kernel/perf_event_paranoid currently: 1
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1398101771
+
+Pid=11876, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	signal-handler-on-overflow 
+==================================================
+Iteration 10000
+	Open attempts: 337104  Successful: 905
+		EPERM : 14
+		ENOENT : 919
+		E2BIG : 39172
+		EBADF : 5587
+		EACCES : 249
+		EINVAL : 289434
+		ENOSPC : 179
+		EOPNOTSUPP : 645
+	Close attempts: 874  Successful: 874
+	Read attempts: 912  Successful: 781
+	Write attempts: 869  Successful: 0
+	Ioctl attempts: 875  Successful: 404
+	Mmap attempts: 905  Successful: 270
+	Prctl attempts: 889  Successful: 889
+	Fork attempts: 482  Successful: 482
+	Poll attempts: 945  Successful: 13
+	Access attempts: 857  Successful: 459
+	Trash mmap attempts: 885  Successful: 885
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+Iteration 20000
+	Open attempts: 356748  Successful: 929
+		EPERM : 16
+		ENOENT : 966
+		E2BIG : 41129
+		EBADF : 5836
+		EACCES : 279
+		EINVAL : 306820
+		ENOSPC : 133
+		EOPNOTSUPP : 640
+	Close attempts: 913  Successful: 913
+	Read attempts: 925  Successful: 793
+	Write attempts: 859  Successful: 0
+	Ioctl attempts: 908  Successful: 400
+	Mmap attempts: 929  Successful: 283
+	Prctl attempts: 853  Successful: 853
+	Fork attempts: 483  Successful: 483
+	Poll attempts: 946  Successful: 19
+	Access attempts: 921  Successful: 441
+	Trash mmap attempts: 867  Successful: 867
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+Iteration 30000
+	Open attempts: 356531  Successful: 924
+		EPERM : 14
+		ENOENT : 1027
+		E2BIG : 41510
+		EBADF : 5409
+		EACCES : 263
+		EINVAL : 306288
+		ENOSPC : 397
+		EOPNOTSUPP : 699
+	Close attempts: 871  Successful: 871
+	Read attempts: 886  Successful: 772
+	Write attempts: 905  Successful: 0
+	Ioctl attempts: 912  Successful: 402
+	Mmap attempts: 924  Successful: 231
+	Prctl attempts: 958  Successful: 958
+	Fork attempts: 449  Successful: 449
+	Poll attempts: 880  Successful: 42
+	Access attempts: 941  Successful: 478
+	Trash mmap attempts: 935  Successful: 935
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+[233086.504483] perf interrupt took too long (5017 > 5000), lowering kernel.perf_event_max_sample_rate to 25000
+Iteration 40000
+	Open attempts: 323102  Successful: 866
+		EPERM : 14
+		ENOENT : 883
+		E2BIG : 37600
+		EBADF : 5049
+		EACCES : 232
+		EINVAL : 277485
+		ENOSPC : 351
+		EOPNOTSUPP : 622
+	Close attempts: 928  Successful: 928
+	Read attempts: 881  Successful: 726
+	Write attempts: 891  Successful: 0
+	Ioctl attempts: 889  Successful: 404
+	Mmap attempts: 866  Successful: 232
+	Prctl attempts: 882  Successful: 882
+	Fork attempts: 463  Successful: 463
+	Poll attempts: 949  Successful: 34
+	Access attempts: 939  Successful: 472
+	Trash mmap attempts: 907  Successful: 907
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+[233108.540578] ------------[ cut here ]------------
+[233108.545658] WARNING: CPU: 3 PID: 11876 at arch/x86/kernel/cpu/perf_event_intel.c:1373 intel_pmu_handle_irq+0x2a4/0x3c0()
+[233108.557265] perfevents: irq loop stuck!
+[233108.561443] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp coretemp snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic kvm snd_hda_intel snd_hda_controller crct10dif_pclmul snd_hda_codec crc32_pclmul ghash_clmulni_intel aesni_intel aes_x86_64 mei_me snd_hwdep snd_pcm lrw gf128mul glue_helper snd_seq i915 mei ablk_helper iTCO_wdt snd_timer cryptd snd_seq_device parport_pc iTCO_vendor_support psmouse wmi i2c_i801 pcspkr snd parport serio_raw tpm_tis drm_kms_helper lpc_ich mfd_core drm evdev tpm i2c_algo_bit button processor video battery i2c_core soundcore sg sd_mod sr_mod crc_t10dif cdrom crct10dif_common hid_generic usbhid hid ahci libahci libata ehci_pci xhci_hcd ehci_hcd e1000e scsi_mod ptp crc32c_intel usbcore pps_core usb_common fan thermal thermal_sys
+[233108.636437] CPU: 3 PID: 11876 Comm: perf_fuzzer Not tainted 3.15.0-rc1+ #66
+[233108.643855] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[233108.651806]  0000000000000009 ffff88011eac6cb0 ffffffff8164f86d ffff88011eac6cf8
+[233108.659967]  ffff88011eac6ce8 ffffffff810647cd 0000000000000064 ffff88011eaccbe0
+[233108.668082]  ffff880004cbc000 0000000000000040 ffff88011eaccde0 ffff88011eac6d48
+[233108.676239] Call Trace:
+[233108.678919]  <NMI>  [<ffffffff8164f86d>] dump_stack+0x45/0x56
+[233108.685240]  [<ffffffff810647cd>] warn_slowpath_common+0x7d/0xa0
+[233108.691783]  [<ffffffff8106483c>] warn_slowpath_fmt+0x4c/0x50
+[233108.698068]  [<ffffffff81026e76>] ? x86_pmu_stop+0x76/0xd0
+[233108.704058]  [<ffffffff8102ef94>] intel_pmu_handle_irq+0x2a4/0x3c0
+[233108.710799]  [<ffffffff81116b8d>] ? trace_buffer_unlock_commit+0x4d/0x60
+[233108.718108]  [<ffffffff8112436a>] ? ftrace_event_buffer_commit+0x8a/0xc0
+[233108.725417]  [<ffffffff8165940b>] perf_event_nmi_handler+0x2b/0x50
+[233108.732169]  [<ffffffff81658bd8>] nmi_handle.isra.5+0xa8/0x150
+[233108.738480]  [<ffffffff81658b35>] ? nmi_handle.isra.5+0x5/0x150
+[233108.744912]  [<ffffffff81658d58>] do_nmi+0xd8/0x340
+[233108.750267]  [<ffffffff81658201>] end_repeat_nmi+0x1e/0x2e
+[233108.756248]  [<ffffffff8105046a>] ? native_write_msr_safe+0xa/0x10
+[233108.762977]  [<ffffffff8105046a>] ? native_write_msr_safe+0xa/0x10
+[233108.769700]  [<ffffffff8105046a>] ? native_write_msr_safe+0xa/0x10
+[233108.776456]  <<EOE>>  [<ffffffff8102eb7d>] intel_pmu_enable_event+0x21d/0x240
+[233108.784264]  [<ffffffff81027baa>] x86_pmu_start+0x7a/0x100
+[233108.790258]  [<ffffffff810283a5>] x86_pmu_enable+0x295/0x310
+[233108.796411]  [<ffffffff81135a67>] perf_pmu_enable+0x27/0x30
+[233108.802457]  [<ffffffff8102644a>] x86_pmu_commit_txn+0x7a/0xa0
+[233108.808831]  [<ffffffff81116b8d>] ? trace_buffer_unlock_commit+0x4d/0x60
+[233108.816143]  [<ffffffff8112436a>] ? ftrace_event_buffer_commit+0x8a/0xc0
+[233108.823428]  [<ffffffff810b13bd>] ? __lock_acquire.isra.29+0x3bd/0xb90
+[233108.830509]  [<ffffffff810af8ca>] ? ftrace_raw_event_lock_acquire+0xba/0x100
+[233108.838183]  [<ffffffff81136748>] ? event_sched_in.isra.76+0x148/0x1e0
+[233108.845318]  [<ffffffff811369a0>] group_sched_in+0x1c0/0x1e0
+[233108.851515]  [<ffffffff81136e95>] __perf_event_enable+0x255/0x260
+[233108.858151]  [<ffffffff81132390>] remote_function+0x40/0x50
+[233108.864288]  [<ffffffff810de136>] generic_exec_single+0x126/0x170
+[233108.870954]  [<ffffffff81132350>] ? task_clock_event_add+0x40/0x40
+[233108.877665]  [<ffffffff810de1e7>] smp_call_function_single+0x67/0xa0
+[233108.884584]  [<ffffffff811312f4>] task_function_call+0x44/0x50
+[233108.890971]  [<ffffffff81136c40>] ? perf_event_sched_in+0x90/0x90
+[233108.897650]  [<ffffffff81131390>] perf_event_enable+0x90/0xf0
+[233108.903936]  [<ffffffff81131300>] ? task_function_call+0x50/0x50
+[233108.910465]  [<ffffffff8113146a>] perf_event_for_each_child+0x3a/0xa0
+[233108.917448]  [<ffffffff811379ff>] perf_event_task_enable+0x4f/0x80
+[233108.924198]  [<ffffffff8107c015>] SyS_prctl+0x255/0x4b0
+[233108.929938]  [<ffffffff81660d44>] tracesys+0xe1/0xe6
+[233108.935334] ---[ end trace 01c78b8dcb064f75 ]---
+[233108.940414] 
+[233108.942136] CPU#3: ctrl:       0000000000000000
+[233108.947065] CPU#3: status:     0000000000000000
+[233108.953180] CPU#3: overflow:   0000000000000000
+[233108.959254] CPU#3: fixed:      00000000000000b0
+[233108.965309] CPU#3: pebs:       0000000000000000
+[233108.971365] CPU#3: active:     000000020000000f
+[233108.977354] CPU#3:   gen-PMC0 ctrl:  0000000000500030
+[233108.983917] CPU#3:   gen-PMC0 count: 0000000000000001
+[233108.990455] CPU#3:   gen-PMC0 left:  0000ffffffffffff
+[233108.996937] CPU#3:   gen-PMC1 ctrl:  000000000052013c
+[233109.003417] CPU#3:   gen-PMC1 count: 0000000000001d2e
+[233109.009888] CPU#3:   gen-PMC1 left:  0000ffffffffffff
+[233109.016324] CPU#3:   gen-PMC2 ctrl:  0000000010c001c2
+[233109.022720] CPU#3:   gen-PMC2 count: 000000000f44a8c7
+[233109.029064] CPU#3:   gen-PMC2 left:  0000fffff0bf60c5
+[233109.035351] CPU#3:   gen-PMC3 ctrl:  0000000000534f2e
+[233109.041600] CPU#3:   gen-PMC3 count: 0000fffffffe4164
+[233109.047798] CPU#3:   gen-PMC3 left:  000000000001be9c
+[233109.054009] CPU#3: fixed-PMC0 count: 0000fffffffffffe
+[233109.060247] CPU#3: fixed-PMC1 count: 0000fff95bbfd25f
+[233109.066456] CPU#3: fixed-PMC2 count: 0000000000000001
+[233109.072660] perf_event_intel: clearing PMU state on CPU#3
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

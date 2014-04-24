@@ -44,6 +44,108 @@ Seen on core2, haswell
 <ol>
 <li>
 <pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver                                        
+                                                                                
+        Linux version 3.14.0 x86_64                                             
+        Processor: Intel 6/60/3                                                 
+                                                                                
+        Seeding random number generator with 1396367392                         
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 12500/s          
+        /proc/sys/kernel/perf_event_paranoid currently: 1                       
+        Logging perf_event_open() failures: no                                  
+        Running fsync after every syscall: no                                   
+        Run as: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000                          
+                                                                                
+Pid=16033, sleeping 1s                                                          
+==================================================                              
+Fuzzing the following syscalls:                                                 
+        mmap perf_event_open close read write ioctl fork prctl poll             
+*NOT* Fuzzing the following syscalls:                                           
+                                                                                
+Also attempting the following:                                                  
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page                                                                          
+*NOT* attempting the following:                                                 
+        signal-handler-on-overflow                                              
+==================================================                              
+Iteration 10000                                                                 
+        Open attempts: 321168  Successful: 902                                  
+                EPERM : 22                                                      
+                ENOENT : 801                                                    
+                E2BIG : 37332                                                   
+                EBADF : 5433                                                    
+                EACCES : 203                                                    
+                EINVAL : 275868                                                 
+                ENOSPC : 19                                                     
+                EOPNOTSUPP : 588                                                
+        Close attempts: 886  Successful: 886                                    
+        Read attempts: 917  Successful: 800                                     
+        Write attempts: 863  Successful: 0                                      
+        Ioctl attempts: 906  Successful: 448                                    
+        Mmap attempts: 902  Successful: 272                                     
+        Prctl attempts: 943  Successful: 943                                    
+        Fork attempts: 472  Successful: 472                                     
+        Poll attempts: 875  Successful: 2                                       
+        Access attempts: 869  Successful: 470                                   
+        Trash mmap attempts: 874  Successful: 874                               
+        Overflows: 0                                                            
+        SIGIOs due to RT signal queue full: 0                                   
+[  854.517759] BUG: unable to handle kernel paging request at ffffffff8f30a928  
+[  854.525265] IP: [<ffffffff81029dfc>] x86_schedule_events+0x10c/0x270         
+[  854.532121] PGD 1a11067 PUD 1a12063 PMD 0                                    
+[  854.536590] Oops: 0000 [#1] SMP                                              
+[  854.540092] Dumping ftrace buffer:                                           
+[  854.543732]    (ftrace buffer empty)                                         
+[  854.547553] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd fscache sunrpc fuse x86_pkg_temp_thermal intel_powerclamp coretemp snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi kvm snd_hda_intel crct10dif_pclmul snd_hda_codec snd_hwdep crc32_pclmul snd_pcm ghash_clmulni_intel snd_seq aesni_intel aes_x86_64 lrw gf128mul snd_seq_device glue_helper i915 drm_kms_helper ablk_helper snd_timer iTCO_wdt iTCO_vendor_support snd evdev cryptd drm lpc_ich parport_pc parport psmouse tpm_tis serio_raw tpm pcspkr mfd_core soundcore mei_me i2c_i801 i2c_algo_bit video processor i2c_core wmi mei button battery sg sd_mod sr_mod crc_t10dif crct10dif_common cdrom ahci ehci_pci xhci_hcd libahci ehci_hcd libata e1000e scsi_mod ptp crc32c_intel usbcore pps_core usb_common thermal fan thermal_sys
+[  854.625746] CPU: 0 PID: 16033 Comm: perf_fuzzer Not tainted 3.14.0 #16
+[  854.632736] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  854.640649] task: ffff8801166bca50 ti: ffff8800cf95a000 task.ti: ffff8800cf95a000
+[  854.648720] RIP: 0010:[<ffffffff81029dfc>]  [<ffffffff81029dfc>] x86_schedule_events+0x10c/0x270
+[  854.658121] RSP: 0000:ffff88011ea03c30  EFLAGS: 00010046                     
+[  854.663815] RAX: 0000000000000000 RBX: ffff88011ea0cbe0 RCX: 00000000001004c9
+[  854.671450] RDX: ffffffff81a1e498 RSI: ffff88011715f000 RDI: 000000006b6b6b6b
+[  854.679109] RBP: ffff88011ea03c88 R08: 0000000000000000 R09: ffffffff81c33bc0
+[  854.686727] R10: 0048000000000000 R11: fffc0000ffdc0009 R12: ffff880118325800
+[  854.694373] R13: ffff88011ea0d120 R14: 0000000000000005 R15: 0000000000000000
+[  854.702041] FS:  00007f24c57bc700(0000) GS:ffff88011ea00000(0000) knlGS:0000000000000000
+[  854.710697] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033                
+[  854.716848] CR2: ffffffff8f30a928 CR3: 00000000cf080000 CR4: 00000000001407f0
+[  854.724448] DR0: 00000000013d2000 DR1: 00000000013d2000 DR2: 00000000013d2000
+[  854.732054] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 000000000f000628
+[  854.739666] Stack:                                                           
+[  854.741821]  ffff88011ea0d100 000000041ea03c70 0000000000000003 ffff88011ea03c98
+[  854.749818]  ffff88011ea0d120 0000000000000000 ffff88011ea0cbe0 ffff8801188c2e00
+[  854.757872]  0000000000000004 ffffffff81a1c340 0000000000000000 ffff88011ea03db8
+[  854.765864] Call Trace:                                                      
+[  854.768495]  <IRQ>                                                           
+[  854.770575]  [<ffffffff81028999>] x86_pmu_commit_txn+0x49/0xa0               
+[  854.777033]  [<ffffffff8101cd15>] ? native_sched_clock+0x35/0x90             
+[  854.783482]  [<ffffffff8113b492>] ? perf_event_update_userpage+0xd2/0x160    
+[  854.790742]  [<ffffffff8113b4aa>] ? perf_event_update_userpage+0xea/0x160    
+[  854.797991]  [<ffffffff8113a058>] ? event_sched_in.isra.77+0x148/0x1e0       
+[  854.804981]  [<ffffffff8113a2b0>] group_sched_in+0x1c0/0x1e0                 
+[  854.811072]  [<ffffffff8113a3f1>] ctx_sched_in+0x121/0x1e0                   
+[  854.816949]  [<ffffffff8113a510>] perf_event_sched_in+0x60/0x90              
+[  854.823289]  [<ffffffff8113ab53>] perf_cpu_hrtimer_handler+0xe3/0x200        
+[  854.831517]  [<ffffffff8108e5b6>] __run_hrtimer+0x86/0x1e0                   
+[  854.838638]  [<ffffffff8113aa70>] ? perf_event_context_sched_in+0xc0/0xc0    
+[  854.847169]  [<ffffffff8108edd7>] hrtimer_interrupt+0xf7/0x240               
+[  854.854733]  [<ffffffff810467e7>] local_apic_timer_interrupt+0x37/0x60       
+[  854.862981]  [<ffffffff815a1b2f>] smp_apic_timer_interrupt+0x3f/0x60         
+[  854.871031]  [<ffffffff815a049d>] apic_timer_interrupt+0x6d/0x80             
+[  854.878670]  <EOI>                                                           
+[  854.880721] Code: 8d 40 01 74 32 48 8b b4 c3 28 05 00 00 48 83 c0 01 48 63 be 4c 01 00 00 4c 8b 8e 88 01 00 00 83 ff ff 0f 84 22 01 00 00 41 89 c0 <49> 0f a3 39 45 19 c9 45 85 c9 75 a0 45 31 e4 44 3b 45 b4 be 01                          
+[  854.906154] RIP  [<ffffffff81029dfc>] x86_schedule_events+0x10c/0x270
+[  854.914319]  RSP <ffff88011ea03c30>                                          
+[  854.919337] CR2: ffffffff8f30a928                                            
+[  855.157018] ---[ end trace 74a632e4f96aae48 ]---                             
+[  855.162968] Kernel panic - not syncing: Fatal exception in interrupt         
+[  855.170796] Dumping ftrace buffer:                                           
+[  855.175499]    (ftrace buffer empty)                                         
+[  855.180347] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)                                        
+</pre>
+
+<li>
+<pre>
 *** perf_fuzzer 0.28 *** by Vince Weaver
 
         Linux version 3.14.0+ x86_64
