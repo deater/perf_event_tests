@@ -134,6 +134,13 @@ echo -n "    "
 $TESTS_DIR/error_returns/non-existent
 
 echo
+echo "* Checking multithread functionality"
+echo "  + $TESTS_DIR/multithread/fork_then_read"
+echo -n "    "
+$TESTS_DIR/multithread/fork_then_read
+
+
+echo
 echo "* Checking overflow functionality"
 echo "  + $TESTS_DIR/overflow/breakpoint_overflow"
 echo -n "    "
