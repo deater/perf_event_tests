@@ -30,3 +30,11 @@ Running:
 
 
 
+Trying to trace process plus idle thread (RCU release)
+
+ trace-cmd record -p function -e all -P 0 -P 31679
+
+
+trace-cmd record -p function -e all -c -F su vince -c "./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 139870047"
+
+trace-cmd record -e kmem -e raw_syscalls -l 'perf*' -l 'x86*'
