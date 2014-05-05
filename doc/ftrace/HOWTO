@@ -38,3 +38,5 @@ Trying to trace process plus idle thread (RCU release)
 trace-cmd record -p function -e all -c -F su vince -c "./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 139870047"
 
 trace-cmd record -e kmem -e raw_syscalls -l 'perf*' -l 'x86*'
+
+trace-cmd record -e kmem -e raw_syscalls -p function -l '*perf*' -n 'perf_event_task_tick'
