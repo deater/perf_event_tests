@@ -1,18 +1,24 @@
 <html>
-<head><title>WARNING at arch/x86/kernel/cpu/perf_event.c:1076</title></head>
+<head><title>WARNING at arch/x86/kernel/cpu/perf_event.c:1076 x86_pmu_start()</title></head>
 
 <body>
 
 <center>
-<h1>WARNING at arch/x86/kernel/cpu/perf_event.c:1076
+<h1>WARNING at arch/x86/kernel/cpu/perf_event.c:1076 x86_pmu_start()
 </h1>
 </center>
 
 <h3>Found by</h3>
 perf_fuzzer
 
+<h3>First Seen</h3>
+3.14, after we thought we had fixed it
+
 <h3>Last Seen</h3>
-3.14
+3.15-rc4
+
+<h3>Seen On</h3>
+Haswell, Pentium 4
 
 <h3>Reproducible</h3>
 ???
@@ -32,6 +38,32 @@ it seems there's another way to trigger it.
 
 <h3>Kernel Spew</h3>
 <ol>
+<li>P4, before I had serial console set up
+<pre>
+[   61.333982] WARNING: CPU: 1 PID: 1853 at arch/x86/kernel/cpu/perf_event.c:1082 x86_pmu_start+0x46/0xf5()
+[   61.333986] Modules linked in: loop snd_hda_codec_analog snd_hda_codec_generic ppdev microcode i2c_i801 i915 drm_kms_helper iTCO_wdt drm iTCO_vendor_support evdev i2c_algo_bit i2c_core lpc_ich pcspkr psmouse parport_pc parport serio_raw snd_hda_intel snd_hda_controller snd_hda_codec snd_hwdep snd_pcm snd_timer snd soundcore mfd_core tpm_tis tpm video button acpi_cpufreq processor thermal_sys sr_mod cdrom sd_mod crc_t10dif crct10dif_generic crct10dif_common ata_generic ata_piix libata scsi_mod tg3 ptp pps_core libphy floppy uhci_hcd ehci_pci ehci_hcd usbcore usb_common
+[   61.334067] CPU: 1 PID: 1853 Comm: perf_fuzzer Not tainted 3.15.0-rc4+ #1
+[   61.334071] Hardware name: LENOVO 88088NU/LENOVO, BIOS 2JKT37AUS 07/12/2007
+[   61.334075]  0000000000000006 ffffffff813e1e25 0000000000000000 ffffffff810376aa
+[   61.334082]  ffffffff81011588 ffff8800377b8400 ffff88003f50bb50 000000000000000c
+[   61.334088]  0000000000000002 ffffffff81011588 ffff8800377b8400 ffff88003f50bb50
+[   61.334095] Call Trace:
+[   61.334099]  <IRQ>  [<ffffffff813e1e25>] ? dump_stack+0x41/0x51
+[   61.334116]  [<ffffffff810376aa>] ? warn_slowpath_common+0x74/0x89
+[   61.334122]  [<ffffffff81011588>] ? x86_pmu_start+0x46/0xf5
+[   61.334128]  [<ffffffff81011588>] ? x86_pmu_start+0x46/0xf5
+[   61.334133]  [<ffffffff81011b2a>] ? x86_pmu_enable+0x14c/0x22c
+[   61.334140]  [<ffffffff810baebf>] ? __perf_event_task_sched_in+0x112/0x112
+[   61.334146]  [<ffffffff810bafa0>] ? perf_cpu_hrtimer_handler+0xe1/0x120
+[   61.334152]  [<ffffffff810515aa>] ? __run_hrtimer+0x89/0x139
+[   61.334157]  [<ffffffff81051ce1>] ? hrtimer_interrupt+0xdd/0x1be
+[   61.334165]  [<ffffffff810244b9>] ? smp_trace_apic_timer_interrupt+0x34/0x93
+[   61.334170]  [<ffffffff813eb83a>] ? trace_apic_timer_interrupt+0x6a/0x70
+[   61.334173]  <EOI>  [<ffffffff813eaaa6>] ? system_call_fastpath+0x1a/0x1f
+[   61.334181] ---[ end trace a88368266e292df9 ]---
+[   63.611570] perf interrupt took too long (2526 > 2500), lowering kernel.perf_event_max_sample_rate to 50000
+[   66.864641] perf interrupt took too long (5011 > 5000), lowering kernel.perf_event_max_sample_rate to 25000
+</pre>
 <li>
 <pre>
 *** perf_fuzzer 0.28 *** by Vince Weaver
