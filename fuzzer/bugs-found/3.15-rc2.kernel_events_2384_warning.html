@@ -11,13 +11,14 @@
 </center>
 
 <h3>Found by</h3>
-trinity / Dave Jones
+trinity / Dave Jones<br><br>
+later, by perf_fuffzer
 
 <h3>First Seen</h3>
 3.14-rc2
 
 <h3>Most recently Seen</h3>
-3.14-rc2
+3.15-rc4
 
 <h3>Reproducible</h3>
 ??
@@ -33,6 +34,91 @@ trinity / Dave Jones
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+        Linux version 3.15.0-rc4+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1399309111
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 12500/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1399309111 
+
+Pid=25542, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mma
+p-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Iteration 10000
+        Open attempts: 307759  Successful: 908
+                EPERM : 20
+                ENOENT : 881
+                E2BIG : 35526
+                EBADF : 5257
+                EINVAL : 264612
+                ENOSPC : 40
+                EOPNOTSUPP : 515
+        Close attempts: 888  Successful: 888
+        Read attempts: 826  Successful: 698
+        Write attempts: 907  Successful: 0
+        Ioctl attempts: 872  Successful: 390
+        Mmap attempts: 908  Successful: 240
+        Prctl attempts: 877  Successful: 877
+        Fork attempts: 450  Successful: 450
+        Poll attempts: 886  Successful: 2
+        Access attempts: 894  Successful: 424
+        Trash mmap attempts: 878  Successful: 878
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[  804.032050] ------------[ cut here ]------------
+[  804.036004] WARNING: CPU: 1 PID: 26033 at kernel/events/core.c:2398 task_ctx_
+sched_out+0x49/0x6e()
+[  804.036004] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powers
+ave cpufreq_conservative f71882fg mcs7830 usbnet evdev video wmi acpi_cpufreq oh
+ci_pci pcspkr psmouse button processor thermal_sys coretemp serio_raw ohci_hcd i
+2c_nforce2 sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[  804.036004] CPU: 1 PID: 26033 Comm: perf_fuzzer Tainted: G      D       3.15.
+0-rc4+ #44
+[  804.036004] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[  804.036004]  000000000000095e ffff880039ac3c08 ffffffff81539016 0000000000000
+95e
+[  804.036004]  0000000000000000 ffff880039ac3c48 ffffffff8103fcb9 0000000000000
+000
+[  804.036004]  ffffffff810ca939 ffff88011fc95b08 ffff8800cbb6a010 0000000000000
+000
+[  804.036004] Call Trace:
+[  804.036004]  [<ffffffff81539016>] dump_stack+0x49/0x5b
+[  804.036004]  [<ffffffff8103fcb9>] warn_slowpath_common+0x81/0x9b
+[  804.036004]  [<ffffffff810ca939>] ? task_ctx_sched_out+0x49/0x6e
+[  804.036004]  [<ffffffff8103fced>] warn_slowpath_null+0x1a/0x1c
+[  804.036004]  [<ffffffff810ca939>] task_ctx_sched_out+0x49/0x6e
+[  804.036004]  [<ffffffff810d0111>] perf_event_exit_task+0xee/0x1fe
+[  804.036004]  [<ffffffff8105e91c>] ? switch_task_namespaces+0x1d/0x51
+[  804.036004]  [<ffffffff81041bb6>] do_exit+0x400/0x942
+[  804.036004]  [<ffffffff810f3d50>] ? do_read_fault+0x169/0x263
+[  804.036004]  [<ffffffff810d3b51>] ? unlock_page+0x27/0x2c
+[  804.036004]  [<ffffffff81042170>] do_group_exit+0x78/0xa0
+[  804.036004]  [<ffffffff8104f378>] get_signal_to_deliver+0x46d/0x48a
+[  804.036004]  [<ffffffff810bc037>] ? function_trace_call+0xc8/0xf2
+[  804.036004]  [<ffffffff81002526>] do_signal+0x46/0x5e8
+[  804.036004]  [<ffffffff810b8279>] ? __trace_buffer_unlock_commit+0x3c/0x44
+[  804.036004]  [<ffffffff8100c176>] ? ftrace_raw_event_sys_exit+0x4a/0x72
+[  804.036004]  [<ffffffff81002af4>] do_notify_resume+0x2c/0x64
+[  804.036004]  [<ffffffff8153c235>] retint_signal+0x3d/0x78
+[  804.036004] ---[ end trace 6cadd738b5f7eb96 ]---
+</pre>
 <li>
 <pre>
 WARNING: CPU: 0 PID: 25574 at kernel/events/core.c:2384 task_ctx_sched_out+0x6b/0x80()

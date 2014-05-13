@@ -1,12 +1,12 @@
 <html>
 <head>
-<title>Core2 NMI Flood</title>
+<title>NMI Dazed and Confused messages</title>
 </head>
 
 <body>
 
 <center>
-<h1>Core2 NMI Flood</h1>
+<h1>NMI Dazed and Confused messages</h1>
 </center>
 
 <h3>Severity</h3>
@@ -28,7 +28,10 @@ a core2 machine with NMI messages.
 3.12
 
 <h3>Last Noticed</h3>
-3.14
+3.15-rc4
+
+<h3>Seen On</h3>
+Core2 (mostly).  Also on Hawell.
 
 <h3>Reported to lkml</h3>
 <a href="https://lkml.org/lkml/2013/11/14/537">
@@ -37,6 +40,102 @@ a core2 machine with NMI messages.
 
 <h3>Kernel Spew</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+        Linux version 3.15.0-rc1+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1399334266
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 12500/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1399334266
+
+Pid=28172, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Iteration 10000
+        Open attempts: 351457  Successful: 947
+                EPERM : 9
+                ENOENT : 973
+                E2BIG : 40892
+                EBADF : 5819
+                EACCES : 263
+                EINVAL : 301703
+                ENOSPC : 153
+                EOPNOTSUPP : 698
+        Close attempts: 928  Successful: 928
+        Read attempts: 908  Successful: 761
+        Write attempts: 898  Successful: 0
+        Ioctl attempts: 836  Successful: 394
+        Mmap attempts: 947  Successful: 278
+        Prctl attempts: 865  Successful: 865
+        Fork attempts: 440  Successful: 440
+        Poll attempts: 939  Successful: 22
+        Access attempts: 887  Successful: 439
+        Trash mmap attempts: 923  Successful: 923
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000
+        Open attempts: 353865  Successful: 933
+                EPERM : 17
+                ENOENT : 906
+                E2BIG : 40757
+                EBADF : 5737
+                EACCES : 260
+                EINVAL : 304248
+                ENOSPC : 275
+                EOPNOTSUPP : 732
+        Close attempts: 878  Successful: 878
+        Read attempts: 913  Successful: 794
+        Write attempts: 911  Successful: 0
+        Ioctl attempts: 889  Successful: 400
+        Mmap attempts: 933  Successful: 256
+        Prctl attempts: 905  Successful: 905
+        Fork attempts: 472  Successful: 472
+        Poll attempts: 896  Successful: 97
+        Access attempts: 940  Successful: 473
+        Trash mmap attempts: 876  Successful: 876
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 30000
+        Open attempts: 346492  Successful: 914
+                EPERM : 24
+                ENOENT : 947
+                E2BIG : 40433
+                EBADF : 5478
+                EACCES : 240
+                EINVAL : 297368
+                ENOSPC : 367
+                EOPNOTSUPP : 721
+        Close attempts: 885  Successful: 885
+        Read attempts: 940  Successful: 797
+        Write attempts: 861  Successful: 0
+        Ioctl attempts: 944  Successful: 436
+        Mmap attempts: 914  Successful: 229
+        Prctl attempts: 900  Successful: 900
+        Fork attempts: 438  Successful: 438
+        Poll attempts: 908  Successful: 8
+        Access attempts: 897  Successful: 448
+        Trash mmap attempts: 925  Successful: 925
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[32503.108958] Uhhuh. NMI received for unknown reason 31 on CPU 3.
+[32503.115306] Do you have a strange power saving mode enabled?
+[32503.121384] Dazed and confused, but trying to continue
+</pre>
+
 <li>
 <pre>
 [ 7911.810186] Uhhuh. NMI received for unknown reason 3d on CPU 0.

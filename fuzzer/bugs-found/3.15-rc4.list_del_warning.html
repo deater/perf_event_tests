@@ -1,0 +1,174 @@
+<html>
+<head>
+<title>
+WARNING: CPU: 1 PID: 11978 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: CPU: 1 PID: 11978 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+3.15-rc4
+
+<h3>Most recently Seen</h3>
+3.15-rc4
+
+<h3>Reproducible</h3>
+??
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+6 May 2014 -
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+        Linux version 3.15.0-rc1+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1399389316
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1399389316
+
+Pid=12743, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mma
+p-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+^C
+[87536.479011] ------------[ cut here ]------------
+[87536.484553] WARNING: CPU: 1 PID: 11978 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+[87536.493994] list_del corruption. prev->next should be ffff8800ce684810, but was 6b6b6b6b6b6b6b6b
+[87536.503915] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp coretemp kvm snd_hda_codec_hdmi crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek snd_hda_codec_generic i915 aesni_intel snd_hda_intel snd_hda_controller snd_hda_codec snd_hwdep snd_pcm snd_seq snd_timer snd_seq_device tpm_tis ppdev snd aes_x86_64 parport_pc tpm evdev mei_me drm_kms_helper iTCO_wdt drm soundcore lrw gf128mul glue_helper iTCO_vendor_support wmi ablk_helper i2c_algo_bit button battery processor mei psmouse parport pcspkr serio_raw cryptd i2c_i801 video i2c_core lpc_ich mfd_core sd_mod sr_mod crc_t10dif cdrom crct10dif_common ahci libahci ehci_pci e1000e libata xhci_hcd ehci_hcd ptp crc32c_intel usbcore scsi_mod pps_core usb_common fan thermal thermal_sys
+[87536.581372] CPU: 1 PID: 11978 Comm: perf_fuzzer Tainted: G        W     3.15.0-rc1+ #104
+[87536.590762] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[87536.599435]  0000000000000009 ffff880117b57ad8 ffffffff81649ca0 ffff880117b57b20
+[87536.608228]  ffff880117b57b10 ffffffff810646ad ffff8800ce684800 ffff880036a64000
+[87536.616970]  ffff8800ce684810 ffff8800ce684800 0000000000000001 ffff880117b57b70
+[87536.625688] Call Trace:
+[87536.629039]  [<ffffffff81649ca0>] dump_stack+0x45/0x56
+[87536.635247]  [<ffffffff810646ad>] warn_slowpath_common+0x7d/0xa0
+[87536.642374]  [<ffffffff8106471c>] warn_slowpath_fmt+0x4c/0x50
+[87536.649211]  [<ffffffff813c9fe1>] __list_del_entry+0xa1/0xd0
+[87536.655953]  [<ffffffff81131ec4>] list_del_event+0xe4/0xf0
+[87536.662477]  [<ffffffff811326c0>] perf_remove_from_context+0xb0/0x120
+[87536.670005]  [<ffffffff81133d8f>] perf_event_release_kernel+0x3f/0x80
+[87536.677530]  [<ffffffff81133ea3>] put_event+0xd3/0x100
+[87536.683702]  [<ffffffff81133e00>] ? put_event+0x30/0x100
+[87536.690047]  [<ffffffff81133ee5>] perf_release+0x15/0x20
+[87536.696292]  [<ffffffff811b69fc>] __fput+0xdc/0x1e0
+[87536.702191]  [<ffffffff811b6b4e>] ____fput+0xe/0x10
+[87536.708038]  [<ffffffff81085154>] task_work_run+0xc4/0xe0
+[87536.714503]  [<ffffffff81066d5c>] do_exit+0x2cc/0xa50
+[87536.720546]  [<ffffffff81076949>] ? get_signal_to_deliver+0x249/0x650
+[87536.728117]  [<ffffffff8106756c>] do_group_exit+0x4c/0xc0
+[87536.734480]  [<ffffffff81076991>] get_signal_to_deliver+0x291/0x650
+[87536.741814]  [<ffffffff81012438>] do_signal+0x48/0x990
+[87536.747877]  [<ffffffff81090c4d>] ? finish_task_switch+0x7d/0x120
+[87536.754994]  [<ffffffff81651437>] ? _raw_spin_unlock_irq+0x27/0x40
+[87536.762243]  [<ffffffff81090c4d>] ? finish_task_switch+0x7d/0x120
+[87536.769465]  [<ffffffff81090c0f>] ? finish_task_switch+0x3f/0x120
+[87536.776622]  [<ffffffff81012df0>] do_notify_resume+0x70/0xa0
+[87536.783323]  [<ffffffff81651fbc>] retint_signal+0x48/0x8c
+[87536.789726] ---[ end trace 2b5a3d32e8d767a7 ]---
+[87537.231116] ------------[ cut here ]------------
+[87537.238622] WARNING: CPU: 1 PID: 5694 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+[87537.250022] list_del corruption. prev->next should be ffff88003697d010, but was 6b6b6b6b6b6b6b6b
+[87537.262134] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp coretemp kvm snd_hda_codec_hdmi crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek snd_hda_codec_generic i915 aesni_intel snd_hda_intel snd_hda_controller snd_hda_codec snd_hwdep snd_pcm snd_seq snd_timer snd_seq_device tpm_tis ppdev snd aes_x86_64 parport_pc tpm evdev mei_me drm_kms_helper iTCO_wdt drm soundcore lrw gf128mul glue_helper iTCO_vendor_support wmi ablk_helper i2c_algo_bit button battery processor mei psmouse parport pcspkr serio_raw cryptd i2c_i801 video i2c_core lpc_ich mfd_core sd_mod sr_mod crc_t10dif cdrom crct10dif_common ahci libahci ehci_pci e1000e libata xhci_hcd ehci_hcd ptp crc32c_intel usbcore scsi_mod pps_core usb_common fan thermal thermal_sys
+[87537.350071] CPU: 1 PID: 5694 Comm: perf_fuzzer Tainted: G        W     3.15.0-rc1+ #104
+[87537.362120] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[87537.373623]  0000000000000009 ffff88011780bad8 ffffffff81649ca0 ffff88011780bb20
+[87537.385332]  ffff88011780bb10 ffffffff810646ad ffff88003697d000 ffff8800cf2bd000
+[87537.397049]  ffff88003697d010 ffff88003697d000 0000000000000001 ffff88011780bb70
+[87537.408852] Call Trace:
+[87537.415220]  [<ffffffff81649ca0>] dump_stack+0x45/0x56
+[87537.424550]  [<ffffffff810646ad>] warn_slowpath_common+0x7d/0xa0
+[87537.434876]  [<ffffffff8106471c>] warn_slowpath_fmt+0x4c/0x50
+[87537.444923]  [<ffffffff813c9fe1>] __list_del_entry+0xa1/0xd0
+[87537.454848]  [<ffffffff81131ec4>] list_del_event+0xe4/0xf0
+[87537.464638]  [<ffffffff811326c0>] perf_remove_from_context+0xb0/0x120
+[87537.475461]  [<ffffffff81133d8f>] perf_event_release_kernel+0x3f/0x80
+[87537.486265]  [<ffffffff81133ea3>] put_event+0xd3/0x100
+[87537.495776]  [<ffffffff81133e00>] ? put_event+0x30/0x100
+[87537.505405]  [<ffffffff81133ee5>] perf_release+0x15/0x20
+[87537.515112]  [<ffffffff811b69fc>] __fput+0xdc/0x1e0
+[87537.524426]  [<ffffffff811b6b4e>] ____fput+0xe/0x10
+[87537.533695]  [<ffffffff81085154>] task_work_run+0xc4/0xe0
+[87537.543618]  [<ffffffff81066d5c>] do_exit+0x2cc/0xa50
+[87537.553129]  [<ffffffff81076949>] ? get_signal_to_deliver+0x249/0x650
+[87537.564205]  [<ffffffff8106756c>] do_group_exit+0x4c/0xc0
+[87537.574142]  [<ffffffff81076991>] get_signal_to_deliver+0x291/0x650
+[87537.585042]  [<ffffffff81012438>] do_signal+0x48/0x990
+[87537.594644]  [<ffffffff81090c4d>] ? finish_task_switch+0x7d/0x120
+[87537.605102]  [<ffffffff81651437>] ? _raw_spin_unlock_irq+0x27/0x40
+[87537.615521]  [<ffffffff81090c0f>] ? finish_task_switch+0x3f/0x120
+[87537.625663]  [<ffffffff81012df0>] do_notify_resume+0x70/0xa0
+[87537.635166]  [<ffffffff81651fbc>] retint_signal+0x48/0x8c
+[87537.644367] ---[ end trace 2b5a3d32e8d767a8 ]---
+[87541.568852] ------------[ cut here ]------------
+[87541.577199] WARNING: CPU: 1 PID: 5694 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+[87541.589363] list_del corruption. prev->next should be ffff8800cdfed810, but was 6b6b6b6b6b6b6b6b
+[87541.602267] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp coretemp kvm snd_hda_codec_hdmi crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek snd_hda_codec_generic i915 aesni_intel snd_hda_intel snd_hda_controller snd_hda_codec snd_hwdep snd_pcm snd_seq snd_timer snd_seq_device tpm_tis ppdev snd aes_x86_64 parport_pc tpm evdev mei_me drm_kms_helper iTCO_wdt drm soundcore lrw gf128mul glue_helper iTCO_vendor_support wmi ablk_helper i2c_algo_bit button battery processor mei psmouse parport pcspkr serio_raw cryptd i2c_i801 video i2c_core lpc_ich mfd_core sd_mod sr_mod crc_t10dif cdrom crct10dif_common ahci libahci ehci_pci e1000e libata xhci_hcd ehci_hcd ptp crc32c_intel usbcore scsi_mod pps_core usb_common fan thermal thermal_sys
+[87541.692626] CPU: 1 PID: 5694 Comm: perf_fuzzer Tainted: G        W     3.15.0-rc1+ #104
+[87541.705282] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[87541.717333]  0000000000000009 ffff88011780baf8 ffffffff81649ca0 ffff88011780bb40
+[87541.729445]  ffff88011780bb30 ffffffff810646ad ffff8800cdfed800 ffff8800cf2bd000
+[87541.741712]  ffff8800cdfed810 ffff8800cdfed800 0000000000000001 ffff88011780bb90
+[87541.753980] Call Trace:
+[87541.760749]  [<ffffffff81649ca0>] dump_stack+0x45/0x56
+[87541.770475]  [<ffffffff810646ad>] warn_slowpath_common+0x7d/0xa0
+[87541.781089]  [<ffffffff8106471c>] warn_slowpath_fmt+0x4c/0x50
+[87541.791465]  [<ffffffff813c9fe1>] __list_del_entry+0xa1/0xd0
+[87541.801773]  [<ffffffff81131ec4>] list_del_event+0xe4/0xf0
+[87541.811853]  [<ffffffff811326c0>] perf_remove_from_context+0xb0/0x120
+[87541.822965]  [<ffffffff81133d8f>] perf_event_release_kernel+0x3f/0x80
+[87541.834111]  [<ffffffff81133ea3>] put_event+0xd3/0x100
+[87541.843821]  [<ffffffff81133e00>] ? put_event+0x30/0x100
+[87541.853752]  [<ffffffff81134e91>] __perf_event_exit_task.isra.79+0xd1/0x120
+[87541.865386]  [<ffffffff8113b226>] perf_event_exit_task+0x206/0x260
+[87541.876240]  [<ffffffff81066d69>] do_exit+0x2d9/0xa50
+[87541.885869]  [<ffffffff81076949>] ? get_signal_to_deliver+0x249/0x650
+[87541.896974]  [<ffffffff8106756c>] do_group_exit+0x4c/0xc0
+[87541.907010]  [<ffffffff81076991>] get_signal_to_deliver+0x291/0x650
+[87541.917964]  [<ffffffff81012438>] do_signal+0x48/0x990
+[87541.927735]  [<ffffffff81090c4d>] ? finish_task_switch+0x7d/0x120
+[87541.938519]  [<ffffffff81651437>] ? _raw_spin_unlock_irq+0x27/0x40
+[87541.949341]  [<ffffffff81090c0f>] ? finish_task_switch+0x3f/0x120
+[87541.960078]  [<ffffffff81012df0>] do_notify_resume+0x70/0xa0
+[87541.970193]  [<ffffffff81651fbc>] retint_signal+0x48/0x8c
+[87541.979819] ---[ end trace 2b5a3d32e8d767a9 ]---
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

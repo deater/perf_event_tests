@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>
+KVM perf_mmap BUG kmalloc-4096 Padding overwritten.
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+KVM perf_mmap BUG kmalloc-4096 Padding overwritten.
+</h1>
+</center>
+
+<h3>Found by</h3>
+trinity / Sasha Levin
+
+<h3>First Seen</h3>
+3.15-rc3-next
+
+<h3>Most recently Seen</h3>
+3.15-rc4-next
+
+<h3>Reproducible</h3>
+??
+
+<h3>Found On</h3>
+???
+
+<h3>Linux-kernel Mailing List Report</h3>
+30 April 2014 -- perf: memory corruption in perf_event_mmap
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[ 5879.604842] =============================================================================
+[ 5879.606099] BUG kmalloc-4096 (Tainted: G        W    ): Padding overwritten. 0xffff880008743000-0xffff880008743fff
+[ 5879.607717] -----------------------------------------------------------------------------
+[ 5879.607717]
+[ 5879.609188] Disabling lock debugging due to kernel taint
+[ 5879.610060] INFO: Slab 0xffffea000021d0c0 objects=0 used=0 fp=0x (null) flags=0x1fffff80000080
+[ 5879.610063] CPU: 0 PID: 4361 Comm: modprobe Tainted: G    B   W 3.15.0-rc3-next-20140429-sasha-00015-g7c7e0a7-dirty #427
+[ 5879.610063]  ffff88003680e1c0 ffff8803a49e79c8 ffffffffb152b7db 0000000000000001
+[ 5879.610063]  ffffea000021d0c0 ffff8803a49e7aa8 ffffffffae2e7baf ffff8803a49e79f8
+[ 5879.610063]  0000000000000028 ffff8803a49e7ab8 ffff8803a49e7a68 64646150a4a20000
+[ 5879.610063] Call Trace:
+[ 5879.610063] dump_stack (lib/dump_stack.c:52)
+[ 5879.610063] slab_err (mm/slub.c:666)
+[ 5879.610063] slab_pad_check (mm/slub.c:795)
+[ 5879.610063] ? perf_event_mmap (kernel/events/core.c:5179 kernel/events/core.c:5281)
+[ 5879.610063] check_slab (mm/slub.c:877)
+[ 5879.610063] alloc_debug_processing (mm/slub.c:1078)
+[ 5879.610063] __slab_alloc (mm/slub.c:2386 (discriminator 1))
+[ 5879.610063] ? kmem_cache_alloc_trace (mm/slub.c:2477 mm/slub.c:2488 mm/slub.c:2505)
+[ 5879.610063] ? mmap_region (mm/mmap.c:1556)
+[ 5879.610063] ? perf_event_mmap (kernel/events/core.c:5179 kernel/events/core.c:5281)
+[ 5879.610063] ? get_parent_ip (kernel/sched/core.c:2485)
+[ 5879.610063] kmem_cache_alloc_trace (mm/slub.c:2477 mm/slub.c:2488 mm/slub.c:2505)
+[ 5879.610063] ? validate_mm (mm/mmap.c:424)
+[ 5879.610063] ? perf_event_mmap (kernel/events/core.c:5179 kernel/events/core.c:5281)
+[ 5879.610063] perf_event_mmap (kernel/events/core.c:5179 kernel/events/core.c:5281)
+[ 5879.610063] ? validate_mm (mm/mmap.c:391 mm/mmap.c:437)
+[ 5879.610063] ? vma_link (mm/mmap.c:659)
+[ 5879.610063] mmap_region (mm/mmap.c:1620)
+[ 5879.610063] do_mmap_pgoff (mm/mmap.c:1369)
+[ 5879.610063] ? vm_mmap_pgoff (mm/util.c:398)
+[ 5879.610063] vm_mmap_pgoff (mm/util.c:400)
+[ 5879.610063] ? __rcu_read_unlock (kernel/rcu/update.c:97)
+[ 5879.610063] ? __fget (fs/file.c:633)
+[ 5879.610063] SyS_mmap_pgoff (mm/mmap.c:1418 mm/mmap.c:1378)
+[ 5879.610063] SyS_mmap (arch/x86/kernel/sys_x86_64.c:72)
+[ 5879.610063] tracesys (arch/x86/kernel/entry_64.S:746)
+[ 5879.610063] Padding ffff880008743000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+...
+</pre>
+<li>
+<pre>
+[ 5526.045911] =============================================================================
+[ 5526.046890] BUG kmalloc-4096 (Tainted: G    B   W    ): Poison overwritten
+[ 5526.048170] -----------------------------------------------------------------------------
+[ 5526.048170]
+[ 5526.050048] INFO: 0xffff880078063490-0xffff880078063497. First byte 0x0 instead of 0x6b
+[ 5526.050048] INFO: Allocated in perf_event_mmap+0xae/0x280 age=35 cpu=34 pid=38653
+[ 5526.050048]  __slab_alloc+0x59b/0x637
+[ 5526.050048]  kmem_cache_alloc_trace+0x137/0x3b0
+[ 5526.050048]  perf_event_mmap+0xae/0x280
+[ 5526.050048]  mmap_region+0x445/0x610
+[ 5526.050048]  do_mmap_pgoff+0x344/0x400
+[ 5526.050048]  vm_mmap_pgoff+0x88/0xe0
+[ 5526.050048]  SyS_mmap_pgoff+0x26b/0x2b0
+[ 5526.050048]  SyS_mmap+0x22/0x30
+[ 5526.050048]  tracesys+0xe1/0xe6
+[ 5526.050048] INFO: Freed in perf_event_mmap+0x249/0x280 age=35 cpu=34 pid=38653
+[ 5526.050048]  __slab_free+0x3d/0x2f0
+[ 5526.050048]  kfree+0x2e8/0x360
+[ 5526.050048]  perf_event_mmap+0x249/0x280
+[ 5526.050048]  mmap_region+0x445/0x610
+[ 5526.050048]  do_mmap_pgoff+0x344/0x400
+[ 5526.050048]  vm_mmap_pgoff+0x88/0xe0
+[ 5526.050048]  SyS_mmap_pgoff+0x26b/0x2b0
+[ 5526.050048]  SyS_mmap+0x22/0x30
+[ 5526.050048]  tracesys+0xe1/0xe6
+[ 5526.050048] INFO: Slab 0xffffea0001e01800 objects=7 used=7 fp=0x (null) flags=0x9fffff80004080
+[ 5526.050048] INFO: Object 0xffff8800780633d8 @offset=13272 fp=0xffff880078064520
+[ 5526.050048]
+[ 5526.050048] Bytes b4 ffff8800780633c8: 59 02 07 00 01 00 00 00 5a 5a 5a 5a 5a 5a 5a 5a  Y.......ZZZZZZZZ
+[ 5526.050048] Object ffff8800780633d8: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
