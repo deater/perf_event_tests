@@ -43,6 +43,8 @@
 
 #include "perf_attr_print.h"
 
+#include "pmus.h"
+
 /* Globals from Trinity */
 int page_size;
 struct shm_s *shm;
@@ -95,13 +97,15 @@ static char log_buffer[BUFSIZ];
 #define MAX_ERRNOS 1023
 static int errno_count[MAX_ERRNOS];
 
-#define MAX_TYPE_COUNT 10
+#define MAX_TYPE_COUNT 16
 static int type_count_success[MAX_TYPE_COUNT];
 static int type_count_fail[MAX_TYPE_COUNT];
 
 static char type_count_names[MAX_TYPE_COUNT][20]={
-	"Hardware","Software","Tracepoint","Cache","Raw","Breakpoint",
-	"Other","Other","Other","OutOfRange"
+	"Hardware","Software","Tracepoint","Cache",
+	"Raw","Breakpoint","#6","#7",
+	"#8","#9","#10","#11",
+	"#12","#13","#14",">14"
 };
 
 
@@ -1289,8 +1293,9 @@ static void dump_summary(FILE *fff, int print_values) {
 
 	fprintf(fff,"\t\tType ",i);
 	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		fprintf(fff,"(%s %d/%d)",type_count_names[i],type_count_success[i],
-				type_count_fail[i]);
+		fprintf(fff,"(%s %d/%d)",type_count_names[i],
+				type_count_success[i],
+				type_count_success[i]+type_count_fail[i]);
 	}
 	fprintf(fff,"\n");
 
@@ -1716,19 +1721,25 @@ int main(int argc, char **argv) {
 	page_size=getpagesize();
 	num_online_cpus = sysconf(_SC_NPROCESSORS_ONLN);
 
-//	select_syscall_tables();
-
-
 	create_shm();
 	create_shm_arrays();
 	init_shm();
 
 	init_shared_pages();
 
-
-//	init_syscalls_uniarch();
-
 	syscall_perf_event_open.init();
+
+	/* Initialize PMU names if possible */
+	/* This depends on trinity exporting the values */
+	if (pmus!=NULL) {
+		for(i=0;i<num_pmus;i++) {
+//			printf("VMW: %d t=%d n=%s\n",i,pmus[i].type,pmus[i].name);
+			if (pmus[i].type<MAX_TYPE_COUNT) {
+				strncpy(type_count_names[pmus[i].type],
+						pmus[i].name,20);
+			}
+		}
+	}
 
 
 	/* Set up SIGIO handler */
