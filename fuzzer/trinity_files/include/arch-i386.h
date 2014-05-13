@@ -1,3 +1,5 @@
+#pragma once
+
 #define X86 1
 
 #define KERNEL_ADDR	0xc0100220
@@ -16,3 +18,4 @@
 
 #define PTE_FILE_MAX_BITS 31
 
+#define SYSCALLS syscalls_i386

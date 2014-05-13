@@ -1,5 +1,6 @@
-#ifndef _ARCH_H
-#define _ARCH_H 1
+#pragma once
+
+#include "types.h"
 
 #ifdef __x86_64__
 #include "arch-x86-64.h"
@@ -45,6 +46,10 @@
 #include "arch-aarch64.h"
 #endif
 
+#ifdef __hppa__
+#include "arch-parisc.h"
+#endif
+
 #ifndef SYSCALL_OFFSET
 #define SYSCALL_OFFSET 0
 #endif
@@ -52,4 +57,4 @@
 #define PAGE_MASK (~(page_size - 1))
 extern unsigned int page_size;
 
-#endif  /* _ARCH_H */
+extern bool biarch;

@@ -1,3 +1,5 @@
+#pragma once
+
 #define PAGE_OFFSET		0xC0000000
 /*
  * Alternative possibilities for PAGE_OFFSET:
@@ -11,3 +13,5 @@
 #define PAGE_SHIFT		12
 
 #define PTE_FILE_MAX_BITS	29
+
+#define SYSCALLS syscalls_arm

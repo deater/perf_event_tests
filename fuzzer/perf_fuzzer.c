@@ -28,8 +28,13 @@
 
 #include <fcntl.h>
 
+/* Trinity Includes */
 #include "shm.h"
+#include "sanitise.h"
 #include "syscall.h"
+#include "tables.h"
+
+/* perf_event_test infrastructure */
 #include "../include/perf_event.h"
 #include "../include/perf_helpers.h"
 #include "../include/instructions_testcode.h"
@@ -42,6 +47,10 @@
 int page_size;
 struct shm_s *shm;
 char *page_rand;
+unsigned int num_online_cpus;
+unsigned int max_children=1;
+unsigned int get_cpu(void);
+
 
 
 #define MAX_THROTTLES		5
@@ -85,6 +94,16 @@ static char log_buffer[BUFSIZ];
 
 #define MAX_ERRNOS 1023
 static int errno_count[MAX_ERRNOS];
+
+#define MAX_TYPE_COUNT 10
+static int type_count_success[MAX_TYPE_COUNT];
+static int type_count_fail[MAX_TYPE_COUNT];
+
+static char type_count_names[MAX_TYPE_COUNT][20]={
+	"Hardware","Software","Tracepoint","Cache","Raw","Breakpoint",
+	"Other","Other","Other","OutOfRange"
+};
+
 
 static long long total_iterations=0;
 static long long overflows=0;
@@ -618,18 +637,20 @@ static void open_random_event(void) {
 	event_data[i].overflows=0;
 	event_data[i].throttles=0;
 
+
 	/* repeat until we create a valid event */
 	while(1) {
 		/* call trinity random perf_event_open() code */
+		//generic_sanitise(0);
 		syscall_perf_event_open.sanitise(0);
 
 		memcpy(&event_data[i].attr,
-			(struct perf_event_attr *)shm->a1[0],
+			(struct perf_event_attr *)shm->syscall[0].a1,
 			sizeof(struct perf_event_attr));
-		event_data[i].pid=shm->a2[0];
-		event_data[i].cpu=shm->a3[0];
-		event_data[i].group_fd=shm->a4[0];
-		event_data[i].flags=shm->a5[0];
+		event_data[i].pid=shm->syscall[0].a2;
+		event_data[i].cpu=get_cpu();
+		event_data[i].group_fd=shm->syscall[0].a4;
+		event_data[i].flags=shm->syscall[0].a5;
 
 		/* Randomly make part of a group 1/4 of the time */
 		if (rand()%4==2) {
@@ -645,8 +666,20 @@ static void open_random_event(void) {
 
 		}
 
+//		if (event_data[i].attr.type==6) {
+//			event_data[i].pid=-1;
+//			event_data[i].cpu=0;
+//			event_data[i].flags=0;
+//			event_data[i].group_fd=-1;
+//			memset(&event_data[i].attr,0,sizeof(struct perf_event_attr));
+//			event_data[i].attr.type=6;
+//			event_data[i].attr.config=2;
+//		}
+
 		/* Debugging code */
 		/* We don't usually log failed opens as there are so many */
+
+
 
 
 	        if (logging&TYPE_OPEN) {
@@ -684,11 +717,34 @@ static void open_random_event(void) {
 			event_data[i].flags);
 		open_attempts++;
 
+		int which_type=event_data[i].attr.type;
+
+		if ((which_type<0) || (which_type>MAX_TYPE_COUNT-1)) {
+			which_type=MAX_TYPE_COUNT-1;
+		}
+
+
 		/* If we succede, break out of the infinite loop */
-		if (fd>0) break;
+		if (fd>0) {
+			type_count_success[which_type]++;
+			break;
+		}
+
+//      if (which_type==7) {
+  //            printf("Event t=%ld c=%llx pid=%d cpu=%d %s\n",
+    //                  event_data[i].attr.type,
+//			event_data[i].attr.config,
+//			event_data[i].pid,
+//			event_data[i].cpu,
+//			strerror(errno));
+  //    }
+
 
 		/* Otherwise, track the errors */
-		if (errno<MAX_ERRNOS) errno_count[errno]++;
+		if (errno<MAX_ERRNOS) {
+			errno_count[errno]++;
+			type_count_fail[which_type]++;
+		}
 
 		/* no more file descriptors, so give up */
 		if (errno==EMFILE) return;
@@ -1231,6 +1287,13 @@ static void dump_summary(FILE *fff, int print_values) {
 		}
 	}
 
+	fprintf(fff,"\t\tType ",i);
+	for(i=0;i<MAX_TYPE_COUNT;i++) {
+		fprintf(fff,"(%s %d/%d)",type_count_names[i],type_count_success[i],
+				type_count_fail[i]);
+	}
+	fprintf(fff,"\n");
+
 	fprintf(fff,"\tClose attempts: %lld  Successful: %lld\n",
 	       close_attempts,close_successful);
 	fprintf(fff,"\tRead attempts: %lld  Successful: %lld\n",
@@ -1272,6 +1335,10 @@ static void dump_summary(FILE *fff, int print_values) {
 	sigios=0;
 	for(i=0;i<MAX_ERRNOS;i++) {
 		errno_count[i]=0;
+	}
+	for(i=0;i<MAX_TYPE_COUNT;i++) {
+		type_count_success[i]=0;
+		type_count_fail[i]=0;
 	}
 }
 
@@ -1528,6 +1595,12 @@ int main(int argc, char **argv) {
 		errno_count[i]=0;
 	}
 
+	/* Clear type counts */
+	for(i=0;i<MAX_TYPE_COUNT;i++) {
+		type_count_success[i]=0;
+		type_count_fail[i]=0;
+	}
+
 	/* Write seed to disk so we can find it later */
 	fff=fopen("last.seed","w");
 	if (fff!=NULL) {
@@ -1641,17 +1714,21 @@ int main(int argc, char **argv) {
 
 	/* Set up to match trinity setup, vaguely */
 	page_size=getpagesize();
+	num_online_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+
+//	select_syscall_tables();
+
+
+	create_shm();
+	create_shm_arrays();
+	init_shm();
+
+	init_shared_pages();
+
+
+//	init_syscalls_uniarch();
 
 	syscall_perf_event_open.init();
-
-	shm=calloc(1,sizeof(struct shm_s));
-
-	page_rand = memalign(page_size, page_size * 2);
-	if (!page_rand) {
-		exit(EXIT_FAILURE);
-	}
-	memset(page_rand, 0x55, page_size);
-
 
 
 	/* Set up SIGIO handler */

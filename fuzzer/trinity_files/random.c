@@ -10,6 +10,15 @@
 #include "random.h"
 #include "sanitise.h"	// interesting_numbers
 #include "types.h"
+#include "utils.h"
+
+int rand_range(int min, int max)
+{
+	if (min > max)
+		swap(min, max);
+
+	return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+}
 
 unsigned int rand_bool(void)
 {
@@ -89,7 +98,7 @@ static unsigned long rand8x8(void)
 	unsigned long r = 0UL;
 	unsigned int i;
 
-	for (i = (rand() % 7) + 1; i > 0; --i)
+	for (i = rand_range(1, 7); i > 0; --i)
 		r = (r << 8) | rand() % 256;
 
 	return r;
@@ -171,7 +180,7 @@ unsigned int rand32(void)
 
 	/* we might get lucky if something is counting ints/longs etc. */
 	if (rand() % 100 < 25) {
-		int _div = 1 << ((rand() % 4) + 1);	/* 2,4,8 or 16 */
+		int _div = 1 << rand_range(1, 4);	/* 2,4,8 or 16 */
 		r /= _div;
 	}
 

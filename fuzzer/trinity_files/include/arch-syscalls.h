@@ -1,5 +1,4 @@
-#ifndef _ARCH_SYSCALLS_H
-#define _ARCH_SYSCALLS_H 1
+#pragma once
 
 #ifdef __x86_64__
 #include "syscalls-x86_64.h"
@@ -38,4 +37,6 @@
 #ifdef __aarch64__
 #include "syscalls-aarch64.h"
 #endif
-#endif  /* _ARCH_SYSCALLS_H */
+#ifdef __hppa__
+#include "syscalls-parisc.h"
+#endif

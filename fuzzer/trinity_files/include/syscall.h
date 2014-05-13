@@ -1,6 +1,26 @@
 #pragma once
 
+#if VMW
+#include "locks.h"
+#endif
 #include "types.h"
+
+#define MAX_NR_SYSCALL 1024
+
+struct syscallrecord {
+	unsigned int nr;
+	unsigned long a1;
+	unsigned long a2;
+	unsigned long a3;
+	unsigned long a4;
+	unsigned long a5;
+	unsigned long a6;
+	unsigned long retval;
+	bool do32bit;
+#if VMW
+	lock_t lock;
+#endif
+};
 
 enum argtype {
 	ARG_UNDEFINED = 0,
@@ -26,7 +46,7 @@ enum argtype {
 
 struct arglist {
 	unsigned int num;
-	unsigned int values[32];
+	unsigned long values[32];
 };
 
 struct syscallentry {
@@ -98,12 +118,11 @@ struct syscalltable {
 	struct syscallentry *entry;
 };
 
-#define CAPABILITY_CHECK (1<<0)
-#define AVOID_SYSCALL (1<<1)
-#define NI_SYSCALL (1<<2)
-#define BORING (1<<3)
-#define ACTIVE (1<<4)
-#define NEED_ALARM (1<<5)
-#define TO_BE_DEACTIVATED (1<<6)
+#define AVOID_SYSCALL		(1<<0)
+#define NI_SYSCALL		(1<<1)
+#define BORING			(1<<2)
+#define ACTIVE			(1<<3)
+#define TO_BE_DEACTIVATED	(1<<4)
+#define NEED_ALARM		(1<<5)
+#define EXTRA_FORK		(1<<6)
 
-long syscall32(unsigned int call, unsigned long a1, unsigned long a2, unsigned long a3, unsigned long a4, unsigned long a5, unsigned long a6);

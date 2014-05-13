@@ -1,5 +1,4 @@
-#ifndef _EXIT_H
-#define _EXIT_H 1
+#pragma once
 
 extern unsigned char exit_reason;
 
@@ -15,6 +14,10 @@ enum exit_reasons {
 	EXIT_SHM_CORRUPTION = 8,
 	EXIT_REPARENT_PROBLEM = 9,
 	EXIT_NO_FILES = 10,
-};
+	EXIT_MAIN_DISAPPEARED = 11,
+	EXIT_UID_CHANGED = 12,
+	EXIT_FD_INIT_FAILURE = 13,
+	EXIT_FORK_FAILURE = 14,
 
-#endif	/* _EXIT_H */
+	NUM_EXIT_REASONS = 15
+};

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __s390x__
 
 #define KERNEL_ADDR	0UL
@@ -6,12 +8,16 @@
 #define PAGE_SHIFT	12
 #define PTE_FILE_MAX_BITS 59
 
+#define SYSCALLS syscalls_s390x
+
 #else /* __s390x__ */
 
 #define KERNEL_ADDR	0UL
 #define TASK_SIZE	0x80000000UL
 #define PAGE_SHIFT	12
 #define PTE_FILE_MAX_BITS 26
+
+#define SYSCALLS syscalls_s390
 
 #endif /* __s390x__ */
 

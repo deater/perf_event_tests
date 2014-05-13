@@ -1,3 +1,5 @@
+#pragma once
+
 #define KERNEL_ADDR	0xa000000100000000
 #define MODULE_ADDR     0xffffffffa0000000L	// FIXME: Placeholder
 #define PAGE_OFFSET 0xe000000000000000
@@ -13,3 +15,5 @@
 
 #define PTRACE_GETFPREGS	0
 #define PTRACE_SETFPREGS	0
+
+#define SYSCALLS syscalls_ia64

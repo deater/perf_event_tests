@@ -1,3 +1,5 @@
+#pragma once
+
 #define PAGE_OFFSET		0xffffffc000000000UL
 #define TASK_SIZE		(1UL << 39)
 #define MODULE_ADDR		(PAGE_OFFSET - 0x04000000)
@@ -11,3 +13,5 @@
 #define PTRACE_GETFPREGS	0
 #define PTRACE_SETREGS		0
 #define PTRACE_SETFPREGS	0
+
+#define SYSCALLS syscalls_aarch64

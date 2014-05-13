@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __arch64__
 #define KERNEL_ADDR	0xfffff80000000000
 #define MODULE_ADDR     0xffffffffa0000000L	// FIXME: Placeholder
@@ -10,3 +12,5 @@
 #define PAGE_SHIFT		12
 #define PTE_FILE_MAX_BITS	24
 #endif
+
+#define SYSCALLS syscalls_sparc
