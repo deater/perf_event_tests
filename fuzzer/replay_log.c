@@ -371,7 +371,7 @@ static void read_event(char *line) {
 	sscanf(line,"%*c %d %d",&fd,&read_size);
 
 	if (read_size>MAX_READ_SIZE*sizeof(long long)) {
-		fprintf(stderr,"Line %lld Read size of %d exceeds max of %d\n",
+		fprintf(stderr,"Line %lld Read size of %d exceeds max of %ld\n",
 			line_num,read_size,MAX_READ_SIZE*sizeof(long long));
 		error=1;
 		return;

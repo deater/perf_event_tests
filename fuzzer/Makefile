@@ -1,9 +1,9 @@
 CC = gcc
 
-CFLAGS = -g -I../include -I./include -I./trinity_files/include
+CFLAGS = -Wall -g -I../include -I./include -I./trinity_files/include
 LFLAGS = 
 
-CFLAGS_X32 = -mx32 -g -I../include -I./include -I./trinity_files/include
+CFLAGS_X32 = -Wall -mx32 -g -I../include -I./include -I./trinity_files/include
 LFLAGS_X32 = -mx32 -static
 
 ####

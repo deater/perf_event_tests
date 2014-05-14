@@ -1291,7 +1291,7 @@ static void dump_summary(FILE *fff, int print_values) {
 		}
 	}
 
-	fprintf(fff,"\t\tType ",i);
+	fprintf(fff,"\t\tType ");
 	for(i=0;i<MAX_TYPE_COUNT;i++) {
 		fprintf(fff,"(%s %d/%d)",type_count_names[i],
 				type_count_success[i],
