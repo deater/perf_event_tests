@@ -272,7 +272,7 @@ static void access_event(char *line) {
 	if (type==0) {
 		printf("\tfff=fopen(\"%s\",\"r\");\n",filenames[which]);
 		printf("\tif (fff!=NULL) {\n");
-		printf("\t\tresult=fread(buffer,sizeof(char),size,fff);\n");
+		printf("\t\tresult=fread(buffer,sizeof(char),%lld,fff);\n",size);
 		printf("\t\tfclose(fff);\n");
 		printf("\t}\n");
 	}
