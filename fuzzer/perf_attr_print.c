@@ -111,7 +111,7 @@ static void perf_pretty_print_cache(FILE *fff, long long config) {
 			fprintf(fff,"PERF_COUNT_HW_CACHE_NODE");
 			break;
 		default:
-			fprintf(fff,"0x%llx",cache_id);
+			fprintf(fff,"0x%llxULL",cache_id);
 			break;
 	}
 
@@ -130,7 +130,7 @@ static void perf_pretty_print_cache(FILE *fff, long long config) {
 			fprintf(fff,"PERF_COUNT_HW_CACHE_OP_PREFETCH");
 			break;
 		default:
-			fprintf(fff,"0x%llx",hw_cache_op_id);
+			fprintf(fff,"0x%llxULL",hw_cache_op_id);
 			break;
 	}
 	fprintf(fff," << 8) | ( ");
@@ -189,7 +189,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 					fprintf(fff,"PERF_COUNT_HW_REF_CPU_CYCLES");
 					break;
 				default:
-					fprintf(fff,"0x%llx",config);
+					fprintf(fff,"0x%llxULL",config);
 					break;
 			}
 			printf(";");
@@ -227,7 +227,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 					fprintf(fff,"PERF_COUNT_SW_DUMMY");
 					break;
 				default:
-					fprintf(fff,"0x%llx",config);
+					fprintf(fff,"0x%llxULL",config);
 			}
 			printf(";");
 			break;
@@ -238,7 +238,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
 			break;
 
 		case PERF_TYPE_TRACEPOINT:
-			fprintf(fff,"0x%llx; /* %lld ",config,config&0xffffffff);
+			fprintf(fff,"0x%llxULL; /* %lld ",config,config&0xffffffff);
 			perf_pretty_print_tracepoint(fff,config);
 			fprintf(fff," */");
 			break;
@@ -246,7 +246,7 @@ static void perf_pretty_print_config(FILE *fff, long long type, long long config
                 case PERF_TYPE_RAW:
                 case PERF_TYPE_BREAKPOINT:
 		default:
-			fprintf(fff,"0x%llx;",config);
+			fprintf(fff,"0x%llxULL;",config);
 			break;
 	}
 
@@ -561,10 +561,10 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	fprintf(fff,"\n");
 
 	if (pe->freq) {
-		if (pe->sample_freq) fprintf(fff,"\tpe[%d].sample_freq=0x%llx;\n",fd,pe->sample_freq);
+		if (pe->sample_freq) fprintf(fff,"\tpe[%d].sample_freq=0x%llxULL;\n",fd,pe->sample_freq);
 	}
 	else {
-		if (pe->sample_period) fprintf(fff,"\tpe[%d].sample_period=0x%llx;\n",fd,pe->sample_period);
+		if (pe->sample_period) fprintf(fff,"\tpe[%d].sample_period=0x%llxULL;\n",fd,pe->sample_period);
 	}
 
 	fprintf(fff,"\tpe[%d].sample_type=",fd);
@@ -620,15 +620,15 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 
 	if (pe->bp_type==HW_BREAKPOINT_EMPTY) {
 		fprintf(fff,"\tpe[%d].bp_type=HW_BREAKPOINT_EMPTY;\n",fd);
-		if (pe->config1) fprintf(fff,"\tpe[%d].config1=0x%llx;\n",fd,pe->config1);
-		if (pe->config2) fprintf(fff,"\tpe[%d].config2=0x%llx;\n",fd,pe->config2);
+		if (pe->config1) fprintf(fff,"\tpe[%d].config1=0x%llxULL;\n",fd,pe->config1);
+		if (pe->config2) fprintf(fff,"\tpe[%d].config2=0x%llxULL;\n",fd,pe->config2);
 	}
 	else {
 		fprintf(fff,"\tpe[%d].bp_type=",fd);
 		perf_pretty_print_breakpoint_type(fff,pe->bp_type);
 		fprintf(fff,"; /*%d*/\n",pe->bp_type);
-		fprintf(fff,"\tpe[%d].bp_addr=0x%llx;\n",fd,pe->bp_addr);
-		fprintf(fff,"\tpe[%d].bp_len=0x%llx;\n",fd,pe->bp_len);
+		fprintf(fff,"\tpe[%d].bp_addr=0x%llxULL;\n",fd,pe->bp_addr);
+		fprintf(fff,"\tpe[%d].bp_len=0x%llxULL;\n",fd,pe->bp_len);
 	}
 	if (pe->branch_sample_type) {
 		fprintf(fff,"\tpe[%d].branch_sample_type=",fd);
@@ -636,7 +636,7 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 		fprintf(fff,";\n");
 	}
 
-	if (pe->sample_regs_user) fprintf(fff,"\tpe[%d].sample_regs_user=%lld;\n",fd,pe->sample_regs_user);
+	if (pe->sample_regs_user) fprintf(fff,"\tpe[%d].sample_regs_user=%lldULL;\n",fd,pe->sample_regs_user);
 	if (pe->sample_stack_user) fprintf(fff,"\tpe[%d].sample_stack_user=%d;\n",fd,pe->sample_stack_user);
 	fprintf(fff,"\n");
 }
