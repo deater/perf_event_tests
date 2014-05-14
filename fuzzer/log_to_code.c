@@ -253,6 +253,38 @@ static void poll_event(char *line) {
 
 }
 
+#define MAX_FILENAMES 4
+char *filenames[MAX_FILENAMES]={
+        "/proc/sys/kernel/perf_cpu_time_max_percent",
+        "/proc/sys/kernel/perf_event_paranoid",
+        "/proc/sys/kernel/perf_event_max_sample_rate",
+        "/proc/sys/kernel/perf_event_mlock_kb",
+};
+
+static void access_event(char *line) {
+
+	long long size;
+	int which,result,type;
+
+	sscanf(line,"%*c %d %d %lld %d",&type,&which,&size,&result);
+
+	/* read */
+	if (type==0) {
+		printf("\tfff=fopen(\"%s\",\"r\");\n",filenames[which]);
+		printf("\tif (fff!=NULL) {\n");
+		printf("\t\tresult=fread(buffer,sizeof(char),size,fff);\n");
+		printf("\t\tfclose(fff);\n");
+		printf("\t}\n");
+	}
+
+	else {
+		printf("\tfff=fopen(\"%s\",\"w\");\n",filenames[which]);
+		printf("\t\tif (fff!=NULL) {\n");
+		printf("\t\tresult=fprintf(fff,\"%%lld\n\",%lld);\n",size);
+		printf("\t\tfclose(fff);\n");
+		printf("\t}\n");
+        }
+}
 
 static void fork_event(char *line) {
 
@@ -366,6 +398,11 @@ int main(int argc, char **argv) {
 	printf("static int overflows=0;\n");
 	printf("static int sigios=0;\n\n");
 
+	printf("FILE *fff;\n");
+	printf("static int result;\n");
+	printf("static long long size;\n");
+	printf("static char buffer[2048];\n\n");
+
 	printf("static void our_handler(int signum, siginfo_t *info, void *uc) {\n");
 	printf("\tint fd = info->si_fd;\n");
 	printf("\tint ret;\n\n");
@@ -399,6 +436,10 @@ int main(int argc, char **argv) {
 		printf("/* %lld */\n",line_num);
 
 		switch(line[0]) {
+			case 'A':
+				access_event(line);
+				total_syscalls++;
+				break;
 			case 'C':
 				close_event(line);
 				total_syscalls++;
