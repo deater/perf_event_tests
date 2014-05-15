@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 
 	char uncore_box_name[BUFSIZ];
 	char uncore_event_name[BUFSIZ];
-	int uncore_event;
+	int uncore_event=0;
 
 	int processor_type;
 
@@ -70,6 +70,12 @@ int main(int argc, char **argv) {
 			strcpy(uncore_box_name,"uncore_cbox_0");
 			strcpy(uncore_event_name,"ivb_unc_cbo0::UNC_CLOCKTICKS");
 			uncore_event=0xff;
+			break;
+		case PROCESSOR_HASWELL:
+			/* no libpfm4 support as of 15 May 2014 */
+			strcpy(uncore_box_name,"uncore_imc");
+			strcpy(uncore_event_name,"hsw_unc_imc::DATA_READS");
+			uncore_event=0x1;
 			break;
 		default:
 			if (!quiet) fprintf(stderr,"Unsupported processor\n");
