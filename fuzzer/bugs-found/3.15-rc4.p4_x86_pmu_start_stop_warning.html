@@ -1,0 +1,175 @@
+<html>
+<head>
+<title>
+p4 WARNING at arch/x86/kernel/cpu/perf_event.c:1082 x86_pmu_start 
+at arch/x86/kernel/cpu/perf_event.c:1164 x86_pmu_stop
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+p4 WARNING at arch/x86/kernel/cpu/perf_event.c:1082 x86_pmu_start 
+at arch/x86/kernel/cpu/perf_event.c:1164 x86_pmu_stop
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+3.15-rc4
+
+<h3>Most recently Seen</h3>
+3.15-rc4
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Found On</h3>
+Pentium 4
+
+<h3>Linux-kernel Mailing List Report</h3>
+9 May 2014 -- 
+<a href="https://lkml.org/lkml/2014/5/6/406">
+perf_fuzzer crash on pentium 4
+</a>
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.28 *** by Vince Weaver
+
+        Linux version 3.15.0-rc4+ x86_64
+        Processor: Intel 15/6/5
+
+        Seeding random number generator with 1399657931
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1399657931
+
+Pid=1889, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mma
+p-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+[ 6024.342452] ------------[ cut here ]------------
+[ 6024.345863] WARNING: CPU: 0 PID: 1889 at arch/x86/kernel/cpu/perf_event.c:1082 x86_pmu_start+0x4b/0xf8()
+[ 6024.345863] Modules linked in: loop snd_hda_codec_analog snd_hda_codec_generic microcode iTCO_wdt iTCO_vendor_support i915 psmouse ppdev evdev serio_raw pcspkr snd_hda_intel snd_hda_controller i2c_i801 snd_hda_codec tpm_tis drm_kms_helper tpm snd_hwdep parport_pc snd_pcm drm parport snd_timer snd acpi_cpufreq i2c_algo_bit video processor i2c_core soundcore lpc_ich thermal_sys mfd_core button sd_mod crc_t10dif sr_mod cdrom crct10dif_generic crct10dif_common ata_generic tg3 ata_piix uhci_hcd ehci_pci libata ehci_hcd scsi_mod ptp pps_core libphy floppy usbcore usb_common
+[ 6024.345863] CPU: 0 PID: 1889 Comm: perf_fuzzer Not tainted 3.15.0-rc4+ #4
+[ 6024.345863] Hardware name: LENOVO 88088NU/LENOVO, BIOS 2JKT37AUS 07/12/2007
+[ 6024.345863]  0000000000000000 ffff88003f403dd8 ffffffff81430fbe 0000000000000000
+[ 6024.345863]  ffff88003f403e10 ffffffff8103c77d ffffffff81012912 ffff88003d1a1800
+[ 6024.345863]  ffff88003f40bb50 0000000000000004 ffff88003f40bb58 ffff88003f403e20
+[ 6024.345863] Call Trace:
+[ 6024.345863]  <IRQ>  [<ffffffff81430fbe>] dump_stack+0x45/0x56
+[ 6024.345863]  [<ffffffff8103c77d>] warn_slowpath_common+0x7f/0x98
+[ 6024.345863]  [<ffffffff81012912>] ? x86_pmu_start+0x4b/0xf8
+[ 6024.345863]  [<ffffffff8103c844>] warn_slowpath_null+0x1a/0x1c
+[ 6024.345863]  [<ffffffff81012912>] x86_pmu_start+0x4b/0xf8
+[ 6024.345863]  [<ffffffff81012ee2>] x86_pmu_enable+0x154/0x233
+[ 6024.345863]  [<ffffffff810cfc66>] perf_pmu_enable+0x27/0x29
+[ 6024.345863]  [<ffffffff810d1738>] perf_cpu_hrtimer_handler+0xef/0x12f
+[ 6024.345863]  [<ffffffff810d1649>] ? __perf_event_task_sched_in+0x127/0x127
+[ 6024.345863]  [<ffffffff81058bda>] __run_hrtimer+0x92/0x14b
+[ 6024.345863]  [<ffffffff810593a7>] hrtimer_interrupt+0xe8/0x1d3
+[ 6024.345863]  [<ffffffff810271e5>] local_apic_timer_interrupt+0x54/0x57
+[ 6024.345863]  [<ffffffff8143cbb3>] smp_apic_timer_interrupt+0x30/0x41
+[ 6024.345863]  [<ffffffff8143b9ca>] apic_timer_interrupt+0x6a/0x70
+[ 6024.345863]  <EOI> 
+[ 6024.345863] ---[ end trace c6c107ef5a49f567 ]---
+[ 6026.366274] hrtimer: interrupt took 3223 ns
+[ 6029.584454] perf interrupt took too long (5024 > 5000), lowering kernel.perf_event_max_sample_rate to 25000
+Iteration 10000
+        Open attempts: 222390  Successful: 879
+                EPERM : 15
+                ENOENT : 651
+                E2BIG : 25960
+                EBADF : 4046
+                EINVAL : 190807
+                ENOSPC : 17
+                EOPNOTSUPP : 15
+        Close attempts: 877  Successful: 877
+        Read attempts: 822  Successful: 655
+        Write attempts: 885  Successful: 0
+        Ioctl attempts: 817  Successful: 417
+        Mmap attempts: 879  Successful: 209
+        Prctl attempts: 958  Successful: 958
+        Fork attempts: 463  Successful: 463
+        Poll attempts: 910  Successful: 4
+        Access attempts: 917  Successful: 442
+        Trash mmap attempts: 877  Successful: 877
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[ 6034.911889] ------------[ cut here ]------------
+[ 6034.913785] WARNING: CPU: 0 PID: 1889 at arch/x86/kernel/cpu/perf_event.c:116
+4 x86_pmu_stop+0x6d/0xa0()
+[ 6034.913785] Modules linked in: loop snd_hda_codec_analog snd_hda_codec_generic microcode iTCO_wdt iTCO_vendor_support i915 psmouse ppdev evdev serio_raw pcspkr snd_hda_intel snd_hda_controller i2c_i801 snd_hda_codec tpm_tis drm_kms_helper tpm snd_hwdep parport_pc snd_pcm drm parport snd_timer snd acpi_cpufreq i2c_algo_bit video processor i2c_core soundcore lpc_ich thermal_sys mfd_core button sd_mod crc_t10dif sr_mod cdrom crct10dif_generic crct10dif_common ata_generic tg3 ata_piix uhci_hcd ehci_pci libata ehci_hcd scsi_mod ptp pps_core libphy floppy usbcore usb_common
+[ 6034.913785] CPU: 0 PID: 1889 Comm: perf_fuzzer Tainted: G        W     3.15.0-rc4+ #4
+[ 6034.913785] Hardware name: LENOVO 88088NU/LENOVO, BIOS 2JKT37AUS 07/12/2007
+[ 6034.913785]  0000000000000000 ffff88003ac8b7a0 ffffffff81430fbe 0000000000000000
+[ 6034.913785]  ffff88003ac8b7d8 ffffffff8103c77d ffffffff81012034 ffff88003ac57000
+[ 6034.913785]  ffff88003f40bb50 0000000000000004 000000002ddbe41a ffff88003ac8b7e8
+[ 6034.913785] Call Trace:
+[ 6034.913785]  [<ffffffff81430fbe>] dump_stack+0x45/0x56
+[ 6034.913785]  [<ffffffff8103c77d>] warn_slowpath_common+0x7f/0x98
+[ 6034.913785]  [<ffffffff81012034>] ? x86_pmu_stop+0x6d/0xa0
+[ 6034.913785]  [<ffffffff8103c844>] warn_slowpath_null+0x1a/0x1c
+[ 6034.913785]  [<ffffffff81012034>] x86_pmu_stop+0x6d/0xa0
+[ 6034.913785]  [<ffffffff810120a1>] x86_pmu_del+0x3a/0xe5
+[ 6034.913785]  [<ffffffff810cfd01>] event_sched_out+0x99/0x102
+[ 6034.913785]  [<ffffffff810cfd95>] group_sched_out+0x2b/0x7b
+[ 6034.913785]  [<ffffffff810d0079>] ctx_sched_out+0xda/0xf1
+[ 6034.913785]  [<ffffffff810d126b>] __perf_event_task_sched_out+0x171/0x306
+[ 6034.913785]  [<ffffffff8105eef0>] perf_event_task_sched_out+0x33/0x67
+[ 6034.913785]  [<ffffffff8105eefe>] ? perf_event_task_sched_out+0x41/0x67
+[ 6034.913785]  [<ffffffff81432c03>] __schedule+0x237/0x4cd
+[ 6034.913785]  [<ffffffff81432f0c>] schedule+0x73/0x75
+[ 6034.913785]  [<ffffffff81432973>] schedule_hrtimeout_range_clock+0xb6/0xe6
+[ 6034.913785]  [<ffffffff81058972>] ? hrtimer_get_res+0x42/0x42
+[ 6034.913785]  [<ffffffff810591f3>] ? hrtimer_start_range_ns+0x14/0x16
+[ 6034.913785]  [<ffffffff814329b6>] schedule_hrtimeout_range+0x13/0x15
+[ 6034.913785]  [<ffffffff81130be8>] poll_schedule_timeout+0x41/0x61
+[ 6034.913785]  [<ffffffff81131df0>] do_sys_poll+0x391/0x429
+[ 6034.913785]  [<ffffffff810f659d>] ? add_mm_rss_vec+0x26/0x55
+[ 6034.913785]  [<ffffffff810f7009>] ? unmap_single_vma+0x356/0x5c9
+[ 6034.913785]  [<ffffffff810083d6>] ? arch_install_hw_breakpoint+0x8e/0xcd
+[ 6034.913785]  [<ffffffff81130d7c>] ? poll_select_copy_remaining+0xf9/0xf9
+[ 6034.913785]  [<ffffffff810d0cfe>] ? event_sched_in+0x138/0x148
+[ 6034.913785]  [<ffffffff810d0da6>] ? group_sched_in+0x98/0x141
+[ 6034.913785]  [<ffffffff81064b4b>] ? sched_clock_cpu+0x91/0xa2
+[ 6034.913785]  [<ffffffff810d1960>] ? __perf_event_enable+0xf6/0x136
+[ 6034.913785]  [<ffffffff810cd934>] ? remote_function+0x1c/0x45
+[ 6034.913785]  [<ffffffff810cd918>] ? cpu_clock_event_add+0x1b/0x1b
+[ 6034.913785]  [<ffffffff81090715>] ? smp_call_function_single+0x7e/0x86
+[ 6034.913785]  [<ffffffff810cc9cd>] ? task_function_call+0x49/0x53
+[ 6034.913785]  [<ffffffff810d186a>] ? __perf_install_in_context+0xf2/0xf2
+[ 6034.913785]  [<ffffffff810cf080>] ? perf_event_enable+0x8a/0xbf
+[ 6034.913785]  [<ffffffff814338f1>] ? mutex_unlock+0x16/0x18
+[ 6034.913785]  [<ffffffff81008780>] ? read_tsc+0x9/0x19
+[ 6034.913785]  [<ffffffff8103fb4a>] ? timespec_add_safe+0x26/0x52
+[ 6034.913785]  [<ffffffff81131f28>] SyS_poll+0x50/0xb7
+[ 6034.913785]  [<ffffffff8143acd6>] system_call_fastpath+0x1a/0x1f
+[ 6034.913785] ---[ end trace c6c107ef5a49f568 ]---
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
