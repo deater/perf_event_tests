@@ -175,6 +175,9 @@ $TESTS_DIR/overflow/overflow_requires_wakeup
 echo "  + $TESTS_DIR/overflow/overflow_poll"
 echo -n "    "
 $TESTS_DIR/overflow/overflow_poll
+echo "  + $TESTS_DIR/overflow/overflow_large"
+echo -n "    "
+$TESTS_DIR/overflow/overflow_large
 
 echo
 echo "* Checking tracepoint functionality"
