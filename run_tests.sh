@@ -172,6 +172,9 @@ $TESTS_DIR/overflow/wakeup_events_overflow
 echo "  + $TESTS_DIR/overflow/overflow_requires_wakeup"
 echo -n "    "
 $TESTS_DIR/overflow/overflow_requires_wakeup
+echo "  + $TESTS_DIR/overflow/overflow_poll"
+echo -n "    "
+$TESTS_DIR/overflow/overflow_poll
 
 echo
 echo "* Checking tracepoint functionality"

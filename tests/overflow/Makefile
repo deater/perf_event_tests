@@ -5,6 +5,7 @@ LIB = ../../lib
 
 all:	\
 	breakpoint_overflow \
+	overflow_poll \
 	overflow_requires_wakeup \
 	simple_overflow_leader \
 	simple_overflow_sibling \
@@ -43,6 +44,19 @@ breakpoint_overflow:	breakpoint_overflow.o $(LIB)/test_utils.o \
 
 breakpoint_overflow.o:	breakpoint_overflow.c
 	$(CC) $(CFLAGS) -c breakpoint_overflow.c
+
+###
+
+overflow_poll:	overflow_poll.o $(LIB)/test_utils.o \
+					$(LIB)/instructions_testcode.o \
+					$(LIB)/perf_helpers.o 
+	$(CC) $(LFLAGS) -o overflow_poll overflow_poll.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/instructions_testcode.o \
+				$(LIB)/perf_helpers.o 
+
+overflow_poll.o:	overflow_poll.c
+	$(CC) $(CFLAGS) -c overflow_poll.c
 
 
 ###
@@ -176,6 +190,7 @@ wakeup_events_overflow.o:	wakeup_events_overflow.c
 clean:	
 	rm -f *~ *.o \
 	breakpoint_overflow \
+	overflow_poll \
 	overflow_requires_wakeup \
 	simple_overflow_leader \
 	simple_overflow_sibling \
