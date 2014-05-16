@@ -334,6 +334,7 @@ int main(int argc, char** argv) {
 
 	/************************************************************/
 	/* Next try very large size value, should be no overflow    */
+	/* In fact, on 3.15 and later the open should fail          */
 	/************************************************************/
 
 	count.in=0; count.out=0; count.msg=0;
@@ -364,6 +365,15 @@ int main(int argc, char** argv) {
 
 	fd1=perf_event_open(&pe,0,-1,-1,0);
 	if (fd1<0) {
+
+		if (errno==EINVAL) {
+			if (!quiet) {
+				fprintf(stderr,"Properly failed with too-large sample_period\n");
+				test_pass(test_string);
+				exit(0);
+			}
+		}
+
 		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
 		test_fail(test_string);
 	}
