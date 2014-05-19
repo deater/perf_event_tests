@@ -30,6 +30,17 @@ haswell
 
 <h3>Linux-kernel Mailing List Report</h3>
 
+19 May 2014 -- perf: fuzzer induced mutex_lock_nested BUG
+
+
+<h3>Analysis
+
+If you look up the faulting IP it's actually happening at this line in
+lockdep.c __lock_acquire()<br>
+<pre>
+        if (subclass < NR_LOCKDEP_CACHING_CLASSES)
+                class = lock->class_cache[subclass];
+</pre>
 
 <h3>Kernel Splat</h3>
 
