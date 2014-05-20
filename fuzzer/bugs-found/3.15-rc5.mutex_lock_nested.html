@@ -1,0 +1,209 @@
+<html>
+<head>
+<title>
+BUG: unable to handle kernel NULL pointer dereference __lock_acquire.isra
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG: unable to handle kernel NULL pointer dereference __lock_acquire.isra
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+3.15-rc5
+
+<h3>Most recently Seen</h3>
+3.15-rc5
+
+<h3>Reproducible</h3>
+???
+
+<h3>Found On</h3>
+haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+
+19 May 2014 -- perf: fuzzer induced mutex_lock_nested BUG
+
+
+<h3>Analysis
+
+If you look up the faulting IP it's actually happening at this line in
+lockdep.c __lock_acquire()<br>
+<pre>
+        if (subclass < NR_LOCKDEP_CACHING_CLASSES)
+                class = lock->class_cache[subclass];
+</pre>
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1400356558
+
+<pre>
+[84564.114973] BUG: unable to handle kernel NULL pointer dereference at 0000000000000050
+[84564.124379] IP: [<ffffffff8164f81a>] mutex_lock_nested+0x8a/0x360
+[84564.131780] PGD c8529067 PUD c8527067 PMD 0 
+[84564.137190] Oops: 0002 [#2] SMP 
+[84564.227368] CPU: 3 PID: 29919 Comm: perf_fuzzer Tainted: G      D W     3.15.0-rc5+ #108
+[84564.236996] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[84564.245810] task: ffff8800cf054650 ti: ffff8800c9154000 task.ti: ffff8800c9154000
+[84564.254727] RIP: 0010:[<ffffffff8164f81a>]  [<ffffffff8164f81a>] mutex_lock_nested+0x8a/0x360
+[84564.264878] RSP: 0018:ffff8800c9155cf0  EFLAGS: 00010046
+[84564.271511] RAX: 0000000000010000 RBX: 0000000000000001 RCX: 0000000000000000
+[84564.280095] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000246
+[84564.288717] RBP: ffff8800c9155d48 R08: 0000000000000000 R09: 0000000000000000
+[84564.297232] R10: 0000000000000000 R11: ffff88011752cee0 R12: 0000000000000048
+[84564.305910] R13: ffff8800cf054650 R14: 0000000000000050 R15: 0000000000000246
+[84564.314495] FS:  00007f8111d79700(0000) GS:ffff88011eac0000(0000) knlGS:0000000000000000
+[84564.324081] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[84564.331183] CR2: 0000000000000050 CR3: 00000000cf351000 CR4: 00000000001407e0
+[84564.339848] DR0: 000000000268d000 DR1: 000000000268a000 DR2: 0000000000000000
+[84564.348457] DR3: 000000000157b000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[84564.357013] Stack:
+[84564.359984]  ffffffff8113b62c ffff8800cf054658 ffff8800c9155d80 0000000000000000
+[84564.369025]  ffff8800c9155d48 ffffffff81133385 0000000000000001 0000000000000001
+[84564.378013]  ffff8800cef5cd90 00007f8111d799d0 0000000000000000 ffff8800c9155db0
+[84564.386906] Call Trace:
+[84564.390463]  [<ffffffff8113b62c>] ? perf_event_init_context+0x8c/0x250
+[84564.398460]  [<ffffffff81133385>] ? perf_lock_task_context+0xa5/0x110
+[84564.406203]  [<ffffffff8113b62c>] perf_event_init_context+0x8c/0x250
+[84564.413982]  [<ffffffff8113b85d>] perf_event_init_task+0x6d/0x70
+[84564.421298]  [<ffffffff81062165>] copy_process.part.23+0x6b5/0x1c60
+[84564.428930]  [<ffffffff8117662d>] ? mmap_region+0x19d/0x5d0
+[84564.435780]  [<ffffffff81176d55>] ? do_mmap_pgoff+0x2f5/0x3c0
+[84564.442814]  [<ffffffff810638e5>] do_fork+0xd5/0x330
+[84564.449016]  [<ffffffff811c8d30>] ? do_vfs_ioctl+0x2e0/0x4d0
+[84564.455967]  [<ffffffff81063bc6>] SyS_clone+0x16/0x20
+[84564.462328]  [<ffffffff8165b999>] stub_clone+0x69/0x90
+[84564.468685]  [<ffffffff8165b5ed>] ? system_call_fastpath+0x1a/0x1f
+[84564.476400] Code: 25 a0 c9 00 00 a9 00 ff 1f 00 0f 85 ae 02 00 00 9c 58 0f 1f 44 00 00 49 89 c7 fa 66 0f 1f 44 00 00 b8 00 00 01 00 4d 8d 74 24 08 <f0> 41 0f c1 44 24 08 89 c2 c1 ea 10 66 39 c2 89 d1 0f 85 5b 02 
+[84564.498890] RIP  [<ffffffff8164f81a>] mutex_lock_nested+0x8a/0x360
+[84564.506454]  RSP <ffff8800c9155cf0>
+[84564.511179] CR2: 0000000000000050
+[84564.550036] ---[ end trace 4d7b668c63a63e5d ]---
+
+</pre>
+<li>
+<pre>
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.15.0-rc5+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1400276002
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 25000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1400276002
+
+Pid=1644, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Iteration 10000
+        Open attempts: 195081  Successful: 909
+                EPERM : 36
+                ENOENT : 1685
+                E2BIG : 22553
+                EBADF : 9703
+                EACCES : 963
+                EINVAL : 158624
+                EOPNOTSUPP : 608
+                Type (Hardware 205/26076)(software 388/28514)(tracepoint 81/28749)(Cache 46/24441)(cpu 155/28504)(breakpoint 34/28514)(uncore_imc 0/4116)(power 0/4066)(#8 0/76)(#9 0/28)(#10 0/36)(#11 0/18)(#12 0/37)(#13 0/29)(#14 0/28)(>14 0/21849)
+        Close attempts: 893  Successful: 893
+        Read attempts: 871  Successful: 794
+        Write attempts: 881  Successful: 0
+        Ioctl attempts: 925  Successful: 447
+        Mmap attempts: 909  Successful: 404
+        Prctl attempts: 925  Successful: 925
+        Fork attempts: 419  Successful: 419
+        Poll attempts: 912  Successful: 0
+        Access attempts: 916  Successful: 452
+        Trash mmap attempts: 901  Successful: 901
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[ 3884.569315] BUG: unable to handle kernel NULL pointer dereference at 00000000000000b8
+[ 3884.577763] IP: [<ffffffff810b0b03>] __lock_acquire.isra.29+0x173/0xb90
+[ 3884.584901] PGD 1177ed067 PUD 116a4a067 PMD 0 
+[ 3884.589778] Oops: 0000 [#1] SMP 
+[ 4014.688334] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp cor
+etemp snd_hda_codec_realtek kvm snd_hda_codec_hdmi snd_hda_codec_generic crc32_p
+clmul snd_hda_intel ghash_clmulni_intel aesni_intel snd_hda_controller aes_x86_6
+4 snd_hda_codec i915 snd_hwdep iTCO_wdt lrw snd_pcm gf128mul drm_kms_helper glue
+_helper snd_timer iTCO_vendor_support ppdev evdev drm wmi battery parport_pc mei
+_me tpm_tis parport ablk_helper button i2c_algo_bit processor video i2c_i801 psm
+ouse i2c_core snd pcspkr serio_raw cryptd soundcore tpm lpc_ich mfd_core mei sd_
+mod crc_t10dif sr_mod crct10dif_generic cdrom ehci_pci ehci_hcd xhci_hcd ahci e1
+000e libahci libata crct10dif_pclmul crct10dif_common ptp usbcore crc32c_intel s
+csi_mod pps_core usb_common fan thermal thermal_sys
+[ 4014.688335] CPU: 1 PID: 1644 Comm: perf_fuzzer Not tainted 3.15.0-rc5+ #108
+[ 4014.688336] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2
+014
+[ 4014.688336] task: ffff880116f22b10 ti: ffff880115c24000 task.ti: ffff880115c2
+4000
+[ 4014.688339] RIP: 0010:[<ffffffff810b0b03>]  [<ffffffff810b0b03>] __lock_acquire.isra.29+0x173/0xb90
+[ 4014.688339] RSP: 0018:ffff880115c25c18  EFLAGS: 00010097
+[ 4014.688339] RAX: 0000000000000000 RBX: ffff880116f22b10 RCX: 0000000000000000
+[ 4014.688340] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[ 4014.688340] RBP: ffff880115c25c80 R08: 0000000000000000 R09: 0000000000000000
+[ 4014.688340] R10: 0000000000000001 R11: ffff8801175a10e0 R12: 0000000000000000
+[ 4014.688341] R13: 0000000000000000 R14: 00000000000000b0 R15: 0000000000000000
+[ 4014.688341] FS:  00007fc4d2f02700(0000) GS:ffff88011ea40000(0000) knlGS:0000000000000000
+[ 4014.688342] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 4014.688342] CR2: 00000000000000b8 CR3: 0000000117910000 CR4: 00000000001407e0
+[ 4014.688342] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000001510000
+[ 4014.688343] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[ 4014.688343] Stack:
+[ 4014.688344]  ffffffff810b0d4d 000000000000001e 0000000000000000 ffffffff81c48440
+[ 4014.688345]  ffff880115c25cb0 ffffffff810b0d4d ffff880115c25cc0 ffffffff810b0d4d
+[ 4014.688345]  0000000000000246 0000000000000000 0000000000000000 0000000000000000
+[ 4014.688346] Call Trace:
+[ 4014.688347]  [<ffffffff810b0d4d>] ? __lock_acquire.isra.29+0x3bd/0xb90
+[ 4014.688348]  [<ffffffff810b0d4d>] ? __lock_acquire.isra.29+0x3bd/0xb90
+[ 4014.688349]  [<ffffffff810b0d4d>] ? __lock_acquire.isra.29+0x3bd/0xb90
+[ 4014.688350]  [<ffffffff810b15be>] lock_acquire+0x9e/0x120
+[ 4014.688352]  [<ffffffff8113b62c>] ? perf_event_init_context+0x8c/0x250
+[ 4014.688353]  [<ffffffff8164f7e0>] mutex_lock_nested+0x50/0x360
+[ 4014.688355]  [<ffffffff8113b62c>] ? perf_event_init_context+0x8c/0x250
+[ 4014.688356]  [<ffffffff81133385>] ? perf_lock_task_context+0xa5/0x110
+[ 4014.688357]  [<ffffffff8113b62c>] perf_event_init_context+0x8c/0x250
+[ 4014.688358]  [<ffffffff8113b85d>] perf_event_init_task+0x6d/0x70
+[ 4014.688359]  [<ffffffff81062165>] copy_process.part.23+0x6b5/0x1c60
+[ 4014.688361]  [<ffffffff811d5e7b>] ? mntput_no_expire+0x4b/0x190
+[ 4014.688362]  [<ffffffff810638e5>] do_fork+0xd5/0x330
+[ 4014.688364]  [<ffffffff811b6e2a>] ? __fput+0x17a/0x1e0
+[ 4014.688365]  [<ffffffff813bef46>] ? lockdep_sys_exit_thunk+0x35/0x67
+[ 4014.688366]  [<ffffffff81063bc6>] SyS_clone+0x16/0x20
+[ 4014.688367]  [<ffffffff8165b999>] stub_clone+0x69/0x90
+[ 4014.688368]  [<ffffffff8165b5ed>] ? system_call_fastpath+0x1a/0x1f
+[ 4014.688376] Code: 0f 1f 84 00 00 00 00 00 e8 eb f1 30 00 85 c0 74 0d 83 3d 70 a7 52 01 00 0f 84 d9 06 00 00 45 31 ed e9 d6 01 00 00 66 90 44 89 e8 <4d> 8b 64 c6 08 4d 85 e4 0f 84 ca fe ff ff f0 41 ff 84 24 98 01 
+[ 4014.688377] RIP  [<ffffffff810b0b03>] __lock_acquire.isra.29+0x173/0xb90
+[ 4014.688377]  RSP <ffff880115c25c18>
+[ 4014.688377] CR2: 00000000000000b8
+[ 4014.713508] ---[ end trace 4d7b668c63a63e5b ]---
+[ 4027.809540] [sched_delayed] sched: RT throttling activated
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
