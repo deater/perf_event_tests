@@ -1,0 +1,53 @@
+<html>
+<head>
+<title>
+3.14 fork memory corruption
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+3.14 fork memory corruption
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Crash
+
+<h3>First Seen</h3>
+3.14-rc (only started regularly running perf_fuzzer with fork enabled then)
+
+<h3>Reproducible</h3>
+Yes
+
+<h3>Found On</h3>
+core2 haswell p4
+
+<h3>Fixed in</h3>
+Linux 3.15-rc7
+46ce0fe97a6be7532ce6126bb26ce89fed81528c perf: Fix race in removing an event<br>
+
+<h3>Sub-bugs</h3>
+
+The following are probably all different manifestations of the
+same bug:
+<ul>
+<li><a href="3.15-rc4.p4_pmu_schedule_events.html">3.15-rc4 Pentium 4 p4_pmu_schedule_events() BUG</a>
+<li><a href="3.15-rc4.list_del_warning.html">3.15-rc4 list_del warning</a><br>
+<li><a href="3.14-rc5.rbtree_hrtimer.html">3.14-rc7 rbtree hrtimer bug</a><br>
+<li><a href="3.14-rc6.x86_schedule_events.html">3.14 x86_schedule_events bug</a><br>
+<li><a href="3.14-rc6.perf_sw_event.html">3.14-rc6 __perf_sw_event bug</a><br>
+<li><a href="3.14-rc6.do_page_fault.html">3.14-rc6 __do_page_fault bug</a><br>
+<li><a href="3.14.ftrace_graph_exit_task.html">3.14 ftrace_graph_exit_task crash</a><br>
+</ul>
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

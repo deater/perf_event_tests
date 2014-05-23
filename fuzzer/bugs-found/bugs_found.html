@@ -26,17 +26,7 @@
 <li><a href="3.15-rc1.perf_swevent_del_bug.html">3.15-rc-next perf_swevent_del bug</a>
 <li><a href="3.14-rc5.perf_event_overflow.html">3.14-rc5.perf_event_overflow bug</a>
 <li><a href="3.15-rc3.kvm_mmap_corruption.html">3.15-rc-next KVM perf_mmap corruption</a>
-<li><a href="3.15-next.perf_remove_from_context_fpf.html">3.15-rc-next perf_remove_from_context() gpf</a>
-<li>The following are probably all the same memory corruption issue:<br>
-    <a href="3.15-rc4.p4_pmu_schedule_events.html">3.15-rc4 Pentium 4 p4_pmu_schedule_events() BUG</a>
-    <a href="3.15-rc4.list_del_warning.html">3.15-rc4 list_del warning</a><br>
-    <a href="3.14-rc5.rbtree_hrtimer.html">3.14-rc7 rbtree hrtimer bug</a><br>
-    <a href="3.14-rc6.x86_schedule_events.html">3.14 x86_schedule_events bug</a><br>
-    <a href="3.14-rc6.perf_sw_event.html">3.14-rc6 __perf_sw_event bug</a><br>
-    <a href="3.14-rc6.do_page_fault.html">3.14-rc6 __do_page_fault bug</a><br>
-    <a href="3.14.ftrace_graph_exit_task.html">3.14 ftrace_graph_exit_task crash</a><br>
-
-
+<li><a href="3.15-next.perf_remove_from_context_gpf.html">3.15-rc-next perf_remove_from_context() gpf</a>
 </ul>
 
 <h2>Outstanding Warnings (not easily reproducible):</h2>
@@ -66,6 +56,7 @@
 <h3>Fixed in 3.15</h3>
 
 	<ul>
+	<li><a href="3.15-memory-corruption.html">perf/fork memory leak issue</a>
 	<li><a href="3.15-rc4.perf_event_init_context_oops.html">3.15-rc4 perf_event_init_context() oops</a>
 	<li><a href="3.15-rc1.sample_period_overflow.html">sample_period 64-bit signed/unsigned overflow</a>
 	</ul>
