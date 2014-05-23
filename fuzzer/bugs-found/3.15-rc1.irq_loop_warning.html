@@ -13,6 +13,10 @@ WARNING: at arch/x86/kernel/cpu/perf_event_intel.c:1373 perfevents: irq loop stu
 </h1>
 </center>
 
+<h3>Severity</h3>
+Just a warning, although it does cause a long pause while
+the interrupt is stuck on.
+
 <h3>Found by</h3>
 perf_fuzzer
 
@@ -34,46 +38,10 @@ Haswell
 
 <h3>Analysis</h3>
 
-There are two problems.  The first is the 63-bit overflow issue
+There are two problems.  The first was the 63-bit overflow issue
 detailed below which makes triggering the problem easier.
 The other is the overflow interrupt getting stuck on when
 the fixed-counter-0 sample_period is 2.<br><br>
-
-attr-&gt;sample_period is a u64 value, but internally it gets cast to
-s64 and is added against itself and so all kinds of unexpected things 
-happen.
-<br><br>
-So if you set attr-&gt;sample_period to 0xc0000000000000bd in the hopes of 
-sampling the RETIRED_INSTRUCTIONS event every 5 years or so, instead
-what happens is that in
-        x86_perf_event_set_period()
-the value is cast to a signed 64-bit value, so we are now negative.
-<br><br>
-Then "left" is set to period because we are negative.
-<br><br>
-Then since left is less than 0, we double the period value.
-This overflows the 64-bit integer and suddenly we are in undefined
-behavior territory and we're lucky the C compiler doesn't decide to
-format the hard drive.
-<br><br>
-Anyway we are still less than 0, so then the
-<pre>
-        if (unlikely(left &lt; 2))
-                left = 2;
-</pre>
-
-code kicks in and suddenly our hugely positive sample_period has changed
-to just being "2".  And so we suddenly get a storm of interrupts instead 
-of one every 5 years.
-<br><br>
-So, not sure how to fix this without a total re-write, unless we want to 
-cheat and just say sample_period is capped at 62-bits or something.
-<br><br>
-Also it's unclear why sometimes this can cause a stuck interrupt leading 
-to the "irq loop stuck" message.  I have a reproducible fuzzer test case 
-that will cause this to happen, but can't isolate it down to a simple test 
-case...
-
 
 <h3>Kernel Splat</h3>
 
