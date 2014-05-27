@@ -35,6 +35,10 @@ int main(int argc, char **argv) {
 	/* Check using invalid group leader       */
 	/******************************************/
 
+	if (!quiet) {
+		printf("Trying with invalid group leader\n");
+	}
+
 	memset(&attr,0,sizeof(struct perf_event_attr));
 	attr.type=PERF_TYPE_HARDWARE;
 	attr.config=PERF_COUNT_HW_INSTRUCTIONS;
@@ -48,19 +52,19 @@ int main(int argc, char **argv) {
 	if (fd<0) {
 		if (errno==EBADF) {
 			if (!quiet) {
-				printf("Properly triggered EBADF\n");
+				printf("\tProperly triggered EBADF\n");
 			}
 		}
 		else {
 			if (!quiet) {
-				printf("Unexpectedly got: %s\n",strerror(errno));
+				printf("\tUnexpectedly got: %s\n",strerror(errno));
 			}
 			failures++;
 		}
 	}
 	else {
 		if (!quiet) {
-			printf("Unexpectedly opened properly.\n");
+			printf("\tUnexpectedly opened properly.\n");
 		}
 		failures++;
 		close(fd);
@@ -69,6 +73,10 @@ int main(int argc, char **argv) {
 	/**********************************************/
 	/* Check invalid cgroup ID                    */
 	/**********************************************/
+
+	if (!quiet) {
+		printf("Trying with invalid cgroup id\n");
+	}
 
 	memset(&attr,0,sizeof(struct perf_event_attr));
 	attr.type=PERF_TYPE_HARDWARE;
@@ -83,19 +91,19 @@ int main(int argc, char **argv) {
 	if (fd<0) {
 		if (errno==EBADF) {
 			if (!quiet) {
-				printf("Properly triggered EBADF\n");
+				printf("\tProperly triggered EBADF\n");
 			}
 		}
 		else {
 			if (!quiet) {
-				printf("Unexpectedly got: %s\n",strerror(errno));
+				printf("\tUnexpectedly got: %s\n",strerror(errno));
 			}
 			failures++;
 		}
 	}
 	else {
 		if (!quiet) {
-			printf("Unexpectedly opened properly.\n");
+			printf("\tUnexpectedly opened properly.\n");
 		}
 		failures++;
 		close(fd);
