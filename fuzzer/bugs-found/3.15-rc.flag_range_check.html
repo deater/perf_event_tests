@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>
+no error on invalid flag value
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+no error on invalid flag value
+</h1>
+</center>
+
+<h3>Severity</h3>
+Just a correctness issue.
+
+
+<h3>Found by</h3>
+perf_fuzzer (noticed when tracking another problem)
+
+<h3>First Seen</h3>
+3.15-rc1
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Fixed by</h3>
+Linux 3.16 643fd0b9f5dc40fedbfbb908ebe6f1169284f7d8
+perf: Fix perf_event_open(.flags) test
+
+<h3>Linux-kernel Mailing List Report</h3>
+22 April 2014 -- [perf] yet another 32/64-bit range check failure
+
+<h3>Analysis</h3>
+
+We check if flags is valid like this:
+<pre>
+        /* for future expandability... */
+        if (flags & ~PERF_FLAG_ALL)
+                return -EINVAL;
+</pre>
+but flags is a 64-bit value but ~PERF_FLAG_ALL is 32-bit.<br><br>
+
+This means values like 0x800000000000ULL are treated as valid even though
+they aren't.
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

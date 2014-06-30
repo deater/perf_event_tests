@@ -1,0 +1,227 @@
+<html>
+<head>
+<title>find_get_context() hang
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+find_get_context() hang
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Hang (eventual crash?)
+
+<h3>First Seen</h3>
+3.15-rc7
+
+<h3>Most recently Seen</h3>
+3.15-rc7
+
+<h3>Reproducible</h3>
+Yes
+
+<h3>Found On</h3>
+core2
+
+<h3>Linux-kernel</h3>
+27 May 2014 -- perf: fuzzer getting stuck with slow memory leak
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Analysis</h3>
+
+The event in question is boring, SW_EMULATION_FAULTS<br><br>
+
+What happens is in kernel/core/events.c  find_get_context()
+somehow perf_lock_task_context() returns NULL 
+due to !atomic_inc_not_zero(&amp;ctx-&gt;refcount)
+but task-&gt;perf_event_ctxp[ctxn] still has a valid value.
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+Stopping after 50000
+
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.15.0-rc7+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1401208130
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 12500/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1401208130
+
+Pid=7359, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mma
+p-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Iteration 10000
+        Open attempts: 172039  Successful: 889
+                EPERM : 30
+                ENOENT : 1666
+                E2BIG : 19962
+                EBADF : 7227
+                EACCES : 319
+                EINVAL : 141323
+                ENOSPC : 169
+                EOPNOTSUPP : 454
+                Type (Hardware 204/22681)(software 368/27154)(tracepoint 91/2700
+0)(Cache 43/21589)(cpu 156/27005)(breakpoint 27/27018)(#6 0/27)(#7 0/22)(#8 0/73
+)(#9 0/27)(#10 0/22)(#11 0/19)(#12 0/23)(#13 0/22)(#14 0/20)(>14 0/19337)
+        Close attempts: 858  Successful: 858
+        Read attempts: 938  Successful: 846
+        Write attempts: 855  Successful: 0
+        Ioctl attempts: 856  Successful: 385
+        Mmap attempts: 889  Successful: 330
+        Prctl attempts: 927  Successful: 927
+        Fork attempts: 456  Successful: 456
+        Poll attempts: 885  Successful: 0
+        Access attempts: 874  Successful: 433
+        Trash mmap attempts: 903  Successful: 903
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000
+        Open attempts: 177920  Successful: 892
+                EPERM : 32
+                ENOENT : 1667
+                E2BIG : 20719
+                EBADF : 7382
+                EACCES : 368
+                EINVAL : 146224                   
+                ENOSPC : 155                      
+                EOPNOTSUPP : 481                  
+                Type (Hardware 209/23416)(software 361/28137)(tracepoint 77/2782
+1)(Cache 55/22581)(cpu 171/27874)(breakpoint 19/27964)(#6 0/32)(#7 0/12)(#8 0/84
+)(#9 0/21)(#10 0/26)(#11 0/23)(#12 0/37)(#13 0/18)(#14 0/22)(>14 0/19852)
+        Close attempts: 890  Successful: 890      
+        Read attempts: 896  Successful: 775       
+        Write attempts: 896  Successful: 0        
+        Ioctl attempts: 823  Successful: 387      
+        Mmap attempts: 892  Successful: 305       
+        Prctl attempts: 949  Successful: 949
+        Fork attempts: 447  Successful: 447
+        Poll attempts: 893  Successful: 1
+        Access attempts: 898  Successful: 439
+        Trash mmap attempts: 880  Successful: 880
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+
+
+[10221.092024] SysRq : HELP : loglevel(0-9) reboot(b) crash(c) terminate-all-tasks(e) memory-full-oom-kill(f) kill-all-tasks(i) thaw-filesystems(j) sak(k) show-backtrace-all-active-cpus(l) show-memory-usage(m) nice-all-RT-tasks(n) poweroff(o) show-registers(p) show-all-timers(q) unraw(r) sync(s) show-task-states(t) unmount(u) show-blocked-tasks(w) dump-ftrace-buffer(z) l
+[10229.945338] SysRq : Show backtrace of all active CPUs
+[10229.949328] sending NMI to all CPUs:
+[10229.949328] NMI backtrace for cpu 0
+[10229.949328] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W     3.15.0-rc7+ #48
+[10229.949328] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[10229.949328] task: ffffffff81a14450 ti: ffffffff81a00000 task.ti: ffffffff81a00000
+[10229.949328] RIP: 0010:[<ffffffff812a607b>]  [<ffffffff812a607b>] delay_tsc+0x2d/0x52
+[10229.949328] RSP: 0018:ffff88011fc03d28  EFLAGS: 00000087
+[10229.949328] RAX: 00000000c36c7750 RBX: 0000000000000001 RCX: 00000000c36c76f1
+[10229.949328] RDX: 000000000000005f RSI: 0000000000000000 RDI: 00000000002658f6
+[10229.949328] RBP: ffff88011fc03d28 R08: 0000000000000000 R09: 0000000000000008
+[10229.949328] R10: 0000000000000000 R11: 0000000000000005 R12: 000000000000006c
+[10229.949328] R13: 0000000000000007 R14: 0000000000000096 R15: 0000000000000001
+[10229.949328] FS:  0000000000000000(0000) GS:ffff88011fc00000(0000) knlGS:0000000000000000
+[10229.949328] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[10229.949328] CR2: 0000000000619e21 CR3: 00000000cb239000 CR4: 00000000000407f0
+[10229.949328] DR0: 0000000000000000 DR1: 0000000002338000 DR2: 000000000262f000
+[10229.949328] DR3: 0000000002632000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[10229.949328] Stack:
+[10229.949328]  ffff88011fc03d38 ffffffff812a6021 ffff88011fc03d58 ffffffff8102c320
+[10229.949328]  0000000000000008 ffffffff81a6a560 ffff88011fc03d68 ffffffff8132b331
+[10229.949328]  ffff88011fc03da8 ffffffff8132b63a 0000000000012b00 ffffffff81c97220
+[10229.949328] Call Trace:
+[10229.949328]  <IRQ> 
+[10229.949328]  [<ffffffff812a6021>] __const_udelay+0x25/0x27
+[10229.949328]  [<ffffffff8102c320>] arch_trigger_all_cpu_backtrace+0x79/0x8d
+[10229.949328]  [<ffffffff8132b331>] sysrq_handle_showallcpus+0xe/0x10
+[10229.949328]  [<ffffffff8132b63a>] __handle_sysrq+0xbf/0x15b
+[10229.949328]  [<ffffffff8132ba56>] handle_sysrq+0x2c/0x2e
+[10229.949328]  [<ffffffff8133da3b>] serial8250_rx_chars+0x13f/0x1b8
+[10229.949328]  [<ffffffff8133db2a>] serial8250_handle_irq+0x76/0xb5
+[10229.949328]  [<ffffffff81049c94>] ? lock_timer_base+0x52/0x52
+[10229.949328]  [<ffffffff8133dbf4>] serial8250_default_handle_irq+0x23/0x28
+[10229.949328]  [<ffffffff8133c907>] serial8250_interrupt+0x42/0xb6
+[10229.949328]  [<ffffffff81049c94>] ? lock_timer_base+0x52/0x52
+[10229.949328]  [<ffffffff8107fbe8>] handle_irq_event_percpu+0x60/0x169
+[10229.949328]  [<ffffffff8107fd30>] handle_irq_event+0x3f/0x5b
+[10229.949328]  [<ffffffff8102d7d8>] ? ack_apic_edge+0x36/0x3a
+[10229.949328]  [<ffffffff810823b0>] handle_edge_irq+0xb7/0xe6
+[10229.949328]  [<ffffffff8100443a>] handle_irq+0x27/0x2f
+[10229.949328]  [<ffffffff81003c16>] do_IRQ+0x53/0xd9
+[10229.949328]  [<ffffffff8153c8aa>] common_interrupt+0x6a/0x6a
+[10229.949328]  <EOI> 
+[10229.949328]  [<ffffffff8100a67a>] ? default_idle+0x1d/0x2f
+[10229.949328]  [<ffffffff8100a678>] ? default_idle+0x1b/0x2f
+[10229.949328]  [<ffffffff8100a031>] arch_cpu_idle+0xf/0x11
+[10229.949328]  [<ffffffff81071794>] cpu_startup_entry+0x1be/0x220
+[10229.949328]  [<ffffffff81531a13>] rest_init+0x77/0x79
+[10229.949328]  [<ffffffff81ac0f1d>] start_kernel+0x3ea/0x3f7
+[10229.949328]  [<ffffffff81ac0968>] ? repair_env_string+0x58/0x58
+[10229.949328]  [<ffffffff81538393>] ? memblock_reserve+0x49/0x4e
+[10229.949328]  [<ffffffff81ac0488>] x86_64_start_reservations+0x2a/0x2c
+[10229.949328]  [<ffffffff81ac05cf>] x86_64_start_kernel+0x145/0x14c
+[10229.949328] Code: 89 e5 66 66 66 66 90 65 8b 34 25 d0 b0 00 00 66 66 90 0f ae e8 0f 31 89 c1 66 66 90 0f ae e8 0f 31 89 c2 29 ca 39 fa 73 23 f3 90 <65> 44 8b 04 25 d0 b0 00 00 44 39 c6 74 e0 29 c1 01 cf 66 66 90 
+[10229.956005] NMI backtrace for cpu 1
+[10229.956005] CPU: 1 PID: 7359 Comm: perf_fuzzer Tainted: G        W     3.15.0-rc7+ #48
+[10229.956005] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[10229.956005] task: ffff8800ca2c3000 ti: ffff8800c53fc000 task.ti: ffff8800c53fc000
+[10229.956005] RIP: 0010:[<ffffffff8111160b>]  [<ffffffff8111160b>] ____cache_alloc+0x50/0x29d
+[10229.956005] RSP: 0018:ffff8800c53fdd18  EFLAGS: 00000006
+[10229.956005] RAX: ffff8800c7108c00 RBX: ffff88011f000400 RCX: ffff88011a156180
+[10229.956005] RDX: 0000000080000000 RSI: ffff88011b38ac00 RDI: ffff88011f000400
+[10229.956005] RBP: ffff8800c53fdd78 R08: 00000000000080d0 R09: ffff8800ca2c3000
+[10229.956005] R10: ffff8800ca2c3000 R11: 0000000000000013 R12: ffff88011f000400
+[10229.956005] R13: 0000000000000000 R14: 00000000000080d0 R15: 00000000000080d0
+[10229.956005] FS:  00007fa9b7107700(0000) GS:ffff88011fc80000(0000) knlGS:0000000000000000
+[10229.956005] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[10229.956005] CR2: 00007f9042256fc9 CR3: 00000000c4a30000 CR4: 00000000000407e0
+[10229.956005] DR0: 0000000002546000 DR1: 0000000002341000 DR2: 0000000002837000
+[10229.956005] DR3: 000000000262f000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[10229.956005] Stack:
+[10229.956005]  ffffea0002b8b9c0 ffff88011f002358 ffff88011f002348 ffffffff0000002c                                               
+[10229.956005]  ffff88011f002368 000080d0810d027d ffff880100000001 ffff88011f000400                                               
+[10229.956005]  00000000000000d8 ffff88011f000400 00000000000080d0 00000000000080d0
+[10229.956005] Call Trace:
+[10229.956005]  [<ffffffff81112657>] __kmalloc+0x8a/0xed
+[10229.956005]  [<ffffffff810d027d>] ? T.1265+0xe/0x10
+[10229.956005]  [<ffffffff810d027d>] T.1265+0xe/0x10
+[10229.956005]  [<ffffffff810d07b9>] alloc_perf_context+0x20/0x95
+[10229.956005]  [<ffffffff810d095e>] find_get_context+0x130/0x1bf
+[10229.956005]  [<ffffffff810d0eea>] SYSC_perf_event_open+0x42b/0x808
+[10229.956005]  [<ffffffff810d12d5>] SyS_perf_event_open+0xe/0x10
+[10229.956005]  [<ffffffff81543466>] system_call_fastpath+0x1a/0x1f
+[10229.956005] Code: 8b b4 c7 80 00 00 00 83 3e 00 74 2b c7 46 0c 01 00 00 00 8b 05 87 bf b8 00 85 c0 0f 8e 36 02 00 00 8b 55 cc 31 c9 e8 b6 ed ff ff <48> 85 c0 0f 85 14 02 00 00 41 b5 01 65 44 8b 34 25 b8 ee 00 00 
+[10229.949328] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took too long to run: 533.107 msecs
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
