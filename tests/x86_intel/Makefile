@@ -6,6 +6,7 @@ LIB = ../../lib
 all:	\
 	offcore_response \
 	offcore_response_mask \
+	pebs \
 	uncore_events \
 	uncore_cpu_cbox \
 	uncore_max_cbox \
@@ -40,6 +41,19 @@ offcore_response:	offcore_response.o $(LIB)/test_utils.o \
 
 offcore_response.o:	offcore_response.c
 	$(CC) $(CFLAGS) -c offcore_response.c
+
+###
+
+pebs:	pebs.o $(LIB)/test_utils.o \
+			$(LIB)/matrix_multiply.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o pebs pebs.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/matrix_multiply.o \
+			$(LIB)/perf_helpers.o
+
+pebs.o:	pebs.c
+	$(CC) $(CFLAGS) -c pebs.c
 
 
 
@@ -118,6 +132,7 @@ clean:
 	rm -f *~ *.o \
 	offcore_response \
 	offcore_response_mask \
+	pebs \
 	uncore_events \
 	uncore_cpu_cbox \
 	uncore_max_cbox \

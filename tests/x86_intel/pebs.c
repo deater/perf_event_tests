@@ -89,9 +89,53 @@
 
 		Has transaction abort info
 
-		(stopped at 18.11)
+		Adds new "Eventing" field that has IP of instruction
+		causing the event (as opposed to RIP which has the
+		next instruction)
 
-	Linux interface
+		Precise store replaced by Data Address Profiling.
+
+		MEM_UOPS_RETIRED.STLB_MISS_LOADS
+		MEM_UOPS_RETIRED.STLB_MISS_STORES
+		MEM_UOPS_RETIRED.LOCK_LOADS
+		MEM_UOPS_RETIRED.SPLIT_STORES
+		MEM_UOPS_RETIRED.SPLIT_LOADS
+		MEM_UOPS_RETIRED.ALL_STORES
+		MEM_UOPS_RETIRED.ALL_LOADS
+		MEM_LOAD_UOPS_LLC_MISS_RETIRED.LOCAL_DRAM
+		MEM_LOAD_UOPS_RETIRED.L1_HIT
+		MEM_LOAD_UOPS_RETIRED.L2_HIT
+		MEM_LOAD_UOPS_RETIRED.L3_HIT
+		MEM_LOAD_UOPS_RETIRED.L1_MISS
+		MEM_LOAD_UOPS_RETIRED.L2_MISS
+		MEM_LOAD_UOPS_RETIRED.L3_MISS
+		MEM_LOAD_UOPS_RETIRED.HIT_LFB
+		MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_MISS
+		MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_HIT
+		MEM_LOAD_UOPS_L3_HIT_RETIRED.XSNP_HITM
+		UOPS_RETIRED.ALL (if load or store is tagged)
+		MEM_LOAD_UOPS_LLC_HIT_RETIRED.XSNP_NONE
+
+		When enabled, the latency etc info is stored in the PEBS record
+
+	18.13 = Pentium 4 PEBS
+
+	18.13.7
+		only one counter, only three events
+
+***************
+Linux interface
+***************
+
+	Does not support old 32-bit p4/core PEBS record format
+	
+	Load latency, precise store, precise store haswell
+
+	pebs_fixup_ip() ?
+		makes fake Eventing info?
+		pebs.trap?
+	
+
 
 weight field holds pebs->lat
 
