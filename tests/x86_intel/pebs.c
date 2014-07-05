@@ -141,6 +141,15 @@ weight field holds pebs->lat
 
 */
 
+
+
+/* TODO
+
+   set precice_ip
+   get register dump
+
+*/
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>

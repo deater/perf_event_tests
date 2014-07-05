@@ -45,11 +45,11 @@ offcore_response.o:	offcore_response.c
 ###
 
 pebs:	pebs.o $(LIB)/test_utils.o \
-			$(LIB)/matrix_multiply.o \
+			$(LIB)/instructions_testcode.o \
 			$(LIB)/perf_helpers.o
 	$(CC) $(LFLAGS) -o pebs pebs.o \
 			$(LIB)/test_utils.o \
-			$(LIB)/matrix_multiply.o \
+			$(LIB)/instructions_testcode.o \
 			$(LIB)/perf_helpers.o
 
 pebs.o:	pebs.c
