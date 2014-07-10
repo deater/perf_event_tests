@@ -7,6 +7,7 @@ all:	\
 	offcore_response \
 	offcore_response_mask \
 	pebs \
+	pebs_registers \
 	uncore_events \
 	uncore_cpu_cbox \
 	uncore_max_cbox \
@@ -54,6 +55,21 @@ pebs:	pebs.o $(LIB)/test_utils.o \
 
 pebs.o:	pebs.c
 	$(CC) $(CFLAGS) -c pebs.c
+
+###
+
+pebs_registers:	pebs_registers.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o \
+			../record_sample/parse_record.o
+	$(CC) $(LFLAGS) -o pebs_registers pebs_registers.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o \
+			../record_sample/parse_record.o
+
+pebs_registers.o:	pebs_registers.c
+	$(CC) $(CFLAGS) -c pebs_registers.c
 
 
 
@@ -133,6 +149,7 @@ clean:
 	offcore_response \
 	offcore_response_mask \
 	pebs \
+	pebs_registers \
 	uncore_events \
 	uncore_cpu_cbox \
 	uncore_max_cbox \

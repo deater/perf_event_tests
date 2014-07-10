@@ -65,7 +65,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
   ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, quiet);
 
   prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-			   sample_type,read_format,NULL,quiet);
+			   sample_type,read_format,0,NULL,quiet);
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
