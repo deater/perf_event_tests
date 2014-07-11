@@ -33,40 +33,59 @@ int main(int argc, char **argv) {
 
    long long count,total=0;
 
-   quiet=test_quiet();
+	quiet=test_quiet();
 
-   if (!quiet) {
-      printf("\n");
+	if (!quiet) {
+		printf("\n");
 
-      printf("Testing a loop writing %d doubles %d times\n",
-          ARRAYSIZE,num_runs);
-   }
+		printf("Testing a loop writing %d doubles %d times\n",
+			ARRAYSIZE,num_runs);
+	}
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   pe.type=PERF_TYPE_HW_CACHE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_CACHE_L1D |
-     (PERF_COUNT_HW_CACHE_OP_READ<<8) |
-     (PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	pe.type=PERF_TYPE_HW_CACHE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_CACHE_L1D |
+		(PERF_COUNT_HW_CACHE_OP_READ<<8) |
+		(PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   arch_adjust_domain(&pe,quiet);
+	arch_adjust_domain(&pe,quiet);
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-     if (!quiet) {
-       fprintf(stderr,"Error opening leader %llx %d: %s\n",
-		pe.config,errno,strerror(errno));
-     }
-     if (errno==2) {
-        test_skip(test_string);
-     } else {
-        test_fail(test_string);
-     }
-   }
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error opening leader %llx %d: %s\n",
+				pe.config,errno,strerror(errno));
+		}
+		/* Preset not available */
+		if (errno==ENOENT) {
+			test_skip(test_string);
+		}
+		else if (errno==EINVAL) {
+			int processor_type;
+
+			processor_type=detect_processor();
+
+			switch(processor_type) {
+			case PROCESSOR_SANDYBRIDGE:
+			case PROCESSOR_SANDYBRIDGE_EP:
+			case PROCESSOR_IVYBRIDGE:
+			case PROCESSOR_IVYBRIDGE_EP:
+				if (!quiet) {
+					printf("Likely failure due to errata BV98\n");
+				}
+				test_known_issue(test_string);
+				break;
+			default:        test_fail(test_string);
+			}
+		} else {
+			test_fail(test_string);
+		}
+	}
 
    for(i=0;i<num_runs;i++) {
 

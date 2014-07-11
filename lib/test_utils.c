@@ -53,6 +53,18 @@ void test_caution(char *string) {
   exit(1);
 }
 
+void test_known_issue(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", 60, string, 
+	   YELLOW, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s KNOWN ISSUE\n", 60, string);
+  }
+  exit(1);
+}
+
 void test_skip(char *string) {
 
   if (isatty(fileno(stdout))) {
