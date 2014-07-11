@@ -257,6 +257,7 @@ int main(int argc, char **argv) {
 
 	/* Bitfield saying which registers we want */
 	pe.sample_regs_user=(1ULL<<PERF_REG_X86_64_MAX)-1;
+//	pe.sample_regs_user=(1ULL<<PERF_REG_X86_IP);
 	/* DS, ES, FS, and GS not valid on x86_64 */
 	/* see  perf_reg_validate() in arch/x86/kernel/perf_regs.c */
 	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_DS);

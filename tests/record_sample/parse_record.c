@@ -462,7 +462,8 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 				}
 				offset+=8;
 
-				offset+=print_regs(quiet,abi,reg_mask,data);
+				offset+=print_regs(quiet,abi,reg_mask,
+						&data[offset]);
 
 				if (!quiet) printf("\n");
 			}
