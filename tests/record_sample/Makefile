@@ -9,6 +9,7 @@ all:	\
 	overwrite_mmap \
 	print_record_sample \
 	sample_branch_stack \
+	sample_regs_user \
 	validate_record_sample
 
 ###
@@ -136,6 +137,25 @@ sample_branch_stack.o:	sample_branch_stack.c
 	$(CC) $(CFLAGS) -c sample_branch_stack.c
 
 
+
+###
+
+sample_regs_user:	sample_regs_user.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_regs_user \
+				sample_regs_user.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+sample_regs_user.o:	sample_regs_user.c
+	$(CC) $(CFLAGS) -c sample_regs_user.c
+
+
 ###
 
 clean:	
@@ -145,5 +165,6 @@ clean:
 	overwrite_mmap \
 	print_record_sample \
 	sample_branch_stack \
+	sample_regs_user \
 	validate_record_sample
 

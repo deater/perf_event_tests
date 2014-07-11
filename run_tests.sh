@@ -199,9 +199,12 @@ $TESTS_DIR/record_sample/lost_record_sample
 echo "  + $TESTS_DIR/record_sample/multiple_mmap_sizes"
 echo -n "    "
 $TESTS_DIR/record_sample/multiple_mmap_sizes
-echo "  + $TESTS_DIR/record_sample/sample_branch_stach"
+echo "  + $TESTS_DIR/record_sample/sample_branch_stack"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_branch_stack
+echo "  + $TESTS_DIR/record_sample/sample_regs_user"
+echo -n "    "
+$TESTS_DIR/record_sample/sample_regs_user
 echo "  + $TESTS_DIR/record_sample/overwrite_mmap"
 echo -n "    "
 $TESTS_DIR/record_sample/overwrite_mmap
