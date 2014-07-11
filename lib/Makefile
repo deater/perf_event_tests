@@ -10,6 +10,7 @@ include ../Makefile.papi.inc
 all:	branches_testcode.o instructions_testcode.o nops_testcode.o \
 	matrix_multiply.o \
 	detect_cache.o \
+	parse_record.o \
 	perf_helpers.o \
 	test_utils.o
 
@@ -42,6 +43,15 @@ detect_cache.o:	detect_cache.c
 
 papi_helpers.o:	papi_helpers.c
 	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_helpers.c
+
+#####
+
+
+parse_record.o:	parse_record.c
+	$(CC) $(CFLAGS) -c parse_record.c
+
+parse_record.x32.o:	prase_record.c
+	$(CC) $(CFLAGS_X32) -o parse_record.x32.o -c parse_record.c
 
 #####
 

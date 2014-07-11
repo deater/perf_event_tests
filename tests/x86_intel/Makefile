@@ -24,6 +24,9 @@ $(LIB)/branches_testcode.o:	$(LIB)/branches_testcode.c
 $(LIB)/matrix_multiply.o:	$(LIB)/matrix_multiply.c
 	cd $(LIB) && make
 
+$(LIB)/parse_record.o:	$(LIB)/parse_record.c
+	cd $(LIB) && make
+
 $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 	cd $(LIB) && make
 
@@ -61,12 +64,12 @@ pebs.o:	pebs.c
 pebs_registers:	pebs_registers.o $(LIB)/test_utils.o \
 			$(LIB)/instructions_testcode.o \
 			$(LIB)/perf_helpers.o \
-			../record_sample/parse_record.o
+			$(LIB)/parse_record.o
 	$(CC) $(LFLAGS) -o pebs_registers pebs_registers.o \
 			$(LIB)/test_utils.o \
 			$(LIB)/instructions_testcode.o \
 			$(LIB)/perf_helpers.o \
-			../record_sample/parse_record.o
+			$(LIB)/parse_record.o
 
 pebs_registers.o:	pebs_registers.c
 	$(CC) $(CFLAGS) -c pebs_registers.c

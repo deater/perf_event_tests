@@ -22,6 +22,9 @@ $(LIB)/branches_testcode.o:	$(LIB)/branches_testcode.c
 $(LIB)/matrix_multiply.o:	$(LIB)/matrix_multiply.c
 	cd $(LIB) && make
 
+$(LIB)/parse_record.o:	$(LIB)/parse_record.c
+	cd $(LIB) && make
+
 $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 	cd $(LIB) && make
 
@@ -30,19 +33,14 @@ $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 
 ###
 
-parse_record.o:		parse_record.c parse_record.h
-	$(CC) $(CFLAGS) -c parse_record.c
-
-###
-
 lost_record_sample:	lost_record_sample.o \
-					parse_record.o \
+					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o lost_record_sample \
 				lost_record_sample.o \
-				parse_record.o \
+				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o
@@ -54,13 +52,13 @@ lost_record_sample.o:	lost_record_sample.c
 ###
 
 multiple_mmap_sizes:	multiple_mmap_sizes.o \
-					parse_record.o \
+					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o multiple_mmap_sizes \
 				multiple_mmap_sizes.o \
-				parse_record.o \
+				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o
@@ -71,13 +69,13 @@ multiple_mmap_sizes.o:	multiple_mmap_sizes.c
 ###
 
 overwrite_mmap:	overwrite_mmap.o \
-					parse_record.o \
+					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o overwrite_mmap \
 				overwrite_mmap.o \
-				parse_record.o \
+				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o
@@ -88,13 +86,13 @@ overwrite_mmap.o:	overwrite_mmap.c
 ###
 
 print_record_sample:	print_record_sample.o \
-					parse_record.o \
+					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o print_record_sample \
 				print_record_sample.o \
-				parse_record.o \
+				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o
@@ -105,13 +103,13 @@ print_record_sample.o:	print_record_sample.c
 ###
 
 validate_record_sample:	validate_record_sample.o \
-					parse_record.o \
+					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o validate_record_sample \
 				validate_record_sample.o \
-				parse_record.o \
+				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o
@@ -123,13 +121,13 @@ validate_record_sample.o:	validate_record_sample.c
 ###
 
 sample_branch_stack:	sample_branch_stack.o \
-					parse_record.o \
+					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o sample_branch_stack \
 				sample_branch_stack.o \
-				parse_record.o \
+				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
 				$(LIB)/instructions_testcode.o
