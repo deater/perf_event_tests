@@ -183,11 +183,20 @@ Linux interface
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+#include "asm/perf_regs.h"
+
+#include "../record_sample/parse_record.h"
+
 #define SAMPLE_FREQUENCY 100000
 
 #define MMAP_DATA_SIZE 8
 
-int count_total=0;
+static int count_total=0;
+static char *our_mmap;
+static long long prev_head;
+static int quiet;
+static long long global_sample_type;
+static long long global_sample_regs_user;
 
 static void our_handler(int signum, siginfo_t *info, void *uc) {
 
@@ -197,8 +206,9 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 
-//	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-//		sample_type,read_format,NULL,quiet);
+	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
+		global_sample_type,0,global_sample_regs_user,
+		NULL,quiet);
 
 	count_total++;
 
@@ -213,9 +223,7 @@ int main(int argc, char **argv) {
 
 	int ret;
 	int fd;
-	int quiet;
 	int mmap_pages=1+MMAP_DATA_SIZE;
-	char *our_mmap;
 
 	struct perf_event_attr pe;
 
@@ -243,7 +251,24 @@ int main(int argc, char **argv) {
         pe.size=sizeof(struct perf_event_attr);
         pe.config=PERF_COUNT_HW_INSTRUCTIONS;
         pe.sample_period=SAMPLE_FREQUENCY;
-        pe.sample_type=PERF_SAMPLE_IP;
+        pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_REGS_USER;
+
+	global_sample_type=pe.sample_type;
+
+	/* Bitfield saying which registers we want */
+	pe.sample_regs_user=(1ULL<<PERF_REG_X86_64_MAX)-1;
+//	pe.sample_regs_user=(1ULL<<PERF_REG_X86_IP);
+	/* DS, ES, FS, and GS not valid on x86_64 */
+	/* see  perf_reg_validate() in arch/x86/kernel/perf_regs.c */
+	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_DS);
+	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_ES);
+	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_FS);
+	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_GS);
+
+
+	printf("%llx %d\n",pe.sample_regs_user,PERF_REG_X86_DS);
+
+	global_sample_regs_user=pe.sample_regs_user;
 
         pe.read_format=0;
         pe.disabled=1;

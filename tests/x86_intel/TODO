@@ -1,0 +1,6 @@
+AMD IBS
+Intel PT (instruction tracing, high bandwidth, new feature)
+	ARM TMC is similar?
+Intel LBR (last branch record)
+Intel BTS (branch sampling)
+

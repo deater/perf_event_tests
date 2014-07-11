@@ -6,6 +6,8 @@ LIB = ../../lib
 all:	\
 	offcore_response \
 	offcore_response_mask \
+	pebs \
+	pebs_registers \
 	uncore_events \
 	uncore_cpu_cbox \
 	uncore_max_cbox \
@@ -40,6 +42,34 @@ offcore_response:	offcore_response.o $(LIB)/test_utils.o \
 
 offcore_response.o:	offcore_response.c
 	$(CC) $(CFLAGS) -c offcore_response.c
+
+###
+
+pebs:	pebs.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o pebs pebs.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+
+pebs.o:	pebs.c
+	$(CC) $(CFLAGS) -c pebs.c
+
+###
+
+pebs_registers:	pebs_registers.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o \
+			../record_sample/parse_record.o
+	$(CC) $(LFLAGS) -o pebs_registers pebs_registers.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o \
+			../record_sample/parse_record.o
+
+pebs_registers.o:	pebs_registers.c
+	$(CC) $(CFLAGS) -c pebs_registers.c
 
 
 
@@ -118,6 +148,8 @@ clean:
 	rm -f *~ *.o \
 	offcore_response \
 	offcore_response_mask \
+	pebs \
+	pebs_registers \
 	uncore_events \
 	uncore_cpu_cbox \
 	uncore_max_cbox \
