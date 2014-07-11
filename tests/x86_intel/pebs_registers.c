@@ -255,6 +255,9 @@ int main(int argc, char **argv) {
 
 	global_sample_type=pe.sample_type;
 
+#if defined(__i386__) || defined (__x86_64__)
+
+
 	/* Bitfield saying which registers we want */
 	pe.sample_regs_user=(1ULL<<PERF_REG_X86_64_MAX)-1;
 //	pe.sample_regs_user=(1ULL<<PERF_REG_X86_IP);
@@ -267,6 +270,10 @@ int main(int argc, char **argv) {
 
 
 	printf("%llx %d\n",pe.sample_regs_user,PERF_REG_X86_DS);
+
+#else
+	pe.sample_regs_user=1;
+#endif
 
 	global_sample_regs_user=pe.sample_regs_user;
 
