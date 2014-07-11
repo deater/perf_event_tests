@@ -182,10 +182,11 @@ Linux interface
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
+#include "parse_record.h"
 
 #include "asm/perf_regs.h"
 
-#include "../record_sample/parse_record.h"
+
 
 #define SAMPLE_FREQUENCY 100000
 
