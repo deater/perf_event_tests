@@ -99,12 +99,11 @@ int main(int argc, char **argv) {
 
 	global_sample_type=pe.sample_type;
 
-#if defined(__i386__) || defined (__x86_64__)
+#if defined (__x86_64__)
 
 
 	/* Bitfield saying which registers we want */
 	pe.sample_regs_user=(1ULL<<PERF_REG_X86_64_MAX)-1;
-//	pe.sample_regs_user=(1ULL<<PERF_REG_X86_IP);
 	/* DS, ES, FS, and GS not valid on x86_64 */
 	/* see  perf_reg_validate() in arch/x86/kernel/perf_regs.c */
 	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_DS);
@@ -113,8 +112,9 @@ int main(int argc, char **argv) {
 	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_GS);
 
 
-	printf("%llx %d\n",pe.sample_regs_user,PERF_REG_X86_DS);
+#elif defined(__i386__)
 
+	pe.sample_regs_user=(1ULL<<PERF_REG_X86_32_MAX)-1;
 #else
 	pe.sample_regs_user=1;
 #endif
