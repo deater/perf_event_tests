@@ -40,3 +40,6 @@ trace-cmd record -p function -e all -c -F su vince -c "./perf_fuzzer -t OCIRMQWP
 trace-cmd record -e kmem -e raw_syscalls -l 'perf*' -l 'x86*'
 
 trace-cmd record -e kmem -e raw_syscalls -p function -l '*perf*' -n 'perf_event_task_tick'
+
+trace-cmd record -e raw_syscalls -p function -l '*perf*' -n 'perf_event_task_tick' -l 'x86*' -l 'intel*'
+
