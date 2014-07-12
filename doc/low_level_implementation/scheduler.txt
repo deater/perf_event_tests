@@ -1,0 +1,11 @@
+
+PeterZ: Re: [PATCH 4/7] perf: be less pessimistic when scheduling events
+	Tue, 25 Feb 2014 12:29:36
+
+Yeah, software events are a problem; I realized this the moment I send
+that email. However, software events do not have the O(n!) programming
+fail hw events have.
+
+AMD Fam15h has a O(n^4) termination of the O(n*n!) algorithm, the rest
+of x86 has a normal O(n^2) bound.
+

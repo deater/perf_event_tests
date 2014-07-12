@@ -110,14 +110,29 @@ static int handle_struct_read_format(unsigned char *sample,
 	return offset;
 }
 
+#if defined(__x86_64__)
 
-char x86_64_names[PERF_REG_X86_64_MAX][8]=
+#define NUM_REGS	PERF_REG_X86_64_MAX
+static char reg_names[NUM_REGS][8]=
 			{"RAX","RBX","RCX","RDX","RSI","RDI","RBP","RSP",
 			 "RIP","RFLAGS","CS","SS","DS","ES","FS","GS",
 			 "R8","R9","R10","R11","R12","R13","R14","R15"};
-char x86_names[PERF_REG_X86_32_MAX][8]=
+
+
+#elif defined(__i386__)
+
+#define NUM_REGS	PERF_REG_X86_32_MAX
+static char reg_names[PERF_REG_X86_32_MAX][8]=
 			{"EAX","EBX","ECX","EDX","ESI","EDI","EBP","ESP",
 			 "EIP","EFLAGS","CS","SS","DS","ES","FS","GS"};
+
+#else
+
+#define NUM_REGS 0
+
+static char reg_names[1][8]={"NONE!"};
+
+#endif
 
 
 
@@ -125,17 +140,23 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 		unsigned char *data) {
 
 	int return_offset=0;
-	int num_regs=PERF_REG_X86_64_MAX;
+	int num_regs=NUM_REGS;
 	int i;
 	unsigned long long reg_value;
 
-	printf("\t\tReg mask %llx\n",reg_mask);
-	for(i=0;i<num_regs;i++) {
+	if (!quiet) printf("\t\tReg mask %llx\n",reg_mask);
+	for(i=0;i<64;i++) {
 		if (reg_mask&1ULL<<i) {
 			if (!quiet) {
 				memcpy(&reg_value,&data[return_offset],8);
-				printf("\t\t%s : %llx\n",x86_64_names[i],
-						reg_value);
+				if (i<num_regs) {
+					printf("\t\t%s : ",reg_names[i]);
+				}
+				else {
+					printf("\t\t??? : ");
+				}
+
+				printf("%llx\n",reg_value);
 			}
 			return_offset+=8;
 		}
@@ -143,6 +164,12 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 
 	return return_offset;
 }
+
+
+
+
+
+
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
                     long long prev_head,
