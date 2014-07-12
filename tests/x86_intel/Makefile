@@ -4,6 +4,7 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
+	fixed_ctr0 \
 	offcore_response \
 	offcore_response_mask \
 	pebs \
@@ -32,6 +33,19 @@ $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 
 $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 	cd $(LIB) && make
+
+###
+
+fixed_ctr0:	fixed_ctr0.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o fixed_ctr0 fixed_ctr0.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+
+fixed_ctr0.o:	fixed_ctr0.c
+	$(CC) $(CFLAGS) -c fixed_ctr0.c
 
 ###
 
@@ -149,6 +163,7 @@ uncore_cpu_cbox.o:	uncore_cpu_cbox.c
 
 clean:	
 	rm -f *~ *.o \
+	fixed_ctr0 \
 	offcore_response \
 	offcore_response_mask \
 	pebs \
