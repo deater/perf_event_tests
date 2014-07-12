@@ -144,7 +144,7 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 	int i;
 	unsigned long long reg_value;
 
-	printf("\t\tReg mask %llx\n",reg_mask);
+	if (!quiet) printf("\t\tReg mask %llx\n",reg_mask);
 	for(i=0;i<64;i++) {
 		if (reg_mask&1ULL<<i) {
 			if (!quiet) {
