@@ -39,6 +39,15 @@ $TESTS_DIR/generalized_events/l1-dcache-loads
 
 echo
 echo "* Checking Intel x86 specific features"
+echo "  + $TESTS_DIR/x86_intel/fixed_ctr0"
+echo -n "    "
+$TESTS_DIR/x86_intel/fixed_ctr0
+echo "  + $TESTS_DIR/x86_intel/fixed_ctr1"
+echo -n "    "
+$TESTS_DIR/x86_intel/fixed_ctr1
+echo "  + $TESTS_DIR/x86_intel/fixed_ctr2"
+echo -n "    "
+$TESTS_DIR/x86_intel/fixed_ctr2
 echo "  + $TESTS_DIR/x86_intel/offcore_response"
 echo -n "    "
 $TESTS_DIR/x86_intel/offcore_response

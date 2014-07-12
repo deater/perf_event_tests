@@ -1,16 +1,21 @@
-/* This tests using the intel Fixed Counter 0 */
-/* Which maps to retired_instructions         */
-/* Support added in Linux 2.6.X */
+/* This tests using the intel Fixed Counter 2 */
+/* Which maps to UNHALTED_REFERENCE_CYCLES    */
+/* Support added in Linux 3.3 */
 /* Note: bugs where count not same as same counter in general purpose counter */
 
 /* You cannot specify that you want the fixed counter, Linux */
 /* schedules it if available.				     */
 
-
 /* by Vince Weaver, vincent.weaver@maine.edu          */
 
+/* event 0x13c can be interpreted as:				*/
+/* - unhalted_reference_cycles (when in fixed counter 2)	*/
+/* - cpu_clk_unhalted:ref_p (when in a generic counters)	*/
 
-static char test_string[]="Testing fixed counter 0 event...";
+/* Linux introduced a pseudo event to handle this */
+/* That only can be scheduled in fixed counter 2 */
+
+static char test_string[]="Testing fixed counter 2 event...";
 static int quiet=0;
 
 #include <stdlib.h>
@@ -42,7 +47,7 @@ int main(int argc, char **argv) {
 	quiet=test_quiet();
 
 	if (!quiet) {
-		printf("This test checks the intel fixed counter 0\n");
+		printf("This test checks the intel fixed counter 2\n");
 		printf("This is a best effort, Linux does not let you\n");
 		printf("specify which counter events are scheduled in.\n");
 		printf("Anyway, all the values should match.\n\n");
@@ -52,7 +57,8 @@ int main(int argc, char **argv) {
 
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
-	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+//	pe.config=PERF_COUNT_HW_BUS_CYCLES;
+	pe.config=PERF_COUNT_HW_REF_CPU_CYCLES;
         pe.read_format=PERF_FORMAT_GROUP;
 
         pe.exclude_kernel=1;

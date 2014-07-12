@@ -1,16 +1,16 @@
-/* This tests using the intel Fixed Counter 0 */
-/* Which maps to retired_instructions         */
+/* This tests using the intel Fixed Counter 1 */
+/* Which maps to UNHALTED_CORE_CYCLES         */
 /* Support added in Linux 2.6.X */
 /* Note: bugs where count not same as same counter in general purpose counter */
 
 /* You cannot specify that you want the fixed counter, Linux */
 /* schedules it if available.				     */
-
+/* The NMI watchdog often grabs the fixed counter, making the test */
+/* not notice the issue */
 
 /* by Vince Weaver, vincent.weaver@maine.edu          */
 
-
-static char test_string[]="Testing fixed counter 0 event...";
+static char test_string[]="Testing fixed counter 1 event...";
 static int quiet=0;
 
 #include <stdlib.h>
@@ -42,9 +42,11 @@ int main(int argc, char **argv) {
 	quiet=test_quiet();
 
 	if (!quiet) {
-		printf("This test checks the intel fixed counter 0\n");
+		printf("This test checks the intel fixed counter 1\n");
 		printf("This is a best effort, Linux does not let you\n");
 		printf("specify which counter events are scheduled in.\n");
+		printf("The NMI watchdog often grabs fixed counter 1,\n");
+		printf("hiding the issue.\n");
 		printf("Anyway, all the values should match.\n\n");
 	}
 
@@ -52,7 +54,7 @@ int main(int argc, char **argv) {
 
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
-	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.config=PERF_COUNT_HW_CPU_CYCLES;
         pe.read_format=PERF_FORMAT_GROUP;
 
         pe.exclude_kernel=1;

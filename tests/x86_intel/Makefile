@@ -5,6 +5,8 @@ LIB = ../../lib
 
 all:	\
 	fixed_ctr0 \
+	fixed_ctr1 \
+	fixed_ctr2 \
 	offcore_response \
 	offcore_response_mask \
 	pebs \
@@ -46,6 +48,31 @@ fixed_ctr0:	fixed_ctr0.o $(LIB)/test_utils.o \
 
 fixed_ctr0.o:	fixed_ctr0.c
 	$(CC) $(CFLAGS) -c fixed_ctr0.c
+###
+
+fixed_ctr1:	fixed_ctr1.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o fixed_ctr1 fixed_ctr1.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+
+fixed_ctr1.o:	fixed_ctr1.c
+	$(CC) $(CFLAGS) -c fixed_ctr1.c
+
+###
+
+fixed_ctr2:	fixed_ctr2.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+	$(CC) $(LFLAGS) -o fixed_ctr2 fixed_ctr2.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o
+
+fixed_ctr2.o:	fixed_ctr2.c
+	$(CC) $(CFLAGS) -c fixed_ctr2.c
 
 ###
 
