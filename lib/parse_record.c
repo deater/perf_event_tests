@@ -551,6 +551,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 						printf("Prefetch ");
 					if (src & (PERF_MEM_OP_EXEC<<PERF_MEM_OP_SHIFT))
 						printf("Executable code ");
+
 					if (src & (PERF_MEM_LVL_NA<<PERF_MEM_LVL_SHIFT))
 						printf("Level Not available ");
 					if (src & (PERF_MEM_LVL_HIT<<PERF_MEM_LVL_SHIFT))
@@ -579,27 +580,37 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 						printf("I/O memory ");
 					if (src & (PERF_MEM_LVL_UNC<<PERF_MEM_LVL_SHIFT))
 						printf("Uncached memory ");
-#if 0
-                          PERF_MEM_SNOOP_NA       Not available
-                          PERF_MEM_SNOOP_NONE     No snoop
-                          PERF_MEM_SNOOP_HIT      Snoop hit
-                          PERF_MEM_SNOOP_MISS     Snoop miss
-                          PERF_MEM_SNOOP_HITM     Snoop hit modified
 
-                          PERF_MEM_LOCK_NA        Not available
-                          PERF_MEM_LOCK_LOCKED    Locked transaction
+					if (src & (PERF_MEM_SNOOP_NA<<PERF_MEM_SNOOP_SHIFT))
+						printf("Not available ");
+					if (src & (PERF_MEM_SNOOP_NONE<<PERF_MEM_SNOOP_SHIFT))
+						printf("No snoop ");
+					if (src & (PERF_MEM_SNOOP_HIT<<PERF_MEM_SNOOP_SHIFT))
+						printf("Snoop hit ");
+					if (src & (PERF_MEM_SNOOP_MISS<<PERF_MEM_SNOOP_SHIFT))
+						printf("Snoop miss ");
+					if (src & (PERF_MEM_SNOOP_HITM<<PERF_MEM_SNOOP_SHIFT))
+						printf("Snoop hit modified ");
 
-                          PERF_MEM_TLB_NA         Not available
-                          PERF_MEM_TLB_HIT        Hit
-                          PERF_MEM_TLB_MISS       Miss
-                          PERF_MEM_TLB_L1         Level 1 TLB
-                          PERF_MEM_TLB_L2         Level 2 TLB
-                          PERF_MEM_TLB_WK         Hardware walker
-                          PERF_MEM_TLB_OS         OS fault handler
-#endif
+					if (src & (PERF_MEM_LOCK_NA<<PERF_MEM_LOCK_SHIFT))
+						printf("Not available ");
+					if (src & (PERF_MEM_LOCK_LOCKED<<PERF_MEM_LOCK_SHIFT))
+						printf("Locked transaction ");
 
-
-
+					if (src & (PERF_MEM_TLB_NA<<PERF_MEM_TLB_SHIFT))
+						printf("Not available ");
+					if (src & (PERF_MEM_TLB_HIT<<PERF_MEM_TLB_SHIFT))
+						printf("Hit ");
+					if (src & (PERF_MEM_TLB_MISS<<PERF_MEM_TLB_SHIFT))
+						printf("Miss ");
+					if (src & (PERF_MEM_TLB_L1<<PERF_MEM_TLB_SHIFT))
+						printf("Level 1 TLB ");
+					if (src & (PERF_MEM_TLB_L2<<PERF_MEM_TLB_SHIFT))
+						printf("Level 2 TLB ");
+					if (src & (PERF_MEM_TLB_WK<<PERF_MEM_TLB_SHIFT))
+						printf("Hardware walker ");
+					if (src & (PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
+						printf("OS fault handler ");
 				}
 
 				if (!quiet) printf("\n");
