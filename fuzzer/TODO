@@ -14,3 +14,6 @@ to catch corner cases.
 + ->mmap2 support
 + double check why cpu is never set to -1?
 
+Set relevant sample_stack_user flags.  If SAMPLE_STACK_USER set
+try setting varios believable sample_stack_user values.
+

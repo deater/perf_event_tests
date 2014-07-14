@@ -496,11 +496,28 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 
 			if (sample_type & PERF_SAMPLE_STACK_USER) {
-				long long abi;
+				long long size,dyn_size;
+				int *stack_data;
+				int k;
 
-				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_STACK_USER, Raw length: %lld\n",abi);
+				memcpy(&size,&data[offset],sizeof(long long));
+				if (!quiet) printf("\tPERF_SAMPLE_STACK_USER, Requested size: %lld\n",size);
 				offset+=8;
+
+				stack_data=malloc(size);
+				memcpy(stack_data,&data[offset],size);
+				offset+=size;
+
+				memcpy(&dyn_size,&data[offset],sizeof(long long));
+				if (!quiet) printf("\t\tDynamic (used) size: %lld\n",dyn_size);
+				offset+=8;
+
+				if (!quiet) printf("\t\t");
+				for(k=0;k<dyn_size;k+=4) {
+					if (!quiet) printf("0x%x ",stack_data[k]);
+				}
+
+				free(stack_data);
 
 				if (!quiet) printf("\n");
 			}

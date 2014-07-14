@@ -10,6 +10,7 @@ all:	\
 	print_record_sample \
 	sample_branch_stack \
 	sample_regs_user \
+	sample_stack_user \
 	validate_record_sample
 
 ###
@@ -155,6 +156,23 @@ sample_regs_user:	sample_regs_user.o \
 sample_regs_user.o:	sample_regs_user.c
 	$(CC) $(CFLAGS) -c sample_regs_user.c
 
+###
+
+sample_stack_user:	sample_stack_user.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_stack_user \
+				sample_stack_user.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+sample_stack_user.o:	sample_stack_user.c
+	$(CC) $(CFLAGS) -c sample_stack_user.c
+
 
 ###
 
@@ -166,5 +184,6 @@ clean:
 	print_record_sample \
 	sample_branch_stack \
 	sample_regs_user \
+	sample_stack_user \
 	validate_record_sample
 

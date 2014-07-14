@@ -214,6 +214,9 @@ $TESTS_DIR/record_sample/sample_branch_stack
 echo "  + $TESTS_DIR/record_sample/sample_regs_user"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_regs_user
+echo "  + $TESTS_DIR/record_sample/sample_stack_user"
+echo -n "    "
+$TESTS_DIR/record_sample/sample_stack_user
 echo "  + $TESTS_DIR/record_sample/overwrite_mmap"
 echo -n "    "
 $TESTS_DIR/record_sample/overwrite_mmap
