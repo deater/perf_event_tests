@@ -523,10 +523,10 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 
 			if (sample_type & PERF_SAMPLE_WEIGHT) {
-				long long abi;
+				long long weight;
 
-				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_WEIGHT, Raw length: %lld\n",abi);
+				memcpy(&weight,&data[offset],sizeof(long long));
+				if (!quiet) printf("\tPERF_SAMPLE_WEIGHT, Weight: %lld\n",weight);
 				offset+=8;
 
 				if (!quiet) printf("\n");

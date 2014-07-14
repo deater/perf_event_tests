@@ -11,6 +11,7 @@ all:	\
 	sample_branch_stack \
 	sample_regs_user \
 	sample_stack_user \
+	sample_weight \
 	validate_record_sample
 
 ###
@@ -173,6 +174,23 @@ sample_stack_user:	sample_stack_user.o \
 sample_stack_user.o:	sample_stack_user.c
 	$(CC) $(CFLAGS) -c sample_stack_user.c
 
+###
+
+sample_weight:	sample_weight.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_weight \
+				sample_weight.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+sample_weight.o:	sample_weight.c
+	$(CC) $(CFLAGS) -c sample_weight.c
+
 
 ###
 
@@ -185,5 +203,6 @@ clean:
 	sample_branch_stack \
 	sample_regs_user \
 	sample_stack_user \
+	sample_weight \
 	validate_record_sample
 
