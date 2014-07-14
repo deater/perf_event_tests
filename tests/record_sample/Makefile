@@ -9,6 +9,7 @@ all:	\
 	overwrite_mmap \
 	print_record_sample \
 	sample_branch_stack \
+	sample_data_src \
 	sample_regs_user \
 	sample_stack_user \
 	sample_weight \
@@ -142,6 +143,25 @@ sample_branch_stack.o:	sample_branch_stack.c
 
 ###
 
+sample_data_src:	sample_data_src.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_data_src \
+				sample_data_src.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+sample_data_src.o:	sample_data_src.c
+	$(CC) $(CFLAGS) -c sample_data_src.c
+
+
+
+###
+
 sample_regs_user:	sample_regs_user.o \
 					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
@@ -201,6 +221,7 @@ clean:
 	overwrite_mmap \
 	print_record_sample \
 	sample_branch_stack \
+	sample_data_src \
 	sample_regs_user \
 	sample_stack_user \
 	sample_weight \

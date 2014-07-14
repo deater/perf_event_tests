@@ -533,11 +533,74 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 
 			if (sample_type & PERF_SAMPLE_DATA_SRC) {
-				long long abi;
+				long long src;
 
-				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_DATA_SRC, Raw length: %lld\n",abi);
+				memcpy(&src,&data[offset],sizeof(long long));
+				if (!quiet) printf("\tPERF_SAMPLE_DATA_SRC, Raw: %llx\n",src);
 				offset+=8;
+
+				if (!quiet) {
+					if (src!=0) printf("\t\t");
+					if (src & (PERF_MEM_OP_NA<<PERF_MEM_OP_SHIFT))
+						printf("Op Not available ");
+					if (src & (PERF_MEM_OP_LOAD<<PERF_MEM_OP_SHIFT))
+						printf("Load ");
+					if (src & (PERF_MEM_OP_STORE<<PERF_MEM_OP_SHIFT))
+						printf("Store ");
+					if (src & (PERF_MEM_OP_PFETCH<<PERF_MEM_OP_SHIFT))
+						printf("Prefetch ");
+					if (src & (PERF_MEM_OP_EXEC<<PERF_MEM_OP_SHIFT))
+						printf("Executable code ");
+					if (src & (PERF_MEM_LVL_NA<<PERF_MEM_LVL_SHIFT))
+						printf("Level Not available ");
+					if (src & (PERF_MEM_LVL_HIT<<PERF_MEM_LVL_SHIFT))
+						printf("Hit ");
+					if (src & (PERF_MEM_LVL_MISS<<PERF_MEM_LVL_SHIFT))
+						printf("Miss ");
+					if (src & (PERF_MEM_LVL_L1<<PERF_MEM_LVL_SHIFT))
+						printf("L1 cache ");
+					if (src & (PERF_MEM_LVL_LFB<<PERF_MEM_LVL_SHIFT))
+						printf("Line fill buffer ");
+					if (src & (PERF_MEM_LVL_L2<<PERF_MEM_LVL_SHIFT))
+						printf("L2 cache ");
+					if (src & (PERF_MEM_LVL_L3<<PERF_MEM_LVL_SHIFT))
+						printf("L3 cache ");
+					if (src & (PERF_MEM_LVL_LOC_RAM<<PERF_MEM_LVL_SHIFT))
+						printf("Local DRAM ");
+					if (src & (PERF_MEM_LVL_REM_RAM1<<PERF_MEM_LVL_SHIFT))
+						printf("Remote DRAM 1 hop ");
+					if (src & (PERF_MEM_LVL_REM_RAM2<<PERF_MEM_LVL_SHIFT))
+						printf("Remote DRAM 2 hops ");
+					if (src & (PERF_MEM_LVL_REM_CCE1<<PERF_MEM_LVL_SHIFT))
+						printf("Remote cache 1 hop ");
+					if (src & (PERF_MEM_LVL_REM_CCE2<<PERF_MEM_LVL_SHIFT))
+						printf("Remote cache 2 hops ");
+					if (src & (PERF_MEM_LVL_IO<<PERF_MEM_LVL_SHIFT))
+						printf("I/O memory ");
+					if (src & (PERF_MEM_LVL_UNC<<PERF_MEM_LVL_SHIFT))
+						printf("Uncached memory ");
+#if 0
+                          PERF_MEM_SNOOP_NA       Not available
+                          PERF_MEM_SNOOP_NONE     No snoop
+                          PERF_MEM_SNOOP_HIT      Snoop hit
+                          PERF_MEM_SNOOP_MISS     Snoop miss
+                          PERF_MEM_SNOOP_HITM     Snoop hit modified
+
+                          PERF_MEM_LOCK_NA        Not available
+                          PERF_MEM_LOCK_LOCKED    Locked transaction
+
+                          PERF_MEM_TLB_NA         Not available
+                          PERF_MEM_TLB_HIT        Hit
+                          PERF_MEM_TLB_MISS       Miss
+                          PERF_MEM_TLB_L1         Level 1 TLB
+                          PERF_MEM_TLB_L2         Level 2 TLB
+                          PERF_MEM_TLB_WK         Hardware walker
+                          PERF_MEM_TLB_OS         OS fault handler
+#endif
+
+
+
+				}
 
 				if (!quiet) printf("\n");
 			}
