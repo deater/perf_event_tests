@@ -64,8 +64,12 @@ int main(int argc, char** argv) {
 	/* but that is unreliable?                  */
 	if (pid==0) {
 		if (ptrace(PTRACE_TRACEME, 0, 0, 0) == 0) {
+			int c;
 			kill(getpid(),SIGTRAP);
-                        instructions_million();
+
+                        for(c=0;c<10;c++) {
+				instructions_million();
+			}
                 }
                 else {
                         fprintf(stderr,"Failed ptrace...\n");
@@ -101,7 +105,11 @@ int main(int argc, char** argv) {
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
 	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-	pe.sample_period=100000;
+
+	/* 1 million.  Tried 100k but that was too short on */
+	/* faster machines, likely triggered overflow while */
+	/* poll still was being handled?                    */
+	pe.sample_period=1000000;
 	pe.sample_type=PERF_SAMPLE_IP;
 	pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
 	pe.disabled=1;
