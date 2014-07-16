@@ -96,19 +96,23 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	kill(child,SIGCONT);
-
 	struct pollfd fds[1];
 	int result;
 
 	fds[0].fd=fd1;
 	fds[0].events=POLLIN|POLLHUP|POLLNVAL|POLLERR;
 
+	kill(child,SIGCONT);
+
 	while(1) {
 		result=poll(fds,1,100);
 		if (result==0) {
 			waitpid(child,&status,WNOHANG);
 			if (WIFEXITED(status)) break;
+			if (WIFSIGNALED(status)) {
+				printf("Signalled %d!\n",WTERMSIG(status));
+				break;
+			}
 		}
 		if (fds[0].revents&POLLIN) count.in++;
 		if (fds[0].revents&POLLHUP) count.hup++;
