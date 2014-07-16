@@ -15,6 +15,8 @@
 
 #include <signal.h>
 
+#include <sys/ptrace.h>
+
 #include <sys/mman.h>
 
 #include <sys/ioctl.h>
@@ -30,7 +32,7 @@
 #define MMAP_PAGES 8
 
 static struct signal_counts {
-  int in,out,msg,err,pri,hup,unknown,total;
+	int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
 
 static int fd1;
@@ -38,7 +40,7 @@ static int fd1;
 int main(int argc, char** argv) {
 
 	int ret,quiet,status;
-	pid_t child;
+	pid_t pid,child;
 
 	struct perf_event_attr pe;
 
@@ -49,15 +51,50 @@ int main(int argc, char** argv) {
 
 	if (!quiet) printf("This tests using poll() to catch overflow.\n");
 
-	child=fork();
-	if (child==0) {
-		kill(getpid(),SIGSTOP);
-		instructions_million();
-		exit(0);
+	/* fork off a child */
+	pid=fork();
 
+	if (pid<0) {
+		fprintf(stderr,"Failed fork\n");
+		test_fail(test_string);
 	}
 
-	/* Create a sampled event */
+	/* Our child.  Set up ptrace to stop it     */
+	/* originally tried kill(getpid(),SIGSTOP); */
+	/* but that is unreliable?                  */
+	if (pid==0) {
+		if (ptrace(PTRACE_TRACEME, 0, 0, 0) == 0) {
+			kill(getpid(),SIGTRAP);
+                        instructions_million();
+                }
+                else {
+                        fprintf(stderr,"Failed ptrace...\n");
+                }
+                return 1;
+        }
+
+	child=wait(&status);
+
+	/* Make sure child is stopped and waiting */
+	if (!quiet) printf( "Monitoring pid %d status %d\n",pid,status);
+
+	if (WIFSTOPPED( status )) {
+		if (!quiet) {
+			printf( "Child has stopped due to signal %d (%s)\n",
+				WSTOPSIG( status ), strsignal(WSTOPSIG( status )) );
+		}
+	}
+
+	if (WIFSIGNALED( status )) {
+		if (!quiet) {
+			printf( "Child %d received signal %d (%s)\n",
+				child, WTERMSIG(status),
+				strsignal(WTERMSIG( status )) );
+		}
+	}
+
+
+	/* Create a sampled event and attach to child */
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
@@ -102,7 +139,15 @@ int main(int argc, char** argv) {
 	fds[0].fd=fd1;
 	fds[0].events=POLLIN|POLLHUP|POLLNVAL|POLLERR;
 
-	kill(child,SIGCONT);
+	/* Restart child process */
+	if (!quiet) printf("Continuing child\n");
+
+	if ( ptrace( PTRACE_CONT, pid, NULL, NULL ) == -1 ) {
+		fprintf(stderr,"Error continuing\n");
+		test_fail(test_string);
+	}
+
+//	kill(child,SIGCONT);
 
 	while(1) {
 		result=poll(fds,1,100);
