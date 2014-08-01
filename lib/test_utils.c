@@ -80,11 +80,24 @@ void test_skip(char *string) {
 void test_fail(char *string) {
 
   if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sFAILED%s\n", 60, string, 
+     fprintf( stdout, "%-*s %sFAILED%s\n", 60, string,
 	   RED, NORMAL );
   }
   else {
     fprintf( stdout, "%-*s FAILED\n", 60, string);
+  }
+
+  exit(1);
+}
+
+void test_fail_kernel(char *string) {
+
+  if (isatty(fileno(stdout))) {
+     fprintf( stdout, "%-*s %sFAILED (KERNEL TOO OLD)%s\n", 60, string,
+	   RED, NORMAL );
+  }
+  else {
+    fprintf( stdout, "%-*s FAILED (KERNEL TOO OLD)\n", 60, string);
   }
 
   exit(1);

@@ -97,11 +97,25 @@ int main(int argc, char** argv) {
 		}
 	}
 	else {
+		int version;
+
 		close(fd1);
-		if (!quiet) {
-			fprintf(stderr,"Unexpectedly opened properly with flags %llx\n",0x8000000000ULL);
+
+		version=get_kernel_version();
+
+		if (version<0x30f00) {
+
+			if (!quiet) {
+				fprintf(stderr,"Unexpectedly opened properly with flags %llx\n",0x8000000000ULL);
+				fprintf(stderr,"This was not fixed until Linux 3.15\n");
+			}
+			test_fail_kernel(test_string);
+		} else {
+			if (!quiet) {
+				fprintf(stderr,"Unexpectedly opened properly with flags %llx\n",0x8000000000ULL);
+			}
+			test_fail(test_string);
 		}
-		test_fail(test_string);
 	}
 
 

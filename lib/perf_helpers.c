@@ -4,6 +4,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <asm/unistd.h>
+#include <stdlib.h>
+
+#include <sys/utsname.h>
 
 #include "perf_event.h"
 #include "perf_helpers.h"
@@ -444,4 +447,27 @@ int detect_nmi_watchdog(void) {
 	}
 
 	return watchdog_detected;
+}
+
+int get_kernel_version(void) {
+
+	struct utsname info;
+	int major=0,minor=0,subminor=0;
+	char *ptr;
+
+	uname(&info);
+
+	ptr=strtok(info.release,".");
+
+	if (ptr) major=atoi(ptr);
+
+	ptr=strtok(NULL,".");
+
+	if (ptr) minor=atoi(ptr);
+
+	ptr=strtok(NULL,".");
+
+	if (ptr) subminor=atoi(ptr);
+
+	return (major<<16)|(minor<<8)|subminor;
 }

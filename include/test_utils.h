@@ -4,6 +4,7 @@ void test_needtest(char *string);
 void test_caution(char *string);
 void test_known_issue(char *string);
 void test_fail(char *string);
+void test_fail_kernel(char *string);
 void test_kernel_fail(char *string);
 void test_kernel_pass(char *string);
 void test_skip(char *string);
