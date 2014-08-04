@@ -617,6 +617,7 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	if (pe->exclude_callchain_kernel) fprintf(fff,"\tpe[%d].exclude_callchain_kernel=%d;\n",fd,pe->exclude_callchain_kernel);
 	if (pe->exclude_callchain_user) fprintf(fff,"\tpe[%d].exclude_callchain_user=%d;\n",fd,pe->exclude_callchain_user);
 	if (pe->mmap2) fprintf(fff,"\tpe[%d].mmap2=%d\n",fd,pe->mmap2);
+	if (pe->comm_exec) fprintf(fff,"\tpe[%d].comm_exec=%d\n",fd,pe->comm_exec);
 
 	if (pe->watermark) {
 		fprintf(fff,"\tpe[%d].wakeup_watermark=%d;\n",fd,pe->wakeup_watermark);
