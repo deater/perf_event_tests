@@ -575,6 +575,8 @@ void perf_log_attr(struct perf_event_attr *attr) {
 	write(log_fd,log_buffer,strlen(log_buffer));
 	sprintf(log_buffer,"%d ",attr->mmap2);
 	write(log_fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->comm_exec);
+	write(log_fd,log_buffer,strlen(log_buffer));
 
 	sprintf(log_buffer,"\n");
 	write(log_fd,log_buffer,strlen(log_buffer));

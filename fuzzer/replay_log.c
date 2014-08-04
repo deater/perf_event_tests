@@ -177,7 +177,7 @@ static void open_event(char *line) {
 	int enable_on_exec,task,watermark,precise_ip;
 	int mmap_data,sample_id_all,exclude_host,exclude_guest;
 	int exclude_callchain_user,exclude_callchain_kernel;
-	int mmap2;
+	int mmap2,comm_exec;
 
 
 	sscanf(line,
@@ -191,7 +191,7 @@ static void open_event(char *line) {
 		"%d %d %d %d "
 		"%d %d "
 		"%llx %llx %lld "
-		"%d %d %lld %d %d",
+		"%d %d %lld %d %d %d",
 		&orig_fd,&pid,&cpu,&group_fd,&flags,
 		&pe->type,&pe->size,
 		&pe->config,&pe->sample_period,&pe->sample_type,&pe->read_format,
@@ -203,7 +203,7 @@ static void open_event(char *line) {
 		&pe->wakeup_events,&pe->bp_type,
 		&pe->config1,&pe->config2,&pe->branch_sample_type,
 		&exclude_callchain_kernel,&exclude_callchain_user,
-		&pe->sample_regs_user,&pe->sample_stack_user,&mmap2);
+		&pe->sample_regs_user,&pe->sample_stack_user,&mmap2,&comm_exec);
 
 	errno=0;
 
@@ -237,6 +237,7 @@ static void open_event(char *line) {
 	pe->exclude_callchain_user=exclude_callchain_user;
 	pe->exclude_callchain_kernel=exclude_callchain_kernel;
 	pe->mmap2=mmap2;
+	pe->comm_exec=comm_exec;
 
 	/* kernel over-writes this sometimes :( */
 	orig_size=pe->size;
