@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 			case PROCESSOR_IVYBRIDGE:
 			case PROCESSOR_IVYBRIDGE_EP:
 				if (!quiet) {
-					printf("Likely failure due to errata BV98\n");
+					printf("Likely failure due to errata BJ122 (SNB) BV98 (IVB) HSD29 (HSW)\n");
 				}
 				test_known_issue(test_string);
 				break;
