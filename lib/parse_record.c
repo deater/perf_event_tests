@@ -283,6 +283,11 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 					printf("Unknown %d!\n",event->misc); break;
 			}
 
+			/* Both have the same value */
+			if (event->misc & PERF_RECORD_MISC_MMAP_DATA) {
+				printf(",PERF_RECORD_MISC_MMAP_DATA or PERF_RECORD_MISC_COMM_EXEC ");
+			}
+
 			if (event->misc & PERF_RECORD_MISC_EXACT_IP) {
 				printf(",PERF_RECORD_MISC_EXACT_IP ");
 			}
@@ -290,6 +295,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			if (event->misc & PERF_RECORD_MISC_EXT_RESERVED) {
 				printf(",PERF_RECORD_MISC_EXT_RESERVED ");
 			}
+
 			printf("), Size=%d\n",event->size);
 		}
 
