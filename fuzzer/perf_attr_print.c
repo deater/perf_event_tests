@@ -472,6 +472,13 @@ static void perf_pretty_print_branch_sample_type(FILE *fff, unsigned long long b
 		fprintf(fff,"|");
 	}
 
+	if (our_type&PERF_SAMPLE_BRANCH_COND) {
+		fprintf(fff,"PERF_SAMPLE_BRANCH_COND");
+		our_type&=~PERF_SAMPLE_BRANCH_COND;
+		if (!our_type) return;
+		fprintf(fff,"|");
+	}
+
 	fprintf(fff,"0x%llxULL",our_type);
 
 
