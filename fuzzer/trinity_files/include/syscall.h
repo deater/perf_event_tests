@@ -1,13 +1,28 @@
 #pragma once
 
-#if VMW
+#include <sys/time.h>
+#include <sys/types.h>
+#ifdef VMW
 #include "locks.h"
 #endif
 #include "types.h"
 
+#define PREBUFFER_LEN	4096 * 6
+#define POSTBUFFER_LEN	128
+
 #define MAX_NR_SYSCALL 1024
 
+enum syscallstate {
+	UNKNOWN,	/* new child */
+	PREP,		/* doing sanitize */
+	BEFORE,		/* about to do syscall */
+	GOING_AWAY,	/* used when we don't expect to come back (execve for eg) */
+	AFTER,		/* returned from doing syscall. */
+	DONE,		/* moved to previous */
+};
+
 struct syscallrecord {
+	struct timeval tv;
 	unsigned int nr;
 	unsigned long a1;
 	unsigned long a2;
@@ -16,32 +31,38 @@ struct syscallrecord {
 	unsigned long a5;
 	unsigned long a6;
 	unsigned long retval;
+	int errno_post;	/* what errno was after the syscall. */
+
+	unsigned long op_nr;	/* used to tell if we're making progress. */
+
 	bool do32bit;
-#if VMW
+#ifdef VMW
 	lock_t lock;
 #endif
+	enum syscallstate state;
+	char prebuffer[PREBUFFER_LEN];
+	char postbuffer[POSTBUFFER_LEN];
 };
 
 enum argtype {
-	ARG_UNDEFINED = 0,
-	ARG_RANDOM_LONG = 1,
-	ARG_FD = 2,
-	ARG_LEN = 3,
-	ARG_ADDRESS = 4,
-	ARG_MODE_T = 5,
-	ARG_NON_NULL_ADDRESS = 6,
-	ARG_PID = 7,
-	ARG_RANGE = 8,
-	ARG_OP = 9,
-	ARG_LIST = 10,
-	ARG_RANDPAGE = 11,
-	ARG_CPU = 12,
-	ARG_PATHNAME = 13,
-	ARG_IOVEC = 14,
-	ARG_IOVECLEN = 15,
-	ARG_SOCKADDR = 16,
-	ARG_SOCKADDRLEN = 17,
-	ARG_MMAP = 18,
+	ARG_UNDEFINED,
+	ARG_FD,
+	ARG_LEN,
+	ARG_ADDRESS,
+	ARG_MODE_T,
+	ARG_NON_NULL_ADDRESS,
+	ARG_PID,
+	ARG_RANGE,
+	ARG_OP,
+	ARG_LIST,
+	ARG_RANDPAGE,
+	ARG_CPU,
+	ARG_PATHNAME,
+	ARG_IOVEC,
+	ARG_IOVECLEN,
+	ARG_SOCKADDR,
+	ARG_SOCKADDRLEN,
+	ARG_MMAP,
 };
 
 struct arglist {
@@ -49,11 +70,16 @@ struct arglist {
 	unsigned long values[32];
 };
 
+struct errnos {
+	unsigned int num;
+	int values[32];
+};
+
 struct syscallentry {
-	void (*sanitise)(int childno);
-	void (*post)(int childno);
+	void (*sanitise)(struct syscallrecord *rec);
+	void (*post)(struct syscallrecord *rec);
 	int (*init)(void);
-	char * (*decode)(int argnum, int childno);
+	char * (*decode)(struct syscallrecord *rec, unsigned int argnum);
 
 	unsigned int number;
 	unsigned int active_number;
@@ -97,6 +123,8 @@ struct syscallentry {
 
 	const unsigned int group;
 	const int rettype;
+
+	struct errnos errnos;
 };
 
 #define RET_BORING		-1
@@ -125,4 +153,16 @@ struct syscalltable {
 #define TO_BE_DEACTIVATED	(1<<4)
 #define NEED_ALARM		(1<<5)
 #define EXTRA_FORK		(1<<6)
+#define IGNORE_ENOSYS		(1<<7)
 
+#define __syscall_return(type, res) \
+	do { \
+	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
+		errno = -(res); \
+		res = -1; \
+	} \
+	return (type) (res); \
+} while (0)
+
+void do_syscall(struct syscallrecord *rec);
+void handle_syscall_ret(struct syscallrecord *rec);

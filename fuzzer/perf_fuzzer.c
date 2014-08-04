@@ -646,7 +646,7 @@ static void open_random_event(void) {
 	while(1) {
 		/* call trinity random perf_event_open() code */
 		//generic_sanitise(0);
-		syscall_perf_event_open.sanitise(0);
+		syscall_perf_event_open.sanitise(&shm->syscall[0]);
 
 		memcpy(&event_data[i].attr,
 			(struct perf_event_attr *)shm->syscall[0].a1,

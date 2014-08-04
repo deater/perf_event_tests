@@ -10,33 +10,36 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
+#include "log.h"
+#include "maps.h"
+#include "perf.h"
 #include "perf_event.h"
 #include "random.h"
 #include "sanitise.h"
-#include "maps.h"
 #include "shm.h"
-#include "log.h"
+#include "syscall.h"
+#include "trinity.h"
 #include "compat.h"
 
 #define SYSFS "/sys/bus/event_source/devices/"
 
 struct generic_event_type {
-	char *name;
-	char *value;
+	const char *name;
+	const char *value;
 	long long config;
 	long long config1;
 	long long config2;
 };
 
 struct format_type {
-	char *name;
-	char *value;
+	const char *name;
+	const char *value;
 	int field;
 	unsigned long long mask;
 };
 
 struct pmu_type {
-	char *name;
+	const char *name;
 	int type;
 	int num_formats;
 	int num_generic_events;
@@ -44,8 +47,8 @@ struct pmu_type {
 	struct generic_event_type *generic_events;
 };
 
+/* Not static so other tools can access the PMU data */
 int num_pmus=0;
-
 struct pmu_type *pmus=NULL;
 
 
@@ -56,7 +59,7 @@ struct pmu_type *pmus=NULL;
 #define MAX_FIELDS	4
 
 
-static int parse_format(char *string, int *field_type, unsigned long long *mask) {
+static int parse_format(const char *string, int *field_type, unsigned long long *mask) {
 
 	int i, secondnum, bits;
 	char format_string[BUFSIZ];
@@ -160,7 +163,7 @@ static unsigned long long separate_bits(unsigned long long value,
 	return result;
 }
 
-static int update_configs(int pmu, char *field,
+static int update_configs(int pmu, const char *field,
 			long long value,
 			long long *c,
 			long long *c1,
@@ -194,7 +197,7 @@ static int update_configs(int pmu, char *field,
 	return 0;
 }
 
-static int parse_generic(int pmu, char *value,
+static int parse_generic(int pmu, const char *value,
 			long long *config, long long *config1, long long *config2) {
 
 	long long c=0,c1=0,c2=0,temp;
@@ -1176,7 +1179,7 @@ static void create_random_event(struct perf_event_attr *attr)
 
 }
 
-void sanitise_perf_event_open(int childno)
+void sanitise_perf_event_open(struct syscallrecord *rec)
 {
 	struct perf_event_attr *attr;
 	unsigned long flags;
@@ -1185,7 +1188,7 @@ void sanitise_perf_event_open(int childno)
 	void *addr;
 
 	addr = get_writable_address(sizeof(struct perf_event_attr));
-	shm->syscall[childno].a1 = (unsigned long) addr;
+	rec->a1 = (unsigned long) addr;
 	attr = (struct perf_event_attr *) addr;
 
 	/* this makes sure we clear out the reserved fields. */
@@ -1198,7 +1201,7 @@ void sanitise_perf_event_open(int childno)
 	switch(rand() % 2) {
 	case 0:
 		/* Any CPU */
-		shm->syscall[childno].a3 = -1;
+		rec->a3 = -1;
 		break;
 	case 1:
 		/* Default to the get_cpu() value */
@@ -1213,13 +1216,13 @@ void sanitise_perf_event_open(int childno)
 	/* was properly set up to be a group master              */
 	switch (rand() % 3) {
 	case 0:
-		shm->syscall[childno].a4 = -1;
+		rec->a4 = -1;
 		group_leader = 1;
 		break;
 	case 1:
 		/* Try to get a previous random perf_event_open() fd  */
 		/* It's unclear whether get_random_fd() would do this */
-		shm->syscall[childno].a4 = rand() % 1024;
+		rec->a4 = rand() % 1024;
 		break;
 	case 2:
 		/* Rely on ARG_FD */
@@ -1243,7 +1246,7 @@ void sanitise_perf_event_open(int childno)
 		if (rand_bool())
 			flags |= PERF_FLAG_FD_CLOEXEC;
 	}
-	shm->syscall[childno].a5 = flags;
+	rec->a5 = flags;
 
 	/* pid */
 	/* requires ROOT to select pid that doesn't belong to us */
@@ -1271,7 +1274,7 @@ void sanitise_perf_event_open(int childno)
 			break;
 		}
 	}
-	shm->syscall[childno].a2 = pid;
+	rec->a2 = pid;
 
 	/* set up attr structure */
 	switch (rand() % 4) {
@@ -1313,5 +1316,5 @@ struct syscallentry syscall_perf_event_open = {
 	},
 	.sanitise = sanitise_perf_event_open,
 	.init = init_pmus,
-	.flags = NEED_ALARM,
+	.flags = NEED_ALARM | IGNORE_ENOSYS,
 };
