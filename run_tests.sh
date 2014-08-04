@@ -214,6 +214,9 @@ $TESTS_DIR/record_sample/sample_branch_stack
 echo "  + $TESTS_DIR/record_sample/record_comm"
 echo -n "    "
 $TESTS_DIR/record_sample/record_comm
+echo "  + $TESTS_DIR/record_sample/record_comm_exec"
+echo -n "    "
+$TESTS_DIR/record_sample/record_comm_exec
 echo "  + $TESTS_DIR/record_sample/sample_data_src"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_data_src

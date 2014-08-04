@@ -9,6 +9,7 @@ all:	\
 	overwrite_mmap \
 	print_record_sample \
 	record_comm \
+	record_comm_exec \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
@@ -121,6 +122,23 @@ record_comm:	record_comm.o \
 
 record_comm.o:	record_comm.c
 	$(CC) $(CFLAGS) -c record_comm.c
+
+##########################
+
+record_comm_exec:	record_comm_exec.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o record_comm_exec \
+				record_comm_exec.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+record_comm_exec.o:	record_comm_exec.c
+	$(CC) $(CFLAGS) -c record_comm_exec.c
 
 ##########################3
 
@@ -239,6 +257,7 @@ clean:
 	overwrite_mmap \
 	print_record_sample \
 	record_comm \
+	record_comm_exec \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
