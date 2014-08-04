@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 			}
 
 			/* exec */
-			if (!quiet) printf("\texecl(\"/bin/false\");\n");
+			if (!quiet) printf("\texecl(\"/bin/false\"); [should have PERF_RECORD_MISC_COMM_EXEC set]\n");
 			execl("/bin/false","/bin/true",NULL);
 
 			instructions_million();
@@ -162,6 +162,7 @@ int main(int argc, char **argv) {
         pe.wakeup_events=1;
 
 	pe.comm_exec=1;
+	pe.comm=1;
 
 	arch_adjust_domain(&pe,quiet);
 
@@ -235,7 +236,7 @@ int main(int argc, char **argv) {
 
 	close(fd);
 
-#define EXPECTED_EVENTS 1
+#define EXPECTED_EVENTS 3
 
 	if (events_read!=EXPECTED_EVENTS) {
 		if (!quiet) fprintf(stderr,"Wrong number of events!  Expected %d but got %d\n",
