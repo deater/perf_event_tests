@@ -175,7 +175,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
                     long long prev_head,
 		    int sample_type, int read_format, long long reg_mask,
 		    struct validate_values *validate,
-		    int quiet ) {
+		    int quiet, int *events_read ) {
 
 	struct perf_event_mmap_page *control_page = our_mmap;
 	long long head,offset;
@@ -230,6 +230,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 
 
 	offset=0;
+	if (events_read) *events_read=0;
 
 	while(offset<size) {
 
@@ -315,6 +316,76 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			offset+=8;
 			memcpy(&lost,&data[offset],sizeof(long long));
 			if (!quiet) printf("\tLOST: %lld\n",lost);
+			offset+=8;
+			}
+			break;
+
+		/* COMM */
+		case PERF_RECORD_COMM: {
+			int pid,tid,string_size;
+			char *string;
+
+			memcpy(&pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPID: %d\n",pid);
+			offset+=4;
+			memcpy(&tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tTID: %d\n",tid);
+			offset+=4;
+
+			/* FIXME: sample_id handling? */
+
+			/* two ints plus the 64-bit header */
+			string_size=event->size-16;
+			string=calloc(string_size,sizeof(char));
+			memcpy(string,&data[offset],string_size);
+			if (!quiet) printf("\tcomm: %s\n",string);
+			offset+=string_size;
+			if (string) free(string);
+			}
+			break;
+
+		/* Fork */
+		case PERF_RECORD_FORK: {
+			int pid,ppid,tid,ptid;
+			long long fork_time;
+
+			memcpy(&pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPID: %d\n",pid);
+			offset+=4;
+			memcpy(&ppid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPPID: %d\n",ppid);
+			offset+=4;
+			memcpy(&tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tTID: %d\n",tid);
+			offset+=4;
+			memcpy(&ptid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPTID: %d\n",ptid);
+			offset+=4;
+			memcpy(&fork_time,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tTime: %lld\n",fork_time);
+			offset+=8;
+			}
+			break;
+
+		/* Exit */
+		case PERF_RECORD_EXIT: {
+			int pid,ppid,tid,ptid;
+			long long fork_time;
+
+			memcpy(&pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPID: %d\n",pid);
+			offset+=4;
+			memcpy(&ppid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPPID: %d\n",ppid);
+			offset+=4;
+			memcpy(&tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tTID: %d\n",tid);
+			offset+=4;
+			memcpy(&ptid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPTID: %d\n",ptid);
+			offset+=4;
+			memcpy(&fork_time,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tTime: %lld\n",fork_time);
 			offset+=8;
 			}
 			break;
@@ -645,6 +716,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 
 			default: if (!quiet) printf("\tUnknown type %d\n",event->type);
 		}
+		if (events_read) (*events_read)++;
 	}
 
 	control_page->data_tail=head;

@@ -8,6 +8,7 @@ all:	\
 	multiple_mmap_sizes \
 	overwrite_mmap \
 	print_record_sample \
+	record_comm \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
@@ -105,6 +106,23 @@ print_record_sample.o:	print_record_sample.c
 	$(CC) $(CFLAGS) -c print_record_sample.c
 
 ###
+
+record_comm:	record_comm.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o record_comm \
+				record_comm.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+record_comm.o:	record_comm.c
+	$(CC) $(CFLAGS) -c record_comm.c
+
+##########################3
 
 validate_record_sample:	validate_record_sample.o \
 					$(LIB)/parse_record.o \
@@ -220,6 +238,7 @@ clean:
 	multiple_mmap_sizes \
 	overwrite_mmap \
 	print_record_sample \
+	record_comm \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \

@@ -69,7 +69,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
   if (num_oflos%100==0) {
      prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-		   sample_type,read_format,0,NULL,quiet);
+		   sample_type,read_format,0,NULL,quiet,NULL);
   }
   num_oflos++;
 

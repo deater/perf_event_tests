@@ -55,7 +55,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
 		global_sample_type,0,global_sample_regs_user,
-		NULL,quiet);
+		NULL,quiet,NULL);
 
 	count_total++;
 
