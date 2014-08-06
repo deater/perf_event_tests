@@ -367,6 +367,38 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 			break;
 
+		/* Fork */
+		case PERF_RECORD_MMAP: {
+			int pid,tid,string_size;
+			long long address,len,pgoff;
+			char *filename;
+
+			memcpy(&pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPID: %d\n",pid);
+			offset+=4;
+			memcpy(&tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tTID: %d\n",tid);
+			offset+=4;
+			memcpy(&address,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tAddress: %llx\n",address);
+			offset+=8;
+			memcpy(&len,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tLength: %llx\n",len);
+			offset+=8;
+			memcpy(&pgoff,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tPage Offset: %llx\n",pgoff);
+			offset+=8;
+
+			string_size=event->size-40;
+			filename=calloc(string_size,sizeof(char));
+			memcpy(filename,&data[offset],string_size);
+			if (!quiet) printf("\tFilename: %s\n",filename);
+			offset+=string_size;
+			if (filename) free(filename);
+
+			}
+			break;
+
 		/* Exit */
 		case PERF_RECORD_EXIT: {
 			int pid,ppid,tid,ptid;
