@@ -10,6 +10,7 @@ all:	\
 	print_record_sample \
 	record_comm \
 	record_comm_exec \
+	record_fork \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
@@ -140,7 +141,24 @@ record_comm_exec:	record_comm_exec.o \
 record_comm_exec.o:	record_comm_exec.c
 	$(CC) $(CFLAGS) -c record_comm_exec.c
 
-##########################3
+##########################
+
+record_fork:	record_fork.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o record_fork \
+				record_fork.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+record_fork.o:	record_fork.c
+	$(CC) $(CFLAGS) -c record_fork.c
+
+###########################
 
 validate_record_sample:	validate_record_sample.o \
 					$(LIB)/parse_record.o \
@@ -258,6 +276,7 @@ clean:
 	print_record_sample \
 	record_comm \
 	record_comm_exec \
+	record_fork \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
