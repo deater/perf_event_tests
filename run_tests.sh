@@ -223,6 +223,9 @@ $TESTS_DIR/record_sample/record_fork
 echo "  + $TESTS_DIR/record_sample/record_mmap"
 echo -n "    "
 $TESTS_DIR/record_sample/record_mmap
+echo "  + $TESTS_DIR/record_sample/record_mmap2"
+echo -n "    "
+$TESTS_DIR/record_sample/record_mmap2
 echo "  + $TESTS_DIR/record_sample/record_mmap_data"
 echo -n "    "
 $TESTS_DIR/record_sample/record_mmap_data
