@@ -76,7 +76,6 @@ int main(int argc, char **argv) {
 	int mmap_pages=1+MMAP_DATA_SIZE;
 	int events_read;
 	int child;
-	int version;
 
 	struct perf_event_attr pe;
 
@@ -112,8 +111,9 @@ int main(int argc, char **argv) {
         pe.exclude_hv=1;
         pe.wakeup_events=1;
 
-	pe.comm_exec=1;
-	pe.comm=1;
+	/* Only triggered if comm, task, or mmap */
+	/* FIXME: test all three cases */
+	pe.task=1;
 
 	arch_adjust_domain(&pe,quiet);
 
@@ -122,17 +122,6 @@ int main(int argc, char **argv) {
 		if (!quiet) {
 			fprintf(stderr,"Problem opening leader %s\n",
 				strerror(errno));
-		}
-
-		version=get_kernel_version();
-
-		/* Introduced in 3.16 */
-		if (version<0x31000) {
-
-			if (!quiet) {
-				fprintf(stderr,"comm_exec support not added until Linux 3.16\n");
-			}
-			test_fail_kernel(test_string);
 		}
 
 		test_fail(test_string);
