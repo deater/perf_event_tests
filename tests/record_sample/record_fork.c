@@ -5,6 +5,7 @@
 
 /* This record is returned if a fork() happens */
 
+/* You also have to have one of .comm, .mmap, or .task enabled */
 
 #define _GNU_SOURCE 1
 
