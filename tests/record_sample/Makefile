@@ -12,6 +12,7 @@ all:	\
 	record_comm_exec \
 	record_fork \
 	record_mmap \
+	record_mmap_data \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
@@ -176,6 +177,23 @@ record_mmap:	record_mmap.o \
 record_mmap.o:	record_mmap.c
 	$(CC) $(CFLAGS) -c record_mmap.c
 
+##########################
+
+record_mmap_data:	record_mmap_data.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o record_mmap_data \
+				record_mmap_data.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+record_mmap_data.o:	record_mmap_data.c
+	$(CC) $(CFLAGS) -c record_mmap_data.c
+
 ###########################
 
 validate_record_sample:	validate_record_sample.o \
@@ -296,6 +314,7 @@ clean:
 	record_comm_exec \
 	record_fork \
 	record_mmap \
+	record_mmap_data \
 	sample_branch_stack \
 	sample_data_src \
 	sample_regs_user \
