@@ -220,6 +220,9 @@ $TESTS_DIR/record_sample/record_comm_exec
 echo "  + $TESTS_DIR/record_sample/record_fork"
 echo -n "    "
 $TESTS_DIR/record_sample/record_fork
+echo "  + $TESTS_DIR/record_sample/record_mmap"
+echo -n "    "
+$TESTS_DIR/record_sample/record_mmap
 echo "  + $TESTS_DIR/record_sample/sample_data_src"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_data_src
