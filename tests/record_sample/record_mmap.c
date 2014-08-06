@@ -3,6 +3,8 @@
 
 /* An attempt to figure out the PERF_RECORD_MMAP code */
 
+/* By default only PROT_EXEC (executable mmap allocations) are reported */
+
 /* You also need to have one of .mmap, .comm, or .task enabled */
 
 
