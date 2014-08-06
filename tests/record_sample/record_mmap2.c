@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
                 version=get_kernel_version();
 
 		/* Introdued in 3.12 but disabled until 3.16 */
-                if (version<0x30c00) {
+                if (version<0x31000) {
                         if (!quiet) {
                                 fprintf(stderr,"mmap2 support not added until Linux 3.16\n");
                         }
