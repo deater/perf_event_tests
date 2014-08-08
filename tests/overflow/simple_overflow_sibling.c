@@ -29,17 +29,35 @@
 
 #define MMAP_PAGES 8
 
-static int count=0;
+static struct signal_counts {
+  int in,out,msg,err,pri,hup,unknown,total;
+} count = {0,0,0,0,0,0,0,0};
+
 
 static int fd1,fd2;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
-	int ret;
+ int ret;
 
-	count++;
+  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-	(void) ret;
+  switch(oh->si_code) {
+     case POLL_IN:  count.in++;  break;
+     case POLL_OUT: count.out++; break;
+     case POLL_MSG: count.msg++; break;
+     case POLL_ERR: count.err++; break;
+     case POLL_PRI: count.pri++; break;
+     case POLL_HUP: count.hup++; break;
+     default: count.unknown++; break;
+  }
+
+  count.total++;
+
+  ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,1);
+
+  (void) ret;
+
 }
 
 
@@ -125,22 +143,22 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-	for(i=0;i<10;i++) {
+	for(i=0;i<100;i++) {
 		instructions_million();
 	}
 
 	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
 
-	if (!quiet) printf("Count: %d %p\n",count,our_mmap);
+	if (!quiet) printf("Count: %d %p\n",count.total,our_mmap);
 
-	if (count==0) {
+	if (count.total==0) {
 		if (!quiet) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
 
-	if (count!=100) {
+	if (count.total!=1000) {
 		if (!quiet) printf("Expected %d overflows, got %d.\n",
-				count,100);
+				count.total,100);
 		test_fail(test_string);
 	}
 
