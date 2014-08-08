@@ -39,7 +39,7 @@
 
 
 
-#define SAMPLE_FREQUENCY 100000
+#define SAMPLE_FREQUENCY 1000000000
 
 #define MMAP_DATA_SIZE 8
 
@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
 	int fd;
 	int mmap_pages=1+MMAP_DATA_SIZE;
 	int events_read;
+	int version;
 
 	struct perf_event_attr pe;
 
@@ -100,9 +101,19 @@ int main(int argc, char **argv) {
 
         memset(&pe,0,sizeof(struct perf_event_attr));
 
-        pe.type=PERF_TYPE_SOFTWARE;
+        version=get_kernel_version();
+
+        /* PERF_COUNT_SW_DUMMY not available until 3.12 */
+        if (version<0x30c00) {
+                pe.type=PERF_TYPE_HARDWARE;
+                pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+        }
+        else {
+                pe.type=PERF_TYPE_SOFTWARE;
+                pe.config=PERF_COUNT_SW_DUMMY;
+	}
+
         pe.size=sizeof(struct perf_event_attr);
-        pe.config=PERF_COUNT_SW_DUMMY;
         pe.sample_period=SAMPLE_FREQUENCY;
 
         pe.read_format=0;
