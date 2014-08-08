@@ -414,8 +414,16 @@ int main(int argc, char** argv) {
 	}
 
 	if (count.total>20000) {
+		int version;
 		if (!quiet) printf("Stopping early, too many overflows encountered.\n");
-		test_fail(test_string);
+		/* This is expected before 3.15 */
+		version=get_kernel_version();
+		if (version<0x30f00) {
+			test_fail_kernel(test_string);
+		}
+		else {
+			test_fail(test_string);
+		}
 	}
 
 	if (count.total!=0) {
@@ -427,4 +435,3 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
-
