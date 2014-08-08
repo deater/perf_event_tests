@@ -39,7 +39,7 @@ static int fd1;
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
   int ret;
 
-//  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
+  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
   switch(oh->si_code) {
      case POLL_IN:  count.in++;  break;
@@ -53,7 +53,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
   count.total++;
 
-//  ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
+  ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,1);
 
   (void) ret;
   
