@@ -22,7 +22,9 @@
 #include <asm/unistd.h>
 #include <sys/prctl.h>
 
-#include "perf_event.h"
+/* temporary hack while working on PEBS support */
+#include "perf_event.pebspatch.h"
+
 #include "perf_helpers.h"
 
 #include "parse_record.h"
@@ -644,6 +646,25 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 				memcpy(&abi,&data[offset],sizeof(long long));
 				if (!quiet) {
 					printf("\tPERF_SAMPLE_REGS_USER, ABI: ");
+					if (abi==PERF_SAMPLE_REGS_ABI_NONE) printf ("PERF_SAMPLE_REGS_ABI_NONE");
+					if (abi==PERF_SAMPLE_REGS_ABI_32) printf("PERF_SAMPLE_REGS_ABI_32");
+					if (abi==PERF_SAMPLE_REGS_ABI_64) printf("PERF_SAMPLE_REGS_ABI_64");
+					printf("\n");
+				}
+				offset+=8;
+
+				offset+=print_regs(quiet,abi,reg_mask,
+						&data[offset]);
+
+				if (!quiet) printf("\n");
+			}
+
+			if (sample_type & PERF_SAMPLE_REGS_INTR) {
+				long long abi;
+
+				memcpy(&abi,&data[offset],sizeof(long long));
+				if (!quiet) {
+					printf("\tPERF_SAMPLE_REGS_INTR, ABI: ");
 					if (abi==PERF_SAMPLE_REGS_ABI_NONE) printf ("PERF_SAMPLE_REGS_ABI_NONE");
 					if (abi==PERF_SAMPLE_REGS_ABI_32) printf("PERF_SAMPLE_REGS_ABI_32");
 					if (abi==PERF_SAMPLE_REGS_ABI_64) printf("PERF_SAMPLE_REGS_ABI_64");

@@ -1,3 +1,10 @@
+/* This depends on a 3.17 kernel patched with */
+/* Stephane Eranian's
+   [PATCH v3 0/6] perf: add ability to sample interrupted machine state
+*/
+
+/* some notes */
+
 /* Intel Volume 3-B
 
 	17.4.9 -- Debug store area.
@@ -178,7 +185,7 @@ Linux interface
 #include <asm/unistd.h>
 #include <sys/prctl.h>
 
-#include "perf_event.h"
+#include "perf_event.pebspatch.h"
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
@@ -252,31 +259,31 @@ int main(int argc, char **argv) {
         pe.size=sizeof(struct perf_event_attr);
         pe.config=PERF_COUNT_HW_INSTRUCTIONS;
         pe.sample_period=SAMPLE_FREQUENCY;
-        pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_REGS_USER;
+//        pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_REGS_USER;
+        pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_REGS_INTR;
 
 	global_sample_type=pe.sample_type;
 
 #if defined(__i386__) || defined (__x86_64__)
 
-
 	/* Bitfield saying which registers we want */
-	pe.sample_regs_user=(1ULL<<PERF_REG_X86_64_MAX)-1;
+	pe.sample_regs_intr=(1ULL<<PERF_REG_X86_64_MAX)-1;
 //	pe.sample_regs_user=(1ULL<<PERF_REG_X86_IP);
 	/* DS, ES, FS, and GS not valid on x86_64 */
 	/* see  perf_reg_validate() in arch/x86/kernel/perf_regs.c */
-	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_DS);
-	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_ES);
-	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_FS);
-	pe.sample_regs_user&=~(1ULL<<PERF_REG_X86_GS);
+	pe.sample_regs_intr&=~(1ULL<<PERF_REG_X86_DS);
+	pe.sample_regs_intr&=~(1ULL<<PERF_REG_X86_ES);
+	pe.sample_regs_intr&=~(1ULL<<PERF_REG_X86_FS);
+	pe.sample_regs_intr&=~(1ULL<<PERF_REG_X86_GS);
 
 
 	printf("%llx %d\n",pe.sample_regs_user,PERF_REG_X86_DS);
 
 #else
-	pe.sample_regs_user=1;
+	pe.sample_regs_intr=1;
 #endif
 
-	global_sample_regs_user=pe.sample_regs_user;
+	global_sample_regs_user=pe.sample_regs_intr;
 
         pe.read_format=0;
         pe.disabled=1;
@@ -290,8 +297,15 @@ int main(int argc, char **argv) {
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
 		if (!quiet) {
-			fprintf(stderr,"Problem opening leader %s\n",
-				strerror(errno));
+			if (errno==EINVAL) {
+				fprintf(stderr,"Problem opening leader "
+					"probably need to run a newer kernel: %s\n",
+					strerror(errno));
+			}
+			else {
+				fprintf(stderr,"Problem opening leader %s\n",
+					strerror(errno));
+			}
 			test_fail(test_string);
 		}
 	}
