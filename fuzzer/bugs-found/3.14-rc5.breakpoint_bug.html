@@ -2,7 +2,7 @@
 <head><title>WARNING: Can't find any breakpoint slot</title></head>
 </body>
 
-<h1>WARNING: at arch/x86/kernel/hw_breakpoint.c:120 Can't find any breakpoint slot</h1>
+<h1>WARNING: at arch/x86/kernel/hw_breakpoint.c:119 Can't find any breakpoint slot</h1>
 
 <h3>Severity</h3>
 
@@ -24,6 +24,7 @@ Haswell, AMD A10
 attempt bisection.
 
 <h3>Most Recently Seen</h3>
+3.17-rc4<br>
 3.15-rc4<br>
 3.14-rc6.  Hard to reproduce.  Reproducible from seed, but enabling
 logging or ftrace makes it not happen (possibly is a context-switch
@@ -40,6 +41,69 @@ No response.
 
 <h3>Kernel Spews</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.17.0-rc4+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1410195697
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 25000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1410195697
+
+Pid=9930, sleeping 1s
+==================================================
+[  935.584074] ------------[ cut here ]------------
+[  935.588013] WARNING: CPU: 1 PID: 9930 at arch/x86/kernel/hw_breakpoint.c:119 arch_install_hw_breakpoint+0x6b/0xf8()
+[  935.588013] Can't find any breakpoint slot
+[  935.588013] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet evdev psmouse coretemp serio_raw pcspkr ohci_pci ohci_hcd video wmi button i2c_nforce2 acpi_cpufreq processor thermal_sys sg sd_mod ehci_pci ehci_hcd usbcore usb_common
+[  935.588013] CPU: 1 PID: 9930 Comm: perf_fuzzer Not tainted 3.17.0-rc4+ #67
+[  935.588013] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[  935.588013]  0000000000000077 ffff8800c5233948 ffffffff81552b82 0000000000000077
+[  935.588013]  ffff8800c5233998 ffff8800c5233988 ffffffff8104365f 0000000000013380
+[  935.588013]  ffffffff81009e76 0000000000000004 ffff880119c0d800 ffff8800cba1c200
+[  935.588013] Call Trace:
+[  935.588013]  [<ffffffff81552b82>] dump_stack+0x49/0x5f
+[  935.588013]  [<ffffffff8104365f>] warn_slowpath_common+0x81/0x9b
+[  935.588013]  [<ffffffff81009e76>] ? arch_install_hw_breakpoint+0x6b/0xf8
+[  935.588013]  [<ffffffff8104371c>] warn_slowpath_fmt+0x46/0x48
+[  935.588013]  [<ffffffff81009e76>] arch_install_hw_breakpoint+0x6b/0xf8
+[  935.588013]  [<ffffffff810dda77>] hw_breakpoint_add+0x49/0x4d
+[  935.588013]  [<ffffffff810d761a>] event_sched_in+0x91/0x132
+[  935.588013]  [<ffffffff810d7709>] group_sched_in+0x4e/0x148
+[  935.588013]  [<ffffffff810d7966>] ctx_sched_in+0x163/0x18a
+[  935.588013]  [<ffffffff810d79fb>] perf_event_sched_in+0x6e/0x77
+[  935.588013]  [<ffffffff810d7d25>] perf_event_context_sched_in+0x76/0xa0
+[  935.588013]  [<ffffffff810d7ece>] __perf_event_task_sched_in+0x3f/0x110
+[  935.588013]  [<ffffffff81065406>] finish_task_switch+0x46/0xad
+[  935.588013]  [<ffffffff815530d5>] __schedule+0x454/0x4a8
+[  935.588013]  [<ffffffff81553297>] schedule+0x6e/0x70
+[  935.588013]  [<ffffffff81555141>] schedule_timeout+0x27/0xc2
+[  935.588013]  [<ffffffff8111ed74>] ? __kmalloc+0xdb/0xed
+[  935.588013]  [<ffffffff810b3f23>] ? allocate_probes+0x18/0x2a
+[  935.588013]  [<ffffffff8104be29>] ? perf_trace_signal_generate+0x137/0x137
+[  935.588013]  [<ffffffff8155511a>] ? console_conditional_schedule+0x19/0x19
+[  935.588013]  [<ffffffff815538f2>] __wait_for_common+0xc6/0x142
+[  935.588013]  [<ffffffff8106535d>] ? try_to_wake_up+0x1f6/0x1f6
+[  935.588013]  [<ffffffff8104be29>] ? perf_trace_signal_generate+0x137/0x137
+[  935.588013]  [<ffffffff81084936>] ? T.961+0x1e0/0x1e0
+[  935.588013]  [<ffffffff81553a59>] wait_for_completion+0x24/0x26
+[  935.588013]  [<ffffffff810823d2>] wait_rcu_gp+0x4b/0x54
+[  935.588013]  [<ffffffff810823db>] ? wait_rcu_gp+0x54/0x54
+[  935.588013]  [<ffffffff810842ba>] synchronize_sched+0x2e/0x30
+[  935.588013]  [<ffffffff810ca56c>] perf_trace_event_unreg+0x36/0xc2
+[  935.588013]  [<ffffffff810ca62e>] perf_trace_destroy+0x36/0x46
+[  935.588013]  [<ffffffff810d6845>] tp_perf_event_destroy+0xe/0x10
+[  935.588013]  [<ffffffff810d6ef2>] __free_event+0x3a/0x75
+[  935.588013]  [<ffffffff810dc343>] SYSC_perf_event_open+0x404/0x870
+[  935.588013]  [<ffffffff810dc7bd>] SyS_perf_event_open+0xe/0x10
+[  935.588013]  [<ffffffff81556111>] tracesys+0xd4/0xd9
+[  935.588013] ---[ end trace 56dd46009c10d7e1 ]---
+</pre>
 <li>
 <pre>
 *** perf_fuzzer 0.28 *** by Vince Weaver                                        
