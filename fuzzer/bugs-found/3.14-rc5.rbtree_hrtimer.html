@@ -34,6 +34,69 @@ core2, haswell
 <h3>Kernel Splats</h3>
 
 <ol>
+<li>Possibly the same, noticed by Mark Rutland
+<pre>
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.17.0-rc6hark-perf-lockup+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1411655463
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -r 1411655463
+
+Pid=2723, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop
+accessing-perf-proc-and-sys-files trashing-the-mmap-page
+*NOT* attempting the following:
+
+==================================================
+
+... userspace output removed ...
+
+[  157.280682] NOHZ: local_softirq_pending 100
+[  223.007005] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detected by 3, t=21006 jiffies, g=25497, c=25496, q=3)
+[  223.007005] Task dump for CPU 1:
+[  223.007005] accounts-daemon R  running task    13712  2237      1 0x10000000
+[  223.007005]  ffff8801ae8d3a60 0000000000000082 ffff8800e3df08d0 ffff8801ae8d3fd8
+[  223.007005]  0000000000012900 0000000000012900 ffff8801b64d4f50 ffff8800e3df08d0
+[  223.007005]  ffff8801ae8d3b98 00000000003cf95e 0000000000000000 ffff8801ae8d3bc4
+[  223.007005] Call Trace:
+[  223.007005]  [<ffffffff81911f34>] schedule+0x24/0x70
+[  223.007005]  [<ffffffff81914ebc>]schedule_hrtimeout_range_clock+0xfc/0x140
+[  223.007005]  [<ffffffff8109cc40>] ? hrtimer_get_res+0x40/0x40
+[  223.007005]  [<ffffffff81914e52>] ?schedule_hrtimeout_range_clock+0x92/0x140
+[  223.007005]  [<ffffffff81914f0e>] schedule_hrtimeout_range+0xe/0x10
+[  223.007005]  [<ffffffff81168794>] poll_schedule_timeout+0x44/0x60
+[  223.007005]  [<ffffffff81169d22>] do_sys_poll+0x422/0x540
+[  223.007005]  [<ffffffff8180e6b6>] ? unix_stream_sendmsg+0x3e6/0x420
+[  223.007005]  [<ffffffff812908fb>] ? selinux_inode_permission+0x9b/0x150
+[  223.007005]  [<ffffffff81168910>] ?poll_select_copy_remaining+0x130/0x130
+[  223.007005]  [<ffffffff81168910>] ?poll_select_copy_remaining+0x130/0x130
+[  223.007005]  [<ffffffff81168910>] ?poll_select_copy_remaining+0x130/0x130
+[  223.007005]  [<ffffffff811600ea>] ? getname_flags+0x4a/0x1a0
+[  223.007005]  [<ffffffff8116007d>] ? final_putname+0x1d/0x40
+[  223.007005]  [<ffffffff811602f4>] ? putname+0x24/0x40
+[  223.007005]  [<ffffffff8116581a>] ? user_path_at_empty+0x5a/0x90
+[  223.007005]  [<ffffffff810701c0>] ? wake_up_state+0x10/0x10
+[  223.007005]  [<ffffffff81198078>] ? eventfd_read+0x38/0x60
+[  223.007005]  [<ffffffff810a1e75>] ? ktime_get_ts64+0x45/0xf0
+[  223.007005]  [<ffffffff81169f00>] SyS_poll+0x60/0xf0
+[  223.007005]  [<ffffffff81915bd2>] system_call_fastpath+0x16/0x1b
+[  286.012004] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detectedby 3, t=84007 jiffies, g=25497, c=25496, q=2003)
+
+
+</pre>
+
 <li>Haswell reproduction
 <pre>
 *** perf_fuzzer 0.28 *** by Vince Weaver

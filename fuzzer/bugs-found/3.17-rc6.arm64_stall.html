@@ -1,0 +1,258 @@
+<html>
+<head>
+<title>
+arm64: rcu_preempt self-detected stall
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+arm64: rcu_preempt self-detected stall
+</h1>
+</center>
+
+<h3>Severity</h3>
+Bug
+
+<h3>Found by</h3>
+perf_fuzzer, Mark Rutland
+
+<h3>First Seen</h3>
+3.17-rc6
+
+<h3>Most recently Seen</h3>
+3.17-rc6
+
+<h3>Reproducible</h3>
+???
+
+<h3>Found On</h3>
+???
+
+<h3>Linux-kernel Mailing List Report</h3>
+25 September 2014:
+Perf lockups / stack overflows on v3.17-rc6, x86_64, arm, arm64
+
+
+<h3>Analysis
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+Using user-specified random seed of 1411488270
+
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.17.0-rc6+ aarch64
+        Processor: UNKNOWN  0/0/0
+
+        Seeding random number generator with 1411488270
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 285518974/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1142898651
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -r 1411488270
+
+Pid=18435, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll
+*NOT* Fuzzing the following syscalls:
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop
+accessing-perf-proc-and-sys-files trashing-the-mmap-page
+*NOT* attempting the following:
+
+==================================================
+
+... userspace output removed ...
+
+INFO: rcu_preempt self-detected stall on CPU { 3}  (t=2100 jiffies g=73728
+c=73727 q=90)
+Task dump for CPU 3:
+swapper/3       R  running task        0     0      1 0x00000002
+Call trace:
+[<ffffffc000088110>] dump_backtrace+0x0/0x130
+[<ffffffc000088250>] show_stack+0x10/0x1c
+[<ffffffc0000cf57c>] sched_show_task+0xe0/0x134
+[<ffffffc0000d2654>] dump_cpu_task+0x3c/0x4c
+[<ffffffc0000f3414>] rcu_dump_cpu_stacks+0x98/0xe8
+[<ffffffc0000f68a0>] rcu_check_callbacks+0x4b0/0x8c4
+[<ffffffc0000fa43c>] update_process_times+0x48/0x78
+[<ffffffc000108b80>] tick_sched_handle.isra.18+0x1c/0x68
+[<ffffffc000108c18>] tick_sched_timer+0x4c/0x78
+[<ffffffc0000fab44>] __run_hrtimer.isra.33+0x48/0x104
+[<ffffffc0000fb210>] hrtimer_interrupt+0x104/0x29c
+[<ffffffc00040b0bc>] arch_timer_handler_phys+0x28/0x38
+[<ffffffc0000efd5c>] handle_percpu_devid_irq+0x90/0xb8
+[<ffffffc0000ebe20>] generic_handle_irq+0x30/0x4c
+[<ffffffc0000848b8>] handle_IRQ+0x68/0xe0
+[<ffffffc000081290>] gic_handle_irq+0x3c/0x80
+Exception stack(0xffffffc975d67bf0 to 0xffffffc975d67d10)
+7be0:                                     75d64000 ffffffc9 006d9dd8
+ffffffc0
+7c00: 75d67d30 ffffffc9 000af0b8 ffffffc0 000000c0 00000000 0073be00
+7c20: 75d67ce0 ffffffc9 00000101 00000000 0040b168 ffffffc0 00000020
+00000000
+7c40: 0ccccccd 00000000 006d8a28 ffffffc0 006d8a20 ffffffc0 00000001
+00000000
+7c60: 00000000 00000000 75d59340 ffffffc9 00000001 00000000 00000068
+00000000
+7c80: 0000004c 00000000 00000033 00000000 00000019 00000000 00000001
+00000000
+7ca0: 0000000e 00000000 75d64000 ffffffc9 006d9dd8 ffffffc0 75d64000
+ffffffc9
+7cc0: 006e2000 ffffffc0 0000001e 00000000 00000000 00000000 00000001
+00000000
+7ce0: 006d8a28 ffffffc0 00000002 00000000 006d8a20 ffffffc0 75d67d30
+ffffffc9
+7d00: 000af0a4 ffffffc0 75d67d30 ffffffc9
+[<ffffffc000083da0>] el1_irq+0x60/0xd0
+[<ffffffc0000af4f4>] irq_exit+0x8c/0xc0
+[<ffffffc0000848bc>] handle_IRQ+0x6c/0xe0
+[<ffffffc000081290>] gic_handle_irq+0x3c/0x80
+Exception stack(0xffffffc975d67e30 to 0xffffffc975d67f50)
+7e20:                                     75d64000 ffffffc9 0073d448
+ffffffc0
+7e40: 75d67f70 ffffffc9 000852d0 ffffffc0 00000000 00000000 006309d0
+ffffffc0
+7e60: 75d67f00 ffffffc9 00000001 00000000 00000008 00000000 00000001
+00000000
+7e80: 000fb068 ffffffc0 00000000 00000000 75d59d08 ffffffc9 00000001
+00000000
+7ea0: 00000000 00000000 75d59340 ffffffc9 00000001 00000000 00000004
+00000000
+7ec0: 00000000 00000000 963875a0 0000007f 001aa6c4 ffffffc0 962ff50c
+0000007f
+7ee0: ebb9a680 0000007f 75d64000 ffffffc9 0073d448 ffffffc0 00508000
+ffffffc0
+7f00: 0066bc18 ffffffc0 00738387 ffffffc0 00621fa8 ffffffc0 00000001
+00000000
+7f20: 81172000 00000000 00080330 ffffffc0 80000000 00000040 75d67f70
+ffffffc9
+7f40: 000852cc ffffffc0 75d67f70 ffffffc9
+[<ffffffc000083da0>] el1_irq+0x60/0xd0
+[<ffffffc0000debac>] cpu_startup_entry+0xfc/0x154
+[<ffffffc00008f814>] secondary_start_kernel+0x110/0x120
+NMI watchdog: BUG: soft lockup - CPU#3 stuck for 23s! [swapper/3:0]
+Modules linked in:
+
+CPU: 3 PID: 0 Comm: swapper/3 Not tainted 3.17.0-rc6+ #82
+task: ffffffc975d59340 ti: ffffffc975d64000 task.ti: ffffffc975d64000
+PC is at __do_softirq+0xac/0x27c
+LR is at __do_softirq+0x98/0x27c
+pc : [<ffffffc0000af0b8>] lr : [<ffffffc0000af0a4>] pstate: 80000145
+sp : ffffffc975d67d30
+x29: ffffffc975d67d30 x28: ffffffc0006d8a20
+x27: 0000000000000002 x26: ffffffc0006d8a28
+x25: 0000000000000001 x24: 0000000000000000
+x23: 000000000000001e x22: ffffffc0006e2000
+x21: ffffffc975d64000 x20: ffffffc0006d9dd8
+x19: ffffffc975d64000 x18: 000000000000000e
+x17: 0000000000000001 x16: 0000000000000019
+x15: 0000000000000033 x14: 000000000000004c
+x13: 0000000000000068 x12: 0000000000000001
+x11: ffffffc975d59340 x10: 0000000000000000
+x9 : 0000000000000001 x8 : ffffffc0006d8a20
+x7 : ffffffc0006d8a28 x6 : 000000000ccccccd
+x5 : 0000000000000020 x4 : ffffffc00040b168
+x3 : 0000000000000101 x2 : ffffffc975d67ce0
+x1 : ffffffc00073be00 x0 : 00000000000000c0
+
+
+SysRq : Show backtrace of all active CPUs
+CPU0:
+
+CPU: 0 PID: 0 Comm: swapper/0 Tainted: G             L 3.17.0-rc6+ #82
+task: ffffffc0006e8a20 ti: ffffffc0006dc000 task.ti: ffffffc0006dc000
+PC is at arch_cpu_idle+0x10/0x18
+LR is at arch_cpu_idle+0xc/0x18
+pc : [<ffffffc0000852d0>] lr : [<ffffffc0000852cc>] pstate: 60000145
+sp : ffffffc0006dff20
+x29: ffffffc0006dff20 x28: 0000004080000000
+x27: ffffffc000080578 x26: 0000000081172000
+x25: 0000000000000001 x24: ffffffc000621fa8
+x23: ffffffc000738387 x22: ffffffc00066bc18
+x21: ffffffc000508000 x20: ffffffc00073d448
+x19: ffffffc0006dc000 x18: 000000000000000d
+x17: 0000007fb48d47a0 x16: ffffffc0001975ec
+x15: ffffffffffffffed x14: 000000000000000d
+x13: fffffffffffffe09 x12: 0000000000000001
+x11: ffffffc0006e8a20 x10: 0000000000000000
+x9 : 0000000000000001 x8 : ffffffc0006e93e8
+x7 : 0000000000000000 x6 : ffffffc000108b2c
+x5 : 0000000000000000 x4 : ffffffc0006f7700
+x3 : 0000000000000001 x2 : ffffffc0006dfeb0
+x1 : ffffffc0006309d0 x0 : 0000000000000000
+
+CPU3:
+Processed 0 softirqs recently, 143066 total
+Call trace:
+[<ffffffc000088110>] dump_backtrace+0x0/0x130
+[<ffffffc000088250>] show_stack+0x10/0x1c
+[<ffffffc00033d360>] showacpu+0xe4/0x11c
+[<ffffffc00010db48>] flush_smp_call_function_queue+0x90/0x180
+[<ffffffc00010dd04>] generic_smp_call_function_single_interrupt+0xc/0x18
+[<ffffffc00008fc9c>] handle_IPI+0xe4/0x174
+[<ffffffc0000812cc>] gic_handle_irq+0x78/0x80
+Exception stack(0xffffffc975d67bf0 to 0xffffffc975d67d10)
+7be0:                                     75d64000 ffffffc9 006d9dd8
+ffffffc0
+7c00: 75d67d30 ffffffc9 000af0b8 ffffffc0 000000c0 00000000 0073be00
+ffffffc0
+7c20: 75d67ce0 ffffffc9 00000101 00000000 0040b168 ffffffc0 00000020
+00000000
+7c40: 0ccccccd 00000000 006d8a28 ffffffc0 006d8a20 ffffffc0 00000001
+00000000
+7c60: 00000000 00000000 75d59340 ffffffc9 00000001 00000000 00000068
+00000000
+7c80: 0000004c 00000000 00000033 00000000 00000019 00000000 00000001
+00000000
+7ca0: 0000000e 00000000 75d64000 ffffffc9 006d9dd8 ffffffc0 75d64000
+ffffffc9
+7cc0: 006e2000 ffffffc0 0000001e 00000000 00000000 00000000 00000001
+00000000
+7ce0: 006d8a28 ffffffc0 00000002 00000000 006d8a20 ffffffc0 75d67d30
+ffffffc9
+7d00: 000af0a4 ffffffc0 75d67d30 ffffffc9
+[<ffffffc000083da0>] el1_irq+0x60/0xd0
+[<ffffffc0000af4f4>] irq_exit+0x8c/0xc0
+[<ffffffc0000848bc>] handle_IRQ+0x6c/0xe0
+[<ffffffc000081290>] gic_handle_irq+0x3c/0x80
+Exception stack(0xffffffc975d67e30 to 0xffffffc975d67f50)
+7e20:                                     75d64000 ffffffc9 0073d448
+ffffffc0
+7e40: 75d67f70 ffffffc9 000852d0 ffffffc0 00000000 00000000 006309d0
+ffffffc0
+7e60: 75d67f00 ffffffc9 00000001 00000000 00000008 00000000 00000001
+00000000
+7e80: 000fb068 ffffffc0 00000000 00000000 75d59d08 ffffffc9 00000001
+00000000
+7ea0: 00000000 00000000 75d59340 ffffffc9 00000001 00000000 00000004
+00000000
+7ec0: 00000000 00000000 963875a0 0000007f 001aa6c4 ffffffc0 962ff50c
+0000007f
+7ee0: ebb9a680 0000007f 75d64000 ffffffc9 0073d448 ffffffc0 00508000
+ffffffc0
+7f00: 0066bc18 ffffffc0 00738387 ffffffc0 00621fa8 ffffffc0 00000001
+00000000
+7f20: 81172000 00000000 00080330 ffffffc0 80000000 00000040 75d67f70
+ffffffc9
+7f40: 000852cc ffffffc0 75d67f70 ffffffc9
+[<ffffffc000083da0>] el1_irq+0x60/0xd0
+[<ffffffc0000debac>] cpu_startup_entry+0xfc/0x154
+[<ffffffc00008f814>] secondary_start_kernel+0x110/0x120
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

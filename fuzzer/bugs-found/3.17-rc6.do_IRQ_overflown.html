@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>
+do_IRQ():  has overflown the kernel stack
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+do_IRQ():  has overflown the kernel stack
+</h1>
+</center>
+
+<h3>Severity</h3>
+Bug
+
+<h3>Found by</h3>
+perf_fuzzer, Mark Rutland
+
+<h3>First Seen</h3>
+3.17-rc6
+
+<h3>Most recently Seen</h3>
+3.17-rc6
+
+<h3>Reproducible</h3>
+???
+
+<h3>Found On</h3>
+core2
+
+<h3>Linux-kernel Mailing List Report</h3>
+25 September 2014:
+Perf lockups / stack overflows on v3.17-rc6, x86_64, arm, arm64
+
+
+<h3>Analysis
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.17.0-rc6hark-perf-lockup+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1411654897
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -r 1411654897
+
+Pid=4076, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop
+accessing-perf-proc-and-sys-files trashing-the-mmap-page
+*NOT* attempting the following:
+
+==================================================
+
+... userspace output removed ...
+
+[  317.153501] NOHZ: local_softirq_pending 100
+[  317.174346] hrtimer: interrupt took 16623 ns
+[  333.608592] NOHZ: local_softirq_pending 100
+[  337.204944] NOHZ: local_softirq_pending 100
+[  346.641345] divide error: 0000 [#1] SMP
+[  346.642010] Modules linked in:
+[  346.642010] CPU: 0 PID: 4076 Comm: perf_fuzzer Not tainted 3.17.0-rc6hark-perf-lockup+ #1
+[  346.642010] Hardware name: LENOVO 7484A3G/LENOVO, BIOS 5CKT54AUS 09/07/2009
+[  346.642010] task: ffff8801ac449a70 ti: ffff8801ac574000 task.ti: ffff8801ac574000
+[  346.642010] RIP: 0010:[<ffffffff81078bce>]  [<ffffffff81078bce>] ind_busiest_group+0x28e/0x8a0
+[  346.642010] RSP: 0018:ffff8801ac577760  EFLAGS: 00010006
+[  346.642010] RAX: 00000000000003ff RBX: 0000000000000000 RCX: 00000000ffff8801
+[  346.642010] RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000001
+[  346.642010] RBP: ffff8801ac577890 R08: 0000000000000000 R09: 0000000000000000
+[  346.704010] ------------[ cut here ]------------
+[  346.704017] WARNING: CPU: 2 PID: 5 at arch/x86/kernel/irq_64.c:70 handle_irq+0x141/0x150()
+[  346.704019] do_IRQ():  has overflown the kernel stack (cur:1,sp:ffff8801b653fe88,irq stk top-bottom:ffff8801bed00080-ffff8801bed03fc0,exception stk top-bottom:ffff8801bed04080-ffff8801bed0a000)
+[  346.704021] Modules linked in:
+[  346.704023] CPU: 2 PID: 5 Comm:  Not tainted 3.17.0-rc6hark-perf-lockup+ #1
+[  346.704023] Hardware name: LENOVO 7484A3G/LENOVO, BIOS 5CKT54AUS 09/07/2009
+[  346.704033]  0000000000000009 ffff8801bed03ea0 ffffffff8190b255 ffff8801bed03ee8
+[  346.704035]  ffff8801bed03ed8 ffffffff8104ac28 000000000000001a 000000000000001a
+[  346.704036]  0000000000000061 0000000000000061 0000000000000000 ffff8801bed03f38
+[  346.704037]
+----8<----
+
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
