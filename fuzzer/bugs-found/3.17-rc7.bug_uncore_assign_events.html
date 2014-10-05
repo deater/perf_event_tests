@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>
+BUG uncore_assign_events
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG uncore_assign_events
+</h1>
+</center>
+
+<h3>Severity</h3>
+Bug
+
+<h3>Found by</h3>
+perf_fuzzer, Peter Zijlstra
+
+<h3>First Seen</h3>
+3.17-rc7
+
+<h3>Most recently Seen</h3>
+3.17-rc7
+
+<h3>Reproducible</h3>
+???
+
+<h3>Found On</h3>
+IvyBridge-EP
+
+<h3>Linux-kernel Mailing List Report</h3>
+10 September 2014, "BUG uncore_assign_events"
+
+<h3>Analysis
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[  431.802976] BUG: unable to handle kernel paging request atffffffff83223d88
+[  431.810571] IP: [<ffffffff81025f18>] uncore_assign_events+0x188/0x250
+[  431.817753] PGD 1815067 PUD 1816063 PMD 0 
+[  431.822315] Oops: 0000 [#1] PREEMPT SMP 
+[  431.826683] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfslockd fscache sunrpc loop x86_pkg_temp_thermal intel_powerclamp coretemp kvmmgag200 crct10dif_pclmul ttm crc32_pclmul drm_kms_helper ghash_clmulni_intelsnd_pcm iTCO_wdt snd_timer aesni_intel aes_x86_64 joydev lrw hid_genericiTCO_vendor_support gf128mul drm sb_edac snd syscopyarea glue_helper usbhidablk_helper lpc_ich soundcore hid evdev sysfillrect mei_me sysimgbltmfd_core mei ioatdma edac_core i2c_i801 pcspkr cryptd wmi tpm_tis ipmi_sitpm ipmi_msghandler processor thermal_sys button xfs libcrc32c sg sd_modsr_mod crc_t10dif cdrom crct10dif_common ehci_pci ehci_hcd igb iscii2c_algo_bit ahci i2ccore libsas dca libahci usbcore scsi_transport_saslibata ptp crc32c_intel usb_common scsi_mod pps_core
+[  431.903268] CPU: 1 PID: 3791 Comm: perf_fuzzer Not tainted 3.17.0-rc4+#10
+[  431.910937] Hardware name: Intel Corporation S2600GZ/S2600GZ, BIOSSE5C600.86B.02.02.0002.122320131210 12/23/2013
+[  431.922389] task: ffff8804277d2b30 ti: ffff880424238000 task.ti:ffff880424238000
+[  431.930737] RIP: 0010:[<ffffffff81025f18>]  [<ffffffff81025f18>]uncore_assign_events+0x188/0x250
+[  431.940639] RSP: 0018:ffff88042423bd18  EFLAGS: 00010246
+[  431.946560] RAX: 0000000000000000 RBX: ffff88042698a200 RCX:ffffffff81823d40
+[  431.954518] RDX: ffff88042402ac00 RSI: 000000000d000064 RDI:0000000000000000
+[  431.962478] RBP: ffff88042423bd88 R08: ffffffff81823d80 R09:ffff88042698a200
+[  431.970437] R10: ffffffff81823d40 R11: 0000000000000202 R12:ffff88042698a210
+[  431.978397] R13: 0000000000000004 R14: 0000000000000000 R15:0000000000000004
+[  431.986356] FS:  00007f98827ba700(0000) GS:ffff88043f840000(0000)knlGS:0000000000000000
+[  431.995383] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  432.001790] CR2: ffffffff83223d88 CR3: 000000042760d000 CR4:00000000001407e0
+[  432.009748] DR0: 0000000000000000 DR1: 0000000000000000 DR2:0000000000000000
+[  432.017709] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7:0000000000000600
+[  432.025667] Stack:
+[  432.027900]  00000000000001a0 00000000ffffffff ffff88042402ac000000000200000022
+[  432.036151]  ffff88042698a210 0000000000000001 ffff88042698a2000000000000000000
+[  432.044401]  0000000000000000 ffff880426a31400 ffff88082abab300ffff88042698a200
+[  432.052652] Call Trace:
+[  432.055373]  [<ffffffff8102704c>] uncore_pmu_event_init+0x1cc/0x270
+[  432.062363]  [<ffffffff810b0aeb>] ? __srcu_read_lock+0x6b/0x90
+[  432.068865]  [<ffffffff81138fdb>] perf_init_event+0x9b/0x140
+[  432.075172]  [<ffffffff81139410>] perf_event_alloc+0x390/0x450
+[  432.081675]  [<ffffffff81139cac>] SYSC_perf_event_open+0x3bc/0xad0
+[  432.088567]  [<ffffffff8113a3c9>] SyS_perf_event_open+0x9/0x10
+[  432.095073]  [<ffffffff8152c469>] system_call_fastpath+0x16/0x1b
+[  432.101766] Code: 41 89 14 86 48 39 45 b8 8d 78 01 74 2a 48 8b 54 c3 7048 83 c0 01 48 63 b2 4c 01 00 00 4c 8b 82 88 01 00 00 83 fe ff 74 32 89 c7<49> 0f a3 30 45 19 c0 45 85 c0 75 ac 45 31 e4 3b 7d ac 75 1c 4d 
+[  432.122830] RIP  [<ffffffff81025f18>] uncore_assign_events+0x188/0x250
+[  432.130109]  RSP <ffff88042423bd18>
+[  432.133992] CR2: ffffffff83223d88
+[  432.138270] ---[ end trace e28cdc70094436cc ]---
+
+
+# addr2line -i -e ivb-ep-build/vmlinux ffffffff81025f18
+
+arch/x86/include/asm/bitops.h:318
+arch/x86/kernel/cpu/perf_event_intel_uncore.c:3339
+
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

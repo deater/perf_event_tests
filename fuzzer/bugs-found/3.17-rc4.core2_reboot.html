@@ -19,6 +19,12 @@ Reboot
 <h3>Found by</h3>
 perf_fuzzer
 
+<h3>Fixed by</h3>
+
+Test case no longer reproduces with 3577af70a2ce4853d58e57d832e687d739281479
+    perf: Fix a race condition in perf_remove_from_context()
+as appearing in 3.17-rc7
+
 <h3>First Seen</h3>
 3.17-rc4
 
@@ -40,6 +46,47 @@ core2
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+[ 1103.184050] NOHZ: local_softirq_pending 100
+[ 1103.606673] NOHZ: local_softirq_pending 100
+[ 1103.851721] NOHZ: local_softirq_pending 100
+[ 1105.457132] NOHZ: local_softirq_pending 100
+[    0.000000] do_IRQ: 0.145 No irq handler for vector (irq -30719)
+</pre>
+
+<li>
+<pre>
+[  222.457213] NOHZ: local_softirq_pending 100
+[  222.712448] NOHZ: local_softirq_pending 100
+[  222.947573] NOHZ: local_softirq_pending 100
+[  229.168047] BUG: unable to handle kernel NULL pointer dereference at 0000000000000087
+[  229.172003] IP: [<ffffffff81062cde>] scheduler_tick+0x56/0xbb
+[  229.172003] PGD c4b72067 PUD c52df067 PMD 0 
+[  229.172003] Thread overran stack, or stack corrupted
+[  229.172003] Oops: 0000 [#1] SMP 
+[  229.172003] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet coretemp evdev psmouse pcspkr ohci_pci ohci_hcd  ^P<C0><FF><FF><E8><FF><FF><A8>A!^A<88><FF><FF>hA!^A<88><FF>
+<FF>^P}<CB>7(OCE) <E0>B<A9><81><FF><FF><FF><FF>p驁<FF><FF><FF><FF> <90>B<A9><81>
+<FF><FF><FF><FF>^P驁<FF><FF><FF><FF> <D0>A<A9><81><FF><FF><FF><FF><E0>詁<FF><FF>
+<FF><FF> <80>A<A9><81><FF>
+</pre>
+
+<li>
+<pre>
+[  316.040001] general protection fault: 0000 [#1] 
+</pre>
+
+<li>
+<pre>
+[  178.024220] perf_fuzzer[2788]: segfault at ffff88011fa7bef8 ip 00007f8c0e088c2f sp 00007fff003315e0 error 5
+</pre>
+<li>
+<pre>
+[   78.018145] NOHZ: local_softirq_pending 100
+[   83.012661] BUG: Bad page map in process perf_fuzzer  pte:ffff8800cafc5190 pmd:119d00067
+[   83.020863] addr:000000000120c000 vm_flags:00100073 anon_vma:ffff8800cae19dc0 mapping:          (null) index:120c
+</pre>
+
 <li>
 <pre>
 *** perf_fuzzer 0.29-pre *** by Vince Weaver

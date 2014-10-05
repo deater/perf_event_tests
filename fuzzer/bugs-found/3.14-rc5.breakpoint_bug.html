@@ -15,7 +15,7 @@ perf_fuzzer
 yes
 
 <h3>Seen On</h3>
-Haswell, AMD A10
+Haswell, AMD A10, Core2
 
 
 <h3>First Seen</h3>
@@ -24,6 +24,7 @@ Haswell, AMD A10
 attempt bisection.
 
 <h3>Most Recently Seen</h3>
+3.17-rc7<br>
 3.17-rc4<br>
 3.15-rc4<br>
 3.14-rc6.  Hard to reproduce.  Reproducible from seed, but enabling
@@ -32,15 +33,181 @@ on fork bug).
 
 <h3>Reported to Mailing List</h3>
 
+Possibly earlier, 8b4d801b2b123b6c09742f861fe44a8527b84d47 in 3.10
+claims to fix this bug but it seems it can be triggered in other ways
+<br><br>
+
 3 March 2014:
 <a href="https://lkml.org/lkml/2014/3/3/337">https://lkml.org/lkml/2014/3/3/337</a>
 
 
-No response.
 
 
 <h3>Kernel Spews</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.17.0-rc7+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1412173833
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1412173833
+
+Pid=3333, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Iteration 10000
+        Open attempts: 221780  Successful: 886
+                EPERM : 35
+                ENOENT : 1858
+                E2BIG : 24155
+                EBADF : 9031
+                EACCES : 409
+                EINVAL : 184306
+                EOPNOTSUPP : 1100
+                Type (Hardware 175/29215)(software 373/34941)(tracepoint 102/35022)(Cache 34/27896)(cpu 180/34743)(breakpoint 22/34764)(#6 0/26)(#7 0/34)(#8 0/124)(#9 0/23)(#10 0/32)(#11 0/20)(#12 0/20)(#13 0/30)(#14 0/24)(>14 0/24866)
+        Close attempts: 844  Successful: 844
+        Read attempts: 848  Successful: 751
+        Write attempts: 890  Successful: 0
+        Ioctl attempts: 842  Successful: 374
+        Mmap attempts: 886  Successful: 333
+        Prctl attempts: 875  Successful: 875
+        Fork attempts: 441  Successful: 441
+        Poll attempts: 934  Successful: 0
+        Access attempts: 927  Successful: 438
+        Trash mmap attempts: 857  Successful: 857
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000
+        Open attempts: 222509  Successful: 945
+                EPERM : 40
+                ENOENT : 2027
+                E2BIG : 24156
+                EBADF : 8097
+                EACCES : 410
+                EINVAL : 185664
+                ENOSPC : 18
+                EOPNOTSUPP : 1152
+                Type (Hardware 182/29267)(software 380/35184)(tracepoint 109/35351)(Cache 52/27651)(cpu 189/34833)(breakpoint 33/34656)(#6 0/34)(#7 0/27)(#8 0/127)(#9 0/33)(#10 0/33)(#11 0/21)(#12 0/31)(#13 0/20)(#14 0/35)(>14 0/25206)
+        Close attempts: 899  Successful: 899
+        Read attempts: 911  Successful: 785
+        Write attempts: 889  Successful: 0
+        Ioctl attempts: 919  Successful: 392
+        Mmap attempts: 945  Successful: 271
+        Prctl attempts: 865  Successful: 865
+        Fork attempts: 439  Successful: 439
+        Poll attempts: 939  Successful: 9
+        Access attempts: 940  Successful: 459
+        Trash mmap attempts: 927  Successful: 927
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Fork failed! Invalid argument
+Iteration 30000
+        Open attempts: 211834  Successful: 938
+                EPERM : 34
+                ENOENT : 1904
+                E2BIG : 23287
+                EBADF : 7217
+                EACCES : 443
+                EINVAL : 176791
+                ENOSPC : 119
+                EOPNOTSUPP : 1101
+                Type (Hardware 205/28035)(software 377/33597)(tracepoint 95/33186)(Cache 56/26343)(cpu 188/33172)(breakpoint 17/33083)(#6 0/39)(#7 0/19)(#8 0/93)(#9 0/41)(#10 0/36)(#11 0/21)(#12 0/28)(#13 0/23)(#14 0/21)(>14 0/24097)
+        Close attempts: 891  Successful: 891
+        Read attempts: 864  Successful: 739
+        Write attempts: 931  Successful: 0
+        Ioctl attempts: 948  Successful: 427
+        Mmap attempts: 938  Successful: 240
+        Prctl attempts: 885  Successful: 885
+        Fork attempts: 462  Successful: 440
+        Poll attempts: 900  Successful: 18
+        Access attempts: 956  Successful: 461
+        Trash mmap attempts: 892  Successful: 892
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[71414.328057] ------------[ cut here ]------------
+[71414.332002] WARNING: CPU: 1 PID: 3333 at arch/x86/kernel/hw_breakpoint.c:119 arch_install_hw_breakpoint+0xbe/0xcd()
+[71414.332002] Can't find any breakpoint slot
+[71414.332002] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg evdev mcs7830 usbnet coretemp psmouse serio_raw pcspkr video wmi ohci_pci ohci_hcd i2c_nforce2 button acpi_cpufreq processor thermal_sys sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[71414.332002] CPU: 1 PID: 3333 Comm: perf_fuzzer Not tainted 3.17.0-rc7+ #84
+[71414.332002] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[71414.332002]  0000000000000000 ffff8800c959fa18 ffffffff8151e17e ffff8800c959fa60
+[71414.332002]  ffff8800c959fa50 ffffffff8103ee43 ffffffff810092f0 ffff8800c97e8800
+[71414.332002]  ffff8800cb8ff300 000040ec17749451 ffff88011fc95668 ffff8800c959fab0
+[71414.332002] Call Trace:
+[71414.332002]  [<ffffffff8151e17e>] dump_stack+0x45/0x56
+[71414.332002]  [<ffffffff8103ee43>] warn_slowpath_common+0x7f/0x98
+[71414.332002]  [<ffffffff810092f0>] ? arch_install_hw_breakpoint+0xbe/0xcd
+[71414.332002]  [<ffffffff8103eea8>] warn_slowpath_fmt+0x4c/0x4e
+[71414.332002]  [<ffffffff8106033f>] ? sched_clock_cpu+0x91/0xa2
+[71414.332002]  [<ffffffff810092f0>] arch_install_hw_breakpoint+0xbe/0xcd
+[71414.332002]  [<ffffffff810d1754>] hw_breakpoint_add+0x45/0x48
+[71414.332002]  [<ffffffff810cd56a>] event_sched_in+0x8a/0x12c
+[71414.332002]  [<ffffffff810cd65d>] group_sched_in+0x51/0x141
+[71414.332002]  [<ffffffff810cd86e>] ctx_sched_in.isra.71+0x121/0x142
+[71414.332002]  [<ffffffff810cd8e8>] perf_event_sched_in.isra.74+0x59/0x5e
+[71414.332002]  [<ffffffff810cd957>] perf_event_context_sched_in.isra.75+0x6a/0x90
+[71414.332002]  [<ffffffff810cd9b4>] __perf_event_task_sched_in+0x37/0xf4
+[71414.332002]  [<ffffffff8105ae62>] finish_task_switch+0x9b/0xa6
+[71414.332002]  [<ffffffff81520981>] __schedule+0x309/0x4a5
+[71414.332002]  [<ffffffff81520b8b>] schedule+0x6e/0x70
+[71414.332002]  [<ffffffff81522b06>] schedule_timeout+0x29/0x104
+[71414.332002]  [<ffffffff810ea2fe>] ? pcpu_alloc_area+0x1d2/0x206
+[71414.332002]  [<ffffffff810c8ab2>] ? update_group_times+0x18/0x40
+[71414.332002]  [<ffffffff810a99e1>] ? allocate_probes+0x18/0x2a
+[71414.332002]  [<ffffffff81521302>] do_wait_for_common+0xe5/0x118
+[71414.332002]  [<ffffffff81522add>] ? console_conditional_schedule+0x19/0x19
+[71414.332002]  [<ffffffff8105e128>] ? wake_up_state+0x12/0x12
+[71414.332002]  [<ffffffff815213b1>] wait_for_common+0x3a/0x47
+[71414.332002]  [<ffffffff8107d99e>] ? call_rcu_bh+0x19/0x19
+[71414.332002]  [<ffffffff815213db>] wait_for_completion+0x1d/0x1f
+[71414.332002]  [<ffffffff8107abb1>] wait_rcu_gp+0x4b/0x51
+[71414.332002]  [<ffffffff8107ab52>] ? ftrace_raw_output_rcu_utilization+0x44/0x44
+[71414.332002]  [<ffffffff8107bebe>] synchronize_sched+0x40/0x42
+[71414.332002]  [<ffffffff810beda1>] perf_trace_event_unreg.isra.1+0x37/0x78
+[71414.332002]  [<ffffffff810bf0b3>] perf_trace_destroy+0x36/0x45
+[71414.332002]  [<ffffffff810c9af8>] tp_perf_event_destroy+0xe/0x10
+[71414.332002]  [<ffffffff810ca148>] __free_event+0x36/0x6f
+[71414.332002]  [<ffffffff810cfeee>] SYSC_perf_event_open+0x3f9/0x7f5
+[71414.332002]  [<ffffffff810d064a>] SyS_perf_event_open+0xe/0x10
+[71414.332002]  [<ffffffff81523916>] system_call_fastpath+0x1a/0x1f
+[71414.332002] ---[ end trace 2a54cc1c63c6587a ]---
+</pre>
 <li>
 <pre>
 *** perf_fuzzer 0.29-pre *** by Vince Weaver
