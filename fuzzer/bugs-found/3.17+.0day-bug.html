@@ -1,0 +1,147 @@
+<html>
+<head>
+<title>
+BUG: unable to handle kernel NULL pointer dereference at 00000085
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG: unable to handle kernel NULL pointer dereference at 00000085
+</h1>
+</center>
+
+<h3>Severity</h3>
+BUG
+
+<h3>Found by</h3>
+trinity
+
+<h3>First Seen</h3>
+3.17+, PeterZ tree, a54b3e27e27c1bb6d2610eade895c04934c2667e
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Found On</h3>
+qemu, 0-day tester
+
+<h3>Fixed by</h3>
+???
+
+
+<h3>Linux-kernel Mailing List Report</h3>
+4 October 2014: [perf] BUG: unable to handle kernel NULL pointer dereference at
+        00000085
+
+
+
+<h3>Analysis
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[  285.269144] BUG: unable to handle kernel NULL pointer dereference at 00000085
+[  285.273002] IP: [<c11259a1>] perf_prepare_sample+0x33e/0x496
+[  285.276062] *pde = 00000000
+[  285.279106] Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
+[  285.279106] Modules linked in:
+[  285.279106] CPU: 1 PID: 1583 Comm: trinity-main Not tainted
++3.17.0-rc4-00210-ga54b3e2 #1
+[  285.279106] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
++1.7.5-20140531_083030-gandalf 04/01/2014
+[  285.279106] task: c9475e80 ti: c9670000 task.ti: c9670000
+[  285.279106] EIP: 0060:[<c11259a1>] EFLAGS: 00010046 CPU: 1
+[  285.279106] EIP is at perf_prepare_sample+0x33e/0x496
+[  285.279106] EAX: 00000000 EBX: 00000000 ECX: 00000049 EDX: 00000000
+[  285.279106] ESI: cfd71c40 EDI: cfd71b84 EBP: cfd71b58 ESP: cfd71b34
+[  285.279106]  DS: 007b ES: 007b FS: 00d8 GS: 0033 SS: 0068
+[  285.279106] CR0: 80050033 CR2: 00000085 CR3: 095b4000 CR4: 000006d0
+[  285.279106] DR0: 41000043 DR1: 00000000 DR2: 00000000 DR3: 00000000
+[  285.279106] DR6: ffff0ff0 DR7: 00010602
+[  285.279106] Stack:
+[  285.279106]  00000000 00000060 00000000 0003a16b 00000000 c96860d0 00000000
++c96860d0
+[  285.279106]  00000000 cfd71bb0 c1125d87 cfd71da8 00000002 00000000 00000000
++c1125d59
+[  285.279106]  00000000 cfd71c40 00000000 4df5a9a0 00000009 00600001 c104e439
++00000001
+[  285.279106] Call Trace:
+[  285.279106]  [<c1125d87>] __perf_event_overflow+0x28e/0x33c
+[  285.279106]  [<c1125d59>] ? __perf_event_overflow+0x260/0x33c
+[  285.279106]  [<c104e439>] ? pvclock_clocksource_read+0xc2/0x195
+[  285.279106]  [<c11266b3>] perf_swevent_overflow+0x6f/0xa0
+[  285.279106]  [<c1126824>] perf_swevent_event+0x140/0x14a
+[  285.279106]  [<c1126955>] perf_tp_event+0x127/0x2b2
+[  285.279106]  [<c104e439>] ? pvclock_clocksource_read+0xc2/0x195
+[  285.279106]  [<c1099a7d>] ? update_curr+0x18a/0x269
+[  285.279106]  [<c104e439>] ? pvclock_clocksource_read+0xc2/0x195
+[  285.279106]  [<c104e439>] ? pvclock_clocksource_read+0xc2/0x195
+[  285.279106]  [<c104e439>] ? pvclock_clocksource_read+0xc2/0x195
+[  285.279106]  [<c108aead>] perf_trace_sched_stat_runtime+0xea/0xf5
+[  285.279106]  [<c104e439>] ? pvclock_clocksource_read+0xc2/0x195
+[  285.279106]  [<c108aead>] ? perf_trace_sched_stat_runtime+0xea/0xf5
+[  285.279106]  [<c1099a7d>] ? update_curr+0x18a/0x269
+[  285.279106]  [<c1099a7d>] update_curr+0x18a/0x269
+[  285.279106]  [<c109c29b>] enqueue_task_fair+0x98/0xf16
+[  285.279106]  [<c109826d>] ? sched_clock_cpu+0x1b5/0x1dd
+[  285.279106]  [<c108dd4a>] ? update_rq_clock+0x36/0x7d
+[  285.279106]  [<c108de27>] enqueue_task+0x96/0x9d
+[  285.279106]  [<c108e471>] activate_task+0x3b/0x3f
+[  285.279106]  [<c108e488>] ttwu_activate+0x13/0x4a
+[  285.279106]  [<c108e80b>] ttwu_do_activate+0x44/0x53
+[  285.279106]  [<c10937d3>] try_to_wake_up+0x55d/0x5c5
+[  285.279106]  [<c10d1a00>] ? add_timer_on+0xbc/0x130
+[  285.279106]  [<c109389e>] wake_up_process+0x63/0x68
+[  285.279106]  [<c10d1a74>] ? add_timer_on+0x130/0x130
+[  285.279106]  [<c10d1a81>] process_timeout+0xd/0xf
+[  285.279106]  [<c10d1b75>] call_timer_fn+0xf2/0x255
+[  285.279106]  [<c10d1a74>] ? add_timer_on+0x130/0x130
+[  285.279106]  [<c10d1f52>] run_timer_softirq+0x27a/0x29c
+[  285.279106]  [<c10d1a74>] ? add_timer_on+0x130/0x130
+[  285.279106]  [<c106743c>] ? __tasklet_hrtimer_trampoline+0x4c/0x4c
+[  285.279106]  [<c10675cf>] __do_softirq+0x193/0x422
+[  285.279106]  [<c106743c>] ? __tasklet_hrtimer_trampoline+0x4c/0x4c
+[  285.279106]  [<c1006371>] do_softirq_own_stack+0x26/0x2c
+[  285.279106]  <IRQ>
+[  285.279106]  [<c1067bea>] irq_exit+0x6c/0x86
+[  285.279106]  [<c1042466>] smp_trace_apic_timer_interrupt+0x15c/0x168
+[  285.279106]  [<c1d82546>] trace_apic_timer_interrupt+0x32/0x38
+[  285.279106]  [<c10a007b>] ? pick_next_task_fair+0x47f/0x61f
+[  285.279106]  [<c1d80ac0>] ? _raw_spin_unlock_irqrestore+0x5e/0xb2
+[  285.279106]  [<c1190adb>] __slab_free+0xc2/0x6f5
+[  285.279106]  [<c1052d04>] ? lookup_address_in_pgd+0xb/0xa2
+[  285.279106]  [<c10add33>] ? debug_check_no_locks_freed+0x108/0x120
+[  285.279106]  [<c11914b8>] kmem_cache_free+0x3aa/0x447
+[  285.279106]  [<c11914b8>] ? kmem_cache_free+0x3aa/0x447
+[  285.279106]  [<c11b0f5b>] ? final_putname+0x3b/0x3e
+[  285.279106]  [<c11b0f5b>] ? final_putname+0x3b/0x3e
+[  285.279106]  [<c11b0f5b>] final_putname+0x3b/0x3e
+[  285.279106]  [<c11a2457>] do_sys_open+0x375/0x380
+[  285.279106]  [<c1d80000>] ? alarm_timer_nsleep_restart+0x5b/0x125
+[  285.279106]  [<c11a249c>] SyS_openat+0x1b/0x1d
+[  285.279106]  [<c1d81c76>] syscall_call+0x7/0x7
+[  285.279106] Code: 4e 74 66 8b 47 06 85 c9 66 89 45 e0 0f 94 c2 0f b6 da 8b 04
++9d fc e0 60 c2 40 89 04 9d fc e0 60 c2 31 c0 84 d2 0f 85 83 00 00 00 <8b> 59 3c
++8d 43 ff 3d fe ff ff bf 0f 97 c1 0f b6 d1 8b 04 95 d4
+[  285.279106] EIP: [<c11259a1>] perf_prepare_sample+0x33e/0x496 SS:ESP
++0068:cfd71b34
+[  285.279106] CR2: 0000000000000085
+[  285.279106] ---[ end trace a1faeec14f7aba60 ]---
+[  285.279106] Kernel panic - not syncing: Fatal exception in interrupt
+
+
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
