@@ -6,6 +6,9 @@ int copy_events(int *eventset);
 int detect_nmi_watchdog(void);
 pid_t mygettid( void );
 int get_kernel_version(void);
+int get_latency_load_event(unsigned long long *config, unsigned long long *config1,char *name);
+int get_latency_store_event(unsigned long long *config, unsigned long long *config1,char **name);
+
 
 #define VENDOR_UNKNOWN -1
 #define VENDOR_INTEL    1
@@ -41,6 +44,7 @@ int get_kernel_version(void);
 #define PROCESSOR_HASWELL		25
 #define PROCESSOR_ATOM_CEDARVIEW	26
 #define PROCESSOR_ATOM_SILVERMONT	27
+#define PROCESSOR_BROADWELL		28
 
 #define PROCESSOR_POWER3      103
 #define PROCESSOR_POWER4      104

@@ -199,8 +199,12 @@ int detect_processor(void) {
 				case 63:
 				case 69:
 				case 70:
-				case 71:
 					return PROCESSOR_HASWELL;
+				case 61:
+				case 71:
+				case 79:
+					return PROCESSOR_BROADWELL;
+
 			}
 		}
 		if (cpu_family==11) {
@@ -471,3 +475,50 @@ int get_kernel_version(void) {
 
 	return (major<<16)|(minor<<8)|subminor;
 }
+
+
+int get_latency_load_event(unsigned long long *config, unsigned long long *config1,
+		char *name) {
+
+	int processor,processor_notfound=0;
+
+	processor=detect_processor();
+
+	switch(processor) {
+
+	case PROCESSOR_SANDYBRIDGE:
+	case PROCESSOR_SANDYBRIDGE_EP:
+		*config=0x1cd;
+		*config1=0x3;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	case PROCESSOR_IVYBRIDGE:
+	case PROCESSOR_IVYBRIDGE_EP:
+		*config=0x1cd;
+		*config1=0x3;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	case PROCESSOR_HASWELL:
+		*config=0x1cd;
+		*config1=0x3;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	case PROCESSOR_BROADWELL:
+		*config=0x1cd;
+		*config1=0x3;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	default:
+		*config=0x0;
+		*config1=0x0;
+		strcpy(name,"UNKNOWN");
+		processor_notfound=-1;
+	}
+
+	return processor_notfound;
+
+}
+
+
+
+

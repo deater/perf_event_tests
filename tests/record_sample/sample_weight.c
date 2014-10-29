@@ -28,7 +28,7 @@
 #include "perf_event.h"
 #include "test_utils.h"
 #include "perf_helpers.h"
-#include "instructions_testcode.h"
+#include "matrix_multiply.h"
 #include "parse_record.h"
 
 #include "asm/perf_regs.h"
@@ -71,12 +71,14 @@ int main(int argc, char **argv) {
 
 	int ret;
 	int fd;
+	int result;
 	int mmap_pages=1+MMAP_DATA_SIZE;
 
 	struct perf_event_attr pe;
 
 	struct sigaction sa;
 	char test_string[]="Testing PERF_SAMPLE_WEIGHT...";
+	char event_name[BUFSIZ];
 
 	quiet=test_quiet();
 
@@ -91,13 +93,25 @@ int main(int argc, char **argv) {
                 exit(1);
         }
 
-        /* Set up Instruction Event */
+        /* Set up Proper Event */
 
         memset(&pe,0,sizeof(struct perf_event_attr));
 
-        pe.type=PERF_TYPE_HARDWARE;
+	result=get_latency_load_event(&pe.config,&pe.config1,event_name);
+	if (result<0) {
+		if (!quiet) fprintf(stderr,"No load latency event available, trying instructions (probably will return 0)\n");
+		pe.type=PERF_TYPE_HARDWARE;
+		pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	}
+	else {
+		pe.type=PERF_TYPE_RAW;
+		if (!quiet) printf("Using event %s\n",event_name);
+	}
+
+	pe.precise_ip=2;
+
         pe.size=sizeof(struct perf_event_attr);
-        pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+
         pe.sample_period=SAMPLE_FREQUENCY;
         pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_WEIGHT;
 
@@ -140,7 +154,8 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	instructions_million();
+	naive_matrix_multiply(quiet);
+//	instructions_million();
 
 	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,0);
 
