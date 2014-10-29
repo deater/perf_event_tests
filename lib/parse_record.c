@@ -709,7 +709,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 				long long weight;
 
 				memcpy(&weight,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_WEIGHT, Weight: %lld\n",weight);
+				if (!quiet) printf("\tPERF_SAMPLE_WEIGHT, Weight: %lld ",weight);
 				offset+=8;
 
 				if (!quiet) printf("\n");

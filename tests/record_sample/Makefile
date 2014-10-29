@@ -255,13 +255,13 @@ sample_data_src:	sample_data_src.o \
 					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
+					$(LIB)/matrix_multiply.o
 	$(CC) $(LFLAGS) -o sample_data_src \
 				sample_data_src.o \
 				$(LIB)/parse_record.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
+				$(LIB)/matrix_multiply.o
 
 sample_data_src.o:	sample_data_src.c
 	$(CC) $(CFLAGS) -c sample_data_src.c
