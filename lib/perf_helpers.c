@@ -196,10 +196,11 @@ int detect_processor(void) {
 				case 62:
 					return PROCESSOR_IVYBRIDGE_EP;
 				case 60:
-				case 63:
 				case 69:
 				case 70:
 					return PROCESSOR_HASWELL;
+				case 63:
+					return PROCESSOR_HASWELL_EP;
 				case 61:
 				case 71:
 				case 79:
@@ -409,6 +410,7 @@ int copy_events(int *eventset) {
 		memcpy(eventset,ivybridge_events,MAX_TEST_EVENTS*sizeof(int));
 		break;
 	case PROCESSOR_HASWELL:
+	case PROCESSOR_HASWELL_EP:
 		memcpy(eventset,haswell_events,MAX_TEST_EVENTS*sizeof(int));
 		break;
 	case PROCESSOR_ATOM:
@@ -503,6 +505,7 @@ int get_latency_load_event(unsigned long long *config,
 		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
 		break;
 	case PROCESSOR_HASWELL:
+	case PROCESSOR_HASWELL_EP:
 		*config=0x1cd;
 		*config1=0x3;
 		*precise_ip=2;
@@ -552,6 +555,7 @@ int get_latency_store_event(unsigned long long *config,
 		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
 		break;
 	case PROCESSOR_HASWELL:
+	case PROCESSOR_HASWELL_EP:
 		*config=0x2cd;
 		*config1=0x0;
 		*precise_ip=2;

@@ -52,6 +52,7 @@ int get_latency_store_event(unsigned long long *config,
 #define PROCESSOR_ATOM_CEDARVIEW	26
 #define PROCESSOR_ATOM_SILVERMONT	27
 #define PROCESSOR_BROADWELL		28
+#define PROCESSOR_HASWELL_EP		29
 
 #define PROCESSOR_POWER3      103
 #define PROCESSOR_POWER4      104
