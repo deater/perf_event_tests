@@ -191,6 +191,8 @@ uncore_cpu_cbox.o:	uncore_cpu_cbox.c
 clean:	
 	rm -f *~ *.o \
 	fixed_ctr0 \
+	fixed_ctr1 \
+	fixed_ctr2 \
 	offcore_response \
 	offcore_response_mask \
 	pebs \
