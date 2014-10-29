@@ -477,8 +477,10 @@ int get_kernel_version(void) {
 }
 
 
-int get_latency_load_event(unsigned long long *config, unsigned long long *config1,
-		char *name) {
+int get_latency_load_event(unsigned long long *config,
+			unsigned long long *config1,
+			int *precise_ip,
+			char *name) {
 
 	int processor,processor_notfound=0;
 
@@ -490,27 +492,32 @@ int get_latency_load_event(unsigned long long *config, unsigned long long *confi
 	case PROCESSOR_SANDYBRIDGE_EP:
 		*config=0x1cd;
 		*config1=0x3;
+		*precise_ip=2;
 		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
 		break;
 	case PROCESSOR_IVYBRIDGE:
 	case PROCESSOR_IVYBRIDGE_EP:
 		*config=0x1cd;
 		*config1=0x3;
+		*precise_ip=2;
 		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
 		break;
 	case PROCESSOR_HASWELL:
 		*config=0x1cd;
 		*config1=0x3;
+		*precise_ip=2;
 		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
 		break;
 	case PROCESSOR_BROADWELL:
 		*config=0x1cd;
 		*config1=0x3;
+		*precise_ip=2;
 		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
 		break;
 	default:
 		*config=0x0;
 		*config1=0x0;
+		*precise_ip=0;
 		strcpy(name,"UNKNOWN");
 		processor_notfound=-1;
 	}
@@ -519,6 +526,51 @@ int get_latency_load_event(unsigned long long *config, unsigned long long *confi
 
 }
 
+int get_latency_store_event(unsigned long long *config,
+			unsigned long long *config1,
+			int *precise_ip,
+			char *name) {
 
+	int processor,processor_notfound=0;
 
+	processor=detect_processor();
 
+	switch(processor) {
+
+	case PROCESSOR_SANDYBRIDGE:
+	case PROCESSOR_SANDYBRIDGE_EP:
+		*config=0x2cd;
+		*config1=0x0;
+		*precise_ip=2;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	case PROCESSOR_IVYBRIDGE:
+	case PROCESSOR_IVYBRIDGE_EP:
+		*config=0x2cd;
+		*config1=0x0;
+		*precise_ip=2;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	case PROCESSOR_HASWELL:
+		*config=0x2cd;
+		*config1=0x0;
+		*precise_ip=2;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	case PROCESSOR_BROADWELL:
+		*config=0x2cd;
+		*config1=0x0;
+		*precise_ip=2;
+		strcpy(name,"MEM_TRANS_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	default:
+		*config=0x0;
+		*config1=0x0;
+		*precise_ip=0;
+		strcpy(name,"UNKNOWN");
+		processor_notfound=-1;
+	}
+
+	return processor_notfound;
+
+}

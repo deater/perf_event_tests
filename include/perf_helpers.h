@@ -6,8 +6,15 @@ int copy_events(int *eventset);
 int detect_nmi_watchdog(void);
 pid_t mygettid( void );
 int get_kernel_version(void);
-int get_latency_load_event(unsigned long long *config, unsigned long long *config1,char *name);
-int get_latency_store_event(unsigned long long *config, unsigned long long *config1,char **name);
+int get_latency_load_event(unsigned long long *config,
+			unsigned long long *config1,
+			int *precise_ip,
+			char *name);
+int get_latency_store_event(unsigned long long *config,
+			unsigned long long *config1,
+			int *precise_ip,
+			char *name);
+
 
 
 #define VENDOR_UNKNOWN -1

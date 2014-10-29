@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 
 	int ret;
 	int fd;
-	int result;
+	int result,precise_ip;
 	int mmap_pages=1+MMAP_DATA_SIZE;
 
 	struct perf_event_attr pe;
@@ -97,7 +97,8 @@ int main(int argc, char **argv) {
 
         memset(&pe,0,sizeof(struct perf_event_attr));
 
-	result=get_latency_load_event(&pe.config,&pe.config1,event_name);
+	result=get_latency_load_event(&pe.config,&pe.config1,
+					&precise_ip,event_name);
 	if (result<0) {
 		if (!quiet) fprintf(stderr,"No load latency event available, trying instructions (probably will return 0)\n");
 		pe.type=PERF_TYPE_HARDWARE;
@@ -108,9 +109,8 @@ int main(int argc, char **argv) {
 		if (!quiet) printf("Using event %s\n",event_name);
 	}
 
-	pe.precise_ip=2;
-
         pe.size=sizeof(struct perf_event_attr);
+	pe.precise_ip=precise_ip;
 
         pe.sample_period=SAMPLE_FREQUENCY;
         pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_WEIGHT;
