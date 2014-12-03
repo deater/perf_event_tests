@@ -6,6 +6,7 @@ LIB = ../../lib
 all:	\
 	disabled \
 	enable_on_exec \
+	exclude_kernel \
 	exclude_user \
 	exclusive \
 	format_id_support \
@@ -84,6 +85,19 @@ exclude_user.o:	exclude_user.c
 
 ###
 
+exclude_kernel:	exclude_kernel.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o exclude_kernel exclude_kernel.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+exclude_kernel.o:	exclude_kernel.c
+	$(CC) $(CFLAGS) -c exclude_kernel.c
+
+###
+
 enable_on_exec:	enable_on_exec.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
@@ -156,6 +170,7 @@ clean:
 	rm -f *~ *.o \
 	disabled \
 	enable_on_exec \
+	exclude_kernel \
 	exclude_user \
 	exclusive \
 	format_id_support \

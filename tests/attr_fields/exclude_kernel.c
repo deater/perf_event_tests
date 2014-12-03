@@ -1,5 +1,5 @@
-/* exclude_user.c  */
-/* Test the exclude_user bit */
+/* exclude_kernel.c  */
+/* Test the exclude_kernel bit */
 
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
@@ -39,23 +39,23 @@ int main(int argc, char** argv) {
 
 	struct perf_event_attr pe;
 
-	char test_string[]="Testing exclude_user...";
+	char test_string[]="Testing exclude_kernel...";
 
 	quiet=test_quiet();
 
 	if (!quiet) {
-		printf("Testing the exclude_user bit.\n");
+		printf("Testing the exclude_kernel bit.\n");
 	}
 
 	/*********************************/
-	/* Test 1: 1 event, exclude_user = 0 */
+	/* Test 1: 1 event, exclude_kernel = 0 */
 	/*********************************/
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
 	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-	pe.exclude_user=0;
+	pe.exclude_kernel=0;
 
 //	arch_adjust_domain(&pe,quiet);
 
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (!quiet) {
-		printf("With attr.exclude_user=0\n");
+		printf("With attr.exclude_kernel=0\n");
 		printf("\tValue    [%d] : %lld\n",0,buffer[0]);
 	}
 
@@ -96,19 +96,19 @@ int main(int argc, char** argv) {
 	close(fd1);
 
 	if (buffer[0]==0) {
-		if (!quiet) printf("\tError! Empty result\n");
+		if (!quiet) printf("\tError!  Empty result\n");
 		errors++;
 	}
 
 	/*********************************/
-	/* Test 2: 1 event, exclude_user = 1 */
+	/* Test 2: 1 event, exclude_kernel = 1 */
 	/*********************************/
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
 	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-	pe.exclude_user=1;
+	pe.exclude_kernel=1;
 
 //	arch_adjust_domain(&pe,quiet);
 
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (!quiet) {
-		printf("With attr.exclude_user=1\n");
+		printf("With attr.exclude_kernel=1\n");
 		printf("\tValue    [%d] : %lld\n",0,buffer[0]);
 	}
 
@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
 
 	if (with>without) {
 		if (!quiet) {
-			printf("Error!  excluding user results in more counts\n");
+			printf("Error!  excluding kernel results in more counts\n");
 		}
 		test_fail(test_string);
 	}
