@@ -6,6 +6,7 @@ LIB = ../../lib
 all:	\
 	disabled \
 	enable_on_exec \
+	exclude_user \
 	exclusive \
 	format_id_support \
 	inherit \
@@ -67,6 +68,19 @@ disabled:	disabled.o $(LIB)/test_utils.o \
 
 disabled.o:	disabled.c
 	$(CC) $(CFLAGS) -c disabled.c
+
+###
+
+exclude_user:	exclude_user.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o exclude_user exclude_user.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+exclude_user.o:	exclude_user.c
+	$(CC) $(CFLAGS) -c exclude_user.c
 
 ###
 
@@ -142,6 +156,7 @@ clean:
 	rm -f *~ *.o \
 	disabled \
 	enable_on_exec \
+	exclude_user \
 	exclusive \
 	format_id_support \
 	inherit \
