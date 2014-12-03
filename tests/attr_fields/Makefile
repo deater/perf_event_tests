@@ -6,6 +6,9 @@ LIB = ../../lib
 all:	\
 	disabled \
 	enable_on_exec \
+	exclude_guest \
+	exclude_host \
+	exclude_hv \
 	exclude_kernel \
 	exclude_user \
 	exclusive \
@@ -96,6 +99,48 @@ exclude_kernel:	exclude_kernel.o $(LIB)/test_utils.o \
 exclude_kernel.o:	exclude_kernel.c
 	$(CC) $(CFLAGS) -c exclude_kernel.c
 
+
+###
+
+
+exclude_host:	exclude_host.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o exclude_host exclude_host.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+exclude_host.o:	exclude_host.c
+	$(CC) $(CFLAGS) -c exclude_host.c
+
+###
+
+
+exclude_guest:	exclude_guest.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o exclude_guest exclude_guest.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+exclude_guest.o:	exclude_guest.c
+	$(CC) $(CFLAGS) -c exclude_guest.c
+
+###
+
+exclude_hv:	exclude_hv.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o exclude_hv exclude_hv.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+exclude_hv.o:	exclude_hv.c
+	$(CC) $(CFLAGS) -c exclude_hv.c
+
 ###
 
 enable_on_exec:	enable_on_exec.o $(LIB)/test_utils.o \
@@ -170,6 +215,9 @@ clean:
 	rm -f *~ *.o \
 	disabled \
 	enable_on_exec \
+	exclude_guest \
+	exclude_host \
+	exclude_hv \
 	exclude_kernel \
 	exclude_user \
 	exclusive \

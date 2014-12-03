@@ -84,9 +84,25 @@ $TESTS_DIR/attr_fields/inherit_stat
 echo "  + $TESTS_DIR/attr_fields/read_format_range_check"
 echo -n "    "
 $TESTS_DIR/attr_fields/read_format_range_check
+
 echo "  + $TESTS_DIR/attr_fields/sample_type_range_check"
 echo -n "    "
 $TESTS_DIR/attr_fields/sample_type_range_check
+echo "  + $TESTS_DIR/attr_fields/exclude_user"
+echo -n "    "
+$TESTS_DIR/attr_fields/exclude_user
+echo "  + $TESTS_DIR/attr_fields/exclude_kernel"
+echo -n "    "
+$TESTS_DIR/attr_fields/exclude_kernel
+echo "  + $TESTS_DIR/attr_fields/exclude_hv"
+echo -n "    "
+$TESTS_DIR/attr_fields/exclude_hv
+echo "  + $TESTS_DIR/attr_fields/exclude_guest"
+echo -n "    "
+$TESTS_DIR/attr_fields/exclude_guest
+echo "  + $TESTS_DIR/attr_fields/exclude_host"
+echo -n "    "
+$TESTS_DIR/attr_fields/exclude_host
 echo "  + $TESTS_DIR/flags/flags_range_check"
 echo -n "    "
 $TESTS_DIR/flags/flags_range_check
