@@ -10,6 +10,7 @@
 
 static int ignore_but_dont_skip_reads=1;
 static int ignore_but_dont_skip_prctl=1;
+static int ignore_but_dont_skip_access=1;
 
 #define LOG_FAILURES	0
 static int trigger_failure_logging=0;
@@ -1165,7 +1166,7 @@ static void poll_random_event(void) {
 
 static void access_random_file(void) {
 
-	int which;
+	int which_file;
 	FILE *fff;
 	char buffer[2048];
 	int result;
@@ -1187,18 +1188,18 @@ static void access_random_file(void) {
 
 	access_attempts++;
 
-	which=rand()%4;
+	which_file=rand()%MAX_FILENAMES;
 
 	if (rand()%2) {
 		/* read */
-		fff=fopen(filenames[which],"r");
+		fff=fopen(filenames[which_file],"r");
 		if (fff!=NULL) {
 			size=2048;
 			result=fread(buffer,sizeof(char),size,fff);
 
 			if (logging&TYPE_ACCESS) {
 				sprintf(log_buffer,"A 0 %d %d %d\n",
-					which,size,result);
+					which_file,size,result);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
@@ -1209,14 +1210,14 @@ static void access_random_file(void) {
 	}
 	else {
 		/* write */
-		fff=fopen(filenames[which],"w");
+		fff=fopen(filenames[which_file],"w");
 		if (fff!=NULL) {
 			write_value=((unsigned long long)rand()<<32)|rand();
 			result=fprintf(fff,"%lld\n",write_value);
 
 			if (logging&TYPE_ACCESS) {
 				sprintf(log_buffer,"A 1 %d %lld %d\n",
-					which,write_value,result);
+					which_file,write_value,result);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
