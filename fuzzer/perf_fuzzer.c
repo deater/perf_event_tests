@@ -8,7 +8,7 @@
 #define _GNU_SOURCE 1
 
 static int ignore_but_dont_skip_mmap=1;
-//static int ignore_but_dont_skip_overflow=1;
+static int ignore_but_dont_skip_overflow=1;
 //static int ignore_but_dont_skip_open=1;
 static int ignore_but_dont_skip_close=0;
 static int ignore_but_dont_skip_read=1;
@@ -861,6 +861,8 @@ if (ignore_but_dont_skip_mmap) {
 	/* Setup overflow 50% of the time */
 	if ((type&TYPE_OVERFLOW) && (rand()%2)) {
 
+	if (!ignore_but_dont_skip_overflow) {
+
 		if (logging&TYPE_OVERFLOW) {
 			sprintf(log_buffer,"o %d\n",event_data[i].fd);
 			write(log_fd,log_buffer,strlen(log_buffer));
@@ -877,6 +879,7 @@ if (ignore_but_dont_skip_mmap) {
 		fcntl(event_data[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
 		fcntl(event_data[i].fd, F_SETSIG, SIGRTMIN+2);
 		fcntl(event_data[i].fd, F_SETOWN,getpid());
+	}
 
 	}
 
