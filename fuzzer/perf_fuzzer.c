@@ -7,7 +7,13 @@
 
 #define _GNU_SOURCE 1
 
+
+static int ignore_but_dont_skip_reads=1;
+static int ignore_but_dont_skip_prctl=1;
+
 #define LOG_FAILURES	0
+static int trigger_failure_logging=0;
+
 #define FSYNC_EVERY	0
 
 #include <stdio.h>
@@ -690,6 +696,7 @@ static void open_random_event(void) {
 
 	        if (logging&TYPE_OPEN) {
 #if LOG_FAILURES
+		if (trigger_failure_logging) {
 		  /* uncomment if failing opens are causing crashes */
 //			static int quit_next=0;
 //			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
@@ -711,6 +718,7 @@ static void open_random_event(void) {
 
 		        // if ((event_data[i].group_fd==152) &&
                         //    (event_data[i].flags==0x800e9e9)) quit_next=1;
+		}
 #endif
 	        }
 
@@ -811,10 +819,12 @@ static void open_random_event(void) {
 			event_data[i].mmap=NULL;
 #if LOG_FAILURES
 			if (logging&TYPE_MMAP) {
- 				sprintf(log_buffer,"M %d %d %p\n",
+			if (trigger_failure_logging) {
+ 				sprintf(log_buffer,"# M %d %d %p\n",
 					event_data[i].mmap_size,event_data[i].fd,
 					event_data[i].mmap);
 				write(log_fd,log_buffer,strlen(log_buffer));
+			}
 			}
 #endif
 		}
@@ -1003,10 +1013,15 @@ static void ioctl_random_event(void) {
 static void prctl_random_event(void) {
 
 	int ret;
+	int type;
 
 	prctl_attempts++;
 
-	if (rand()%2) {
+	type=rand()%2;
+
+	if (ignore_but_dont_skip_prctl) return;
+
+	if (type) {
 		ret=prctl(PR_TASK_PERF_EVENTS_ENABLE);
 		if ((ret==0)&&(logging&TYPE_PRCTL)) {
 			sprintf(log_buffer,"P 1\n");
@@ -1052,11 +1067,15 @@ static void read_random_event(void) {
 	}
 
 	read_attempts++;
+	if (ignore_but_dont_skip_reads) return;
 	result=read(event_data[i].fd,data,read_size);
 
 	if (result>0) {
 	        read_successful++;
 		if (logging&TYPE_READ) {
+
+if (read_size==54624) trigger_failure_logging=1;
+
 			sprintf(log_buffer,"R %d %d\n",event_data[i].fd,read_size);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
