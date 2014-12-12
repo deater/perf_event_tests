@@ -11,6 +11,8 @@
 static int ignore_but_dont_skip_reads=1;
 static int ignore_but_dont_skip_prctl=1;
 static int ignore_but_dont_skip_access=1;
+static int ignore_but_dont_skip_trash_mmap=1;
+static int ignore_but_dont_skip_trash_poll=1;
 
 #define LOG_FAILURES	0
 static int trigger_failure_logging=0;
@@ -887,6 +889,8 @@ static void trash_random_mmap(void) {
 
 		value=rand();
 
+		if (ignore_but_dont_skip_trash_mmap) return;
+
 		/* can't write high pages? */
 		//event_data[i].mmap_size);
 
@@ -1143,6 +1147,8 @@ static void poll_random_event(void) {
 	/* Want short timeout (ms) */
 	timeout=rand()%10;
 
+	if (ignore_but_dont_skip_trash_poll) return;
+
 	poll_attempts++;
 	result=poll(pollfds,num_fds,timeout);
 
@@ -1190,7 +1196,12 @@ static void access_random_file(void) {
 
 	which_file=rand()%MAX_FILENAMES;
 
+	/* FIXME: move write_value code out here if possible */
+
 	if (rand()%2) {
+
+		if (ignore_but_dont_skip_access) return;
+
 		/* read */
 		fff=fopen(filenames[which_file],"r");
 		if (fff!=NULL) {
@@ -1213,6 +1224,9 @@ static void access_random_file(void) {
 		fff=fopen(filenames[which_file],"w");
 		if (fff!=NULL) {
 			write_value=((unsigned long long)rand()<<32)|rand();
+
+
+		if (!ignore_but_dont_skip_access) {
 			result=fprintf(fff,"%lld\n",write_value);
 
 			if (logging&TYPE_ACCESS) {
@@ -1222,6 +1236,7 @@ static void access_random_file(void) {
 			}
 
 			if (result>0) access_successful++;
+		}
 
 			fclose(fff);
 		}
