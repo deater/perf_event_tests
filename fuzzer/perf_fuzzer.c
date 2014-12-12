@@ -7,7 +7,7 @@
 
 #define _GNU_SOURCE 1
 
-//static int ignore_but_dont_skip_mmap=1;
+static int ignore_but_dont_skip_mmap=1;
 //static int ignore_but_dont_skip_overflow=1;
 //static int ignore_but_dont_skip_open=1;
 static int ignore_but_dont_skip_close=0;
@@ -825,6 +825,8 @@ static void open_random_event(void) {
 
 		event_data[i].mmap=NULL;
 
+if (ignore_but_dont_skip_mmap) {
+
 		mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
 			PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
@@ -853,6 +855,7 @@ static void open_random_event(void) {
 
 			mmap_successful++;
 		}
+}
 	}
 
 	/* Setup overflow 50% of the time */
