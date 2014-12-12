@@ -10,10 +10,10 @@
 //static int ignore_but_dont_skip_mmap=1;
 //static int ignore_but_dont_skip_overflow=1;
 //static int ignore_but_dont_skip_open=1;
-//static int ignore_but_dont_skip_close=1;
+static int ignore_but_dont_skip_close=0;
 static int ignore_but_dont_skip_read=1;
 static int ignore_but_dont_skip_write=1;
-//static int ignore_but_dont_skip_ioctl=1;
+static int ignore_but_dont_skip_ioctl=1;
 //static int ignore_but_dont_skip_fork=1;
 static int ignore_but_dont_skip_prctl=1;
 static int ignore_but_dont_skip_poll=1;
@@ -258,6 +258,8 @@ static void close_event(int i, int from_sigio) {
 	if (i<0) return;
 
 	unmap_before_close=rand()%2;
+
+	if (ignore_but_dont_skip_close) return;
 
 	/* here to avoid race in overflow where we munmap or close */
 	/* but event still marked active */
@@ -936,6 +938,7 @@ static void ioctl_random_event(void) {
 	switch(rand()%9) {
 		case 0:
 			arg=rand_ioctl_arg();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -945,6 +948,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 1:
 			arg=rand_ioctl_arg();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -954,6 +958,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 2:
 			arg=rand_refresh();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
 			if (result>0) {
 				event_data[i].last_refresh=arg;
@@ -966,6 +971,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 3:
 			arg=rand_ioctl_arg();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_RESET,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -974,6 +980,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 4: arg=rand_period();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %d\n",
@@ -982,6 +989,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 5: arg=event_data[find_random_active_event()].fd;
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -990,6 +998,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 6: arg=rand();
+			if (ignore_but_dont_skip_ioctl) return;
 			/* FIXME -- read filters from file */
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
@@ -1000,6 +1009,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 7: arg=rand();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
@@ -1010,6 +1020,7 @@ static void ioctl_random_event(void) {
 
 		default:
 			arg=rand(); arg2=rand();
+			if (ignore_but_dont_skip_ioctl) return;
 			result=ioctl(event_data[i].fd,arg,arg2);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
