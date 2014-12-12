@@ -7,12 +7,21 @@
 
 #define _GNU_SOURCE 1
 
-
-static int ignore_but_dont_skip_reads=1;
+//static int ignore_but_dont_skip_mmap=1;
+//static int ignore_but_dont_skip_overflow=1;
+//static int ignore_but_dont_skip_open=1;
+//static int ignore_but_dont_skip_close=1;
+static int ignore_but_dont_skip_read=1;
+//static int ignore_but_dont_skip_write=1;
+//static int ignore_but_dont_skip_ioctl=1;
+//static int ignore_but_dont_skip_fork=1;
 static int ignore_but_dont_skip_prctl=1;
+static int ignore_but_dont_skip_poll=1;
+static int ignore_but_dont_skip_million=1;
 static int ignore_but_dont_skip_access=1;
 static int ignore_but_dont_skip_trash_mmap=1;
-static int ignore_but_dont_skip_trash_poll=1;
+
+
 
 #define LOG_FAILURES	0
 static int trigger_failure_logging=0;
@@ -1072,7 +1081,7 @@ static void read_random_event(void) {
 	}
 
 	read_attempts++;
-	if (ignore_but_dont_skip_reads) return;
+	if (ignore_but_dont_skip_read) return;
 	result=read(event_data[i].fd,data,read_size);
 
 	if (result>0) {
@@ -1147,7 +1156,7 @@ static void poll_random_event(void) {
 	/* Want short timeout (ms) */
 	timeout=rand()%10;
 
-	if (ignore_but_dont_skip_trash_poll) return;
+	if (ignore_but_dont_skip_poll) return;
 
 	poll_attempts++;
 	result=poll(pollfds,num_fds,timeout);
@@ -1251,6 +1260,8 @@ static void access_random_file(void) {
 }
 
 static void run_a_million_instructions(void) {
+
+	if (ignore_but_dont_skip_million) return;
 
 	instructions_million();
 
