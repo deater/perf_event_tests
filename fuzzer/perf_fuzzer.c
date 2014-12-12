@@ -12,7 +12,7 @@
 //static int ignore_but_dont_skip_open=1;
 //static int ignore_but_dont_skip_close=1;
 static int ignore_but_dont_skip_read=1;
-//static int ignore_but_dont_skip_write=1;
+static int ignore_but_dont_skip_write=1;
 //static int ignore_but_dont_skip_ioctl=1;
 //static int ignore_but_dont_skip_fork=1;
 static int ignore_but_dont_skip_prctl=1;
@@ -1119,6 +1119,8 @@ static void write_random_event(void) {
 			break;
 		default: write_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
 	}
+
+	if (ignore_but_dont_skip_write) return;
 
 	write_attempts++;
 
