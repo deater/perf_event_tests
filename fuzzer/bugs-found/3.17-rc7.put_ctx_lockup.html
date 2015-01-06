@@ -34,7 +34,7 @@ core2
 <h3>Linux-kernel Mailing List Report</h3>
 2 October 2014: as part of the 
 "perf: perf_fuzzer triggers instant reboot" thread.<br>
-6 Octoner 2014: perf: 3.17 another perf_fuzzer lockup
+6 October 2014: perf: 3.17 another perf_fuzzer lockup
 
 
 
@@ -43,6 +43,339 @@ core2
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.29-pre *** by Vince Weaver
+
+        Linux version 3.18.0+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1418062656
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 25000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1418062656
+
+Pid=16860, sleeping 1s
+==================================================
+Fuzzing the following syscalls:                   
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:             
+                                                  
+Also attempting the following:                    
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page                 
+*NOT* attempting the following:                   
+                                                  
+==================================================
+
+
+^C
+
+^C
+
+[ 2220.138908] SysRq : HELP : loglevel(0-9) reboot(b) crash(c) terminate-all-tas
+ks(e) memory-full-oom-kill(f) kill-all-tasks(i) thaw-filesystems(j) sak(k) show-
+backtrace-all-active-cpus(l) show-memory-usage(m) nice-all-RT-tasks(n) poweroff(
+o) show-registers(p) show-all-timers(q) unraw(r) sync(s) show-task-states(t) unm
+ount(u) show-blocked-tasks(w) dump-ftrace-buffer(z) 
+[ 2225.915007] SysRq : Show backtrace of all active CPUs
+[ 2225.916004] sending NMI to all CPUs:
+[ 2225.923649] NMI backtrace for cpu 1
+[ 2225.924000] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 3.18.0+ #166
+[ 2225.924000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[ 2225.924000] task: ffff88011b375800 ti: ffff88011b394000 task.ti: ffff88011b39
+4000
+[ 2225.924000] RIP: 0010:[<ffffffff8100b992>]  [<ffffffff8100b992>] default_idle
++0x1d/0x2f
+[ 2225.924000] RSP: 0018:ffff88011b397e88  EFLAGS: 00000246
+[ 2225.924000] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000011ac0
+[ 2225.924000] RDX: ffff88011b394010 RSI: 0000000000000001 RDI: 0000000000000001
+[ 2225.924000] RBP: ffff88011b397e88 R08: 0000000000000000 R09: ffff88011b397e68
+[ 2225.924000] R10: 00000001000758c5 R11: ffff88011b397e88 R12: ffff88011b394010
+[ 2225.924000] R13: 0000000000000000 R14: ffff88011b394000 R15: ffff88011b394012
+[ 2225.924000] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:00000
+00000000000
+[ 2225.924000] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2225.924000] CR2: 0000000001b21008 CR3: 00000000c6e42000 CR4: 00000000000407e0
+[ 2225.924000] DR0: 0000000001fff000 DR1: 0000000000000000 DR2: 000000000075d000
+[ 2225.924000] DR3: 000000003febfdbe DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2225.924000] Stack:
+[ 2225.924000]  ffff88011b397e98 ffffffff8100b29b ffff88011b397f28 ffffffff8106e
+a64
+[ 2225.924000]  0000000000000000 0000000000000000 ffff88011b394010 ffff88011b397
+fd8
+[ 2225.924000]  ffff88011b394010 0000000000000282 ffff88011b394000 ffff88011b394
+000
+[ 2225.924000] Call Trace:
+[ 2225.924000]  [<ffffffff8100b29b>] arch_cpu_idle+0xf/0x11
+[ 2225.924000]  [<ffffffff8106ea64>] cpu_startup_entry+0x143/0x276
+[ 2225.924000]  [<ffffffff8102c293>] start_secondary+0x114/0x119
+[ 2225.924000] Code: e8 50 96 07 00 41 59 5b 41 5c 41 5d c9 c3 55 48 89 e5 66 66
+ 66 66 90 bf 01 00 00 00 65 8b 34 25 e0 a0 00 00 e8 93 ff ff ff fb f4 <83> cf ff
+ 65 8b 34 25 e0 a0 00 00 e8 81 ff ff ff c9 c3 55 48 89 
+[ 2225.916004] NMI backtrace for cpu 0
+[ 2226.097357] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
+oo long to run: 173.610 msecs
+[ 2225.916004] CPU: 0 PID: 16860 Comm: perf_fuzzer Not tainted 3.18.0+ #166
+[ 2225.916004] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[ 2225.916004] task: ffff8800cb344000 ti: ffff8800c74ec000 task.ti: ffff8800c74e
+c000
+[ 2225.916004] RIP: 0010:[<ffffffff812bcf11>]  [<ffffffff812bcf11>] delay_tsc+0x
+23/0x52
+[ 2225.916004] RSP: 0018:ffff88011fc03d28  EFLAGS: 00000046
+[ 2225.916004] RAX: 000000009ff8f88c RBX: 0000000000000001 RCX: 000000009ff8f7f4
+[ 2225.916004] RDX: 000000000000052b RSI: 0000000000000000 RDI: 00000000002658f4
+[ 2225.916004] RBP: ffff88011fc03d28 R08: 0000000000000000 R09: 0000000000000295
+[ 2225.916004] R10: 0000000000000000 R11: ffff88011fc03c48 R12: 000000000000006c
+[ 2225.916004] R13: 0000000000000007 R14: 0000000000000001 R15: 0000000000000046
+[ 2225.916004] FS:  00007f3839683700(0000) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000
+[ 2225.916004] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2225.916004] CR2: 0000000001b21008 CR3: 00000000c6e42000 CR4: 00000000000407f0
+[ 2225.916004] DR0: 0000000000000000 DR1: 0000000001fff000 DR2: 0000000000760000
+[ 2225.916004] DR3: 000000000075a000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2225.916004] Stack:
+[ 2225.916004]  ffff88011fc03d38 ffffffff812bcec1 ffff88011fc03d58 ffffffff8102e
+114
+[ 2225.916004]  0000000000000008 ffffffff81a6fa30 ffff88011fc03d68 ffffffff81345
+48f
+[ 2225.916004]  ffff88011fc03d98 ffffffff8134579d ffffffff81c809b0 0000000000000
+100
+[ 2225.916004] Call Trace:
+[ 2225.916004]  <IRQ> 
+[ 2225.916004]  [<ffffffff812bcec1>] __const_udelay+0x25/0x27
+[ 2225.916004]  [<ffffffff8102e114>] arch_trigger_all_cpu_backtrace+0xc7/0xe0
+[ 2225.916004]  [<ffffffff8134548f>] sysrq_handle_showallcpus+0x13/0x15
+[ 2225.916004]  [<ffffffff8134579d>] __handle_sysrq+0xaf/0x13e
+[ 2225.916004]  [<ffffffff81345bac>] handle_sysrq+0x2c/0x2e
+[ 2225.916004]  [<ffffffff813584fa>] serial8250_rx_chars+0x145/0x1c2
+[ 2225.916004]  [<ffffffff813585ed>] serial8250_handle_irq+0x76/0xb6
+[ 2225.916004]  [<ffffffff813586c0>] serial8250_default_handle_irq+0x2b/0x40
+[ 2225.916004]  [<ffffffffa015d101>] ? intr_complete+0x43/0x6c [usbnet]
+[ 2225.916004]  [<ffffffff81357dda>] serial8250_interrupt+0x42/0xb6
+[ 2225.916004]  [<ffffffff8107dde6>] handle_irq_event_percpu+0x60/0x169
+[ 2225.916004]  [<ffffffff8107df2e>] handle_irq_event+0x3f/0x5b
+[ 2225.916004]  [<ffffffff8102f49c>] ? ack_apic_edge+0x36/0x3a
+[ 2225.916004]  [<ffffffff8108063e>] handle_edge_irq+0xb2/0xce
+[ 2225.916004]  [<ffffffff81004ad4>] handle_irq+0x27/0x2f
+[ 2225.916004]  [<ffffffff810042b0>] do_IRQ+0x53/0xd9
+[ 2225.916004]  [<ffffffff81560bea>] common_interrupt+0x6a/0x6a
+[ 2225.916004]  <EOI> 
+[ 2225.916004]  [<ffffffff810e61e9>] ? get_page_from_freelist+0x55/0x781
+[ 2225.916004]  [<ffffffff810e6a7c>] __alloc_pages_nodemask+0x167/0x6dc
+[ 2225.916004]  [<ffffffff8101a4a3>] ? intel_pmu_enable_all+0x28/0xa4
+[ 2225.916004]  [<ffffffff8111f0b3>] kmem_getpages+0x58/0xec
+[ 2225.916004]  [<ffffffff81120278>] cache_grow+0xad/0x1d8
+[ 2225.916004]  [<ffffffff81120021>] ____cache_alloc+0x237/0x2ce
+[ 2225.916004]  [<ffffffff811216b9>] __kmalloc+0x8f/0xf2
+[ 2225.916004]  [<ffffffff810dc35d>] ? T.1336+0xe/0x10
+[ 2225.916004]  [<ffffffff810dc35d>] T.1336+0xe/0x10
+[ 2225.916004]  [<ffffffff810dc8ca>] alloc_perf_context+0x20/0x51
+[ 2225.916004]  [<ffffffff810dca33>] find_get_context+0x138/0x1c7
+[ 2225.916004]  [<ffffffff810dd029>] SYSC_perf_event_open+0x48b/0x870
+[ 2225.916004]  [<ffffffff810dd41c>] SyS_perf_event_open+0xe/0x10
+[ 2225.916004]  [<ffffffff81560016>] system_call_fastpath+0x16/0x1b
+[ 2225.916004] Code: bf e8 b0 ff ff ff c9 c3 55 48 89 e5 66 66 66 66 90 65 8b 34
+ 25 e0 a0 00 00 66 66 90 0f ae e8 0f 31 89 c1 66 66 90 0f ae e8 0f 31 <89> c2 29
+ ca 39 fa 73 23 f3 90 65 44 8b 04 25 e0 a0 00 00 44 39 
+[ 2225.916004] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
+oo long to run: 523.849 msecs
+[ 2256.707560] SysRq : Show backtrace of all active CPUs
+[ 2256.708004] sending NMI to all CPUs:
+[ 2256.708004] NMI backtrace for cpu 0
+[ 2256.708004] CPU: 0 PID: 16860 Comm: perf_fuzzer Not tainted 3.18.0+ #166
+[ 2256.708004] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[ 2256.708004] task: ffff8800cb344000 ti: ffff8800c74ec000 task.ti: ffff8800c74e
+c000
+[ 2256.708004] RIP: 0010:[<ffffffff812bcf11>]  [<ffffffff812bcf11>] delay_tsc+0x
+23/0x52
+[ 2256.708004] RSP: 0018:ffff88011fc03d28  EFLAGS: 00000046
+[ 2256.708004] RAX: 00000000c993f3a5 RBX: 0000000000000001 RCX: 00000000c993f30d
+[ 2256.708004] RDX: 000000000000053d RSI: 0000000000000000 RDI: 00000000002658f4
+[ 2256.708004] RBP: ffff88011fc03d28 R08: 0000000000000000 R09: 00000000000002eb
+[ 2256.708004] R10: 0000000000000000 R11: ffff88011fc03c48 R12: 000000000000006c
+[ 2256.708004] R13: 0000000000000007 R14: 0000000000000001 R15: 0000000000000046
+[ 2256.708004] FS:  00007f3839683700(0000) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000
+[ 2256.708004] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2256.708004] CR2: 0000000001b21008 CR3: 00000000c6e42000 CR4: 00000000000407f0
+[ 2256.708004] DR0: 0000000000000000 DR1: 0000000001fff000 DR2: 0000000000760000
+[ 2256.708004] DR3: 000000000075a000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2256.708004] Stack:
+[ 2256.708004]  ffff88011fc03d38 ffffffff812bcec1 ffff88011fc03d58 ffffffff8102e
+114
+[ 2256.708004]  0000000000000008 ffffffff81a6fa30 ffff88011fc03d68 ffffffff81345
+48f
+[ 2256.708004]  ffff88011fc03d98 ffffffff8134579d ffffffff81c809b0 0000000000000
+100
+[ 2256.708004] Call Trace:
+[ 2256.708004]  <IRQ> 
+[ 2256.708004]  [<ffffffff812bcec1>] __const_udelay+0x25/0x27
+[ 2256.708004]  [<ffffffff8102e114>] arch_trigger_all_cpu_backtrace+0xc7/0xe0
+[ 2256.708004]  [<ffffffff8134548f>] sysrq_handle_showallcpus+0x13/0x15
+[ 2256.708004]  [<ffffffff8134579d>] __handle_sysrq+0xaf/0x13e
+[ 2256.708004]  [<ffffffff81345bac>] handle_sysrq+0x2c/0x2e
+[ 2256.708004]  [<ffffffff813584fa>] serial8250_rx_chars+0x145/0x1c2
+[ 2256.708004]  [<ffffffff813585ed>] serial8250_handle_irq+0x76/0xb6
+[ 2256.708004]  [<ffffffff813586c0>] serial8250_default_handle_irq+0x2b/0x40
+[ 2256.708004]  [<ffffffffa015d101>] ? intr_complete+0x43/0x6c [usbnet]
+[ 2256.708004]  [<ffffffff81357dda>] serial8250_interrupt+0x42/0xb6
+[ 2256.708004]  [<ffffffff8107dde6>] handle_irq_event_percpu+0x60/0x169
+[ 2256.708004]  [<ffffffff8107df2e>] handle_irq_event+0x3f/0x5b
+[ 2256.708004]  [<ffffffff8102f49c>] ? ack_apic_edge+0x36/0x3a
+[ 2256.708004]  [<ffffffff8108063e>] handle_edge_irq+0xb2/0xce
+[ 2256.708004]  [<ffffffff81004ad4>] handle_irq+0x27/0x2f
+[ 2256.708004]  [<ffffffff810042b0>] do_IRQ+0x53/0xd9
+[ 2256.708004]  [<ffffffff81560bea>] common_interrupt+0x6a/0x6a
+[ 2256.708004]  <EOI> 
+[ 2256.708004]  [<ffffffff810d7e36>] ? put_ctx+0x40/0x61
+[ 2256.708004]  [<ffffffff810dcaa4>] find_get_context+0x1a9/0x1c7
+[ 2256.708004]  [<ffffffff810dd029>] SYSC_perf_event_open+0x48b/0x870
+[ 2256.708004]  [<ffffffff810dd41c>] SyS_perf_event_open+0xe/0x10
+[ 2256.708004]  [<ffffffff81560016>] system_call_fastpath+0x16/0x1b
+[ 2256.708004] Code: bf e8 b0 ff ff ff c9 c3 55 48 89 e5 66 66 66 66 90 65 8b 34
+ 25 e0 a0 00 00 66 66 90 0f ae e8 0f 31 89 c1 66 66 90 0f ae e8 0f 31 <89> c2 29
+ ca 39 fa 73 23 f3 90 65 44 8b 04 25 e0 a0 00 00 44 39 
+[ 2256.720000] NMI backtrace for cpu 1
+[ 2256.720000] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 3.18.0+ #166
+[ 2256.720000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[ 2256.720000] task: ffff88011b375800 ti: ffff88011b394000 task.ti: ffff88011b39
+4000
+[ 2256.720000] RIP: 0010:[<ffffffff8100b992>]  [<ffffffff8100b992>] default_idle
++0x1d/0x2f
+[ 2256.720000] RSP: 0018:ffff88011b397e88  EFLAGS: 00000246
+[ 2256.720000] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000011ac0
+[ 2256.720000] RDX: ffff88011b394010 RSI: 0000000000000001 RDI: 0000000000000001
+[ 2256.720000] RBP: ffff88011b397e88 R08: 0000000000000000 R09: ffff88011b397e68
+[ 2256.720000] R10: 00000001000776d7 R11: ffff88011b397e88 R12: ffff88011b394010
+[ 2256.720000] R13: 0000000000000000 R14: ffff88011b394000 R15: ffff88011b394012
+[ 2256.720000] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:00000
+00000000000
+[ 2256.720000] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2256.720000] CR2: 0000000001b21008 CR3: 00000000c95e0000 CR4: 00000000000407e0
+[ 2256.720000] DR0: 0000000001fff000 DR1: 0000000000000000 DR2: 000000000075d000
+[ 2256.720000] DR3: 000000003febfdbe DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2256.720000] Stack:                             
+[ 2256.720000]  ffff88011b397e98 ffffffff8100b29b ffff88011b397f28 ffffffff8106e
+a64                                               
+[ 2256.720000]  0000000000000000 0000000000000000 ffff88011b394010 ffff88011b397
+fd8
+[ 2256.720000]  ffff88011b394010 0000000000000282 ffff88011b394000 ffff88011b394
+000
+[ 2256.720000] Call Trace:
+[ 2256.720000]  [<ffffffff8100b29b>] arch_cpu_idle+0xf/0x11
+[ 2256.720000]  [<ffffffff8106ea64>] cpu_startup_entry+0x143/0x276
+[ 2256.720000]  [<ffffffff8102c293>] start_secondary+0x114/0x119
+[ 2256.720000] Code: e8 50 96 07 00 41 59 5b 41 5c 41 5d c9 c3 55 48 89 e5 66 66
+ 66 66 90 bf 01 00 00 00 65 8b 34 25 e0 a0 00 00 e8 93 ff ff ff fb f4 <83> cf ff
+ 65 8b 34 25 e0 a0 00 00 e8 81 ff ff ff c9 c3 55 48 89 
+
+[ 2303.792242] SysRq : Show backtrace of all active CPUs
+[ 2303.796003] sending NMI to all CPUs:
+[ 2303.796003] NMI backtrace for cpu 0
+[ 2303.796003] CPU: 0 PID: 16860 Comm: perf_fuzzer Not tainted 3.18.0+ #166
+[ 2303.796003] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[ 2303.796003] task: ffff8800cb344000 ti: ffff8800c74ec000 task.ti: ffff8800c74e
+c000
+[ 2303.796003] RIP: 0010:[<ffffffff812bcf27>]  [<ffffffff812bcf27>] delay_tsc+0x
+39/0x52
+[ 2303.796003] RSP: 0018:ffff88011fc03d28  EFLAGS: 00000046
+[ 2303.796003] RAX: 000000008f40fc94 RBX: 0000000000000001 RCX: 000000008f40fc6e
+[ 2303.796003] RDX: 0000000000000026 RSI: 0000000000000000 RDI: 00000000002658f4
+[ 2303.796003] RBP: ffff88011fc03d28 R08: 0000000000000000 R09: 0000000000000336
+[ 2303.796003] R10: 0000000000000000 R11: ffff88011fc03c48 R12: 000000000000006c
+[ 2303.796003] R13: 0000000000000007 R14: 0000000000000001 R15: 0000000000000046
+[ 2303.796003] FS:  00007f3839683700(0000) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000
+[ 2303.796003] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2303.796003] CR2: 0000000001b21008 CR3: 00000000c6e42000 CR4: 00000000000407f0
+[ 2303.796003] DR0: 0000000000000000 DR1: 0000000001fff000 DR2: 0000000000760000
+[ 2303.796003] DR3: 000000000075a000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2303.796003] Stack:
+[ 2303.796003]  ffff88011fc03d38 ffffffff812bcec1 ffff88011fc03d58 ffffffff8102e
+114
+[ 2303.796003]  0000000000000008 ffffffff81a6fa30 ffff88011fc03d68 ffffffff81345
+48f
+[ 2303.796003]  ffff88011fc03d98 ffffffff8134579d ffffffff81c809b0 0000000000000
+100
+[ 2303.796003] Call Trace:
+[ 2303.796003]  <IRQ> 
+[ 2303.796003]  [<ffffffff812bcec1>] __const_udelay+0x25/0x27
+[ 2303.796003]  [<ffffffff8102e114>] arch_trigger_all_cpu_backtrace+0xc7/0xe0
+[ 2303.796003]  [<ffffffff8134548f>] sysrq_handle_showallcpus+0x13/0x15
+[ 2303.796003]  [<ffffffff8134579d>] __handle_sysrq+0xaf/0x13e
+[ 2303.796003]  [<ffffffff81345bac>] handle_sysrq+0x2c/0x2e
+[ 2303.796003]  [<ffffffff813584fa>] serial8250_rx_chars+0x145/0x1c2
+[ 2303.796003]  [<ffffffff813585ed>] serial8250_handle_irq+0x76/0xb6
+[ 2303.796003]  [<ffffffff813586c0>] serial8250_default_handle_irq+0x2b/0x40
+[ 2303.796003]  [<ffffffff810568b6>] ? delayed_work_timer_fn+0x18/0x1a
+[ 2303.796003]  [<ffffffff81357dda>] serial8250_interrupt+0x42/0xb6
+[ 2303.796003]  [<ffffffff8105689e>] ? __queue_work+0x289/0x289
+[ 2303.796003]  [<ffffffff8107dde6>] handle_irq_event_percpu+0x60/0x169
+[ 2303.796003]  [<ffffffff8107df2e>] handle_irq_event+0x3f/0x5b
+[ 2303.796003]  [<ffffffff8102f49c>] ? ack_apic_edge+0x36/0x3a
+[ 2303.796003]  [<ffffffff8108063e>] handle_edge_irq+0xb2/0xce
+[ 2303.796003]  [<ffffffff81004ad4>] handle_irq+0x27/0x2f
+[ 2303.796003]  [<ffffffff810042b0>] do_IRQ+0x53/0xd9
+[ 2303.796003]  [<ffffffff81560bea>] common_interrupt+0x6a/0x6a
+[ 2303.796003]  <EOI> 
+[ 2303.796003]  [<ffffffff810fa6cb>] ? kmalloc_slab+0x7f/0x8d
+[ 2303.796003]  [<ffffffff81121653>] __kmalloc+0x29/0xf2
+[ 2303.796003]  [<ffffffff810dc35d>] ? T.1336+0xe/0x10
+[ 2303.796003]  [<ffffffff810dc35d>] T.1336+0xe/0x10
+[ 2303.796003]  [<ffffffff810dc8ca>] alloc_perf_context+0x20/0x51
+[ 2303.796003]  [<ffffffff810dca33>] find_get_context+0x138/0x1c7
+[ 2303.796003]  [<ffffffff810dd029>] SYSC_perf_event_open+0x48b/0x870
+[ 2303.796003]  [<ffffffff810dd41c>] SyS_perf_event_open+0xe/0x10
+[ 2303.796003]  [<ffffffff81560016>] system_call_fastpath+0x16/0x1b
+[ 2303.796003] Code: a0 00 00 66 66 90 0f ae e8 0f 31 89 c1 66 66 90 0f ae e8 0f
+ 31 89 c2 29 ca 39 fa 73 23 f3 90 65 44 8b 04 25 e0 a0 00 00 44 39 c6 <74> e0 29
+ c1 01 cf 66 66 90 0f ae e8 0f 31 89 c1 44 89 c6 eb cd 
+[ 2303.804000] NMI backtrace for cpu 1
+[ 2303.804000] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 3.18.0+ #166
+[ 2303.804000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012
+[ 2303.804000] task: ffff88011b375800 ti: ffff88011b394000 task.ti: ffff88011b39
+4000
+[ 2303.804000] RIP: 0010:[<ffffffff8100b992>]  [<ffffffff8100b992>] default_idle
++0x1d/0x2f
+[ 2303.804000] RSP: 0018:ffff88011b397e88  EFLAGS: 00000246
+[ 2303.804000] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000011ac0
+[ 2303.804000] RDX: ffff88011b394010 RSI: 0000000000000001 RDI: 0000000000000001
+[ 2303.804000] RBP: ffff88011b397e88 R08: 0000000000000000 R09: ffff88011b397e68
+[ 2303.804000] R10: 000000010007a4d3 R11: ffff88011b397e88 R12: ffff88011b394010
+[ 2303.804000] R13: 0000000000000000 R14: ffff88011b394000 R15: ffff88011b394012
+[ 2303.804000] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:00000
+00000000000
+[ 2303.804000] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2303.804000] CR2: 0000000001b21008 CR3: 00000000c6e42000 CR4: 00000000000407e0
+[ 2303.804000] DR0: 0000000001fff000 DR1: 0000000000000000 DR2: 000000000075d000
+[ 2303.804000] DR3: 000000003febfdbe DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 2303.804000] Stack:
+[ 2303.804000]  ffff88011b397e98 ffffffff8100b29b ffff88011b397f28 ffffffff8106e
+a64
+[ 2303.804000]  0000000000000000 0000000000000000 ffff88011b394010 ffff88011b397
+fd8
+[ 2303.804000]  ffff88011b394010 0000000000000282 ffff88011b394000 ffff88011b394
+000
+[ 2303.804000] Call Trace:
+[ 2303.804000]  [<ffffffff8100b29b>] arch_cpu_idle+0xf/0x11
+[ 2303.804000]  [<ffffffff8106ea64>] cpu_startup_entry+0x143/0x276
+[ 2303.804000]  [<ffffffff8102c293>] start_secondary+0x114/0x119
+[ 2303.804000] Code: e8 50 96 07 00 41 59 5b 41 5c 41 5d c9 c3 55 48 89 e5 66 66
+ 66 66 90 bf 01 00 00 00 65 8b 34 25 e0 a0 00 00 e8 93 ff ff ff fb f4 <83> cf ff
+ 65 8b 34 25 e0 a0 00 00 e8 81 ff ff ff c9 c3 55 48 89 
+</pre>
+
+
+
 <li>
 <pre>
 Stopping after 50000
