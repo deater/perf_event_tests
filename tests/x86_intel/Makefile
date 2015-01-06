@@ -10,6 +10,7 @@ all:	\
 	offcore_response \
 	offcore_response_mask \
 	pebs \
+	pebs_latency \
 	pebs_registers \
 	uncore_events \
 	uncore_cpu_cbox \
@@ -99,6 +100,21 @@ pebs:	pebs.o $(LIB)/test_utils.o \
 
 pebs.o:	pebs.c
 	$(CC) $(CFLAGS) -c pebs.c
+
+###
+
+pebs_latency:	pebs_latency.o $(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o \
+			$(LIB)/parse_record.o
+	$(CC) $(LFLAGS) -o pebs_latency pebs_latency.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/instructions_testcode.o \
+			$(LIB)/perf_helpers.o \
+			$(LIB)/parse_record.o
+
+pebs_latency.o:	pebs_latency.c
+	$(CC) $(CFLAGS) -c pebs_latency.c
 
 ###
 
@@ -196,6 +212,7 @@ clean:
 	offcore_response \
 	offcore_response_mask \
 	pebs \
+	pebs_latency \
 	pebs_registers \
 	uncore_events \
 	uncore_cpu_cbox \
