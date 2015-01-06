@@ -1,0 +1,86 @@
+PEBS
+
+Manuel Selva <selva.manuel@gmail.com>
+
+
+perf always uses threshold 1 for the PEBS buffer.
+
+But yes there is some delay until the handler executes, and the
+time stamp is only computed in the handler.
+
+I am just writing down some information I found with difficulty about the Linux perf_event_open system call. I want to use this system call to identify memory unbalance on NUMA systems (with Intel Westmere-EP processors). This may contains error, it’s just my current understanding of how the system call works, so feel free to comment what I am saying.
+
+Uncore memory events counting
+
+In order to measure memory controllers load, a first solution consists in using the UNC QMC NORMAL READS.ANY and UNC QMC WRITES.FULL.ANY uncore events. Uncore means that the counters and the counting mechanism at hardware level for these events are located in the area shared by all the cores of the processor (the uncore area). These events count respectively the number of bytes read and written in memory. When accessing these events through the perf event open Linux system call, parameters have the following meaning:
+
+    cpu parameter is used to specify the NUMA node (the uncore in Intel’s terminology) we want to use for counting. The uncore associated to the given cpu is used (in Linux terminology, a cpu is the smallest hardware unit able to execute a thread: i.e. a Linux kernel running on top of a dual core processor with hyper-threading disabled has two cpus and the same one with hyper-threading enabled has 4 cpus). cpu parameter can’t be set to −1 when measuring uncore events otherwise an error is returned.
+    pid must be set to −1 otherwise an error is returned. This means that we can’t count uncore events only for specifics processes. As consequence what we can count is the memory traffic on a given NUMA node.
+
+Core memory load sampling with latency information
+
+A second solution to identify memory nodes overload is to use Intel load latency facility which is based on Intel Precise Event Based Sampling (PEBS).  On Westmere hardware we can only perform PEBS for memory loads and not memory stores. At hardware level, PEBS is the mechanism used to perform sampling on events located at the core level (in opposition to uncore events) along with processor architectural state details in the sample (when the event count reaches the X value specified as sampling period). This architectural state is mainly the processor registers (EIP, EAX, EBX, EBP, ESP, R8 .. R15). The load latency feature is an extension to PEBS when performing sampling on memory load events(MEM INST RETIRED.LATENCY ABOVE THRESHOLD, i.e. load events with a latency above a given software provided latency) allowing to record in addition to processor architectural state, the load latency, the linear address of the target of the load and the origin of the data obtained from the load (cache level, local node, remote node). The latency is the elapsed cycles of the load operation between dispatch to GO, measured in processor core clock domain.
+
+When this load latency feature is enabled, according to the Intel software developer’s guide: load operations are randomly selected by hardware and tagged to carry information related to data source locality and latency. This randomization is done to avoid always sampling the same events (in a loop for example). The hardware will randomly choose an operation to sample in each “packet” of X (X is the sampling period) load events. A sampling period of 1 and a latency threshold of 3 cycles (the minimal latency) will of course samples all load events (all loads have at least 3 cycles of latency).
+
+To use this functionality, the perf event open system call allows to specify the sampling period (in events count unit) and to configure what information will be present in the samples. To ease the usage of the feature,
+the information that the kernel allows to specify to be present in the samples is at a higher level than processor architectural state. Among the available information we can mention:
+
+    The cpu (== the core) that executed the load
+    The process and the thread id
+    The instruction pointer (virtual address). I guess the translation back from linear address (provided by the hardware) to virtual address is done by system call.
+    The weight (== the latency)
+    The data source (cache level, local node, remote node)
+
+When using the perf event open with load latency events
+
+     cpu and pid parameters are used to control if we do monitoring per cpu (cpu ≥ 0, pid = −1), per thread (cpu = −1, pid ≥ 0), per thread on specific cpu only (cpu ≥ 0, pid = −1). Once the event has been opened, the user code must mmap the file descriptor returned in order to be able to access the samples. A head and a tail pointers are used to indicate where are the last and first event in the mmaped memory. The head is updated automatically by the kernel and the tail must be updated by user code to indicate where the last not read event is to the kernel.
+    attr.config1 is used to specify the load latency threshold
+
+The perf mem record tool uses this feature with the minimum latency threshold of 3 cycles (as specified in the Intel data-sheet) to perform sampling on all loads tagged by the hardware. The system call is invoked with the pid of the process to be recorded on each cpu (one perf event open system call on each cpu). Samples (from all cpus indifferently) are saved in
+a file along with code memory mappings events and then analyzed offline for reporting of memory accesses cost and source for the recorded process.
+
+
+Stephane:
+
+The Load latency facility combines basic PEBS + a threshold mechanism
+to filter only certain types of loads based on their latencies.
+
+The mem_trans_retired:latency_above_threshold counts the number of
+loads retired that qualify for the threshold. This is the event you are
+actually sampling on. When that counter overflows, the retired load
+is sampled. If you set the counter to -P, it will overflow after P
+occurrences
+of the event. Now, it is clear that to get there you need to wait until
+the load retires, otherwise you don't know the latency. Note that
+latency here means instruction latency not just data access latency.
+So, I suspect underneath there is indeed some tagging mechanism.
+It can track only one load at a time. To avoid bias, the tagging mechanism
+uses some randomization scheme. I don't know how this tagging mechanism
+actually works. But clearly you may track loads that don't qualify for the
+threshold, they won't increment the counter and therefore will never be
+captured by perf_events.
+
+>> 2- How does the perf mem tool (with the load option) with of course
+>> the help of the kernel uses this feature ? After a quick browsing of
+>> the code, here is my understanding, is it correct ?
+>> The PEBS load latency feature is enabled with the minimal possible
+>> latency (3 cycles) to do sampling on all loads and with a given
+>> default sampling period (x tagged load events with latency greater or
+>> equal to 3). In addition to these "loads events" the perf mem tool
+>> asks the kernel to record events about processes naming, and memory
+>> mappings of code to be able to retrieve offline the source code
+>> associated to instruction pointers present in samples.
+>>
+Yes, your description is correct. The one difference compared
+with regular code sampling is that we also ask the kernel to record
+data mmaps, so we get a chance to symbolize data addresses (global
+variables only).
+
+
+
+BTS
+
+LBR
+
+
