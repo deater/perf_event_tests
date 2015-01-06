@@ -8,6 +8,11 @@
 
 Mild.  WARN_ON_ONCE.  Does not seem to affect system stability.
 
+<h3>Fixed by</h3>
+
+9fc81d87420d0d3fd62d5e5529972c0ad9eab9cc 
+perf: Fix events installation during moving group
+
 <h3>Found by</h3>
 perf_fuzzer
 
@@ -24,6 +29,7 @@ Haswell, AMD A10, Core2
 attempt bisection.
 
 <h3>Most Recently Seen</h3>
+3.19-rc1<br>
 3.17-rc7<br>
 3.17-rc4<br>
 3.15-rc4<br>
@@ -39,8 +45,6 @@ claims to fix this bug but it seems it can be triggered in other ways
 
 3 March 2014:
 <a href="https://lkml.org/lkml/2014/3/3/337">https://lkml.org/lkml/2014/3/3/337</a>
-
-
 
 
 <h3>Kernel Spews</h3>

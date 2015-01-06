@@ -4,6 +4,7 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
+	flags_cgroup \
 	flags_range_check
 
 
@@ -26,6 +27,19 @@ $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 
 ###
 
+flags_cgroup:	flags_cgroup.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o flags_cgroup flags_cgroup.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+flags_cgroup.o:	flags_cgroup.c
+	$(CC) $(CFLAGS) -c flags_cgroup.c
+
+###
+
 flags_range_check:	flags_range_check.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
@@ -42,4 +56,5 @@ flags_range_check.o:	flags_range_check.c
 
 clean:	
 	rm -f *~ *.o \
+	flags_cgroup \
 	flags_range_check 

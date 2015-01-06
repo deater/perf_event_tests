@@ -106,6 +106,9 @@ $TESTS_DIR/attr_fields/exclude_host
 echo "  + $TESTS_DIR/flags/flags_range_check"
 echo -n "    "
 $TESTS_DIR/flags/flags_range_check
+echo "  + $TESTS_DIR/flags/flags_cgroup"
+echo -n "    "
+$TESTS_DIR/flags/flags_cgroup
 
 echo
 echo "* Checking perf_event ioctl calls"
