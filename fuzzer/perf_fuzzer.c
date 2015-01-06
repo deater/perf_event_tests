@@ -7,20 +7,36 @@
 
 #define _GNU_SOURCE 1
 
+#if 0
+/* Minimal syscalls needed for bug I am tracking */
 static int ignore_but_dont_skip_mmap=1;
 static int ignore_but_dont_skip_overflow=1;
-//static int ignore_but_dont_skip_open=1;
+static int ignore_but_dont_skip_open=0;
 static int ignore_but_dont_skip_close=0;
 static int ignore_but_dont_skip_read=1;
 static int ignore_but_dont_skip_write=1;
 static int ignore_but_dont_skip_ioctl=1;
-//static int ignore_but_dont_skip_fork=1;
+static int ignore_but_dont_skip_fork=0;
 static int ignore_but_dont_skip_prctl=1;
 static int ignore_but_dont_skip_poll=1;
 static int ignore_but_dont_skip_million=1;
 static int ignore_but_dont_skip_access=1;
 static int ignore_but_dont_skip_trash_mmap=1;
-
+#else
+static int ignore_but_dont_skip_mmap=0;
+static int ignore_but_dont_skip_overflow=0;
+static int ignore_but_dont_skip_open=0;
+static int ignore_but_dont_skip_close=0;
+static int ignore_but_dont_skip_read=0;
+static int ignore_but_dont_skip_write=0;
+static int ignore_but_dont_skip_ioctl=0;
+static int ignore_but_dont_skip_fork=0;
+static int ignore_but_dont_skip_prctl=0;
+static int ignore_but_dont_skip_poll=0;
+static int ignore_but_dont_skip_million=0;
+static int ignore_but_dont_skip_access=0;
+static int ignore_but_dont_skip_trash_mmap=0;
+#endif
 
 
 #define LOG_FAILURES	0
@@ -705,8 +721,7 @@ static void open_random_event(void) {
 		/* Debugging code */
 		/* We don't usually log failed opens as there are so many */
 
-
-
+	if (ignore_but_dont_skip_open) return;
 
 	        if (logging&TYPE_OPEN) {
 #if LOG_FAILURES
@@ -825,7 +840,7 @@ static void open_random_event(void) {
 
 		event_data[i].mmap=NULL;
 
-if (ignore_but_dont_skip_mmap) {
+if (!ignore_but_dont_skip_mmap) {
 
 		mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
@@ -1291,6 +1306,8 @@ static void run_a_million_instructions(void) {
 static void fork_random_event(void) {
 
 	int status;
+
+	if (ignore_but_dont_skip_fork) return;
 
 	if (already_forked) {
 
