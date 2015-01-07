@@ -13,6 +13,7 @@ all:
 	cd overflow && make
 	cd rdpmc && make
 	cd record_sample && make
+	cd socket && make
 	cd sysfs && make
 	cd tracepoints && make
 	cd utils && make
@@ -34,6 +35,7 @@ clean:
 	cd overflow && make clean
 	cd rdpmc && make clean
 	cd record_sample && make clean
+	cd socket && make clean
 	cd sysfs && make clean
 	cd tracepoints && make clean
 	cd utils && make clean

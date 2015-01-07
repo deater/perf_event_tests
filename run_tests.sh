@@ -84,7 +84,6 @@ $TESTS_DIR/attr_fields/inherit_stat
 echo "  + $TESTS_DIR/attr_fields/read_format_range_check"
 echo -n "    "
 $TESTS_DIR/attr_fields/read_format_range_check
-
 echo "  + $TESTS_DIR/attr_fields/sample_type_range_check"
 echo -n "    "
 $TESTS_DIR/attr_fields/sample_type_range_check
@@ -109,6 +108,9 @@ $TESTS_DIR/flags/flags_range_check
 echo "  + $TESTS_DIR/flags/flags_cgroup"
 echo -n "    "
 $TESTS_DIR/flags/flags_cgroup
+echo "  + $TESTS_DIR/socket/socket_pass"
+echo -n "    "
+$TESTS_DIR/socket/socket_pass
 
 echo
 echo "* Checking perf_event ioctl calls"
