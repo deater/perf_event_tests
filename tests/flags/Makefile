@@ -5,6 +5,7 @@ LIB = ../../lib
 
 all:	\
 	flags_cgroup \
+	flags_fd_no_group \
 	flags_range_check
 
 
@@ -40,6 +41,19 @@ flags_cgroup.o:	flags_cgroup.c
 
 ###
 
+flags_fd_no_group:	flags_fd_no_group.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o flags_fd_no_group flags_fd_no_group.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+flags_fd_no_group.o:	flags_fd_no_group.c
+	$(CC) $(CFLAGS) -c flags_fd_no_group.c
+
+###
+
 flags_range_check:	flags_range_check.o $(LIB)/test_utils.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
@@ -57,4 +71,5 @@ flags_range_check.o:	flags_range_check.c
 clean:	
 	rm -f *~ *.o \
 	flags_cgroup \
+	flags_fd_no_group \
 	flags_range_check 
