@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
 
 	if (!quiet) {
 		printf("Testing PERF_FLAG_FD_OUTPUT flag.\n");
+		printf("Note: this feature was broken from 2.6.35 until at least 3.18\n");
 	}
 
 	/**********************************/
