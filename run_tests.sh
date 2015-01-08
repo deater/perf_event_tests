@@ -111,6 +111,10 @@ $TESTS_DIR/flags/flags_cgroup
 echo "  + $TESTS_DIR/flags/flags_fd_no_group"
 echo -n "    "
 $TESTS_DIR/flags/flags_fd_no_group
+echo "  + $TESTS_DIR/flags/flags_fd_output"
+echo -n "    "
+$TESTS_DIR/flags/flags_fd_output
+
 echo "  + $TESTS_DIR/socket/socket_pass"
 echo -n "    "
 $TESTS_DIR/socket/socket_pass

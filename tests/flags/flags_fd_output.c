@@ -1,6 +1,9 @@
 /* flags_fd_output.c  */
 /* Test PERF_FLAG_FD_OUTPUT functionality */
 
+/* Note: this functionality seems to have been broken since 2.6.35
+	ac9721f3f54b27a16c7e1afb2481e7ee95a70318			*/
+
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
 #define _GNU_SOURCE 1
@@ -27,6 +30,7 @@
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+static int quiet;
 
 int read_mmap_size(void *our_mmap) {
 
@@ -49,8 +53,10 @@ int read_mmap_size(void *our_mmap) {
 
 	size=head-prev_head;
 
-	printf("Head: %lld Prev_head=%lld\n",head,prev_head);
-	printf("%d new bytes\n",size);
+	if (!quiet) {
+		printf("Head: %lld Prev_head=%lld\n",head,prev_head);
+		printf("%d new bytes\n",size);
+	}
 
 	return size;
 
@@ -60,7 +66,7 @@ int read_mmap_size(void *our_mmap) {
 
 int main(int argc, char** argv) {
 
-	int fd1,fd2,quiet;
+	int fd1,fd2;
 	struct perf_event_attr pe1,pe2;
 
 	int result;
@@ -211,14 +217,12 @@ int main(int argc, char** argv) {
 	}
 
 
-	/* can't do this mmap until after all  events have joined it? */
 	our_mmap=mmap(NULL, 8192,
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 	if (our_mmap==MAP_FAILED) {
 		fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
 		test_fail(test_string);
 	}
-
 
 	/* start */
 	ioctl(fd1, PERF_EVENT_IOC_RESET, 0);
@@ -245,6 +249,15 @@ int main(int argc, char** argv) {
 	munmap(our_mmap,8192);
 	close(fd1);
 	close(fd2);
+
+	if (both<=single) {
+
+		if (!quiet) {
+			fprintf(stderr,"Expected to get more samples when both together\n");
+		}
+
+		test_fail(test_string);
+	}
 
 	test_pass(test_string);
 
