@@ -6,7 +6,8 @@ LIB = ../../lib
 all:	\
 	ioctl_flag_group \
 	ioctl_id \
-	ioctl_period
+	ioctl_period \
+	ioctl_set_output
 
 ###
 
@@ -67,6 +68,19 @@ ioctl_period:	ioctl_period.o $(LIB)/test_utils.o \
 ioctl_period.o:	ioctl_period.c
 	$(CC) $(CFLAGS) -c ioctl_period.c
 
+###
+
+ioctl_set_output:	ioctl_set_output.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o ioctl_set_output ioctl_set_output.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/instructions_testcode.o \
+				$(LIB)/perf_helpers.o -lpthread
+
+ioctl_set_output.o:	ioctl_set_output.c
+	$(CC) $(CFLAGS) -c ioctl_set_output.c
+
 
 
 ####
@@ -75,4 +89,5 @@ clean:
 	rm -f *~ *.o \
 	ioctl_flag_group \
 	ioctl_id \
-	ioctl_period
+	ioctl_period \
+	ioctl_set_output

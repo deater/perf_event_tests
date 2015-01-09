@@ -130,6 +130,9 @@ $TESTS_DIR/ioctl/ioctl_id
 echo "  + $TESTS_DIR/ioctl/ioctl_period"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_period
+echo "  + $TESTS_DIR/ioctl/ioctl_set_output"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_set_output
 
 echo
 echo "* Checking error returns"
