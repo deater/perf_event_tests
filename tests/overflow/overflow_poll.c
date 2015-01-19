@@ -167,8 +167,25 @@ int main(int argc, char** argv) {
 				break;
 			}
 		}
+		else if (result==-1) {
+			printf("Error: %s\n",strerror(errno));
+			break;
+
+		}
+
 		if (fds[0].revents&POLLIN) count.in++;
 		if (fds[0].revents&POLLHUP) count.hup++;
+
+		if (fds[0].revents&POLLERR) {
+			printf("Returned error!\n");
+			break;
+		}
+
+		/* On Haswell we hit POLLHUP? */
+		if (fds[0].revents&POLLHUP) {
+			printf("Returned HUP!\n");
+			break;
+		}
 
 //		printf("%d %d\n",result,fds[0].revents);
 	}
