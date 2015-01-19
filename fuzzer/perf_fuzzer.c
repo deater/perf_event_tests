@@ -7,6 +7,8 @@
 
 #define _GNU_SOURCE 1
 
+/* Try to allow minimal determinism while at the same	*/
+/* time skipping unnecessary system calls.		*/
 #if 0
 /* Minimal syscalls needed for bug I am tracking */
 static int ignore_but_dont_skip_mmap=1;
@@ -89,7 +91,7 @@ unsigned int get_cpu(void);
 
 
 
-#define MAX_THROTTLES		5
+#define MAX_THROTTLES		10
 
 #define TYPE_ALL		0xffffffff
 #define TYPE_MMAP		0x0001
@@ -335,6 +337,46 @@ static void close_random_event(void) {
 }
 
 
+/* Try to exit without leaving any children around */
+static void orderly_shutdown(void) {
+
+	int status;
+
+	if (already_forked) {
+		printf("Trying to cleanly shudtdown children\n");
+		kill(forked_pid,SIGKILL);
+		waitpid(forked_pid, &status, 0);
+		printf("Done...\n");
+	}
+
+	exit(1);
+}
+
+
+#define WATCHDOG_TIMEOUT 60
+
+static int watchdog_counter=0;
+
+/* Set a watchdog, kill if it's been stuck too long */
+static void alarm_handler(int signum, siginfo_t *info, void *uc) {
+
+        if (watchdog_counter==0) {
+		printf("Watchdog triggered; failed to progress for %d seconds;  killing\n",
+			WATCHDOG_TIMEOUT);
+		orderly_shutdown();
+	}
+
+        watchdog_counter=0;
+
+        alarm(WATCHDOG_TIMEOUT);
+}
+
+
+
+
+
+
+
 /* The perf tool uses poll() and never sets signals */
 /* Thus they never have most of these problems      */
 static void our_handler(int signum, siginfo_t *info, void *uc) {
@@ -342,7 +384,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 	static int already_handling=0;
 
 	int fd = info->si_fd;
-	int i,j;
+	int i;
 	int ret;
 
 
@@ -384,15 +426,14 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 			/* Avoid infinite throttle storms */
 			if (event_data[i].throttles > MAX_THROTTLES) {
-				printf("Throttle close %d!\n",i);
-				if (already_forked) {
-					int status;
-					printf("Trying to kill child\n");
-					kill(forked_pid,SIGKILL);
-					waitpid(forked_pid, &status, 0);
-					printf("Killed...\n");
-				}
 
+				printf("Stuck in a signal storm w/o forward progress; Max throttle count hit, giving up\n");
+				orderly_shutdown();
+
+				/* In a storm we used to try to somehow stop */
+				/* it by closing all events, but this never  */
+				/* really worked.			     */
+#if 0
 				/* Disable all events */
 				printf("Trying to disable all events\n");
 				for(j=0;j<NUM_EVENTS;j++) {
@@ -402,6 +443,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 				}
 
 				throttle_close_event=i;
+#endif
 			}
 		}
 
@@ -1679,6 +1721,21 @@ int main(int argc, char **argv) {
 	srand(seed);
 	printf("\tSeeding random number generator with %d\n",seed);
 
+	/* setup watchdog timer */
+	/* FIXME: make optional */
+        struct sigaction watchdog;
+
+        memset(&watchdog, 0, sizeof(struct sigaction));
+        watchdog.sa_sigaction = alarm_handler;
+        watchdog.sa_flags = SA_SIGINFO | SA_RESTART;
+
+        if (sigaction( SIGALRM, &watchdog, NULL) < 0) {
+                printf("Error setting up alarm handler\n");
+        }
+
+        alarm(WATCHDOG_TIMEOUT);
+
+
 	/* Clear errnos count */
 	for(i=0;i<MAX_ERRNOS;i++) {
 		errno_count[i]=0;
@@ -1919,6 +1976,7 @@ int main(int argc, char **argv) {
 		next_overflow_refresh=rand()%2;
 		next_refresh=rand_refresh();
 		total_iterations++;
+		watchdog_counter++;
 
 		if ((stop_after) && (total_iterations>=stop_after)) {
 			dump_summary(stderr,1);
