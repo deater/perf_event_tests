@@ -1687,6 +1687,10 @@ int main(int argc, char **argv) {
 		logging=0;
 	}
 
+	/* TODO: Make these configurable */
+	printf("Watchdog enabled with timeout %ds\n",WATCHDOG_TIMEOUT);
+	printf("Will auto-exit if signal storm detected\n");
+
 	if (logging) {
 
 		if (!strcmp(logfile_name,"-")) {
