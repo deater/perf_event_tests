@@ -1,6 +1,6 @@
 
 **** RUNNING perf_event_tests ****
-Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
+Linux core2 3.13.0-rc3+ #118 SMP Mon Dec 9 11:01:34 EST 2013 x86_64 GNU/Linux
 
 * Checking infrastructure
   + ./tests/validation/get_cache_info
@@ -35,18 +35,28 @@ Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
 * Checking basic perf_event functionality
   + ./tests/validation/format_id_support
     Testing for FORMAT_ID support...                             PASSED
-  + ./tests/validation/non-existent
-    Testing if non-existent events fail...                       PASSED
   + ./tests/validation/breakpoint_support
-    Testing hardware breakpoints...                              FAILED
+    Testing hardware breakpoints (-702741404)...                 FAILED
   + ./tests/validation/inherit
     Testing inherit...                                           PASSED
   + ./tests/validation/inherit_stat
     Testing inherit_stat...                                      UNEXPLAINED
   + ./tests/validation/enable_on_exec
     Testing enable_on_exec...                                    PASSED
-  + ./tests/validation/ioctl_flag_group
+
+* Checking perf_event ioctl calls
+  + ./tests/ioctl/ioctl_flag_group
     Testing PERF_IOC_FLAG_GROUP...                               PASSED
+  + ./tests/ioctl/ioctl_id
+    Testing ioctl(PERF_EVENT_IOC_ID)...                          PASSED
+  + ./tests/ioctl/ioctl_period
+    Testing ioctl(PERF_EVENT_IOC_PERIOD)...                      PASSED
+
+* Checking error returns
+  + ./tests/error_returns/e2big
+    Testing E2BIG errors...                                      PASSED
+  + ./tests/error_returns/non-existent
+    Testing if non-existent events fail...                       PASSED
 
 * Checking overflow functionality
   + ./tests/overflow/breakpoint_overflow
@@ -70,6 +80,10 @@ Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
   + ./tests/overflow/overflow_requires_wakeup
     Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
 
+* Checking tracepoint functionality
+  + ./tests/tracepoints/tracepoint_alias
+    Testing if tracepoint event ids alias...                     NEW BEHAVIOR
+
 * Checking mmap record sample functionality
   + ./tests/record_sample/print_record_sample
     Testing record sampling...                                   PASSED
@@ -81,6 +95,8 @@ Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
     Checking behavior of various mmap sizes...                   PASSED
   + ./tests/record_sample/sample_branch_stach
     Testing PERF_SAMPLE_BRANCH_STACK...                          PASSED
+  + ./tests/record_sample/overwrite_mmap
+    Checking tashing of mmap buffer...                           PASSED
 
 * Checking bugs that PAPI has to work around
   + ./tests/bugs/sync_read_required
@@ -125,9 +141,9 @@ Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
     Testing if reset clears multiplex fields...                  PASSED
 
 * Checking for fast RDPMC support
-  + ./tests/validation/rdpmc_support
-    Testing if userspace rdpmc reads are supported...            PASSED
-  + ./tests/validation/rdpmc_validation
+  + ./tests/rdpmc/rdpmc_support
+    Testing if userspace rdpmc reads are supported...            NEW BEHAVIOR
+  + ./tests/rdpmc/rdpmc_validation
     Testing if userspace rdpmc reads give expected results...    PASSED
 
 * Checking proposed interface updates (not in any released kernel)

@@ -1,6 +1,6 @@
 
 **** RUNNING perf_event_tests ****
-Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
+Linux core2 3.12.0-rc4+ #76 SMP Tue Oct 8 14:37:57 EDT 2013 x86_64 GNU/Linux
 
 * Checking infrastructure
   + ./tests/validation/get_cache_info
@@ -38,15 +38,19 @@ Linux core2 3.12.0-rc1 #1 SMP Tue Sep 17 13:02:15 EDT 2013 x86_64 GNU/Linux
   + ./tests/validation/non-existent
     Testing if non-existent events fail...                       PASSED
   + ./tests/validation/breakpoint_support
-    Testing hardware breakpoints...                              FAILED
+    Testing hardware breakpoints (-702741404)...                 FAILED
   + ./tests/validation/inherit
     Testing inherit...                                           PASSED
   + ./tests/validation/inherit_stat
     Testing inherit_stat...                                      UNEXPLAINED
   + ./tests/validation/enable_on_exec
     Testing enable_on_exec...                                    PASSED
-  + ./tests/validation/ioctl_flag_group
+
+* Checking perf_event ioctl calls
+  + ./tests/ioctl/ioctl_flag_group
     Testing PERF_IOC_FLAG_GROUP...                               PASSED
+  + ./tests/ioctl/ioctl_id
+    Testing ioctl(PERF_EVENT_IOC_ID)...                          PASSED
 
 * Checking overflow functionality
   + ./tests/overflow/breakpoint_overflow
