@@ -1,9 +1,10 @@
 /* overflow_requires_wakeup.c                      */
 /* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
-/* On newer kernels (3.2 definitely.  Check others?) */
-/* overflow calls the signal handler always, even    */
-/* if wakeup_events is not 1                         */
+/* On kernels 3.0 and newer setting wakeup_event to 0   */
+/* Is the same as setting it to 1                       */
+/* On older kernels setting it to 0 would not generaate */
+/* overflows.                                           */
 
 #define _GNU_SOURCE 1
 
