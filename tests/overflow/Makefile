@@ -7,8 +7,10 @@ all:	\
 	breakpoint_overflow \
 	overflow_large \
 	overflow_poll \
+	overflow_signal \
 	overflow_requires_wakeup \
 	simple_overflow_leader \
+	simple_overflow_leader_poll \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
 	simul_oneshot_group_overflow \
@@ -58,6 +60,21 @@ overflow_poll:	overflow_poll.o $(LIB)/test_utils.o \
 
 overflow_poll.o:	overflow_poll.c
 	$(CC) $(CFLAGS) -c overflow_poll.c
+
+
+###
+
+overflow_signal:	overflow_signal.o $(LIB)/test_utils.o \
+					$(LIB)/instructions_testcode.o \
+					$(LIB)/perf_helpers.o 
+	$(CC) $(LFLAGS) -o overflow_signal overflow_signal.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/instructions_testcode.o \
+				$(LIB)/perf_helpers.o 
+
+overflow_signal.o:	overflow_signal.c
+	$(CC) $(CFLAGS) -c overflow_signal.c
+
 
 ###
 
@@ -144,6 +161,19 @@ simple_overflow_leader:	simple_overflow_leader.o $(LIB)/test_utils.o \
 simple_overflow_leader.o:	simple_overflow_leader.c
 	$(CC) $(CFLAGS) -c simple_overflow_leader.c
 
+###
+
+simple_overflow_leader_poll:	simple_overflow_leader_poll.o $(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o simple_overflow_leader_poll simple_overflow_leader_poll.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+simple_overflow_leader_poll.o:	simple_overflow_leader_poll.c
+	$(CC) $(CFLAGS) -c simple_overflow_leader_poll.c
+
 
 
 
@@ -206,8 +236,10 @@ clean:
 	breakpoint_overflow \
 	overflow_large \
 	overflow_poll \
+	overflow_signal \
 	overflow_requires_wakeup \
 	simple_overflow_leader \
+	simple_overflow_leader_poll \
 	simple_overflow_sibling \
 	simultaneous_group_overflow \
 	simul_oneshot_group_overflow \
