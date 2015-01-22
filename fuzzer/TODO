@@ -1,3 +1,8 @@
+Try having the PERF_FLAG_FD_NO_GROUP and
+	PERF_FLAG_FD_OUTPUT flags work together.
+
+Try passing a fd over a socket
+
 Set breakpoint events on the mmap buffers?
 Randomly mmap() existing events?
   - be sure to unmap once the event is destroyed

@@ -16,13 +16,13 @@ System soft locks but requires reboot.
 perf_fuzzer
 
 <h3>Reproducible</h3>
-No
+Sometimes
 
 <h3>First Seen</h3>
 3.12.0
 
 <h3>Most Recently Seen</h3>
-3.14
+3.14, 3.19-rc5
 
 <h3>Machines Affected</h3>
 Seen on core2, haswell
@@ -42,6 +42,93 @@ Seen on core2, haswell
 <hr>
 
 <ol>
+<li>
+<pre>
+Stopping after 30000
+Watchdog enabled with timeout 60s
+Will auto-exit if signal storm detected
+
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+	Linux version 3.19.0-rc5+ x86_64
+	Processor: Intel 6/60/3
+
+	Seeding random number generator with 1421950898
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+	/proc/sys/kernel/perf_event_paranoid currently: 0
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	To reproduce, try: ./perf_fuzzer -s 30000 -r 1421950898
+
+Pid=14746, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	
+==================================================
+[  664.130549] BUG: unable to handle kernel paging request at ffffffff8f555d48
+[  664.138891] IP: [<ffffffff8102af58>] x86_schedule_events+0x108/0x210
+[  664.146526] PGD 1c16067 PUD 1c17063 PMD 0 
+[  664.151743] Oops: 0000 [#1] SMP 
+[  664.155979] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm crct10dif_pclmul crc32_pclmul snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi snd_hda_intel snd_hda_controller ghash_clmulni_intel i915 iTCO_wdt snd_hda_codec aesni_intel snd_hwdep aes_x86_64 lrw iTCO_vendor_support lpc_ich gf128mul glue_helper snd_pcm evdev ablk_helper ppdev mfd_core snd_timer psmouse snd serio_raw xhci_pci cryptd pcspkr mei_me soundcore xhci_hcd wmi i2c_i801 parport_pc mei tpm_tis battery parport tpm button video drm_kms_helper drm i2c_algo_bit processor sg sr_mod sd_mod cdrom ahci libahci libata e1000e ehci_pci ptp ehci_hcd crc32c_intel scsi_mod usbcore usb_common pps_core fan thermal thermal_sys
+[  664.230314] CPU: 6 PID: 0 Comm: swapper/6 Tainted: G        W      3.19.0-rc5+ #124
+[  664.239274] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  664.247981] task: ffff8801194723d0 ti: ffff880119478000 task.ti: ffff880119478000
+[  664.256782] RIP: 0010:[<ffffffff8102af58>]  [<ffffffff8102af58>] x86_schedule_events+0x108/0x210
+[  664.267030] RSP: 0000:ffff88011eb83c38  EFLAGS: 00010046
+[  664.273565] RAX: 0000000000000000 RBX: ffff88011eb8bd40 RCX: 000000000013003c
+[  664.282003] RDX: ffffffff81c251e8 RSI: 000000006b6b6b6b RDI: ffff8800c6914800
+[  664.290484] RBP: ffff88011eb83ca8 R08: 0000000000000000 R09: ffffffff81e7efe0
+[  664.298911] R10: 0000000000000000 R11: 0000000000000001 R12: ffff880119706800
+[  664.307417] R13: ffff88011eb8c288 R14: 0000000000000000 R15: 0000000000000005
+[  664.315874] FS:  0000000000000000(0000) GS:ffff88011eb80000(0000) knlGS:0000000000000000
+[  664.325367] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  664.332367] CR2: ffffffff8f555d48 CR3: 0000000001c13000 CR4: 00000000001407e0
+[  664.340862] DR0: 000000000122f000 DR1: 0000000000000000 DR2: 0000000000000000
+[  664.349325] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[  664.357816] Stack:
+[  664.360839]  0000000000120020 ffff88011eb8c260 0000000000000004 ffff88011eb83cb8
+[  664.369656]  000000051eb83d98 ffff88011eb8c288 ffff8801194723d0 0000000000000000
+[  664.378498]  0000000000130000 ffff88011eb8bd40 0000000000000005 ffffffff81c22100
+[  664.387337] Call Trace:
+[  664.390807]  <IRQ> 
+[  664.392867]  [<ffffffff81029dd8>] x86_pmu_commit_txn+0x48/0xa0
+[  664.401018]  [<ffffffff8115ad84>] ? perf_event_update_userpage+0xd4/0x160
+[  664.409067]  [<ffffffff810b4748>] ? __lock_is_held+0x58/0x80
+[  664.415901]  [<ffffffff81159330>] ? event_sched_in.isra.75+0x180/0x280
+[  664.423611]  [<ffffffff811595e8>] group_sched_in+0x1b8/0x1e0
+[  664.430415]  [<ffffffff8101d90a>] ? native_sched_clock+0x2a/0x90
+[  664.437572]  [<ffffffff81159962>] ctx_sched_in+0x352/0x3f0
+[  664.444141]  [<ffffffff81159a2b>] perf_event_sched_in+0x2b/0xa0
+[  664.451176]  [<ffffffff8115a45e>] __perf_install_in_context+0x12e/0x1e0
+[  664.458957]  [<ffffffff810ea579>] ? tick_nohz_irq_exit+0x29/0x30
+[  664.466088]  [<ffffffff811541a0>] remote_function+0x50/0x60
+[  664.472774]  [<ffffffff810ef752>] flush_smp_call_function_queue+0x62/0x140
+[  664.480816]  [<ffffffff810efd73>] generic_smp_call_function_single_interrupt+0x13/0x60
+[  664.489987]  [<ffffffff81046e28>] smp_trace_call_function_single_interrupt+0x38/0xc0
+[  664.499012]  [<ffffffff816bf7fd>] trace_call_function_single_interrupt+0x6d/0x80
+[  664.507622]  <EOI> 
+[  664.509698]  [<ffffffff81553c75>] ? cpuidle_enter_state+0x65/0x160
+[  664.517975]  [<ffffffff81553c61>] ? cpuidle_enter_state+0x51/0x160
+[  664.525328]  [<ffffffff81553e57>] cpuidle_enter+0x17/0x20
+[  664.531792]  [<ffffffff810aebb1>] cpu_startup_entry+0x311/0x3c0
+[  664.538853]  [<ffffffff810476b0>] start_secondary+0x140/0x150
+[  664.545713] Code: 39 45 a0 44 8d 40 01 74 2e 48 8b bc c3 28 05 00 00 48 83 c0 01 48 63 b7 54 01 00 00 4c 8b 8f 90 01 00 00 83 fe ff 74 77 41 89 c0 <49> 0f a3 31 45 19 c9 45 85 c9 75 a4 45 31 e4 44 3b 45 b4 75 54 
+[  664.567909] RIP  [<ffffffff8102af58>] x86_schedule_events+0x108/0x210
+[  664.575592]  RSP <ffff88011eb83c38>
+[  664.580079] CR2: ffffffff8f555d48
+[  664.590583] ---[ end trace 801d185260b6bbb8 ]---
+[  664.596290] Kernel panic - not syncing: Fatal exception in interrupt
+[  664.603881] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)
+[  664.615559] drm_kms_helper: panic occurred, switching back to text console
+[  664.623718] ---[ end Kernel panic - not syncing: Fatal exception in interrupt
+</pre>
+
 <li>
 <pre>
 *** perf_fuzzer 0.28 *** by Vince Weaver                                        

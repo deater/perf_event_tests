@@ -8,22 +8,32 @@
 
 <hr><hr>
 
+
+
 <h2>Outstanding Crashes (reproducible):</h2>
 <ul>
-<li><a href="3.19-rc5.rapl_scale_crash.html">3.19-rc5.rapl_scale_crash.html</a>
-<li><a href="3.19-rc5.haswell_x86_pmu_del_warning.html">3.19-rc5 haswell pmu_del() warning/lockup</a>
-<li><a href="3.17-rc7.put_ctx_lockup.html">3.17-rc7 put_ctx lockup</a>
-<li><a href="3.17-rc6.do_IRQ_overflown.html">3.17-rc6 do_IRQ overflown stack</a>
-<li><a href="3.17-rc6.arm64_stall.html">ARM64 RCU stall</a>
+<li><a href="3.14-rc6.x86_schedule_events.html">
+    3.19-rc5 x86_schedule_events crash</a>
+<li><a href="3.19-rc5.rapl_scale_crash.html">
+    3.19-rc5 rapl_scale_crash</a>
+<li><a href="3.19-rc5.haswell_x86_pmu_del_warning.html">
+    3.19-rc5 haswell pmu_del() warning/lockup</a>
+<li><a href="3.17-rc7.put_ctx_lockup.html">
+    3.17-rc7 put_ctx lockup</a>
+<li><a href="3.17-rc6.do_IRQ_overflown.html">
+    3.17-rc6 do_IRQ overflown stack</a>
+<li><a href="3.17-rc6.arm64_stall.html">
+    3.17-rc6 ARM64 RCU stall</a>
 <li><a href="3.15-rc7.find_get_context_hang.html">
-3.15-rc7.find_get_context() hang</a>
+    3.15-rc7 find_get_context() hang</a>
 </ul>
 
 <h2>Outstanding Warnings (reproducible):</h2>
 <ul>
-<li><a href="3.12.core2_nmi_flood.html">3.15-rc4 nmi_flood messages</a>
+<li><a href="3.12.core2_nmi_flood.html">
+    3.19-rc5 nmi_flood messages</a>
 <li><a href="3.15-rc4.p4_x86_pmu_start_stop_warning.html">
-	3.15-rc4 p4 x86_pmu_start/stop warnings</a>
+    3.15-rc4 p4 x86_pmu_start/stop warnings</a>
 </ul>
 
 <h2>Outstanding correctness Issues:</h2>
@@ -34,30 +44,46 @@
 
 <h2>Outstanding Crashes (not easily reproducible):</h2>
 <ul>
-<li><a href="3.15-rc5.get_cpu_context_gpf.html">3.15-rc7 get_cpu_context GPF</a>
-<li><a href="3.15-rc1.perf_swevent_del_bug.html">3.15-rc-next perf_swevent_del bug</a>
-<li><a href="3.14-rc5.perf_event_overflow.html">3.14-rc5.perf_event_overflow bug</a>
-<li><a href="3.15-rc3.kvm_mmap_corruption.html">3.15-rc-next KVM perf_mmap corruption</a>
-<li><a href="3.15-next.perf_remove_from_context_gpf.html">3.15-rc-next perf_remove_from_context() gpf</a>
+<li><a href="3.15-rc5.get_cpu_context_gpf.html">
+    3.15-rc7 get_cpu_context GPF</a>
+<li><a href="3.15-rc1.perf_swevent_del_bug.html">
+    3.15-rc-next perf_swevent_del bug</a>
+<li><a href="3.14-rc5.perf_event_overflow.html">
+    3.14-rc5.perf_event_overflow bug</a>
+<li><a href="3.15-rc3.kvm_mmap_corruption.html">
+    3.15-rc-next KVM perf_mmap corruption</a>
+<li><a href="3.15-next.perf_remove_from_context_gpf.html">
+    3.15-rc-next perf_remove_from_context() gpf</a>
 </ul>
 
 <h2>Outstanding Warnings (not easily reproducible):</h2>
 <ul>
-<li><a href="3.15-rc5.mutex_lock_nested.html">3.15-rc5 mutex_lock_nested</a>
-<li><a href="3.14.perf_event_1076_warning.html">3.15-rc4 perf_event.c:1076 Warning x86_pmu_start()</a>
-<li><a href="3.15-rc1.irq_loop_warning.html">3.15-rc4 irq loop Warning</a>
-<li><a href="3.15-rc2.kernel_events_2384_warning.html">3.15-rc2 kernel/events/core.c:2384 Warning</a>
-<li><a href="3.14-rc3.perf_event_1158_warning.html">3.14 perf_event.c:1158 Warning</a>
-<li><a href="3.14-rc.kernel_event_core_5659_warning.html">3.14-rc kernel/event/core:5659 warning</a>
+<li><a href="3.15-rc5.mutex_lock_nested.html">
+    3.15-rc5 mutex_lock_nested</a>
+<li><a href="3.14.perf_event_1076_warning.html">
+    3.15-rc4 perf_event.c:1076 Warning x86_pmu_start()</a>
+<li><a href="3.15-rc1.irq_loop_warning.html">
+    3.15-rc4 irq loop Warning</a>
+<li><a href="3.15-rc2.kernel_events_2384_warning.html">
+    3.15-rc2 kernel/events/core.c:2384 Warning</a>
+<li><a href="3.14-rc3.perf_event_1158_warning.html">
+    3.14 perf_event.c:1158 Warning</a>
+<li><a href="3.14-rc.kernel_event_core_5659_warning.html">
+    3.14-rc kernel/event/core:5659 warning</a>
 </ul>
+
 
 
 <h2>Outstanding (but not recently seen) bugs:</h2>
 <ul>
-<li><a href="3.14-rc8.perf_event_exit_task_lockdep.html">3.14-rc8 perf_event_exit_task lockdep</a>
-<li><a href="3.14-rc1.x32_filp_reboot.html">3.14-rc1 x32 oops reboot in filp</a>
-<li><a href="3.13.task_output.html">3.13 task_output lockup</a>
-<li><a href="3.12.bad_page_map.html">3.12 perf ext4 vma error</a>
+<li><a href="3.14-rc8.perf_event_exit_task_lockdep.html">
+    3.14-rc8 perf_event_exit_task lockdep</a>
+<li><a href="3.14-rc1.x32_filp_reboot.html">
+    3.14-rc1 x32 oops reboot in filp</a>
+<li><a href="3.13.task_output.html">
+    3.13 task_output lockup</a>
+<li><a href="3.12.bad_page_map.html">
+    3.12 perf ext4 vma error</a>
 </ul>
 
 <hr><hr>
