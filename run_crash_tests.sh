@@ -32,6 +32,7 @@ sleep 5
 ./crashes/tracepoint_irq_work_exit
 ./crashes/tracepoint_irq_work_exit
 ./crashes/css_cgroup_crash
+./crashes/rapl_crash
 
 # Also run the warnings tests
 ./warnings/core2_nmi_flood

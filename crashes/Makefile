@@ -13,7 +13,8 @@ all:	pe_inherit_memleak pe_task_schedule_panic \
 	tracepoint_irq_work_exit \
 	arm_validate_event_oops arm_map_hw_event_oops \
 	perf_ftrace_event_crash \
-	css_cgroup_crash
+	css_cgroup_crash \
+	rapl_crash
 
 ####
 
@@ -131,6 +132,13 @@ css_cgroup_crash.o:	css_cgroup_crash.c
 	$(CC) $(CFLAGS) -c css_cgroup_crash.c
 
 ####
+rapl_crash:	rapl_crash.o
+	$(CC) $(LFLAGS) -o rapl_crash rapl_crash.o
+
+rapl_crash.o:	rapl_crash.c
+	$(CC) $(CFLAGS) -c rapl_crash.c
+
+####
 
 clean:	
 	rm -f *~ *.o pe_inherit_memleak pe_task_schedule_panic \
@@ -139,6 +147,6 @@ clean:
 		nmi_soft_lockup tracepoint_irq_work_exit \
 		arm_validate_event_oops arm_map_hw_event_oops \
 		perf_ftrace_event_crash \
-		css_cgroup_crash
+		css_cgroup_crash rapl_crash
 
 
