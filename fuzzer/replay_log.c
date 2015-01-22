@@ -782,7 +782,8 @@ int main(int argc, char **argv) {
 
 		line_num++;
 
-		if (line_num<skip_lines) continue;
+		/* don't want to skip the random seed, etc */
+		if ((line_num>2) && (line_num<skip_lines)) continue;
 
 		switch(line[0]) {
 			case 'A':
