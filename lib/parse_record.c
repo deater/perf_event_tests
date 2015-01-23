@@ -22,8 +22,7 @@
 #include <asm/unistd.h>
 #include <sys/prctl.h>
 
-/* temporary hack while working on PEBS support */
-#include "perf_event.pebspatch.h"
+#include "perf_event.h"
 
 #include "perf_helpers.h"
 

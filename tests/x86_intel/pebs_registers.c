@@ -185,7 +185,7 @@ Linux interface
 #include <asm/unistd.h>
 #include <sys/prctl.h>
 
-#include "perf_event.pebspatch.h"
+#include "perf_event.h"
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
