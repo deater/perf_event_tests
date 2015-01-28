@@ -27,13 +27,9 @@
 #include <errno.h>
 #include <stdio.h>
 
-#define PERF_FLAG_PID_CGROUP    (1U << 2)
+#include "../include/perf_helpers.h"
 
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-                         pid_t pid, int cpu, int group_fd, unsigned long flags) {
-             return syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,
-                     group_fd, flags);
-}
+//#define PERF_FLAG_PID_CGROUP    (1U << 2)
 
      /*
       * Directly poke at the perf_event bug, since it's proving hard to repro

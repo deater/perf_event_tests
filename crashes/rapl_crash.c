@@ -14,12 +14,7 @@
 #include <syscall.h>
 #include <linux/perf_event.h>
 
-int perf_event_open(struct perf_event_attr *hw_event_uptr,
-	pid_t pid, int cpu, int group_fd, unsigned long flags) {
-
-	return syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,
-		group_fd, flags);
-}
+#include "../include/perf_helpers.h"
 
 int main(int argc, char **argv) {
 

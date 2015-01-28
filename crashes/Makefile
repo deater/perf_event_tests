@@ -125,15 +125,15 @@ perf_ftrace_event_crash.o:	perf_ftrace_event_crash.c
 
 
 ####
-css_cgroup_crash:	css_cgroup_crash.o
-	$(CC) $(LFLAGS) -o css_cgroup_crash css_cgroup_crash.o
+css_cgroup_crash:	css_cgroup_crash.o ../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o css_cgroup_crash css_cgroup_crash.o ../lib/perf_helpers.o
 
 css_cgroup_crash.o:	css_cgroup_crash.c
 	$(CC) $(CFLAGS) -c css_cgroup_crash.c
 
 ####
-rapl_crash:	rapl_crash.o
-	$(CC) $(LFLAGS) -o rapl_crash rapl_crash.o
+rapl_crash:	rapl_crash.o ../lib/perf_helpers.o
+	$(CC) $(LFLAGS) -o rapl_crash rapl_crash.o ../lib/perf_helpers.o
 
 rapl_crash.o:	rapl_crash.c
 	$(CC) $(CFLAGS) -c rapl_crash.c
