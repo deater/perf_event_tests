@@ -1,10 +1,13 @@
 /* rapl_crash.c -- bug found with perf_fuzzer     */
 /* by Vince Weaver <vincent.weaver _at_ maine.edu */
 
-/* This was introduced by a misplaced parenthesis in */
-/*  89cbc76768c2fa4ed95545bf961f3a14ddfeed21  (3.18) */
+/* This was introduced by a misplaced parenthesis in	*/
+/*  89cbc76768c2fa4ed95545bf961f3a14ddfeed21  (3.18)	*/
 
-/* Hopefully will be fixed in 3.19			*/
+/* Is fixed in 3.19					*/
+/*  98b008dff8452653909d9263efda925873e8d8bb		*/
+
+
 /* You need Intel RAPL support and 			*/
 /*   /proc/sys/kernel/perf_event_paranoid set to 0	*/
 
