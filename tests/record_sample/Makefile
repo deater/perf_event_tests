@@ -16,6 +16,7 @@ all:	\
 	record_mmap_data \
 	sample_branch_stack \
 	sample_data_src \
+	sample_regs_intr \
 	sample_regs_user \
 	sample_stack_user \
 	sample_weight \
@@ -270,6 +271,23 @@ sample_data_src.o:	sample_data_src.c
 
 ###
 
+sample_regs_intr:	sample_regs_intr.o \
+					$(LIB)/parse_record.o \
+					$(LIB)/test_utils.o \
+					$(LIB)/perf_helpers.o \
+					$(LIB)/instructions_testcode.o
+	$(CC) $(LFLAGS) -o sample_regs_intr \
+				sample_regs_intr.o \
+				$(LIB)/parse_record.o \
+				$(LIB)/test_utils.o \
+				$(LIB)/perf_helpers.o \
+				$(LIB)/instructions_testcode.o
+
+sample_regs_intr.o:	sample_regs_intr.c
+	$(CC) $(CFLAGS) -c sample_regs_intr.c
+
+###
+
 sample_regs_user:	sample_regs_user.o \
 					$(LIB)/parse_record.o \
 					$(LIB)/test_utils.o \
@@ -336,6 +354,7 @@ clean:
 	record_mmap_data \
 	sample_branch_stack \
 	sample_data_src \
+	sample_regs_intr \
 	sample_regs_user \
 	sample_stack_user \
 	sample_weight \
