@@ -263,6 +263,9 @@ $TESTS_DIR/record_sample/record_mmap_data
 echo "  + $TESTS_DIR/record_sample/sample_data_src"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_data_src
+echo "  + $TESTS_DIR/record_sample/sample_regs_intr"
+echo -n "    "
+$TESTS_DIR/record_sample/sample_regs_intr
 echo "  + $TESTS_DIR/record_sample/sample_regs_user"
 echo -n "    "
 $TESTS_DIR/record_sample/sample_regs_user
