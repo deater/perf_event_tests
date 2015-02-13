@@ -870,6 +870,8 @@ static long long random_sample_type(void)
 		sample_type |= PERF_SAMPLE_IDENTIFIER;
 	if (rand_bool())
 		sample_type |= PERF_SAMPLE_TRANSACTION;
+	if (rand_bool())
+		sample_type |= PERF_SAMPLE_REGS_INTR;
 
 	return sample_type;
 }
@@ -898,7 +900,7 @@ static int random_attr_size(void) {
 
 	int size=0;
 
-	switch(rand() % 8) {
+	switch(rand() % 9) {
 	case 0:	size = PERF_ATTR_SIZE_VER0;
 		break;
 	case 1: size = PERF_ATTR_SIZE_VER1;
@@ -907,13 +909,15 @@ static int random_attr_size(void) {
 		break;
 	case 3: size = PERF_ATTR_SIZE_VER3;
 		break;
-	case 4: size = sizeof(struct perf_event_attr);
+	case 4: size = PERF_ATTR_SIZE_VER4;
 		break;
-	case 5: size = rand32();
+	case 5: size = sizeof(struct perf_event_attr);
 		break;
-	case 6:	size = get_len();
+	case 6: size = rand32();
 		break;
-	case 7: size = 0;
+	case 7:	size = get_len();
+		break;
+	case 8: size = 0;
 		break;
 	default:
 		break;
@@ -1195,12 +1199,9 @@ void sanitise_perf_event_open(struct syscallrecord *rec)
 	int group_leader=0;
 	void *addr;
 
-	addr = get_writable_address(sizeof(struct perf_event_attr));
+	addr = zmalloc(sizeof(struct perf_event_attr));
 	rec->a1 = (unsigned long) addr;
 	attr = (struct perf_event_attr *) addr;
-
-	/* this makes sure we clear out the reserved fields. */
-	memset(addr, 0, sizeof(struct perf_event_attr));
 
 	/* cpu */
 	/* requires ROOT to select specific CPU if pid==-1 (all processes) */
@@ -1303,6 +1304,11 @@ void sanitise_perf_event_open(struct syscallrecord *rec)
 	}
 }
 
+static void post_perf_event_open(struct syscallrecord *rec)
+{
+	freeptr(&rec->a1);
+}
+
 struct syscallentry syscall_perf_event_open = {
 	.name = "perf_event_open",
 	.num_args = 5,
@@ -1323,6 +1329,7 @@ struct syscallentry syscall_perf_event_open = {
 		},
 	},
 	.sanitise = sanitise_perf_event_open,
+	.post = post_perf_event_open,
 	.init = init_pmus,
 	.flags = NEED_ALARM | IGNORE_ENOSYS,
 };

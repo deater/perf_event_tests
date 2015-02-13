@@ -4,6 +4,7 @@
 #include "types.h"
 #include "exit.h"
 #include "shm.h"
+#include "utils.h"
 
 #define ANSI_RED	"[1;31m"
 #define ANSI_GREEN	"[1;32m"
