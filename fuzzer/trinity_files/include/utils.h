@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <types.h>
 
 #define MB (1024 * 1024UL)
 #define GB (1024 * MB)
@@ -46,3 +45,12 @@ static inline long IS_ERR(unsigned long x)
 }
 
 void sizeunit(unsigned long size, char *buf);
+
+void kill_pid(pid_t pid);
+
+void freeptr(unsigned long *p);
+
+#define __stringify_1(x...)     #x
+#define __stringify(x...)       __stringify_1(x)
+
+#define unreachable() do { } while (1)

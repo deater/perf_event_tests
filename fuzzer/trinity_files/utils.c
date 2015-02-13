@@ -1,9 +1,13 @@
+#include <errno.h>
 #include <sys/mman.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "log.h"
+#include "pids.h"
+#include "random.h"
 #include "utils.h"
-
 
 /*
  * Use this allocator if you have an object a child writes to that you want
@@ -18,6 +22,8 @@ void * alloc_shared(unsigned int size)
 		printf("mmap %u failure\n", size);
 		exit(EXIT_FAILURE);
 	}
+	/* poison, to force users to set it to something sensible. */
+	memset(ret, rand(), size);
 	return ret;
 }
 
@@ -44,15 +50,50 @@ done:
 
 void sizeunit(unsigned long size, char *buf)
 {
-	if (size < 1024 * 1024) {
+	/* non kilobyte aligned size? */
+	if (size & 1023) {
 		sprintf(buf, "%lu bytes", size);
 		return;
 	}
 
+	/* < 1MB ? */
+	if (size < (1024 * 1024)) {
+		sprintf(buf, "%luKB", size / 1024);
+		return;
+	}
+
+	/* < 1GB ? */
 	if (size < (1024 * 1024 * 1024)) {
 		sprintf(buf, "%ldMB", (size / 1024) / 1024);
 		return;
 	}
 
 	sprintf(buf, "%ldGB", ((size / 1024) / 1024) / 1024);
+}
+
+#ifdef VMW
+void kill_pid(pid_t pid)
+{
+	int ret;
+	int childno;
+
+	childno = find_childno(pid);
+	if (childno != CHILD_NOT_FOUND) {
+		if (shm->children[childno]->dontkillme == TRUE)
+			return;
+	}
+
+	ret = kill(pid, SIGKILL);
+	if (ret != 0)
+		debugf("couldn't kill pid %d [%s]\n", pid, strerror(errno));
+}
+#endif
+
+void freeptr(unsigned long *p)
+{
+	void *ptr = (void *) *p;
+
+	if (ptr != NULL)
+		free(ptr);
+	*p = 0L;
 }
