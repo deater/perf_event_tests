@@ -14,8 +14,6 @@
 <ul>
 <li><a href="3.19.0+.snb_uncore_imc_event_start_crash.html">
 	3.19.0+ snb_uncore_imc_event_start crash</a>
-<li><a href="3.14-rc6.x86_schedule_events.html">
-    3.19-rc5 x86_schedule_events crash</a>
 <li><a href="3.19-rc5.haswell_x86_pmu_del_warning.html">
     3.19-rc5 haswell pmu_del() warning/lockup</a>
 <li><a href="3.17-rc7.put_ctx_lockup.html">
@@ -24,8 +22,12 @@
     3.17-rc6 do_IRQ overflown stack</a>
 <li><a href="3.17-rc6.arm64_stall.html">
     3.17-rc6 ARM64 RCU stall</a>
-<li><a href="3.15-rc7.find_get_context_hang.html">
-    3.15-rc7 find_get_context() hang</a>
+</ul>
+
+<h3>Current Crashes (unknown if reproducible):</h3>
+<ul>
+<li><a href="3.19-next.perf_mmap_gpf.html">
+	3.19-next perf_event_mmap() gpf</a>
 </ul>
 
 <h3>Current Warnings (reproducible):</h3>
@@ -94,8 +96,20 @@
 
 <h2>Fixed bugs:</h2>
 
+<h3>Fixed in 3.20</h3>
+	<ul>
+	<li><a href="3.19-next.add_event_to_context_warning.html">
+	(warning) 3.19-next add_event_to_context() warning</a>
+	</ul>
+
 <h3>Fixed in 3.19</h3>
 	<ul>
+	<li><a href="3.19-rc6.perf_remove_from_context_hang.html">
+	(crash) 3.19-rc6 perf_remove_from_context() hang</a>
+	<li><a href="3.15-rc7.find_get_context_hang.html">
+	(crash) 3.19-rc5 find_get_context() hang</a>
+	<li><a href="3.14-rc6.x86_schedule_events.html">
+	(crash) 3.19-rc5 x86_schedule_events</a>
 	<li><a href="3.19-rc5.rapl_scale_crash.html">
 	(crash) 3.19-rc5 rapl_scale_crash</a>
 	<li><a href="3.14-rc5.breakpoint_warning.html">

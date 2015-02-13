@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>add_event_to_context() warning
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+add_event_to_context() warning
+</h1>
+</center>
+
+<h3>Found by</h3>
+trinity and the 0day bug tester
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+3.19-next
+
+<h3>Most recently Seen</h3>
+3.19-next
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+???
+
+<h3>Linux-kernel</h3>
+24 January 2015 -- 
+[perf] WARNING: CPU: 0 PID: 1457 at kernel/events/core.c:890 add_event_to_ctx()
+
+<h3>Introduced by</h3>
+d26bb7f73a2881f2412c340a27438b185f0cc3dc
+
+<h3>Fixed in</h3>
+3.20 -- 2fde4f94e0a9531251e706fa57131b51b0df042e
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[   34.700861] ------------[ cut here ]------------
+[   34.701372] WARNING: CPU: 0 PID: 1457 at kernel/events/core.c:890 add_event_to_ctx+0x253/0x270()
+[   34.702515] CPU: 0 PID: 1457 Comm: trinity-main Not tainted 3.19.0-rc4-gd26bb7f #2
+[   34.702931]  00000000 00000000 c0911e2c cd8a61df c0911e48 cd052cfa 0000037a cd0d32f3
+[   34.702931]  c0c206d0 c0c20590 d3c9e0a0 c0911e58 cd052dd4 00000009 00000000 c0911e78
+[   34.702931]  cd0d32f3 d3c9e214 00000000 00000000 c0c20598 00000246 c0c50990 c0911e90
+[   34.702931] Call Trace:
+[   34.702931]  [<cd8a61df>] dump_stack+0x16/0x18
+[   34.702931]  [<cd052cfa>] warn_slowpath_common+0x6a/0xa0
+[   34.702931]  [<cd0d32f3>] ? add_event_to_ctx+0x253/0x270
+[   34.702931]  [<cd052dd4>] warn_slowpath_null+0x14/0x20
+[   34.702931]  [<cd0d32f3>] add_event_to_ctx+0x253/0x270
+[   34.702931]  [<cd0da60f>] inherit_event+0xef/0x240
+[   34.702931]  [<cd0da778>] inherit_group+0x18/0x70
+[   34.702931]  [<cd0d2884>] ? alloc_perf_context+0x24/0x50
+[   34.702931]  [<cd0db927>] perf_event_init_task+0x117/0x310
+[   34.702931]  [<cd050c67>] copy_process+0x477/0x14f0
+[   34.702931]  [<cd052063>] do_fork+0xb3/0x430
+[   34.702931]  [<cd0923fd>] ? do_setitimer+0x13d/0x220
+[   34.702931]  [<cd09251a>] ? alarm_setitimer+0x3a/0x60
+[   34.702931]  [<cd05246b>] SyS_clone+0x1b/0x20
+[   34.702931]  [<cd8ad3bd>] syscall_call+0x7/0x7
+[   34.702931]  [<cd8a0000>] ? xen_chk_extra_mem+0x10/0x70
+[   34.702931] ---[ end trace 19d6cac21f26a758 ]---
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
