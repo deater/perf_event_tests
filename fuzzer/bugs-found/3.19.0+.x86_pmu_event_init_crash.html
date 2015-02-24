@@ -45,6 +45,24 @@ perf: fuzzer causes lockup in x86_pmu_event_init()
 
 <ol>
 <li>
+
+The problem seems to map to <br>
+        arch/x86/kernel/cpu/perf_event.c:824<br>
+It is stuck forever in this loop in collect_events()
+<pre>
+        list_for_each_entry(event, &leader->sibling_list, group_entry) {
+                if (!is_x86_event(event) ||
+                    event->state <= PERF_EVENT_STATE_OFF)
+                        continue;
+
+                if (n >= max_count)
+                        return -EINVAL;
+
+                cpuc->event_list[n] = event;
+                n++;
+        }
+</pre>
+
 <pre>
 *** perf_fuzzer 0.30-pre *** by Vince Weaver
 
