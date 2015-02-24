@@ -22,7 +22,7 @@ Lockup/Hang
 3.19.0+
 
 <h3>Most recently Seen</h3>
-3.19.0+
+4.0-rc1
 
 <h3>Reproducible</h3>
 Yes (but you might have to run the test case a few times to trigger)
@@ -31,7 +31,7 @@ Yes (but you might have to run the test case a few times to trigger)
 Haswell
 
 <h3>Linux-kernel</h3>
-18 February 2015 -- perf: fuzzer gets CPU stuck in perf_callchain()
+19 February 2015 -- perf: fuzzer gets CPU stuck in perf_callchain()
 
 
 <h3>Introduced by</h3>
@@ -43,6 +43,141 @@ Haswell
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+        Linux version 3.19.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1424717287
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 6250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1424717287
+
+Pid=9176, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+==================================================
+Iteration 10000
+        Open attempts: 207133  Successful: 938
+                EPERM : 42
+                ENOENT : 1678
+                E2BIG : 19953
+                EBADF : 9476
+                EACCES : 1034
+                EINVAL : 173426
+                ENOSPC : 6
+                EOPNOTSUPP : 580
+                Type (Hardware 233/27305)(software 322/30705)(tracepoint 83/30510)(Cache 80/25604)(cpu 190/30144)(breakpoint 30/30569)(power 0/4400)(uncore_imc 0/4227)(#8 0/101)(#9 0/35)(#10 0/49)(#11 0/24)(#12 0/31)(#13 0/22)(#14 0/30)(>14 0/23377)
+        Close attempts: 905  Successful: 905
+        Read attempts: 884  Successful: 790
+        Write attempts: 915  Successful: 0
+        Ioctl attempts: 837  Successful: 371
+        Mmap attempts: 938  Successful: 378
+        Prctl attempts: 907  Successful: 907
+        Fork attempts: 450  Successful: 450
+        Poll attempts: 918  Successful: 893
+        Access attempts: 956  Successful: 465
+        Trash mmap attempts: 916  Successful: 916
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[335638.252654] ------------[ cut here ]------------
+[335638.257675] WARNING: CPU: 1 PID: 9176 at kernel/watchdog.c:290 watchdog_overflow_callback+0x92/0xc0()
+[335638.267649] Watchdog detected hard LOCKUP on cpu 1
+[335638.272715] Modules linked in: fuse x86_pkg_temp_thermal snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic intel_powerclamp intel_rapl iosf_mbi coretemp snd_hda_intel kvm snd_hda_controller crct10dif_pclmul snd_hda_codec crc32_pclmul snd_hwdep ghash_clmulni_intel snd_pcm aesni_intel i915 snd_timer ppdev aes_x86_64 evdev drm_kms_helper iTCO_wdt lrw snd drm mei_me gf128mul iTCO_vendor_support soundcore glue_helper mei parport_pc xhci_pci i2c_algo_bit tpm_tis tpm ablk_helper i2c_i801 cryptd lpc_ich mfd_core battery video xhci_hcd parport processor wmi psmouse pcspkr serio_raw button sg sr_mod cdrom sd_mod ahci ehci_pci libahci ehci_hcd libata e1000e scsi_mod ptp crc32c_intel usbcore usb_common pps_core thermal fan thermal_sys
+[335638.344480] CPU: 1 PID: 9176 Comm: perf_fuzzer Not tainted 3.19.0+ #128
+[335638.351642] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[335638.359638]  ffffffff81a49b7f ffff88011ea45aa0 ffffffff816c2a19 0000000000000000
+[335638.367755]  ffff88011ea45af0 ffff88011ea45ae0 ffffffff8106deaa ffff88011ea45b00
+[335638.375871]  ffff880119b8f800 0000000000000000 ffff88011ea45c40 ffff88011ea45ef8
+[335638.383969] Call Trace:
+[335638.386688]  <NMI>  [<ffffffff816c2a19>] dump_stack+0x45/0x57
+[335638.392997]  [<ffffffff8106deaa>] warn_slowpath_common+0x8a/0xc0
+[335638.399554]  [<ffffffff8106df26>] warn_slowpath_fmt+0x46/0x50
+[335638.405807]  [<ffffffff8101db0a>] ? native_sched_clock+0x2a/0x90
+[335638.412333]  [<ffffffff8101db0a>] ? native_sched_clock+0x2a/0x90
+[335638.418865]  [<ffffffff8111cc72>] watchdog_overflow_callback+0x92/0xc0
+[335638.425946]  [<ffffffff8115daf1>] __perf_event_overflow+0x91/0x270
+[335638.432641]  [<ffffffff8102b60a>] ? x86_perf_event_set_period+0xca/0x170
+[335638.439932]  [<ffffffff8115e5d9>] perf_event_overflow+0x19/0x20
+[335638.446393]  [<ffffffff81032b3a>] intel_pmu_handle_irq+0x1ba/0x3a0
+[335638.453110]  [<ffffffff8102a51b>] perf_event_nmi_handler+0x2b/0x50
+[335638.460433]  [<ffffffff81018760>] nmi_handle+0xa0/0x150
+[335638.466715]  [<ffffffff810186c5>] ? nmi_handle+0x5/0x150
+[335638.473094]  [<ffffffff81018a0a>] default_do_nmi+0x4a/0x140
+[335638.479780]  [<ffffffff81018b98>] do_nmi+0x98/0xe0
+[335638.485576]  [<ffffffff816ccf91>] end_repeat_nmi+0x1e/0x2e
+[335638.492132]  [<ffffffff816ccbe0>] ? trace_page_fault+0x30/0x30
+[335638.499083]  [<ffffffff816ccbe0>] ? trace_page_fault+0x30/0x30
+[335638.506012]  [<ffffffff816ccbe0>] ? trace_page_fault+0x30/0x30
+[335638.512900]  <<EOE>>  <IRQ>  [<ffffffff8140c8db>] ? copy_user_handle_tail+0x3b/0x80
+[335638.521843]  [<ffffffff8140c7b3>] copy_from_user_nmi+0x63/0x70
+[335638.528815]  [<ffffffff8102c2c0>] perf_callchain_user+0xd0/0x240
+[335638.535934]  [<ffffffff8115db39>] ? __perf_event_overflow+0xd9/0x270
+[335638.543427]  [<ffffffff81161418>] perf_callchain+0x1f8/0x220
+[335638.550187]  [<ffffffff8115d931>] perf_prepare_sample+0x291/0x3c0
+[335638.557404]  [<ffffffff8115df37>] ? perf_swevent_event+0x67/0x90
+[335638.564556]  [<ffffffff8115db6e>] __perf_event_overflow+0x10e/0x270
+[335638.571961]  [<ffffffff8115db39>] ? __perf_event_overflow+0xd9/0x270
+[335638.579486]  [<ffffffff8115de99>] perf_swevent_overflow+0xa9/0xe0
+[335638.586786]  [<ffffffff8115df37>] perf_swevent_event+0x67/0x90
+[335638.593746]  [<ffffffff8115e024>] perf_tp_event+0xc4/0x210
+[335638.600335]  [<ffffffff810b8040>] ? lock_release+0x130/0x260
+[335638.607138]  [<ffffffff810b656f>] ? __lock_acquire.isra.31+0x3af/0xfe0
+[335638.614822]  [<ffffffff81140598>] ? perf_trace_buf_prepare+0x98/0xf0
+[335638.622332]  [<ffffffff810b50ba>] ? perf_trace_lock+0x12a/0x160
+[335638.629377]  [<ffffffff81079cb5>] ? __sigqueue_alloc+0x5/0x150
+[335638.636312]  [<ffffffff81079de4>] ? __sigqueue_alloc+0x134/0x150
+[335638.643429]  [<ffffffff81140598>] ? perf_trace_buf_prepare+0x98/0xf0
+[335638.650947]  [<ffffffff8107bafe>] ? __lock_task_sighand+0x6e/0x110
+[335638.658293]  [<ffffffff810b50ba>] perf_trace_lock+0x12a/0x160
+[335638.665163]  [<ffffffff8107bb08>] ? __lock_task_sighand+0x78/0x110
+[335638.672481]  [<ffffffff8107bbfd>] ? do_send_sig_info+0x5d/0x80
+[335638.679409]  [<ffffffff810b8040>] lock_release+0x130/0x260
+[335638.685968]  [<ffffffff816ca094>] _raw_spin_unlock_irqrestore+0x24/0x40
+[335638.693716]  [<ffffffff8107bbfd>] do_send_sig_info+0x5d/0x80
+[335638.700483]  [<ffffffff811f6edf>] send_sigio_to_task+0x12f/0x1a0
+[335638.707592]  [<ffffffff811f6db5>] ? send_sigio_to_task+0x5/0x1a0
+[335638.714768]  [<ffffffff811f7676>] ? send_sigio+0x56/0x100
+[335638.721256]  [<ffffffff811f76ce>] send_sigio+0xae/0x100
+[335638.727556]  [<ffffffff811f77b7>] kill_fasync+0x97/0xf0
+[335638.733868]  [<ffffffff811f772f>] ? kill_fasync+0xf/0xf0
+[335638.740274]  [<ffffffff8115cfc4>] perf_event_wakeup+0xd4/0xf0
+[335638.747103]  [<ffffffff8115cef5>] ? perf_event_wakeup+0x5/0xf0
+[335638.754045]  [<ffffffff810726cf>] ? __do_softirq+0x22f/0x290
+[335638.760779]  [<ffffffff8115d013>] perf_pending_event+0x33/0x60
+[335638.767680]  [<ffffffff8114e2bc>] irq_work_run_list+0x4c/0x80
+[335638.774481]  [<ffffffff8114e308>] irq_work_run+0x18/0x40
+[335638.780814]  [<ffffffff8101965e>] smp_irq_work_interrupt+0x2e/0x40
+[335638.788052]  [<ffffffff816cc4fd>] irq_work_interrupt+0x6d/0x80
+[335638.794947]  <EOI>  [<ffffffff816ca05b>] ? _raw_spin_unlock+0x2b/0x40
+[335638.802442]  [<ffffffff810f0cd3>] ? generic_exec_single+0x133/0x190
+[335638.809701]  [<ffffffff81155fd0>] ? task_clock_event_add+0x40/0x40
+[335638.816839]  [<ffffffff810f0d97>] smp_call_function_single+0x67/0xa0
+[335638.824178]  [<ffffffff81154c39>] task_function_call+0x49/0x60
+[335638.830977]  [<ffffffff8115b2f0>] ? perf_event_sched_in+0xa0/0xa0
+[335638.838029]  [<ffffffff81154ce0>] _perf_event_enable+0x90/0xf0
+[335638.844816]  [<ffffffff81154c50>] ? task_function_call+0x60/0x60
+[335638.851784]  [<ffffffff81154a7f>] perf_event_for_each_child+0x3f/0xb0
+[335638.859234]  [<ffffffff8115c3ac>] perf_event_task_enable+0x7c/0xd0
+[335638.866359]  [<ffffffff81082dfd>] SyS_prctl+0x26d/0x4d0
+[335638.872478]  [<ffffffff816caa6d>] system_call_fastpath+0x16/0x1b
+[335638.879446] ---[ end trace 4ad3a65969f2b314 ]---
+[335638.885003] INFO: NMI handler (perf_event_nmi_handler) took too long to run: 632.284 msecs
+[335638.894402] perf interrupt took too long (4940903 > 38461), lowering kernel.perf_event_max_sample_rate to 3250
+[335647.623863] perf interrupt took too long (4902309 > 71428), lowering kernel.perf_event_max_sample_rate to 1750
+[335650.095436] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detected by 5, t=5252 jiffies, g=24160777, c=24160776, q=240)
+</pre>
+
 <li>
 <pre>
 Stopping after 30000
