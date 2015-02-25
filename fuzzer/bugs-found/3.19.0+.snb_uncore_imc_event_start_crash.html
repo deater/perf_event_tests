@@ -1,0 +1,165 @@
+<html>
+<head>
+<title>
+haswell crash: snb_uncore_imc_event_start
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell crash: snb_uncore_imc_event_start
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Fixed in</h3>
+?
+
+<h3>First Seen</h3>
+3.19.0+ (before -pre1)
+
+<h3>Most recently Seen</h3>
+3.19.0+ (before -pre1)
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Type</h3>
+crash
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Introduced By</h3>
+?
+
+<h3>Linux-kernel Mailing List Report</h3>
+13 February 2015 --
+perf: fuzzer causes crash in snb_uncore_imc_event_start
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+Note, only able to trigger with paranoid set to 0.  
+<pre>
+Stopping after 30000
+Using user-specified random seed of 1423843862
+Watchdog enabled with timeout 60s
+Will auto-exit if signal storm detected
+
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+	Linux version 3.19.0+ x86_64
+	Processor: Intel 6/60/3
+
+	Seeding random number generator with 1423843862
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+	/proc/sys/kernel/perf_event_paranoid currently: 0
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	To reproduce, try: ./perf_fuzzer -s 30000 -r 1423843862 
+
+Pid=3710, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	
+==================================================
+Iteration 10000
+	Open attempts: 134389  Successful: 864
+		EPERM : 17
+		ENOENT : 1038
+		E2BIG : 13109
+		EBADF : 6751
+		EINVAL : 111998
+		EOPNOTSUPP : 612
+		Type (Hardware 213/17551)(software 293/19835)(tracepoint 79/19665)(Cache 80/16958)(cpu 176/19623)(breakpoint 23/19726)(power 0/2825)(uncore_imc 0/2841)(#8 0/74)(#9 0/24)(#10 0/12)(#11 0/21)(#12 0/17)(#13 0/15)(#14 0/16)(>14 0/15186)
+	Close attempts: 846  Successful: 846
+	Read attempts: 847  Successful: 750
+	Write attempts: 780  Successful: 0
+	Ioctl attempts: 841  Successful: 370
+	Mmap attempts: 864  Successful: 410
+	Prctl attempts: 892  Successful: 892
+	Fork attempts: 446  Successful: 446
+	Poll attempts: 956  Successful: 804
+	Access attempts: 904  Successful: 443
+	Trash mmap attempts: 825  Successful: 825
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+[  524.785761] BUG: unable to handle kernel paging request at 0000000000005050
+[  524.793314] IP: [<ffffffff81035be4>] snb_uncore_imc_event_start+0x54/0xb0
+[  524.800635] PGD 0 
+[  524.802835] Oops: 0000 [#1] SMP 
+[  524.806375] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm crct10dif_pclmul snd_hda_codec_realtek crc32_pclmul ghash_clmulni_intel snd_hda_codec_generic snd_hda_codec_hdmi aesni_intel iTCO_wdt aes_x86_64 snd_hda_intel snd_hda_controller lrw gf128mul glue_helper iTCO_vendor_support i915 drm_kms_helper snd_hda_codec snd_hwdep ablk_helper ppdev snd_pcm evdev drm pcspkr cryptd xhci_pci psmouse snd_timer snd soundcore xhci_hcd mei_me lpc_ich tpm_tis serio_raw parport_pc tpm parport mei i2c_i801 battery i2c_algo_bit mfd_core video processor wmi button sg sr_mod sd_mod cdrom ahci ehci_pci libahci ehci_hcd libata e1000e ptp scsi_mod crc32c_intel usbcore usb_common pps_core fan thermal thermal_sys
+[  524.877715] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 3.19.0+ #127
+[  524.884348] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  524.892286] task: ffffffff81c1a580 ti: ffffffff81c00000 task.ti: ffffffff81c00000
+[  524.900303] RIP: 0010:[<ffffffff81035be4>]  [<ffffffff81035be4>] snb_uncore_imc_event_start+0x54/0xb0
+[  524.910238] RSP: 0018:ffff88011ea03df8  EFLAGS: 00010092
+[  524.915932] RAX: 0000000000005050 RBX: ffff880118fb3800 RCX: 0000000000000001
+[  524.923598] RDX: 0000000000000000 RSI: ffff8800cda49588 RDI: ffff880118fb3850
+[  524.931248] RBP: ffff88011ea03e08 R08: ffff8800cda49588 R09: 0000000000000000
+[  524.938869] R10: 0000000000000000 R11: 0000000000000001 R12: ffff8800cda49400
+[  524.946505] R13: 0000000000000001 R14: ffffe8ffffc03ea8 R15: 0000007a2fab0b08
+[  524.954148] FS:  0000000000000000(0000) GS:ffff88011ea00000(0000) knlGS:0000000000000000
+[  524.962855] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  524.969001] CR2: 0000000000005050 CR3: 0000000001c13000 CR4: 00000000001407f0
+[  524.976635] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  524.984301] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[  524.991950] Stack:
+[  524.994131]  ffff8800cda49400 ffff880118fb3800 ffff88011ea03e38 ffffffff81035c87
+[  525.002121]  ffff88011ea03e38 ffff880118fb3800 ffffe8ffffc040f0 ffffe8ffffc040f4
+[  525.010151]  ffff88011ea03e78 ffffffff8115ab26 0000000000000000 ffffe8ffffc03ea8
+[  525.018153] Call Trace:
+[  525.020769]  <IRQ> 
+[  525.022831]  [<ffffffff81035c87>] snb_uncore_imc_event_add+0x47/0x60
+[  525.029869]  [<ffffffff8115ab26>] event_sched_in.isra.73+0xa6/0x310
+[  525.036609]  [<ffffffff8115adff>] group_sched_in+0x6f/0x1e0
+[  525.042606]  [<ffffffff8101db0a>] ? native_sched_clock+0x2a/0x90
+[  525.048998]  [<ffffffff8115b65c>] __perf_event_enable+0x25c/0x2a0
+[  525.055500]  [<ffffffff810eba89>] ? tick_nohz_irq_exit+0x29/0x30
+[  525.061960]  [<ffffffff81156150>] remote_function+0x50/0x60
+[  525.067960]  [<ffffffff810f0c72>] flush_smp_call_function_queue+0x62/0x140
+[  525.075339]  [<ffffffff8108f045>] ? __atomic_notifier_call_chain+0x5/0x90
+[  525.082603]  [<ffffffff810f1293>] generic_smp_call_function_single_interrupt+0x13/0x60
+[  525.091034]  [<ffffffff810472d7>] smp_call_function_single_interrupt+0x27/0x40
+[  525.098758]  [<ffffffff816c943d>] call_function_single_interrupt+0x6d/0x80
+[  525.106137]  <EOI> 
+[  525.108217]  [<ffffffff810b7ed4>] ? lock_release+0xf4/0x260
+[  525.114430]  [<ffffffff8108f0b7>] __atomic_notifier_call_chain+0x77/0x90
+[  525.121603]  [<ffffffff8108f045>] ? __atomic_notifier_call_chain+0x5/0x90
+[  525.128862]  [<ffffffff810d3833>] ? rcu_eqs_exit_common.isra.46+0x33/0x110
+[  525.136282]  [<ffffffff8108f0e6>] atomic_notifier_call_chain+0x16/0x20
+[  525.143315]  [<ffffffff8101f47f>] arch_cpu_idle_exit+0x2f/0x40
+[  525.149590]  [<ffffffff810af5b8>] cpu_startup_entry+0x138/0x3b0
+[  525.155955]  [<ffffffff816b4666>] rest_init+0xb6/0xc0
+[  525.161400]  [<ffffffff81d20f7e>] start_kernel+0x450/0x45d
+[  525.167295]  [<ffffffff81d20120>] ? early_idt_handlers+0x120/0x120
+[  525.173978]  [<ffffffff81d204d7>] x86_64_start_reservations+0x2a/0x2c
+[  525.180872]  [<ffffffff81d2061c>] x86_64_start_kernel+0x143/0x152
+[  525.187383] Code: 04 01 48 8d 90 88 01 00 00 48 8b b0 90 01 00 00 48 8d 7b 50 49 89 c4 e8 7b 29 3e 00 49 8b 94 24 98 01 00 00 48 8b 83 48 01 00 00 <8b> 04 02 48 89 83 a0 01 00 00 41 83 7c 24 04 01 74 0a 5b 41 5c 
+[  525.208997] RIP  [<ffffffff81035be4>] snb_uncore_imc_event_start+0x54/0xb0
+[  525.216382]  RSP <ffff88011ea03df8>
+[  525.220838] CR2: 0000000000005050
+[  525.225091] ---[ end trace 44e2093251591066 ]---
+[  525.230709] Kernel panic - not syncing: Fatal exception in interrupt
+[  525.238268] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffff9fffffff)
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>perf_event_mmap() gpf
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+perf_event_mmap() gpf
+</h1>
+</center>
+
+<h3>Found by</h3>
+trinity
+
+<h3>Severity</h3>
+Hang
+
+<h3>First Seen</h3>
+3.19-next
+
+<h3>Most recently Seen</h3>
+3.19-next
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+KVM
+
+<h3>Linux-kernel</h3>
+23 January 2015 -- perf: NULL ptr deref in perf_event_mmap, d_path
+
+<h3>Fixed in</h3>
+?
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[  549.058124] general protection fault: 0000 [#1] PREEMPT SMP KASAN
+[  549.060152] Dumping ftrace buffer:
+[  549.060219]    (ftrace buffer empty)
+[  549.062191] Modules linked in:
+[  549.062191] CPU: 19 PID: 16330 Comm: modprobe Not tainted
++3.19.0-rc5-next-20150123-sasha-00061-g527ff0d-dirty #1813
+[  549.062191] task: ffff880399620000 ti: ffff88039bec0000 task.ti:
++ffff88039bec0000
+[  549.062191] RIP: prepend_path (fs/dcache.c:2864)
+[  549.062191] RSP: 0018:ffff88039bec7748  EFLAGS: 00010202
+[  549.062191] RAX: 0000000000000004 RBX: 0000000000000000 RCX: 1ffff10000003733
+[  549.062191] RDX: ffff88003deb79c0 RSI: ffff88039bec7858 RDI: ffff88003deb4eb0
+[  549.062191] RBP: ffff88039bec7908 R08: dffffc0000000000 R09: 0000000000000000
+[  549.062191] R10: ffff88039bec7648 R11: 0000000000000004 R12: 0000000000000020
+[  549.062191] R13: 0000000000000000 R14: dffffc0000000000 R15: ffff88039bec79c8
+[  549.062191] FS:  0000000000000000(0000) GS:ffff8805f8800000(0000)
++knlGS:0000000000000000
+[  549.062191] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[  549.062191] CR2: 00007f8a3989d4a0 CR3: 00000006b1a55000 CR4: 00000000000006a0
+[  549.062191] DR0: a800000010000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  549.062191] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[  549.062191] Stack:
+[  549.062191]  ffffffff81c35e2b ffff880399620cf0 0000000041b58ab3
++ffffffff95ab8e78
+[  549.062191]  ffff88039bec79d0 1ffff100737d8ef7 ffff8805da69b758
++ffffed00737d8f39
+[  549.062191]  ffff88039bec7964 ffff88039bec7988 ffff8805da69b750
++ffffed00737d8f3a
+[  549.062191] Call Trace:
+[  549.111668] d_path (fs/dcache.c:2987 fs/dcache.c:3044)
+[  549.111668] perf_event_mmap (kernel/events/core.c:5435
++kernel/events/core.c:5560)
+[  549.111668] mmap_region (mm/mmap.c:1207 mm/mmap.c:1650)
+[  549.111668] do_mmap_pgoff (mm/mmap.c:1393)
+[  549.111668] vm_mmap_pgoff (mm/util.c:335)
+[  549.111668] SyS_mmap_pgoff (mm/mmap.c:1443 mm/mmap.c:1401)
+[  549.111668] SyS_mmap (arch/x86/kernel/sys_x86_64.c:70)
+[  549.111668] tracesys_phase2 (arch/x86/kernel/entry_64.S:530)
+[ 549.111668] Code: c7 07 0f 85 cc 00 00 00 48 39 d3 0f 84 cc 01 00 00 4d 85 e4
++0f 84 90 08 00 00 41 f6 c4 07 0f 85 86 08 00 00 4c 89 e0 48 c1 e8 03 <42> 80 3c
++30 00 0f 85 96 08 00 00 49 3b 1c 24 0f 84 2d 01 00 00
+
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+

@@ -1,0 +1,291 @@
+<html>
+<head>
+<title>x86_pmu_event_init() lockup
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+x86_pmu_event_init() lockup
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Lockup/Hang
+
+<h3>First Seen</h3>
+3.19.0+
+
+<h3>Most recently Seen</h3>
+3.19.0+
+
+<h3>Reproducible</h3>
+No
+
+<h3>Found On</h3>
+Haswell, Core2
+
+<h3>Linux-kernel</h3>
+17 February 2015 --
+perf: fuzzer causes lockup in x86_pmu_event_init()
+
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+
+The problem seems to map to <br>
+        arch/x86/kernel/cpu/perf_event.c:824<br>
+It is stuck forever in this loop in collect_events()
+<pre>
+        list_for_each_entry(event, &leader->sibling_list, group_entry) {
+                if (!is_x86_event(event) ||
+                    event->state <= PERF_EVENT_STATE_OFF)
+                        continue;
+
+                if (n >= max_count)
+                        return -EINVAL;
+
+                cpuc->event_list[n] = event;
+                n++;
+        }
+</pre>
+
+<pre>
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+        Linux version 3.19.0+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1424729295
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 25000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1424729295
+
+Pid=17282, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 213348  Successful: 914
+                EPERM : 36
+                ENOENT : 1836
+                E2BIG : 20567
+                EBADF : 8377
+                EACCES : 442
+                EINVAL : 180088
+                EOPNOTSUPP : 1088
+                Type (Hardware 199/28326)(software 357/33730)(tracepoint 103/33532)(Cache 56/26656)(cpu 179/33139)(breakpoint 20/33305)(#6 0/33)(#7 0/25)(#8 0/89)(#9 0/21)(#10 0/31)(#11 0/27)(#12 0/23)(#13 0/22)(#14 0/20)(>14 0/24369)
+        Close attempts: 869  Successful: 869
+        Read attempts: 874  Successful: 754
+        Write attempts: 883  Successful: 0
+        Ioctl attempts: 865  Successful: 396
+        Mmap attempts: 914  Successful: 306
+        Prctl attempts: 927  Successful: 927
+        Fork attempts: 437  Successful: 437
+        Poll attempts: 924  Successful: 904
+        Access attempts: 967  Successful: 486
+        Trash mmap attempts: 858  Successful: 858
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000
+        Open attempts: 198190  Successful: 876
+                EPERM : 47
+                ENOENT : 1775
+                E2BIG : 18978
+                EBADF : 7715
+                EACCES : 409
+                EINVAL : 167339
+                EOPNOTSUPP : 1051
+                Type (Hardware 181/26209)(software 369/31160)(tracepoint 99/30891)(Cache 46/24894)(cpu 150/31184)(breakpoint 31/30989)(#6 0/28)(#7 0/28)(#8 0/74)(#9 0/32)(#10 0/22)(#11 0/29)(#12 0/34)(#13 0/31)(#14 0/18)(>14 0/22567)
+        Close attempts: 912  Successful: 912
+        Read attempts: 982  Successful: 874
+        Write attempts: 933  Successful: 0
+        Ioctl attempts: 896  Successful: 433
+        Mmap attempts: 876  Successful: 273
+        Prctl attempts: 896  Successful: 896
+        Fork attempts: 441  Successful: 441
+        Poll attempts: 839  Successful: 826
+        Access attempts: 909  Successful: 458
+        Trash mmap attempts: 937  Successful: 937
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[884044.228001] NMI watchdog: BUG: soft lockup - CPU#1 stuck for 23s! [perf_fuzzer:17282]
+[884044.228001] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet evdev video pcspkr acpi_cpufreq coretemp psmouse serio_raw processor thermal_sys ohci_pci ohci_hcd i2c_nforce2 wmi button sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[884044.228001] CPU: 1 PID: 17282 Comm: perf_fuzzer Tainted: G        W       3.19.0+ #201
+[884044.228001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[884044.228001] task: ffff88003dca4980 ti: ffff8801049dc000 task.ti: ffff8801049dc000
+[884044.228001] RIP: 0010:[<ffffffff810138a8>]  [<ffffffff810138a8>] x86_pmu_event_init+0x138/0x31d
+[884044.228001] RSP: 0018:ffff8801049dfd98  EFLAGS: 00000286
+[884044.228001] RAX: ffff880042cd2000 RBX: ffff88003d11c000 RCX: 0000000000000005
+[884044.228001] RDX: 0000000000000001 RSI: ffff880042cd2010 RDI: ffffffff810135c1
+[884044.228001] RBP: ffff8801049dfdc8 R08: 00000000000080d0 R09: 0000000000000000
+[884044.228001] R10: 0000000000000003 R11: 0000000000000246 R12: 0000000000000286
+[884044.228001] R13: 0000000000008000 R14: ffff88011f000700 R15: 0000000000000000
+[884044.228001] FS:  00007faf3205f700(0000) GS:ffff88011fc80000(0000) knlGS:0000000000000000
+[884044.228001] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[884044.228001] CR2: 0000000005463038 CR3: 0000000106371000 CR4: 00000000000407e0
+[884044.228001] DR0: 00000000020a4000 DR1: 0000000001e96000 DR2: 0000000001e96000
+[884044.228001] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[884044.228001] Stack:
+[884044.228001]  0000000000000002 ffffffff81a1b270 ffff88003e96e000 0000000000000000
+[884044.228001]  ffffffff81a3b7a0 ffff88003e96e000 ffff8801049dfde8 ffffffff810cec1b
+[884044.228001]  ffffffff81a1b270 ffff88003e96e000 ffff8801049dfe28 ffffffff810d488d
+[884044.228001] Call Trace:
+[884044.228001]  [<ffffffff810cec1b>] perf_try_init_event+0x25/0x47
+[884044.228001]  [<ffffffff810d488d>] perf_init_event+0x93/0xca
+[884044.228001]  [<ffffffff810d4b5f>] perf_event_alloc+0x29b/0x32d
+[884044.228001]  [<ffffffff810d5008>] SYSC_perf_event_open+0x417/0x89c
+[884044.228001]  [<ffffffff810d57fe>] SyS_perf_event_open+0x9/0xb
+[884044.228001]  [<ffffffff8153eb96>] system_call_fastpath+0x16/0x1b
+[884044.228001] Code: a1 81 8b 90 14 02 00 00 75 15 39 ca 0f 8d e7 01 00 00 48 63 c2 ff c2 4d 89 bc c5 20 05 00 00 49 8b 47 20 49 83 c7 20 48 83 e8 10 <48> 8d 70 10 4c 39 fe 74 2f 48 81 78 70 70 b2 a1 81 75 1b 83 78 
+[884044.228001] NMI watchdog: BUG: soft lockup - CPU#1 stuck for 23s! [perf_fuzzer:17282]
+[884072.228001] NMI watchdog: BUG: soft lockup - CPU#1 stuck for 22s! [perf_fuzzer:17282]
+</pre>
+<li>
+<pre>
+Watchdog enabled with timeout 60s
+Will auto-exit if signal storm detected
+
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+        Linux version 3.19.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1424173123
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1424173123
+
+Pid=20935, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+[328363.704011] INFO: rcu_sched self-detected stall on CPU { 2}  (t=5251 jiffies g=28607531 c=28607530 q=232)
+[328363.715076] Task dump for CPU 2:
+[328363.719278] perf_fuzzer     R  running task        0 20935   2309 0x00000008
+[328363.727653]  0000000000000905 ffff88011ea83d68 ffffffff8109a126 ffffffff8109a095
+[328363.736466]  0000000000000007 0000000000000002 ffffffff81c50780 ffff88011ea83d88
+[328363.745256]  ffffffff8109d9fd ffff88011ea95b00 0000000000000003 ffff88011ea83db8
+[328363.754037] Call Trace:
+[328363.757382]  <IRQ>  [<ffffffff8109a126>] sched_show_task+0xf6/0x160
+[328363.764853]  [<ffffffff8109a095>] ? sched_show_task+0x65/0x160
+[328363.771769]  [<ffffffff8109d9fd>] dump_cpu_task+0x3d/0x50
+[328363.778205]  [<ffffffff810d2301>] rcu_dump_cpu_stacks+0x91/0xd0
+[328363.785181]  [<ffffffff810d5dab>] rcu_check_callbacks+0x48b/0x760
+[328363.792345]  [<ffffffff810db429>] update_process_times+0x39/0x60
+[328363.799431]  [<ffffffff810eb195>] tick_sched_handle.isra.18+0x25/0x60
+[328363.806923]  [<ffffffff810eb8e4>] tick_sched_timer+0x44/0x80
+[328363.813594]  [<ffffffff810dc0d4>] __run_hrtimer+0x94/0x1f0
+[328363.820090]  [<ffffffff810dc623>] ? hrtimer_interrupt+0x83/0x220
+[328363.827166]  [<ffffffff810eb8a0>] ? tick_sched_do_timer+0x40/0x40
+[328363.834322]  [<ffffffff810dc69b>] hrtimer_interrupt+0xfb/0x220
+[328363.841188]  [<ffffffff810495ec>] local_apic_timer_interrupt+0x3c/0x70
+[328363.848802]  [<ffffffff816caf11>] smp_apic_timer_interrupt+0x41/0x60
+[328363.856197]  [<ffffffff816c8fbd>] apic_timer_interrupt+0x6d/0x80
+[328363.863238]  <EOI>  [<ffffffff810bad96>] ? __raw_spin_lock_init+0x36/0x60
+[328363.871175]  [<ffffffff81029cb5>] ? collect_events+0x55/0xb0
+[328363.877844]  [<ffffffff8102a6be>] x86_pmu_event_init+0xfe/0x3c0
+[328363.884817]  [<ffffffff811559d3>] perf_try_init_event+0x33/0x70
+[328363.891797]  [<ffffffff8115eb4f>] perf_init_event+0x13f/0x170
+[328363.898586]  [<ffffffff8115ea15>] ? perf_init_event+0x5/0x170
+[328363.905369]  [<ffffffff8115ef18>] perf_event_alloc+0x398/0x450
+[328363.912237]  [<ffffffff8115f343>] SYSC_perf_event_open+0x373/0xc80
+[328363.919502]  [<ffffffff8116009e>] SyS_perf_event_open+0xe/0x10
+[328363.926387]  [<ffffffff816c7ead>] system_call_fastpath+0x16/0x1b
+[328363.933452] INFO: rcu_sched detected stalls on CPUs/tasks: { 2} (detected by 0, t=5308 jiffies, g=28607531, c=28607530, q=232)
+[328363.946389] Task dump for CPU 2:
+[328363.950495] perf_fuzzer     R  running task        0 20935   2309 0x00000008
+[328363.958750]  0000000000000246 ffff88011edf8f18 0000000000000141 ffff8800947d0990
+[328363.967451]  ffff880036e36000 ffff88011a000640 000001ff00000020 0000000000000000
+[328363.976158]  ffff88011a000640 ffff880036e36000 0000000080002800 ffffffff81032ead
+[328363.984776] Call Trace:
+[328363.988059]  [<ffffffff81032ead>] ? allocate_shared_regs+0x3d/0x90
+[328363.995306]  [<ffffffff811c190b>] ? cache_alloc_debugcheck_after.isra.51+0x1fb/0x280
+[328364.004275]  [<ffffffff810b53bd>] ? lockdep_init_map+0x5d/0x640
+[328364.011286]  [<ffffffff8102a562>] ? allocate_fake_cpuc+0x32/0x90
+[328364.018369]  [<ffffffff811c190b>] ? cache_alloc_debugcheck_after.isra.51+0x1fb/0x280
+[328364.027342]  [<ffffffff810bad96>] ? __raw_spin_lock_init+0x36/0x60
+[328364.034626]  [<ffffffff81029cb5>] ? collect_events+0x55/0xb0
+[328364.041342]  [<ffffffff8102a6be>] ? x86_pmu_event_init+0xfe/0x3c0
+[328364.048514]  [<ffffffff811559d3>] ? perf_try_init_event+0x33/0x70
+[328364.055727]  [<ffffffff8115eb4f>] ? perf_init_event+0x13f/0x170
+[328364.062731]  [<ffffffff8115ea15>] ? perf_init_event+0x5/0x170
+[328364.069552]  [<ffffffff8115ef18>] ? perf_event_alloc+0x398/0x450
+[328364.076619]  [<ffffffff8115f343>] ? SYSC_perf_event_open+0x373/0xc80
+[328364.084124]  [<ffffffff8116009e>] ? SyS_perf_event_open+0xe/0x10
+[328364.091184]  [<ffffffff816c7ead>] ? system_call_fastpath+0x16/0x1b
+[328390.679373] NMI watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [perf_fuzzer:20935]
+[328390.688418] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic crct10dif_pclmul crc32_pclmul snd_hda_intel snd_hda_controller ghash_clmulni_intel snd_hda_codec aesni_intel aes_x86_64 snd_hwdep lrw ppdev i915 snd_pcm gf128mul iTCO_wdt evdev iTCO_vendor_support drm_kms_helper glue_helper psmouse drm ablk_helper cryptd snd_timer serio_raw mei_me parport_pc tpm_tis snd lpc_ich tpm soundcore i2c_i801 xhci_pci battery mei i2c_algo_bit parport pcspkr xhci_hcd mfd_core wmi button processor video sg sr_mod cdrom sd_mod ahci e1000e ehci_pci libahci ptp ehci_hcd libata usbcore crc32c_intel scsi_mod usb_common pps_core thermal fan thermal_sys
+[328390.762307] CPU: 2 PID: 20935 Comm: perf_fuzzer Tainted: G        W       3.19.0+ #127
+[328390.771527] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[328390.780237] task: ffff8800947d0990 ti: ffff8800946c4000 task.ti: ffff8800946c4000
+[328390.789004] RIP: 0010:[<ffffffff81029cad>]  [<ffffffff81029cad>] collect_events+0x4d/0xb0
+[328390.798577] RSP: 0018:ffff8800946c7d38  EFLAGS: 00000202
+[328390.805033] RAX: ffff8800ce837000 RBX: ffffffff810bad96 RCX: 0000000000000001
+[328390.813454] RDX: ffff8800ce837010 RSI: ffff8801193cb020 RDI: ffff8800958b3000
+[328390.821845] RBP: ffff8800946c7d38 R08: 0000000000000007 R09: ffffffff828fb310
+[328390.830256] R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff81c220c0
+[328390.838661] R13: ffff8801193cb000 R14: ffffffff81e7f181 R15: ffffffff81a24c53
+[328390.847094] FS:  00007fb692472700(0000) GS:ffff88011ea80000(0000) knlGS:0000000000000000
+[328390.856548] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[328390.863438] CR2: 0000000001e1d038 CR3: 0000000094724000 CR4: 00000000001407e0
+[328390.871839] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[328390.880251] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[328390.888646] Stack:
+[328390.891588]  ffff8800946c7d88 ffffffff8102a6be ffff8800946c7db8 0000000000000292
+[328390.900379]  ffff8800947d0990 ffffffff81c220c0 ffff8800a0274000 0000000000000000
+[328390.909169]  0000000000000000 0000000000000000 ffff8800946c7db8 ffffffff811559d3
+[328390.917922] Call Trace:
+[328390.921321]  [<ffffffff8102a6be>] x86_pmu_event_init+0xfe/0x3c0
+[328390.928405]  [<ffffffff811559d3>] perf_try_init_event+0x33/0x70
+[328390.935479]  [<ffffffff8115eb4f>] perf_init_event+0x13f/0x170
+[328390.942426]  [<ffffffff8115ea15>] ? perf_init_event+0x5/0x170
+[328390.949360]  [<ffffffff8115ef18>] perf_event_alloc+0x398/0x450
+[328390.956398]  [<ffffffff8115f343>] SYSC_perf_event_open+0x373/0xc80
+[328390.963774]  [<ffffffff8116009e>] SyS_perf_event_open+0xe/0x10
+[328390.970773]  [<ffffffff816c7ead>] system_call_fastpath+0x16/0x1b
+[328390.977968] Code: 84 d2 89 c8 74 5a 48 8b 56 20 48 83 c6 20 48 39 d6 48 8d 42 f0 75 14 eb 45 0f 1f 44 00 00 48 8b 50 10 48 39 d6 48 8d 42 f0 74 33 <48> 81 78 70 c0 20 c2 81 75 e9 8b 50 78 85 d2 78 e2 41 39 c8 7e 
+[328390.679373] NMI watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [perf_fuzzer:20935]
+[328418.691171] NMI watchdog: BUG: soft lockup - CPU#2 stuck for 22s! [perf_fuzzer:20935]
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+

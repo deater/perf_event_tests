@@ -1,0 +1,159 @@
+<html>
+<head><title>WARNING: Can't find any breakpoint slot</title></head>
+</body>
+
+<h1>WARNING: arch_install_hw_breakpoint+0xe0/0xf8() Can't find any breakpoint slot</h1>
+
+<h3>Severity</h3>
+
+Mild.  WARN_ON_ONCE.  Does not seem to affect system stability.
+
+<h3>Fixed by</h3>
+
+Was thought to be gixed by 9fc81d87420d0d3fd62d5e5529972c0ad9eab9cc 
+but the warning still happens.
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Seen On</h3>
+Core2
+
+
+<h3>First Seen</h3>
+
+3.14-rc5.  Might have appeared earlier, did not
+attempt bisection.
+
+<h3>Most Recently Seen</h3>
+3.19.0+<br>
+
+<h3>Reported to Mailing List</h3>
+
+Yes (since the reported 3.19 fix).  Need to find.
+
+
+<h3>Kernel Spews</h3>
+<ol>
+<li>
+<pre>
+Stopping after 30000
+Watchdog enabled with timeout 60s
+Will auto-exit if signal storm detected
+
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+	Linux version 3.19.0+ x86_64
+	Processor: Intel 6/23/10
+
+	Seeding random number generator with 1423846760
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+	/proc/sys/kernel/perf_event_paranoid currently: 1
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	To reproduce, try: ./perf_fuzzer -s 30000 -r 1423846760
+
+Pid=4504, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	
+==================================================
+Iteration 10000
+	Open attempts: 217949  Successful: 1008
+		EPERM : 42
+		ENOENT : 1936
+		E2BIG : 21069
+		EBADF : 8070
+		EACCES : 397
+		EINVAL : 184293
+		EOPNOTSUPP : 1134
+		Type (Hardware 209/28749)(software 404/34316)(tracepoint 124/34344)(Cache 41/27378)(cpu 203/34127)(breakpoint 27/33866)(#6 0/37)(#7 0/19)(#8 0/101)(#9 0/29)(#10 0/33)(#11 0/25)(#12 0/39)(#13 0/32)(#14 0/24)(>14 0/24830)
+	Close attempts: 860  Successful: 860
+	Read attempts: 871  Successful: 777
+	Write attempts: 911  Successful: 0
+	Ioctl attempts: 855  Successful: 397
+	Mmap attempts: 1008  Successful: 293
+	Prctl attempts: 890  Successful: 890
+	Fork attempts: 438  Successful: 438
+	Poll attempts: 880  Successful: 838
+	Access attempts: 882  Successful: 423
+	Trash mmap attempts: 909  Successful: 909
+	Overflows: 28
+	SIGIOs due to RT signal queue full: 0
+Iteration 20000
+	Open attempts: 208916  Successful: 918
+		EPERM : 39
+		ENOENT : 1932
+		E2BIG : 20162
+		EBADF : 7104
+		EACCES : 453
+		EINVAL : 177171
+		ENOSPC : 17
+		EOPNOTSUPP : 1120
+		Type (Hardware 183/27543)(software 371/32907)(tracepoint 112/32871)(Cache 45/26097)(cpu 183/33000)(breakpoint 24/32546)(#6 0/33)(#7 0/21)(#8 0/98)(#9 0/28)(#10 0/22)(#11 0/33)(#12 0/33)(#13 0/23)(#14 0/29)(>14 0/23632)
+	Close attempts: 900  Successful: 900
+	Read attempts: 892  Successful: 744
+	Write attempts: 928  Successful: 0
+	Ioctl attempts: 877  Successful: 420
+	Mmap attempts: 918  Successful: 216
+	Prctl attempts: 913  Successful: 913
+	Fork attempts: 442  Successful: 442
+	Poll attempts: 924  Successful: 912
+	Access attempts: 895  Successful: 438
+	Trash mmap attempts: 934  Successful: 934
+	Overflows: 0
+	SIGIOs due to RT signal queue full: 0
+[ 1484.379859] ------------[ cut here ]------------
+[ 1484.380006] WARNING: CPU: 0 PID: 4504 at arch/x86/kernel/hw_breakpoint.c:119 arch_install_hw_breakpoint+0xe0/0xf8()
+[ 1484.380006] Can't find any breakpoint slot
+[ 1484.380006] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet evdev video pcspkr acpi_cpufreq coretemp psmouse serio_raw processor thermal_sys ohci_pci ohci_hcd i2c_nforce2 wmi button sg ehci_pci ehci_hcd sd_mod usbcore usb_common
+[ 1484.380006] CPU: 0 PID: 4504 Comm: perf_fuzzer Not tainted 3.19.0+ #201
+[ 1484.380006] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[ 1484.380006]  0000000000000009 ffff8800c0a03bb8 ffffffff81539683 00000000000024f0
+[ 1484.380006]  ffff8800c0a03c08 ffff8800c0a03bf8 ffffffff8104147b 0000000100000021
+[ 1484.380006]  ffffffff81009560 0000000000000004 ffff88011abaa000 000001571b9a96d7
+[ 1484.380006] Call Trace:
+[ 1484.380006]  [<ffffffff81539683>] dump_stack+0x45/0x57
+[ 1484.380006]  [<ffffffff8104147b>] warn_slowpath_common+0xa1/0xbb
+[ 1484.380006]  [<ffffffff81009560>] ? arch_install_hw_breakpoint+0xe0/0xf8
+[ 1484.380006]  [<ffffffff810414db>] warn_slowpath_fmt+0x46/0x48
+[ 1484.380006]  [<ffffffff81009560>] arch_install_hw_breakpoint+0xe0/0xf8
+[ 1484.380006]  [<ffffffff810d692f>] hw_breakpoint_add+0x46/0x4a
+[ 1484.380006]  [<ffffffff810d26a8>] event_sched_in+0x87/0x1b0
+[ 1484.380006]  [<ffffffff810d284d>] group_sched_in+0x7c/0x13c
+[ 1484.380006]  [<ffffffff810d2f95>] __perf_event_enable+0xbb/0xfb
+[ 1484.380006]  [<ffffffff810cf283>] remote_function+0x18/0x41
+[ 1484.380006]  [<ffffffff810cf26b>] ? perf_event_ctx_unlock.isra.54+0x1e/0x1e
+[ 1484.380006]  [<ffffffff81095253>] generic_exec_single+0x3d/0x10d
+[ 1484.380006]  [<ffffffff810cdfd5>] ? update_context_time+0xe/0x31
+[ 1484.380006]  [<ffffffff810cf26b>] ? perf_event_ctx_unlock.isra.54+0x1e/0x1e
+[ 1484.380006]  [<ffffffff810953a2>] smp_call_function_single+0x7f/0x8a
+[ 1484.380006]  [<ffffffff810ce27e>] task_function_call+0x44/0x4e
+[ 1484.380006]  [<ffffffff810d2eda>] ? __perf_install_in_context+0xcd/0xcd
+[ 1484.380006]  [<ffffffff810ce310>] _perf_event_enable+0x88/0xc0
+[ 1484.380006]  [<ffffffff810ce288>] ? task_function_call+0x4e/0x4e
+[ 1484.380006]  [<ffffffff810ce100>] perf_event_for_each_child+0x58/0x93
+[ 1484.380006]  [<ffffffff810d1c6b>] perf_event_task_enable+0x62/0x92
+[ 1484.380006]  [<ffffffff8105024d>] SyS_prctl+0x155/0x375
+[ 1484.380006]  [<ffffffff8153eb96>] system_call_fastpath+0x16/0x1b
+[ 1484.380006] ---[ end trace d1270db1875e1885 ]---
+Iteration 30000
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to bugs found page</a>
+
+</body>
+</html>
+
