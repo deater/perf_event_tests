@@ -45,7 +45,7 @@ int gather_cache_info(int quiet, char *test_string) {
      d = readdir(dir);
      if (d==NULL) break;
 
-     if (d->d_name[0]=='.') continue;
+     if (strncmp(d->d_name, "index", 5)) continue;
 
 #if DEBUG
      printf("Found %s\n",d->d_name);
