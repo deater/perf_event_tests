@@ -7,11 +7,15 @@ int main(int argc, char **argv) {
 
 	int quiet;
 	int i,j,max_level=0;
+	int result=0;
 	char test_string[]="Seeing if cache info is provided by the kernel...";
 
 	quiet=test_quiet();
 
-	gather_cache_info(quiet,test_string);
+	result=gather_cache_info(quiet,test_string);
+	if (result<0) {
+		test_skip(test_string);
+	}
 
 	max_level=cache_get_max_levels(quiet,test_string);
 	if (!quiet) {
