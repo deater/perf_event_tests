@@ -8,6 +8,15 @@
 /* prior to 2.6.35 the wrong branch event was used on AMD machines */
 /* prior to 3.1 the wrong branch event was used on ARM machines    */
 
+
+/* This test seems to work on:		*/
+/* + x86				*/
+/* + ARMv6 (Raspberry Pi)		*/
+/* It is known to not work on:		*/
+/* + ARMv7 (Pi2 CortexA7 Panda CortexA9 */
+/*   failure is odd, 1/3 missing but not consistent	*/
+/*   something weird with event 0xC PC_WRITE ?		*/
+
 char test_string[]="Testing \"branches\" generalized event...";
 int quiet=0;
 int fd;
