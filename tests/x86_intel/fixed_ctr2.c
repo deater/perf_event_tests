@@ -53,6 +53,8 @@ int main(int argc, char **argv) {
 		printf("Anyway, all the values should match.\n\n");
 	}
 
+	if (detect_vendor()!=VENDOR_INTEL) test_skip(test_string);
+
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
 	pe.type=PERF_TYPE_HARDWARE;
