@@ -42,11 +42,13 @@ pid_t mygettid( void )
 #endif
 }
 
+static int processor_type=-2;
+static int processor_vendor=-2;
 
-int detect_processor(void) {
+static int detect_processor_cpuinfo(void) {
 
 	FILE *fff;
-	int vendor=VENDOR_UNKNOWN,cpu_family=0,model=0;
+	int cpu_family=0,model=0;
 	char string[BUFSIZ];
 
 	fff=fopen("/proc/cpuinfo","r");
@@ -56,33 +58,44 @@ int detect_processor(void) {
 	}
 
 	while(1) {
+
 		if (fgets(string,BUFSIZ,fff)==NULL) break;
 
 		/* Power6 */
 		if (strstr(string,"POWER6")) {
-			vendor=VENDOR_IBM;
-			return PROCESSOR_POWER6;
+			processor_vendor=VENDOR_IBM;
+			processor_type=PROCESSOR_POWER6;
+			return 0;
 		}
 
 		/* ARM */
 		if (strstr(string,"CPU part")) {
 
-			vendor=VENDOR_ARM;
+			processor_vendor=VENDOR_ARM;
 
 			if (strstr(string,"0xc05")) {
-				return PROCESSOR_CORTEX_A5;
+				processor_type=PROCESSOR_CORTEX_A5;
+				return 0;
 			}
 			if (strstr(string,"0xc09")) {
-				return PROCESSOR_CORTEX_A9;
+				processor_type=PROCESSOR_CORTEX_A9;
+				return 0;
 			}
 			if (strstr(string,"0xc08")) {
-				return PROCESSOR_CORTEX_A8;
+				processor_type=PROCESSOR_CORTEX_A8;
+				return 0;
+			}
+			if (strstr(string,"0xc07")) {
+				processor_type=PROCESSOR_CORTEX_A7;
+				return 0;
 			}
 			if (strstr(string,"0xc0f")) {
-				return PROCESSOR_CORTEX_A15;
+				processor_type=PROCESSOR_CORTEX_A15;
+				return 0;
 			}
 			if (strstr(string,"0xb76")) {
-				return PROCESSOR_ARM1176;
+				processor_type=PROCESSOR_ARM1176;
+				return 0;
 			}
 
 			// Cortex R4 - 0xc14
@@ -97,16 +110,16 @@ int detect_processor(void) {
 		/* vendor */
 		if (strstr(string,"vendor_id")) {
 			if (strstr(string,"GenuineIntel")) {
-				vendor=VENDOR_INTEL;
+				processor_vendor=VENDOR_INTEL;
 			}
 			if (strstr(string,"AuthenticAMD")) {
-				vendor=VENDOR_AMD;
+				processor_vendor=VENDOR_AMD;
 			}
 		}
 
 		/* family */
 		if (strstr(string,"cpu family")) {
-			sscanf(string,"%*s %*s %*s %d",&cpu_family); 
+			sscanf(string,"%*s %*s %*s %d",&cpu_family);
 		}
 
 		/* model */
@@ -117,107 +130,156 @@ int detect_processor(void) {
 
 	fclose(fff);
 
-	if (vendor==VENDOR_AMD) {
-		if (cpu_family==0x6) {
-			return PROCESSOR_K7;
+	if (processor_vendor==VENDOR_AMD) {
+		switch(cpu_family) {
+			case 0x6:
+				processor_type=PROCESSOR_K7;
+				break;
+			case 0xf:
+				processor_type=PROCESSOR_K8;
+				break;
+			case 0x10:
+				processor_type=PROCESSOR_AMD_FAM10H;
+				break;
+			case 0x11:
+				processor_type=PROCESSOR_AMD_FAM11H;
+				break;
+			case 0x14:
+				processor_type=PROCESSOR_AMD_FAM14H;
+				break;
+			case 0x15:
+				processor_type=PROCESSOR_AMD_FAM15H;
+				break;
+			case 0x16:
+				processor_type=PROCESSOR_AMD_FAM16H;
+				break;
+			default:
+				processor_type=PROCESSOR_UNKNOWN;
+				break;
 		}
-		if (cpu_family==0xf) {
-			return PROCESSOR_K8;
-		}
-		if (cpu_family==0x10) {
-			return PROCESSOR_AMD_FAM10H;
-		}
-		if (cpu_family==0x11) {
-			return PROCESSOR_AMD_FAM11H;
-		}
-		if (cpu_family==0x14) {
-			return PROCESSOR_AMD_FAM14H;
-		}
-		if (cpu_family==0x15) {
-			return PROCESSOR_AMD_FAM15H;
-		}
-		if (cpu_family==0x16) {
-			return PROCESSOR_AMD_FAM16H;
-		}
+		return 0;
 	}
 
-	if (vendor==VENDOR_INTEL) {
+	if (processor_vendor==VENDOR_INTEL) {
 
 		if (cpu_family==6) {
 			switch(model) {
 				case 1:
-					return PROCESSOR_PENTIUM_PRO;
+					processor_type=PROCESSOR_PENTIUM_PRO;
+					break;
 				case 3:
 				case 5:
 				case 6:
-					return PROCESSOR_PENTIUM_II;
+					processor_type=PROCESSOR_PENTIUM_II;
+					break;
 				case 7:
 				case 8:
 				case 10:
 				case 11:
-					return PROCESSOR_PENTIUM_III;
+					processor_type=PROCESSOR_PENTIUM_III;
+					break;
 				case 9:
 				case 13:
-					return PROCESSOR_PENTIUM_M;
+					processor_type=PROCESSOR_PENTIUM_M;
+					break;
 				case 14:
-					return PROCESSOR_COREDUO;
+					processor_type=PROCESSOR_COREDUO;
+					break;
 				case 15:
 				case 22:
 				case 23:
 				case 29:
-					return PROCESSOR_CORE2;
+					processor_type=PROCESSOR_CORE2;
+					break;
 				case 28:
 				case 38:
 				case 39:
 				case 53:
-					return PROCESSOR_ATOM;
+					processor_type=PROCESSOR_ATOM;
+					break;
 				case 54:
-					return PROCESSOR_ATOM_CEDARVIEW;
+					processor_type=PROCESSOR_ATOM_CEDARVIEW;
+					break;
 				case 55:
 				case 77:
-					return PROCESSOR_ATOM_SILVERMONT;
+					processor_type=PROCESSOR_ATOM_SILVERMONT;
+					break;
 				case 26:
 				case 30:
 				case 31:
-					return PROCESSOR_NEHALEM;
+					processor_type=PROCESSOR_NEHALEM;
+					break;
 				case 46:
-					return PROCESSOR_NEHALEM_EX;
+					processor_type=PROCESSOR_NEHALEM_EX;
+					break;
 				case 37:
 				case 44:
-					return PROCESSOR_WESTMERE;
+					processor_type=PROCESSOR_WESTMERE;
+					break;
 				case 47:
-					return PROCESSOR_WESTMERE_EX;
+					processor_type=PROCESSOR_WESTMERE_EX;
+					break;
 				case 42:
-					return PROCESSOR_SANDYBRIDGE;
+					processor_type=PROCESSOR_SANDYBRIDGE;
+					break;
 				case 45:
-					return PROCESSOR_SANDYBRIDGE_EP;
+					processor_type=PROCESSOR_SANDYBRIDGE_EP;
+					break;
 				case 58:
-					return PROCESSOR_IVYBRIDGE;
+					processor_type=PROCESSOR_IVYBRIDGE;
+					break;
 				case 62:
-					return PROCESSOR_IVYBRIDGE_EP;
+					processor_type=PROCESSOR_IVYBRIDGE_EP;
+					break;
 				case 60:
 				case 69:
 				case 70:
-					return PROCESSOR_HASWELL;
+					processor_type=PROCESSOR_HASWELL;
+					break;
 				case 63:
-					return PROCESSOR_HASWELL_EP;
+					processor_type=PROCESSOR_HASWELL_EP;
+					break;
 				case 61:
 				case 71:
 				case 79:
-					return PROCESSOR_BROADWELL;
-
+					processor_type=PROCESSOR_BROADWELL;
+					break;
+				default:
+					processor_type=PROCESSOR_UNKNOWN;
 			}
+			return 0;
 		}
 		if (cpu_family==11) {
-			return PROCESSOR_KNIGHTSCORNER;
+			processor_type=PROCESSOR_KNIGHTSCORNER;
+			return 0;
 		}
 
 		if (cpu_family==15) {
-			return PROCESSOR_PENTIUM_4;
+			processor_type=PROCESSOR_PENTIUM_4;
+			return 0;
 		}
 	}
 
-	return PROCESSOR_UNKNOWN;
+	processor_type=PROCESSOR_UNKNOWN;
+
+	return 0;
+}
+
+
+int detect_processor(void) {
+	if (processor_type==-2) {
+		detect_processor_cpuinfo();
+	}
+	return processor_type;
+}
+
+int detect_vendor(void) {
+
+	if (processor_vendor==-2) {
+		detect_processor_cpuinfo();
+	}
+	return processor_vendor;
+
 }
 
 void arch_adjust_domain(struct perf_event_attr *pe, int quiet) {

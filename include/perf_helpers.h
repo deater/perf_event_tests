@@ -1,6 +1,7 @@
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
 		    pid_t pid, int cpu, int group_fd, unsigned long flags);
 int detect_processor(void);
+int detect_vendor(void);
 void arch_adjust_domain(struct perf_event_attr *pe,int quiet);
 int copy_events(int *eventset);
 int detect_nmi_watchdog(void);
@@ -65,6 +66,7 @@ int get_latency_store_event(unsigned long long *config,
 #define PROCESSOR_CORTEX_A5	202
 #define PROCESSOR_CORTEX_A15	203
 #define PROCESSOR_ARM1176	204
+#define PROCESSOR_CORTEX_A7	205
 
 #define MAX_TEST_EVENTS 16
 
