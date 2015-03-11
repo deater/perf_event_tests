@@ -406,8 +406,12 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	/* Somehow we got a signal from an invalid event? */
 	/* How would this happen?			*/
+	/* Looks like if we fork() then close an event, */
+	/* It can still be alive in the child and cause */
+	/* a signal to come in even though it is closed.*/
 	if (ret<0) {
-		printf("Signal from invalid fd\n");
+		printf("Signal from invalid fd %d %s\n",
+			fd,strerror(errno));
 		orderly_shutdown();
 	}
 
