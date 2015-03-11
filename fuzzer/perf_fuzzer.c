@@ -400,9 +400,19 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	/* disable the event for the time being */
 	/* we were having trouble with signal storms */
-	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
+	ret=ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
 	/* Do not log, logging only make sense if */
 	/* we have deterministic counts which we don't */
+
+	/* Somehow we got a signal from an invalid event? */
+	/* How would this happen?			*/
+	if (ret<0) {
+		printf("Signal from invalid fd\n");
+		orderly_shutdown();
+	}
+
+
+
 
 	i=lookup_event(fd);
 
