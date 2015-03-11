@@ -5,10 +5,10 @@
 #include "branches_testcode.h"
 
 
-/* This code has 1,500,000 total branches       */
-/*                 500,000 not-taken branches   */
-/*               1,000,000 taken branches       */
-/*               XXXX    conditional branches */
+/* This code has 1,500,000 total branches       		*/
+/*                 500,000 not-taken conditional branches	*/
+/*                 500,000 taken conditional branches		*/
+/*                 500,000 unconditional branches		*/
 int branches_testcode(void) {
 
 #if defined(__i386__) || (defined __x86_64__)
@@ -41,7 +41,7 @@ int branches_testcode(void) {
 		"test_jmp:\n"
 		"\teor r2,r2,r2\n"
 		"\tcmp r2,#1\n"
-		"\tbge test_jmp2\n"	
+		"\tbge test_jmp2\n"
 		"\tnop\n"
 		"\tadd r2,r2,#1\n"
 		"test_jmp2:\n"
