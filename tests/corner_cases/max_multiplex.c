@@ -16,21 +16,23 @@
 
 char test_string[]="Testing limit of multiplexing...";
 
-#define MAX_LIMIT 10000
+#define MAX_LIMIT 1024
+
+/* Global, as it takes up too much room on stack */
+static struct perf_event_attr pe[MAX_LIMIT];
+static int fd[MAX_LIMIT];
+static long long insn_count[MAX_LIMIT];
 
 int main(int argc, char **argv) {
 
 	int ret,quiet,i,j;
-	struct perf_event_attr pe[MAX_LIMIT];
-	int fd[MAX_LIMIT];
-	long long insn_count[MAX_LIMIT];
 
 	quiet=test_quiet();
 
-	for(i=0;i<=MAX_LIMIT;i++) {
+	for(i=0;i<MAX_LIMIT;i++) {
 
 		if (!quiet) {
-			printf("Now checking if %d measurements\n",i);
+			if (i%25==0) printf("Now checking %d\n",i);
 		}
 
 		for(j=0;j<i;j++) {
@@ -90,6 +92,11 @@ int main(int argc, char **argv) {
 		}
 
 		for(j=0;j<i;j++) close(fd[j]);
+	}
+
+	if (!quiet) {
+		fprintf(stderr,"Successfully multiplexed %d events\n",
+			MAX_LIMIT);
 	}
 
 	test_pass( test_string );
