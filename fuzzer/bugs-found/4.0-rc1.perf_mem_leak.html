@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>[BUG] mem leak (not: info leak) in perf (kernel 4.0.0-rc2)
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+[BUG] mem leak (not: info leak) in perf (kernel 4.0.0-rc2)
+</h1>
+</center>
+
+<h3>Found by</h3>
+honggfuzz -- https://code.google.com/p/honggfuzz/source/checkout
+
+<h3>Severity</h3>
+Memory leak
+
+<h3>First Seen</h3>
+4.0-rc1, introduced by a83fe28e2e45392464858a96745db26ac73670c8
+
+<h3>Most recently Seen</h3>
+?
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+?
+
+<h3>Linux-kernel</h3>
+26 February 2015 -- [PATCH] perf: fix put_event() ctx leak<br>
+12 March 2015 -- [BUG] mem leak (not: info leak) in perf (kernel 4.0.0-rc2)<br>
+
+<h3>Fixed in</h3>
+4.0 a83fe28e2e45392464858a96745db26ac73670c8
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
