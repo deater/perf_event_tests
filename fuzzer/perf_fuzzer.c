@@ -149,7 +149,7 @@ static char type_count_names[MAX_TYPE_COUNT][20]={
 static long long total_iterations=0;
 static long long overflows=0;
 static long long sigios=0;
-static long long open_max=0;
+static long long current_open=0;
 static long long open_attempts=0,open_successful=0;
 static long long close_attempts=0,close_successful=0;
 static long long mmap_attempts=0,mmap_successful=0;
@@ -305,7 +305,7 @@ static void close_event(int i, int from_sigio) {
 	result=close(event_data[i].fd);
 	if (result==0) {
 		close_successful++;
-		open_max--;
+		current_open--;
 	}
 
 	if ((!from_sigio) && (logging&TYPE_CLOSE)) {
@@ -858,7 +858,7 @@ static void open_random_event(void) {
 	/* We successfully opened an event! */
 
 	open_successful++;
-	open_max++;
+	current_open++;
 
 	if (logging&TYPE_OPEN) {
 		sprintf(log_buffer,"O %d %d %d %d %lx ",
@@ -1427,8 +1427,8 @@ static void dump_summary(FILE *fff, int print_values) {
 	if (print_values) {
 
 	fprintf(fff,"Iteration %lld\n",total_iterations);
-	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Max simul open: %lld\n",
-	       open_attempts,open_successful,open_max);
+	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Currently open: %lld\n",
+	       open_attempts,open_successful,current_open);
 	for(i=0;i<MAX_ERRNOS;i++) {
 		if (errno_count[i]!=0) {
 			fprintf(fff,"\t\t");
