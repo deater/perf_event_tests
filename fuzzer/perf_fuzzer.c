@@ -149,6 +149,7 @@ static char type_count_names[MAX_TYPE_COUNT][20]={
 static long long total_iterations=0;
 static long long overflows=0;
 static long long sigios=0;
+static long long open_max=0;
 static long long open_attempts=0,open_successful=0;
 static long long close_attempts=0,close_successful=0;
 static long long mmap_attempts=0,mmap_successful=0;
@@ -167,7 +168,7 @@ static int already_forked=0;
 static pid_t forked_pid;
 
 
-#define NUM_EVENTS 1024
+#define NUM_EVENTS 100000
 
 struct event_data_t {
 	int active;
@@ -302,7 +303,10 @@ static void close_event(int i, int from_sigio) {
 
 	close_attempts++;
 	result=close(event_data[i].fd);
-	if (result==0) close_successful++;
+	if (result==0) {
+		close_successful++;
+		open_max--;
+	}
 
 	if ((!from_sigio) && (logging&TYPE_CLOSE)) {
 		sprintf(log_buffer,"C %d\n",event_data[i].fd);
@@ -854,6 +858,7 @@ static void open_random_event(void) {
 	/* We successfully opened an event! */
 
 	open_successful++;
+	open_max++;
 
 	if (logging&TYPE_OPEN) {
 		sprintf(log_buffer,"O %d %d %d %d %lx ",
@@ -1422,8 +1427,8 @@ static void dump_summary(FILE *fff, int print_values) {
 	if (print_values) {
 
 	fprintf(fff,"Iteration %lld\n",total_iterations);
-	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld\n",
-	       open_attempts,open_successful);
+	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Max simul open: %lld\n",
+	       open_attempts,open_successful,open_max);
 	for(i=0;i<MAX_ERRNOS;i++) {
 		if (errno_count[i]!=0) {
 			fprintf(fff,"\t\t");
@@ -1886,7 +1891,8 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 1: if (type&TYPE_CLOSE) {
-					close_random_event();
+//					if (rand()%3==0)
+						close_random_event();
 				}
 				break;
 			case 2: if (type&TYPE_IOCTL) {
