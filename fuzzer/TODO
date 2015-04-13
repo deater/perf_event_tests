@@ -1,3 +1,6 @@
+md5sum the executable and store a copy, so can reproduce later even
+in the face of changing versions
+
 Try having the PERF_FLAG_FD_NO_GROUP and
 	PERF_FLAG_FD_OUTPUT flags work together.
 
