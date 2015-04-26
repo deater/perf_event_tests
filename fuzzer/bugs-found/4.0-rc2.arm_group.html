@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>
+ARM crash in validate event (4.0.0-rc2)
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+ARM crash in validate event (4.0.0-rc2)
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer -- Suzuki K. Poulose / Pawel Moll
+
+<h3>Severity</h3>
+crash
+
+<h3>First Seen</h3>
+3.19
+
+<h3>Most recently Seen</h3>
+4.0-rc2
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+ARM versaile express
+
+<h3>Linux-kernel</h3>
+9 March 2015 -- [PATCH 0/3] [4.0] arm/arm64: Do not group hardware events from
+        different PMUs
+
+
+<h3>Fixed in</h3>
+4.1<br><br>
+8fff105e13041e49b82f92eef034f363a6b1c071
+arm64: perf: reject groups spanning multiple HW PMUs<br><br>
+e429817b401f095ac483fcb02524b01faf45dad6
+ARM: perf: reject groups spanning multiple hardware PMUs
+<br><br>
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+Bad mode in Synchronous Abort handler detected, code 0x86000006 -- IABT (current EL)
+    CPU: 0 PID: 1371 Comm: perf_fuzzer Not tainted 3.19.0+ #249
+    Hardware name: V2F-1XV7 Cortex-A53x2 SMM (DT)
+    task: ffffffc07c73a280 ti: ffffffc07b0a0000 task.ti: ffffffc07b0a0000
+    PC is at 0x0
+    LR is at validate_event+0x90/0xa8
+    pc : [<0000000000000000>] lr : [<ffffffc000090228>] pstate: 00000145
+    sp : ffffffc07b0a3ba0
+    
+    [<          (null)>]           (null)
+    [<ffffffc0000907d8>] armpmu_event_init+0x174/0x3cc
+    [<ffffffc00015d870>] perf_try_init_event+0x34/0x70
+    [<ffffffc000164094>] perf_init_event+0xe0/0x10c
+    [<ffffffc000164348>] perf_event_alloc+0x288/0x358
+    [<ffffffc000164c5c>] SyS_perf_event_open+0x464/0x98c
+    Code: bad PC value
+</pre>
+<li>
+<pre>
+CPU: 0 PID: 1527 Comm: perf_fuzzer Not tainted 4.0.0-rc2 #57
+Hardware name: ARM-Versatile Express
+task: bd8484c0 ti: be676000 task.ti: be676000
+PC is at 0xbf1bbc90
+LR is at validate_event+0x34/0x5c
+pc : [<bf1bbc90>]    lr : [<80016060>]    psr: 00000013
+...
+[<80016060>] (validate_event) from [<80016198>] (validate_group+0x28/0x90)
+[<80016198>] (validate_group) from [<80016398>] (armpmu_event_init+0x150/0x218)
+[<80016398>] (armpmu_event_init) from [<800882e4>] (perf_try_init_event+0x30/0x48)
+[<800882e4>] (perf_try_init_event) from [<8008f544>] (perf_init_event+0x5c/0xf4)
+[<8008f544>] (perf_init_event) from [<8008f8a8>] (perf_event_alloc+0x2cc/0x35c)
+[<8008f8a8>] (perf_event_alloc) from [<8009015c>] (SyS_perf_event_open+0x498/0xa70)
+[<8009015c>] (SyS_perf_event_open) from [<8000e420>] (ret_fast_syscall+0x0/0x34)
+Code: bf1be000 bf1bb380 802a2664 00000000 (00000002)
+---[ end trace 01aff0ff00926a0a ]---
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
