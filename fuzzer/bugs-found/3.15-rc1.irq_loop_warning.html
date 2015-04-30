@@ -24,7 +24,7 @@ perf_fuzzer
 3.15-rc1
 
 <h3>Most recently Seen</h3>
-3.15-rc5
+3.15-rc5, 4.1-rc0
 
 <h3>Reproducible</h3>
 yes
@@ -46,6 +46,142 @@ the fixed-counter-0 sample_period is 2.<br><br>
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+        Linux version 4.0.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1429913766
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 100000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1429913766
+
+Pid=26448, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 127761  Successful: 907  Currently open: 595
+                EPERM : 13
+                ENOENT : 638
+                E2BIG : 12148
+                EBADF : 7160
+                UNKNOWN 16 : 1
+                EINVAL : 106556
+                ENOSPC : 9
+                EOPNOTSUPP : 329
+                Type (Hardware 216/16984)(software 320/18429)(tracepoint 68/18304)(Cache 57/16130)(cpu 172/18053)(breakpoint 23/18313)(power 0/2258)(intel_bts 51/2332)(uncore_imc 0/2316)(#9 0/18)(#10 0/18)(#11 0/12)(#12 0/24)(#13 0/18)(#14 0/14)(>14 0/14538)
+        Close attempts: 312  Successful: 312
+        Read attempts: 894  Successful: 786
+        Write attempts: 871  Successful: 0
+        Ioctl attempts: 914  Successful: 411
+        Mmap attempts: 907  Successful: 102
+        Prctl attempts: 900  Successful: 900
+        Fork attempts: 446  Successful: 446
+        Poll attempts: 883  Successful: 865
+        Access attempts: 939  Successful: 466
+        Trash mmap attempts: 900  Successful: 900
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[ 8224.179407] ------------[ cut here ]------------
+[ 8224.184368] WARNING: CPU: 0 PID: 0 at arch/x86/kernel/cpu/perf_event_intel.c:1602 intel_pmu_handle_irq+0x2bc/0x450()
+[ 8224.195686] perfevents: irq loop stuck!
+[ 8224.199835] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm crct10dif_pclmul snd_hda_codec_hdmi crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek aesni_intel snd_hda_codec_generic aes_x86_64 i915 snd_hda_intel snd_hda_controller snd_hda_codec snd_hda_core snd_hwdep lrw snd_pcm gf128mul iTCO_wdt iTCO_vendor_support drm_kms_helper glue_helper snd_timer ppdev evdev drm ablk_helper snd cryptd mei_me soundcore xhci_pci tpm_tis psmouse xhci_hcd mei serio_raw lpc_ich tpm mfd_core parport_pc pcspkr parport wmi i2c_algo_bit battery i2c_i801 button processor video sg sr_mod sd_mod cdrom ahci libahci libata ehci_pci ehci_hcd e1000e usbcore ptp crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 8224.273188] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W       4.0.0+ #136
+[ 8224.281012] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 8224.288988]  ffffffff81a093a8 ffff88011ea05b50 ffffffff816d5639 0000000000000000
+[ 8224.297058]  ffff88011ea05ba0 ffff88011ea05b90 ffffffff81072e4a ffff880119b87090
+[ 8224.306453]  0000000000000064 ffff88011ea0bd80 ffff8800c38c7800 0000000000000040
+[ 8224.315894] Call Trace:
+[ 8224.319886]  <NMI>  [<ffffffff816d5639>] dump_stack+0x45/0x57
+[ 8224.327439]  [<ffffffff81072e4a>] warn_slowpath_common+0x8a/0xc0
+[ 8224.335238]  [<ffffffff81072ec6>] warn_slowpath_fmt+0x46/0x50
+[ 8224.342812]  [<ffffffff8103399c>] intel_pmu_handle_irq+0x2bc/0x450
+[ 8224.350830]  [<ffffffff81164215>] ? perf_event_task_tick+0x1d5/0x2b0
+[ 8224.359025]  [<ffffffff8102a40b>] perf_event_nmi_handler+0x2b/0x50
+[ 8224.367069]  [<ffffffff810185c0>] nmi_handle+0xa0/0x150
+[ 8224.374067]  [<ffffffff81018525>] ? nmi_handle+0x5/0x150
+[ 8224.381169]  [<ffffffff8101886a>] default_do_nmi+0x4a/0x140
+[ 8224.388487]  [<ffffffff810189f8>] do_nmi+0x98/0xe0
+[ 8224.394886]  [<ffffffff816df8af>] end_repeat_nmi+0x1e/0x2e
+[ 8224.402082]  [<ffffffff8105bffa>] ? native_write_msr_safe+0xa/0x10
+[ 8224.409958]  [<ffffffff8105bffa>] ? native_write_msr_safe+0xa/0x10
+[ 8224.417785]  [<ffffffff8105bffa>] ? native_write_msr_safe+0xa/0x10
+[ 8224.425536]  <<EOE>>  <IRQ>  [<ffffffff8103356e>] intel_pmu_enable_event+0x20e/0x230
+[ 8224.435001]  [<ffffffff8102b721>] x86_pmu_start+0x81/0x120
+[ 8224.442007]  [<ffffffff8102bf25>] x86_pmu_enable+0x295/0x310
+[ 8224.449150]  [<ffffffff811621aa>] perf_pmu_enable+0x2a/0x30
+[ 8224.456173]  [<ffffffff81029fe8>] x86_pmu_commit_txn+0x78/0xa0
+[ 8224.456173]  [<ffffffff81029fe8>] x86_pmu_commit_txn+0x78/0xa0
+[ 8224.463561]  [<ffffffff81427f6b>] ? debug_object_activate+0x14b/0x1e0
+[ 8224.471591]  [<ffffffff810bdde9>] ? __lock_acquire.isra.31+0x3b9/0x1000
+[ 8224.479715]  [<ffffffff81427f6b>] ? debug_object_activate+0x14b/0x1e0
+[ 8224.487676]  [<ffffffff810bcba4>] ? __lock_is_held+0x54/0x80
+[ 8224.494794]  [<ffffffff81162d50>] ? event_sched_in.isra.85+0x190/0x330
+[ 8224.502894]  [<ffffffff811630a8>] group_sched_in+0x1b8/0x1e0
+[ 8224.510082]  [<ffffffff8101df1a>] ? native_sched_clock+0x2a/0x90
+[ 8224.517646]  [<ffffffff811637bc>] __perf_event_enable+0x25c/0x2a0
+[ 8224.525297]  [<ffffffff810f3e69>] ? tick_nohz_irq_exit+0x29/0x30
+[ 8224.532776]  [<ffffffff8115ef30>] ? cpu_clock_event_start+0x40/0x40
+[ 8224.540595]  [<ffffffff8115ef80>] remote_function+0x50/0x60
+[ 8224.547668]  [<ffffffff810f8cd1>] flush_smp_call_function_queue+0x81/0x180
+[ 8224.556126]  [<ffffffff810f9763>] generic_smp_call_function_single_interrupt+0x13/0x60
+[ 8224.565749]  [<ffffffff8104b5c8>] smp_trace_call_function_single_interrupt+0x38/0xc0
+[ 8224.575132]  [<ffffffff816de9be>] trace_call_function_single_interrupt+0x6e/0x80
+[ 8224.584168]  <EOI>  [<ffffffff8156e8b5>] ? cpuidle_enter_state+0x65/0x160
+[ 8224.592646]  [<ffffffff8156e8a1>] ? cpuidle_enter_state+0x51/0x160
+[ 8224.600408]  [<ffffffff8156e9e7>] cpuidle_enter+0x17/0x20
+[ 8224.607285]  [<ffffffff810b6e39>] cpu_startup_entry+0x399/0x440
+[ 8224.614712]  [<ffffffff816c9ddb>] rest_init+0xbb/0xd0
+[ 8224.621283]  [<ffffffff81d46f74>] start_kernel+0x44e/0x45b
+[ 8224.628212]  [<ffffffff81d46120>] ? early_idt_handlers+0x120/0x120
+[ 8224.635980]  [<ffffffff81d464d7>] x86_64_start_reservations+0x2a/0x2c
+[ 8224.643999]  [<ffffffff81d46614>] x86_64_start_kernel+0x13b/0x14a
+[ 8224.651691] ---[ end trace 5679ca0875946dba ]---
+[ 8224.657764] 
+[ 8224.660447] CPU#0: ctrl:       0000000000000000
+[ 8224.666448] CPU#0: status:     0000000000000000
+[ 8224.672414] CPU#0: overflow:   0000000000000000
+[ 8224.678373] CPU#0: fixed:      00000000000000b9
+[ 8224.684338] CPU#0: pebs:       0000000000000000
+[ 8224.690322] CPU#0: debugctl:   0000000000000000
+[ 8224.696253] CPU#0: active:     0000000300000000
+[ 8224.702232] CPU#0:   gen-PMC0 ctrl:  00000000108001c2
+[ 8224.708823] CPU#0:   gen-PMC0 count: 0000000000000001
+[ 8224.715371] CPU#0:   gen-PMC0 left:  0000ffffffffffff
+[ 8224.721914] CPU#0:   gen-PMC1 ctrl:  00000000001382d0
+[ 8224.728402] CPU#0:   gen-PMC1 count: 0000000000ff3792
+[ 8224.734849] CPU#0:   gen-PMC1 left:  0000ffffff012119
+[ 8224.741271] CPU#0:   gen-PMC2 ctrl:  00000003ff96764b
+[ 8224.747600] CPU#0:   gen-PMC2 count: 0000000000000001
+[ 8224.753884] CPU#0:   gen-PMC2 left:  0000ffffffffffff
+[ 8224.760100] CPU#0:   gen-PMC3 ctrl:  0000000000131acd
+[ 8224.766320] CPU#0:   gen-PMC3 count: 000000000000288a
+[ 8224.772585] CPU#0:   gen-PMC3 left:  0000ffffffffffff
+[ 8224.778769] CPU#0: fixed-PMC0 count: 0000fffffffffffe
+[ 8224.784973] CPU#0: fixed-PMC1 count: 0000fffda1877268
+[ 8224.791196] CPU#0: fixed-PMC2 count: 0000000000f222eb
+[ 8224.797450] perf_event_intel: clearing PMU state on CPU#0
+[ 8224.804063] INFO: NMI handler (perf_event_nmi_handler) took too long to run: 624.630 msecs
+[ 8224.813789] perf interrupt took too long (4880480 > 2500), lowering kernel.perf_event_max_sample_rate to 50000
+[ 8224.825400] perf interrupt took too long (4842512 > 5000), lowering kernel.perf_event_max_sample_rate to 25000
+[ 8225.007411] perf interrupt took too long (4804688 > 10000), lowering kernel.perf_event_max_sample_rate to 12500
+[ 8225.244832] perf interrupt took too long (4767159 > 20000), lowering kernel.perf_event_max_sample_rate to 6250
+[ 8225.295535] perf interrupt took too long (4729923 > 38461), lowering kernel.perf_event_max_sample_rate to 3250
+[ 8225.747314] perf interrupt took too long (4692980 > 71428), lowering kernel.perf_event_max_sample_rate to 1750
+</pre>
+
 <li>With PeterZ's 63-bit limit patch applied.
 <pre>
 *** perf_fuzzer 0.29-pre *** by Vince Weaver
