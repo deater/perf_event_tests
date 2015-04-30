@@ -27,12 +27,18 @@ Sometimes
 3.12.0
 
 <h3>Most Recently Seen</h3>
-3.14, 3.19-rc5
+3.14, 3.19-rc5, 4.1-pre0
 
 <h3>Machines Affected</h3>
 Seen on core2, haswell
 
+<h3>Analysis</h3>
+validate_group() -&gt; x86_pmu.schedule_events() -&gt; ???? -> variable_test_bit()
+ (hard to tell which test bit with all the inlining going on).
+
 <h3>Linux Kernel</h3>
+30 April 2015 -- "perf: fuzzer triggers NULL pointer derefreence in x86_schedule_events"
+<br><br>
 <a href="https://lkml.org/lkml/2014/3/10/342">
 10 March 2014: "another perf_fuzzer hard lockup",
 "perf_fuzzer lockup in x86_schedule_events()"</a>
@@ -46,7 +52,96 @@ Seen on core2, haswell
 
 <hr>
 
+
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+        Linux version 4.0.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1430333596
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1430333596
+
+Pid=31352, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 128638  Successful: 893  Currently open: 600
+                EPERM : 15
+                ENOENT : 655
+                E2BIG : 12617
+                EBADF : 7129
+                EINVAL : 106980
+                ENOSPC : 2
+                EOPNOTSUPP : 347
+                Type (Hardware 217/16996)(software 305/18705)(tracepoint 62/18326)(Cache 66/15938)(cpu 181/18359)(breakpoint 15/18543)(power 0/2255)(intel_bts 47/2379)(uncore_imc 0/2384)(#9 0/21)(#10 0/22)(#11 0/16)(#12 0/11)(#13 0/17)(#14 0/19)(>14 0/14647)
+        Close attempts: 293  Successful: 293
+        Read attempts: 874  Successful: 758
+        Write attempts: 928  Successful: 0
+        Ioctl attempts: 892  Successful: 406
+        Mmap attempts: 893  Successful: 131
+        Prctl attempts: 901  Successful: 901
+        Fork attempts: 440  Successful: 440
+        Poll attempts: 964  Successful: 953
+        Access attempts: 964  Successful: 488
+        Trash mmap attempts: 879  Successful: 879
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[428232.701319] BUG: unable to handle kernel NULL pointer dereference at           (null)
+[428232.710197] IP: [<ffffffff8102b3e2>] x86_schedule_events+0x112/0x250
+[428232.717470] PGD cdf50067 PUD c610c067 PMD 0 
+[428232.722557] Oops: 0000 [#1] SMP 
+[428232.726490] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm crct10dif_pclmul snd_hda_codec_hdmi crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek aesni_intel snd_hda_codec_generic aes_x86_64 i915 snd_hda_intel snd_hda_controller snd_hda_codec snd_hda_core snd_hwdep lrw snd_pcm gf128mul iTCO_wdt iTCO_vendor_support drm_kms_helper glue_helper snd_timer ppdev evdev drm ablk_helper snd cryptd mei_me soundcore xhci_pci tpm_tis psmouse xhci_hcd mei serio_raw lpc_ich tpm mfd_core parport_pc pcspkr parport wmi i2c_algo_bit battery i2c_i801 button processor video sg sr_mod sd_mod cdrom ahci libahci libata ehci_pci ehci_hcd e1000e usbcore ptp crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[428232.800929] CPU: 0 PID: 31352 Comm: perf_fuzzer Tainted: G        W       4.0.0+ #136
+[428232.809912] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[428232.818447] task: ffff8800cef88bd0 ti: ffff8800c56b0000 task.ti: ffff8800c56b0000
+[428232.827119] RIP: 0010:[<ffffffff8102b3e2>]  [<ffffffff8102b3e2>] x86_schedule_events+0x112/0x250
+[428232.837221] RSP: 0018:ffff8800c56b3cb8  EFLAGS: 00010246
+[428232.843575] RAX: 0000000000000000 RBX: ffff8800c54d5000 RCX: 00000000001001b7
+[428232.851871] RDX: 0000000000000000 RSI: ffff8800c42e8000 RDI: 0000000000000000
+[428232.860128] RBP: ffff8800c56b3d18 R08: 0000000000000000 R09: ffff8800c54d5724
+[428232.868362] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000004
+[428232.876655] R13: ffff8800366ec000 R14: 0000000000000002 R15: 0000000000000004
+[428232.884987] FS:  00007f560c527700(0000) GS:ffff88011ea00000(0000) knlGS:0000000000000000
+[428232.894338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[428232.901173] CR2: 0000000000000000 CR3: 00000000c469b000 CR4: 00000000001407f0
+[428232.909498] DR0: 0000000000000000 DR1: 0000000002d54000 DR2: 0000000002b4f000
+[428232.917831] DR3: 00000000033d8000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[428232.926129] Stack:
+[428232.928950]  0000000000000001 0000000000000000 00000002fffffff4 0000000000000002
+[428232.937669]  fffffffffffffff4 0000000000000000 ffff8800c56b3d18 ffff8800366ec000
+[428232.946332]  0000000000000000 ffff8800c54d5000 ffff8800c42e8000 ffffffff81c1cfc0
+[428232.955038] Call Trace:
+[428232.958326]  [<ffffffff8102a75e>] x86_pmu_event_init+0x12e/0x3d0
+[428232.965464]  [<ffffffff81160030>] ? perf_event_ctx_lock_nested+0x20/0x110
+[428232.973486]  [<ffffffff8116023d>] perf_try_init_event+0x4d/0xb0
+[428232.980501]  [<ffffffff811683af>] perf_init_event+0x13f/0x170
+[428232.987355]  [<ffffffff81168275>] ? perf_init_event+0x5/0x170
+[428232.994194]  [<ffffffff8116882b>] perf_event_alloc+0x44b/0x6d0
+[428233.001145]  [<ffffffff81168ea3>] SYSC_perf_event_open+0x3f3/0xde0
+[428233.008400]  [<ffffffff81169d5e>] SyS_perf_event_open+0xe/0x10
+[428233.015325]  [<ffffffff816dd632>] system_call_fastpath+0x16/0x7a
+[428233.022430] Code: a0 8d 78 01 74 31 48 8b b4 c3 28 05 00 00 48 83 c0 01 48 63 96 5c 01 00 00 4c 8b 86 98 01 00 00 83 fa ff 0f 84 b4 00 00 00 89 c7 <49> 0f a3 10 45 19 c0 45 85 c0 75 a2 45 31 f6 3b 7d b4 0f 85 9a 
+[428233.044645] RIP  [<ffffffff8102b3e2>] x86_schedule_events+0x112/0x250
+[428233.052293]  RSP <ffff8800c56b3cb8>
+[428233.056712] CR2: 0000000000000000
+[428233.061189] [drm:intel_crtc_set_config [i915]] *ERROR* failed to restore config after modeset failure
+[428233.076847] ---[ end trace 5679ca0875946dbb ]---
+</pre>
 <li>
 <pre>
 Stopping after 30000
