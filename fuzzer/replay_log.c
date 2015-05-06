@@ -789,6 +789,7 @@ int main(int argc, char **argv) {
 			case 'A':
 				if (replay_which & REPLAY_ACCESS) {
 					access_event(line);
+					replay_syscalls++;
 				}
 				break;
 			case 'C':
