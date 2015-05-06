@@ -702,6 +702,8 @@ static void print_errno_name(FILE *fff, int e) {
 				break;
 		case EACCES:	fprintf(fff,"EACCES");
 				break;
+		case EBUSY:	fprintf(fff,"EBUSY");
+				break;
 		default:	fprintf(fff,"UNKNOWN %d",e);
 				break;
 	}
