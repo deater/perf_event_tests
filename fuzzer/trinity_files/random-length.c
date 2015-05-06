@@ -18,7 +18,7 @@ unsigned long get_len(void)
 
 	case 0:	i &= 0xff;
 		break;
-	case 1: i &= page_size;
+	case 1: i &= page_size - 1;
 		break;
 	case 2:	i &= 0xffff;
 		break;
@@ -36,8 +36,8 @@ unsigned long get_len(void)
 		return 0;
 
 	/* we might get lucky if something is counting ints/longs etc. */
-	if (rand() % 100 < 25) {
-		int _div = 1 << rand_range(1, 4);	/* 2,4,8 or 16 */
+	if (ONE_IN(4)) {
+		int _div = 1 << RAND_RANGE(1, 4);	/* 2,4,8 or 16 */
 		i /= _div;
 	}
 

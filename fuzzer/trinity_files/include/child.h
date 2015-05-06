@@ -1,19 +1,45 @@
 #pragma once
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <types.h>
+#include "syscall.h"
 
-extern int this_child;
+struct childdata {
+	/* The actual syscall records each child uses. */
+	struct syscallrecord syscall;
+	struct syscallrecord previous;
 
+	/* log file related stuff */
+	FILE *logfile;
+	bool logdirty;
+
+	/* per-child mmaps */
+	struct map *mappings;
+	unsigned int num_mappings;
+
+	unsigned int seed;
+
+	pid_t pid;
+
+	unsigned int num;
+
+	unsigned char kill_count;
+
+	bool dontkillme;	/* provide temporary protection from the watchdog. */
+};
+
+extern struct childdata *this_child;
 extern unsigned int max_children;
 
-void child_process(int childno);
-bool mkcall(int child);
-void do_syscall_from_child(void);
+void init_child(struct childdata *child, int childno);
+void init_child_mappings(struct childdata *child);
 
-void init_child(int childno);
+void child_process(void);
+
+void set_dontkillme(pid_t pid, bool state);
 
 void reap_child(pid_t childpid);
 
-bool child_random_syscalls(int childno);
-int child_read_all_files(int childno);
+bool child_random_syscalls(void);
+int child_read_all_files(void);

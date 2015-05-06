@@ -6,28 +6,97 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <limits.h>
+#include "arch.h"
 #include "pids.h"
 #include "random.h"
 #include "sanitise.h"	// interesting_numbers
 #include "types.h"
 #include "utils.h"
 
-int rand_range(int min, int max)
+void generate_rand_bytes(unsigned char *ptr, unsigned int len)
 {
-	if (min > max)
-		swap(min, max);
+	unsigned int i;
+	unsigned char choice = rand() % 3;
+	unsigned int startoffset = 0, remain, runlen;
+	unsigned char separators[3] = { ' ', '-', '\0' };
+	unsigned char separator;
 
-	return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+	switch (choice) {
+	case 0:
+		/* Complete garbage. */
+		for (i = 0; i < len; i++)
+			ptr[i] = RAND_BYTE();
+		break;
+	case 1:
+		/* printable text strings. */
+		for (i = 0; i < len; i++)
+			ptr[i] = 32 + rand() % (0x7f - 32);
+		break;
+	case 2:
+		/* numbers (for now, decimal only) */
+
+		separator = separators[rand() % 3];
+
+		remain = len;
+
+		while (remain > 0) {
+			/* Sometimes make the numbers be negative. */
+			if (RAND_BOOL()) {
+				ptr[startoffset++] = '-';
+				remain--;
+				if (remain <= 0)
+					break;
+			}
+
+			/* At most make this run 10 chars. */
+			runlen = min(remain, (unsigned int) rand() % 10);
+
+			for (i = startoffset; i < startoffset + runlen; i++)
+				ptr[i] = '0' + rand() % 10;
+
+			startoffset += runlen;
+			remain -= runlen;
+
+			/* insert commas and/or spaces */
+			if (remain > 0) {
+				ptr[i++] = separator;
+				startoffset++;
+				remain--;
+			}
+		}
+		break;
+	}
 }
 
-unsigned int rand_bool(void)
+/*
+ * OR a random number of bits into a mask.
+ * Used by ARG_LIST generation, and get_o_flags()
+ */
+unsigned long set_rand_bitmask(unsigned int num, const unsigned long *values)
 {
-	return rand() % 2;
+	unsigned long i;
+	unsigned long mask = 0;
+	unsigned int bits;
+
+	bits = RAND_RANGE(0, num);      /* num of bits to OR */
+	if (bits == 0)
+		return mask;
+
+	for (i = 0; i < bits; i++)
+		mask |= values[rand() % num];
+
+	return mask;
 }
 
-static unsigned int rand_single_bit(unsigned char size)
+/*
+ * Pick a random power of two between 2^0 and 2^(__WORDSIZE-1)
+ */
+unsigned long rand_single_bit(unsigned char size)
 {
-	return (1L << (rand() % size));
+	if (size > __WORDSIZE)
+		size = __WORDSIZE;
+
+	return (1UL << (rand() % size));
 }
 
 /*
@@ -35,71 +104,12 @@ static unsigned int rand_single_bit(unsigned char size)
  */
 static unsigned long randbits(int limit)
 {
-	unsigned int num = rand() % limit / 2;
+	unsigned int num = rand() % (limit / 2);
 	unsigned int i;
 	unsigned long r = 0;
 
 	for (i = 0; i < num; i++)
-		r |= (1 << (rand() % (limit - 1)));
-
-	return r;
-}
-
-/*
- * Based on very similar routine stolen from iknowthis. Thanks Tavis.
- */
-static unsigned long taviso(void)
-{
-	unsigned long r = 0;
-	unsigned long temp;
-
-	switch (rand() % 4) {
-	case 0:	r = rand() & rand();
-#if __WORDSIZE == 64
-		r <<= 32;
-		r |= rand() & rand();
-#endif
-		break;
-
-	case 1:	temp = rand();
-		r = rand();
-		if (temp) r %= temp;
-#if __WORDSIZE == 64
-		r <<= 32;
-
-		temp = rand();
-		if (temp) r |= rand() % temp;
-#endif
-		break;
-
-	case 2:	r = rand() | rand();
-#if __WORDSIZE == 64
-		r <<= 32;
-		r |= rand() | rand();
-#endif
-		break;
-
-	case 3:	r = rand();
-#if __WORDSIZE == 64
-		r <<= 32;
-		r |= rand();
-#endif
-		break;
-	}
-
-	return r;
-}
-
-/*
- * Pick 8 random bytes, and concatenate them into a long.
- */
-static unsigned long rand8x8(void)
-{
-	unsigned long r = 0UL;
-	unsigned int i;
-
-	for (i = rand_range(1, 7); i > 0; --i)
-		r = (r << 8) | rand() % 256;
+		r |= (1UL << (rand() % (limit - 1)));
 
 	return r;
 }
@@ -107,43 +117,15 @@ static unsigned long rand8x8(void)
 /*
  * Pick 1 random byte, and repeat it through a long.
  */
-static unsigned long rept8(unsigned int num)
+static unsigned long rept_byte(void)
 {
-	unsigned long r = 0UL;
-	unsigned int i;
-	unsigned char c;
+	unsigned long r = RAND_BYTE();
 
-	c = rand() % 256;
-	for (i = rand() % (num - 1) ; i > 0; --i)
-		r = (r << 8) | c;
-
-	return r;
-}
-
-/*
- * "selector" function for 32bit random.
- * only called from rand32()
- */
-static unsigned int __rand32(void)
-{
-	unsigned long r = 0;
-
-	switch (rand() % 7) {
-	case 0: r = rand_single_bit(32);
-		break;
-	case 1:	r = randbits(32);
-		break;
-	case 2: r = rand();
-		break;
-	case 3:	r = taviso();
-		break;
-	case 4:	r = rand8x8();
-		break;
-	case 5:	r = rept8(4);
-		break;
-	case 6:	return get_interesting_32bit_value();
-	}
-
+	r = (r << 8) | r;
+	r = (r << 16) | r;
+#if __WORDSIZE == 64
+	r = (r << 32) | r;
+#endif
 	return r;
 }
 
@@ -154,43 +136,43 @@ unsigned int rand32(void)
 {
 	unsigned long r = 0;
 
-	r = __rand32();
-
-	if (rand_bool()) {
-		unsigned int i;
-		unsigned int rounds;
-
-		/* mangle it. */
-		rounds = rand() % 3;
-		for (i = 0; i < rounds; i++) {
-			if (rand_bool())
-				r |= __rand32();
-			else
-				r ^= __rand32();
-		}
+	switch (rand() % 5) {
+	case 0: r = rand_single_bit(32);
+		break;
+	case 1:	r = randbits(32);
+		break;
+	case 2: r = RAND_32();
+		break;
+	case 3:	r = rept_byte();
+		break;
+	case 4:	return get_interesting_value();
 	}
 
 	/* Sometimes deduct it from INT_MAX */
-	if (rand_bool())
+	if (ONE_IN(25))
 		r = INT_MAX - r;
 
 	/* Sometimes flip sign */
-	if (rand_bool())
-		r |= (1L << 31);
+	if (ONE_IN(25))
+		r = ~r + 1;
 
 	/* we might get lucky if something is counting ints/longs etc. */
-	if (rand() % 100 < 25) {
-		int _div = 1 << rand_range(1, 4);	/* 2,4,8 or 16 */
+	if (ONE_IN(4)) {
+		int _div = 1 << RAND_RANGE(1, 4);	/* 2,4,8 or 16 */
 		r /= _div;
 	}
 
 	/* limit the size */
-	switch (rand() % 4) {
+	switch (rand() % 5) {
 	case 0: r &= 0xff;
 		break;
 	case 1: r &= 0xffff;
 		break;
-	case 2: r &= 0xffffff;
+	case 2: r &= PAGE_MASK;
+		break;
+	case 3: r &= 0xffffff;
+		break;
+	case 4:	// do nothing
 		break;
 	}
 
@@ -204,27 +186,23 @@ u64 rand64(void)
 {
 	unsigned long r = 0;
 
-	if (rand_bool()) {
+	if (RAND_BOOL()) {
 		/* 32-bit ranges. */
 		r = rand32();
 
 	} else {
 		/* 33:64-bit ranges. */
-		switch (rand() % 7) {
+		switch (rand() % 5) {
 		case 0:	r = rand_single_bit(64);
 			break;
 		case 1:	r = randbits(64);
 			break;
-		case 2:	r = rand32() | rand32() << 31;
+		case 2:	r = RAND_64();
 			break;
-		case 3:	r = taviso();
-			break;
-		case 4:	r = rand8x8();
-			break;
-		case 5:	r = rept8(8);
+		case 3:	r = rept_byte();
 			break;
 		/* Sometimes pick a not-so-random number. */
-		case 6:	return get_interesting_value();
+		case 4:	return get_interesting_value();
 		}
 
 		/* limit the size */
@@ -235,26 +213,28 @@ u64 rand64(void)
 			break;
 		case 2: r &= 0x00ffffffffffffffULL;
 			break;
+		default: /* no limiting. */
+			break;
 		}
 	}
 
 	/* Sometimes invert the generated number. */
-	if (rand_bool())
+	if (ONE_IN(25))
 		r = ~r;
 
 	/* increase distribution in MSB */
-	if ((rand() % 10)) {
+	if (ONE_IN(10)) {
 		unsigned int i;
 		unsigned int rounds;
 
 		rounds = rand() % 4;
 		for (i = 0; i < rounds; i++)
-			r |= (1L << ((__WORDSIZE - 1) - (rand() % 8)));
+			r |= (1UL << ((__WORDSIZE - 1) - (rand() % 8)));
 	}
 
-	/* randomly flip sign bit. */
-	if (rand_bool())
-		r |= (1L << (__WORDSIZE - 1));
+	/* Sometimes flip sign */
+	if (ONE_IN(25))
+		r = ~r + 1;
 
 	return r;
 }

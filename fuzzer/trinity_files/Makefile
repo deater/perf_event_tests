@@ -14,36 +14,34 @@ x32:	trinity_lib.x32.a
 #####
 
 trinity_lib.a:	 fds.o generic-sanitise.o \
-		interesting-numbers.o log.o maps-static.o \
+		interesting-numbers.o log.o \
 		perf_event_open.o pids.o \
-		random.o random-address.o random-length.o random-page.o \
+		random.o random-address.o random-length.o \
 		shm.o utils.o unicode.o
 	$(AR) rv trinity_lib.a \
 		fds.o \
 		generic-sanitise.o \
 		interesting-numbers.o \
 		log.o \
-		maps-static.o \
 		perf_event_open.o \
 		pids.o \
 		random.o \
 		random-address.o \
 		random-length.o \
-		random-page.o \
 		shm.o \
 		utils.o \
 		unicode.o
 
 trinity_lib.x32.a:	 fds.x32.o generic-sanitise.x32.o \
-		interesting-numbers.x32.o log.x32.o maps-static.x32.o \
+		interesting-numbers.x32.o log.x32.o \
 		perf_event_open.x32.o pids.x32.o \
-		random.x32.o random-address.x32.o random-length.x32.o random-page.x32.o \
+		random.x32.o random-address.x32.o random-length.x32.o \
 		shm.x32.o utils.x32.o unicode.x32.o
 	$(AR) rv trinity_lib.x32.a \
 		fds.x32.o generic-sanitise.x32.o \
-		interesting-numbers.x32.o log.x32.o maps-static.x32.o \
+		interesting-numbers.x32.o log.x32.o \
 		perf_event_open.x32.o pids.x32.o \
-		random.x32.o random-address.x32.o random-length.x32.o random-page.x32.o \
+		random.x32.o random-address.x32.o random-length.x32.o \
 		shm.x32.o utils.x32.o unicode.x32.o
 
 #####
@@ -88,14 +86,6 @@ log.x32.o:		log.c
 
 #####
 
-maps-static.o:	maps-static.c
-	$(CC) $(CFLAGS) -c maps-static.c
-
-maps-static.x32.o:	maps-static.c
-	$(CC) $(CFLAGS_X32) -o maps-static.x32.o -c maps-static.c
-
-#####
-
 pids.o:		pids.c
 	$(CC) $(CFLAGS) -c pids.c
 
@@ -125,14 +115,6 @@ random-length.o:	random-length.c
 
 random-length.x32.o:	random-length.c
 	$(CC) $(CFLAGS_X32) -o random-length.x32.o -c random-length.c
-
-######
-
-random-page.o:	random-page.c
-	$(CC) $(CFLAGS) -c random-page.c
-
-random-page.x32.o:	random-page.c
-	$(CC) $(CFLAGS_X32) -o random-page.x32.o -c random-page.c
 
 #####
 
