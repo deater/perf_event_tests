@@ -833,16 +833,17 @@ static void open_random_event(void) {
 			type_count_success[which_type]++;
 			break;
 		}
-
-//      if (which_type==7) {
-  //            printf("Event t=%ld c=%llx pid=%d cpu=%d %s\n",
-    //                  event_data[i].attr.type,
-//			event_data[i].attr.config,
-//			event_data[i].pid,
-//			event_data[i].cpu,
-//			strerror(errno));
-  //    }
-
+#if 0
+		/* Track source of UNKNOWN errnos */
+		if (errno==16) {
+			printf("Event t=%d c=%llx pid=%d cpu=%d %s\n",
+				event_data[i].attr.type,
+				event_data[i].attr.config,
+				event_data[i].pid,
+				event_data[i].cpu,
+				strerror(errno));
+		}
+#endif
 
 		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) {
@@ -1837,7 +1838,7 @@ int main(int argc, char **argv) {
 	create_shm_arrays();
 	init_shm();
 
-	init_shared_pages();
+//	init_shared_pages();
 
 	syscall_perf_event_open.init();
 
