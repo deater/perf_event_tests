@@ -348,11 +348,14 @@ static void orderly_shutdown(void) {
 	int status;
 
 	if (already_forked) {
-		printf("Trying to cleanly shudtdown children\n");
+		printf("Trying to cleanly shudtdown pid %d\n",forked_pid);
 		kill(forked_pid,SIGKILL);
 		waitpid(forked_pid, &status, 0);
 		printf("Done...\n");
 	}
+
+	printf("Trying to shut ourselves down: %d, last child %d\n",
+			getpid(),forked_pid);
 
 	exit(1);
 }
@@ -872,7 +875,9 @@ static void open_random_event(void) {
 				event_data[i].flags);
 		write(log_fd,log_buffer,strlen(log_buffer));
 		perf_log_attr(&event_data[i].attr);
+#if FSYNC_EVERY
 		fsync(log_fd);
+#endif
 	}
 
 	event_data[i].fd=fd;
@@ -1402,7 +1407,16 @@ static void fork_random_event(void) {
 
 		/* we're the child */
 		if (forked_pid==0) {
-			while(1) instructions_million();
+			while(1) {
+				instructions_million();
+				/* we were orphaned, exit */
+				/* Had problems with orphans clogging up */
+				/* the system if the parent emergency */
+				/* exited */
+				if (getppid()==1) {
+					exit(1);
+				}
+			}
 		}
 
 		fork_attempts++;
