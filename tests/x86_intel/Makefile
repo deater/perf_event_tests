@@ -4,6 +4,7 @@ LFLAGS =
 LIB = ../../lib
 
 all:	\
+	bts_aux \
 	fixed_ctr0 \
 	fixed_ctr1 \
 	fixed_ctr2 \
@@ -117,6 +118,21 @@ pebs_addr:	pebs_addr.o $(LIB)/test_utils.o \
 pebs_addr.o:	pebs_addr.c
 	$(CC) $(CFLAGS) -c pebs_addr.c
 
+####
+
+bts_aux:	bts_aux.o $(LIB)/test_utils.o \
+			$(LIB)/matrix_multiply.o \
+			$(LIB)/perf_helpers.o \
+			$(LIB)/parse_record.o
+	$(CC) $(LFLAGS) -o bts_aux bts_aux.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/matrix_multiply.o \
+			$(LIB)/perf_helpers.o \
+			$(LIB)/parse_record.o
+
+bts_aux.o:	bts_aux.c
+	$(CC) $(CFLAGS) -c bts_aux.c
+
 ###
 
 pebs_latency:	pebs_latency.o $(LIB)/test_utils.o \
@@ -222,6 +238,7 @@ uncore_cpu_cbox.o:	uncore_cpu_cbox.c
 
 clean:	
 	rm -f *~ *.o \
+	bts_aux \
 	fixed_ctr0 \
 	fixed_ctr1 \
 	fixed_ctr2 \
