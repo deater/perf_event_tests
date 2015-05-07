@@ -245,6 +245,7 @@ clean:
 	offcore_response \
 	offcore_response_mask \
 	pebs \
+	pebs_addr \
 	pebs_latency \
 	pebs_registers \
 	uncore_events \
