@@ -35,10 +35,14 @@ bts_aux.c -- tests the Intel Branch Trace Store Functionality
 #define SAMPLE_FREQUENCY 100000
 
 #define MMAP_DATA_SIZE 8
+#define AUX_DATA_SIZE 8
 
 /* Global vars as I'm lazy */
 static int count_total=0;
+
 static char *our_mmap;
+static char *our_aux;
+
 static long sample_type;
 static long read_format;
 static int quiet;
@@ -74,6 +78,14 @@ long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
 
 }
 
+struct bts_record {
+	long long branch_from;
+	long long branch_to;
+	long long predicted;
+
+};
+
+struct bts_record bts_buffer[AUX_DATA_SIZE*4096];
 
 int main(int argc, char **argv) {
 
@@ -119,30 +131,25 @@ int main(int argc, char **argv) {
 		fprintf(stdout,"Found Intel BTS as type %d\n",bts_type);
 	}
 
-        /* Set up Instruction Event */
-#if 0
-        memset(&pe,0,sizeof(struct perf_event_attr));
+        /* Set up BTS Event */
+	memset(&pe,0,sizeof(struct perf_event_attr));
+	pe.size=sizeof(struct perf_event_attr);
+	pe.type=bts_type;
+	pe.disabled=1;
+//	pe.exclude_kernel=1;
+//	pe.exclude_user=1;
 
-	sample_type=PERF_SAMPLE_IP|PERF_SAMPLE_WEIGHT|PERF_SAMPLE_ADDR;
-	read_format=0;
+	/* pe.config not necessary? */
 
-        pe.type=PERF_TYPE_RAW;
-        pe.size=sizeof(struct perf_event_attr);
-        //pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-
-	 /* MEM_UOPS_RETIRED:ALL_STORES */
-	 pe.config = 0x5382d0;
-
-        pe.sample_period=SAMPLE_FREQUENCY;
-        pe.sample_type=sample_type;
-
-        pe.read_format=read_format;
-        pe.disabled=1;
-        pe.pinned=1;
-        pe.exclude_kernel=1;
-        pe.exclude_hv=1;
-        pe.wakeup_events=1;
-	pe.precise_ip=1;
+//	sample_type=PERF_SAMPLE_IP|PERF_SAMPLE_WEIGHT|PERF_SAMPLE_ADDR;
+//	read_format=0;
+//	pe.sample_period=SAMPLE_FREQUENCY;
+//	pe.sample_type=sample_type;
+//	pe.read_format=read_format;
+//	pe.pinned=1;
+//	pe.exclude_hv=1;
+//	pe.wakeup_events=1;
+//	pe.precise_ip=1;
 
 	arch_adjust_domain(&pe,quiet);
 
@@ -154,8 +161,24 @@ int main(int argc, char **argv) {
 			test_fail(test_string);
 		}
 	}
+
+	/* Setup normal mmap page */
+
 	our_mmap=mmap(NULL, mmap_pages*4096,
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+	struct perf_event_mmap_page *mmap_control;
+
+	mmap_control = (struct perf_event_mmap_page *)our_mmap;
+
+	mmap_control->aux_offset=mmap_pages*4096;
+	mmap_control->aux_size=AUX_DATA_SIZE*4096;
+
+	/* Setup aux mmap page */
+
+	our_aux=mmap(NULL, mmap_control->aux_size,
+		PROT_READ|PROT_WRITE, MAP_SHARED, fd, mmap_control->aux_offset);
+
 
 	fcntl(fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
 	fcntl(fd, F_SETSIG, SIGIO);
@@ -174,22 +197,34 @@ int main(int argc, char **argv) {
 		}
 	}
 
-       naive_matrix_multiply(quiet);
+	naive_matrix_multiply(quiet);
 
-	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,0);
+	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 
-	if (!quiet) {
-                printf("Counts %d, using mmap buffer %p\n",count_total,our_mmap);
-        }
+	printf("After, aux_head=%llx aux_tail=%llx\n",
+		mmap_control->aux_head,mmap_control->aux_tail);
 
-	if (count_total==0) {
-		if (!quiet) printf("No overflow events generated.\n");
-		test_fail(test_string);
+	/* Attempt to parse */
+
+	memcpy(bts_buffer,our_aux,mmap_control->aux_head);
+
+	int i;
+	for(i=0;i< (mmap_control->aux_head/sizeof(struct bts_record));i++) {
+		printf("From: %llx To: %llx Predicted: %d\n",
+			bts_buffer[i].branch_from,
+			bts_buffer[i].branch_to,
+			!!(bts_buffer[i].predicted&0x10));
 	}
+	printf("\n");
+
+	/* Clean up */
+
+	munmap(our_aux,AUX_DATA_SIZE*4096);
+
 	munmap(our_mmap,mmap_pages*4096);
 
 	close(fd);
-#endif
+
 	test_pass(test_string);
 
 	return 0;
