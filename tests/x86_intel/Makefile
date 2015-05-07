@@ -5,6 +5,7 @@ LIB = ../../lib
 
 all:	\
 	bts_aux \
+	bts_kernel \
 	fixed_ctr0 \
 	fixed_ctr1 \
 	fixed_ctr2 \
@@ -135,6 +136,23 @@ bts_aux.o:	bts_aux.c
 
 ###
 
+
+bts_kernel:	bts_kernel.o $(LIB)/test_utils.o \
+			$(LIB)/matrix_multiply.o \
+			$(LIB)/perf_helpers.o \
+			$(LIB)/parse_record.o
+	$(CC) $(LFLAGS) -o bts_kernel bts_kernel.o \
+			$(LIB)/test_utils.o \
+			$(LIB)/matrix_multiply.o \
+			$(LIB)/perf_helpers.o \
+			$(LIB)/parse_record.o
+
+bts_kernel.o:	bts_kernel.c
+	$(CC) $(CFLAGS) -c bts_kernel.c
+
+###
+
+
 pebs_latency:	pebs_latency.o $(LIB)/test_utils.o \
 			$(LIB)/instructions_testcode.o \
 			$(LIB)/perf_helpers.o \
@@ -239,6 +257,7 @@ uncore_cpu_cbox.o:	uncore_cpu_cbox.c
 clean:	
 	rm -f *~ *.o \
 	bts_aux \
+	bts_kernel \
 	fixed_ctr0 \
 	fixed_ctr1 \
 	fixed_ctr2 \
