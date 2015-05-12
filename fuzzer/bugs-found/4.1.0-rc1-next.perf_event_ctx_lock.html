@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>
+KVM perf_event_ctx_lock_nested lockig issue
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+KVM perf_event_ctx_lock_nested lockig issue
+</h1>
+</center>
+
+<h3>Found by</h3>
+trinity / Sasha Levin
+
+<h3>First Seen</h3>
+4.1.0-rc1-next
+
+<h3>Most recently Seen</h3>
+4.1.0-rc1-next
+
+<h3>Reproducible</h3>
+??
+
+<h3>Found On</h3>
+???
+
+<h3>Fixed by</h3>
+
+
+<h3>Linux-kernel Mailing List Report</h3>
+30 April 2015 -- perf: recursive locking of ctx->mutex
+
+<h3>Kernel Splat</h3>
+
+<ol> 
+<li> 
+<pre>
+[  460.391146] =============================================
+[  460.391146] [ INFO: possible recursive locking detected ]
+[  460.391146] 4.1.0-rc1-next-20150429-sasha-00037-g3e011d3-dirty #2192 Not tainted
+[  460.391146] ---------------------------------------------
+[  460.391146] trinity-main/9652 is trying to acquire lock:
+[  460.391146] (&ctx->mutex){+.+.+.}, at: perf_event_ctx_lock_nested
++(kernel/events/core.c:965)
+[  460.391146] Mutex: counter: 1 owner: None
+[  460.391146]
+[  460.391146] but task is already holding lock:
+[  460.391146] (&ctx->mutex){+.+.+.}, at: perf_event_init_task
++(kernel/events/core.c:8732 kernel/events/core.c:8800)
+[  460.391146] Mutex: counter: 0 owner: trinity-main
+[  460.391146]
+[  460.391146] other info that might help us debug this:
+[  460.391146]  Possible unsafe locking scenario:
+[  460.391146]
+[  460.391146]        CPU0
+[  460.391146]        ----
+[  460.391146]   lock(&ctx->mutex);
+[  460.391146]   lock(&ctx->mutex);
+[  460.391146] 
+[  460.391146]  *** DEADLOCK ***
+[  460.391146] 
+[  460.391146]  May be due to missing lock nesting notation
+[  460.391146]
+[  460.391146] 2 locks held by trinity-main/9652:
+[  460.391146] #0: (&ctx->mutex){+.+.+.}, at: perf_event_init_task
++(kernel/events/core.c:8732 kernel/events/core.c:8800)
+[  460.438470] Mutex: counter: 0 owner: trinity-main
+[  460.438470] #1: (&pmus_srcu){......}, at: perf_init_event
++(kernel/events/core.c:7385)
+[  460.438470]
+[  460.438470] stack backtrace:
+[  460.438470] CPU: 3 PID: 9652 Comm: trinity-main Not tainted
++4.1.0-rc1-next-20150429-sasha-00037-g3e011d3-dirty #2192
+[  460.438470]  ffffffffaef7d2c0 00000000f948113a ffff8802f4e4f528
++ffffffffa8dddba3
+[  460.438470]  0000000000000000 ffffffffaef7d2c0 ffff8802f4e4f6c8
++ffffffff9f302223
+[  460.438470]  ffff880a70f240c8 ffff880a0000bb5a ffffed0000000547
++ffff8802f61d0dc8
+[  460.438470] Call Trace:
+[  460.438470] dump_stack (lib/dump_stack.c:52)
+[  460.438470] __lock_acquire (kernel/locking/lockdep.c:1776
++kernel/locking/lockdep.c:1820 kernel/locking/lockdep.c:2152
++kernel/locking/lockdep.c:3238)
+[  460.438470] ? lockdep_init_map (kernel/locking/lockdep.c:3105)
+[  460.438470] ? sched_clock_cpu (kernel/sched/clock.c:311)
+[  460.438470] ? __lock_is_held (kernel/locking/lockdep.c:3572)
+[  460.438470] lock_acquire (kernel/locking/lockdep.c:3658)
+[  460.438470] ? perf_event_ctx_lock_nested (kernel/events/core.c:965)
+[  460.438470] mutex_lock_nested (kernel/locking/mutex.c:526
++kernel/locking/mutex.c:617)
+[  460.438470] ? perf_event_ctx_lock_nested (kernel/events/core.c:965)
+[  460.438470] ? get_parent_ip (kernel/sched/core.c:2556)
+[  460.438470] ? get_lock_stats (kernel/locking/lockdep.c:249)
+[  460.438470] ? perf_event_ctx_lock_nested (kernel/events/core.c:965)
+[  460.438470] ? _mutex_lock_nest_lock (kernel/locking/mutex.c:615)
+[  460.438470] ? perf_event_ctx_lock_nested (include/linux/rcupdate.h:969
++kernel/events/core.c:962)
+[  460.438470] perf_event_ctx_lock_nested (kernel/events/core.c:965)
+[  460.438470] ? perf_event_ctx_lock_nested (include/linux/rcupdate.h:912
++kernel/events/core.c:956)
+[  460.438470] ? perf_init_event (include/linux/rcupdate.h:969
++kernel/events/core.c:7394)
+[  460.438470] perf_try_init_event (kernel/events/core.c:977
++kernel/events/core.c:7368)
+[  460.438470] perf_init_event (kernel/events/core.c:7404)
+[  460.438470] ? perf_bp_event (kernel/events/core.c:7385)
+[  460.438470] perf_event_alloc (kernel/events/core.c:7564)
+[  460.438470] inherit_event.isra.57 (kernel/events/core.c:8564)
+[  460.438470] inherit_task_group.isra.59 (kernel/events/core.c:8646
++kernel/events/core.c:8682)
+[  460.438470] perf_event_init_task (kernel/events/core.c:8735
++kernel/events/core.c:8800)
+[  460.438470] copy_process (kernel/fork.c:1418)
+[  460.438470] do_fork (kernel/fork.c:1705)
+[  460.438470] SyS_clone (kernel/fork.c:1794)
+[  460.438470] system_call_fastpath (arch/x86/kernel/entry_64.S:261)
+
+</pre>
+</ol>
+
+
+<hr> 
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
