@@ -1,0 +1,631 @@
+<html>
+<head><title>3.14-rc NULL constraint bug</title></head>
+
+<body>
+
+<center>
+<h1>
+3.14-rc NULL constraing bug
+</h1>
+</center>
+
+<h3>Fixed by</h3>
+
+<h3>Severity</h3>
+System soft locks but requires reboot.
+
+<h3>Found By</h3>
+perf_fuzzer
+
+<h3>Reproducible</h3>
+Sometimes
+
+<h3>First Seen</h3>
+3.12.0
+
+<h3>Most Recently Seen</h3>
+3.14, 3.19-rc5, 4.1-pre0
+
+<h3>Machines Affected</h3>
+Seen on haswell
+
+<h3>Analysis</h3>
+
+
+<h3>Linux Kernel</h3>
+30 April 2015 -- "perf: fuzzer triggers NULL pointer derefreence in x86_schedule_events"
+<br><br>
+<a href="https://lkml.org/lkml/2013/11/14/453">
+14 November 2013 -- perf/x86 BUG/oops in __intel_shared_reg_get_constraints</a>
+<br><br>
+
+<hr>
+
+
+<ol>
+<li>
+<pre>
+
+This maps to 
+
+static bool __perf_sched_find_counter(struct perf_sched *sched)
+
+        c = sched->events[sched->state.event]->hw.constraint;
+
+        /* Prefer fixed purpose counters */
+--->    if (c->idxmsk64 & (~0ULL << INTEL_PMC_IDX_FIXED)) {
+
+ffffffff81029ce4:       48 8b 55 88             mov    -0x78(%rbp),%rdx
+ffffffff81029ce8:       48 8b 04 c2             mov    (%rdx,%rax,8),%rax
+ffffffff81029cec:       ba 20 00 00 00          mov    $0x20,%edx
+ffffffff81029cf1:       48 8b 98 98 01 00 00    mov    0x198(%rax),%rbx
+ffffffff81029cf8:       4c 85 23                test   %r12,(%rbx)
+
+
+
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0-rc2+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1431916595
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1431916595
+
+Pid=606, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+Iteration 10000
+        Open attempts: 110812  Successful: 900  Currently open: 8
+                EPERM : 12
+                ENOENT : 573
+                E2BIG : 9617
+                EBADF : 9571
+                EBUSY : 3
+                EINVAL : 89875
+                EOPNOTSUPP : 261
+                Type (Hardware 184/15532)(software 345/16103)(tracepoint 63/1599
+8)(Cache 45/13945)(cpu 204/15973)(breakpoint 14/15682)(power 0/2061)(intel_bts 4
+4/1949)(uncore_imc 1/2059)(#9 0/10)(#10 0/4)(#11 0/4)(#12 0/6)(#13 0/5)(#14 0/4)
+(>14 0/11477)
+        Close attempts: 892  Successful: 892
+        Read attempts: 814  Successful: 718
+        Write attempts: 779  Successful: 0
+        Ioctl attempts: 763  Successful: 331
+        Mmap attempts: 900  Successful: 413
+        Prctl attempts: 915  Successful: 915
+        Fork attempts: 464  Successful: 464
+        Poll attempts: 954  Successful: 730
+        Access attempts: 891  Successful: 434
+        Trash mmap attempts: 775  Successful: 775
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[306672.100641] BUG: unable to handle kernel NULL pointer dereference at           (null)
+[306672.109653] IP: [<ffffffff81029cf8>] perf_assign_events+0xa8/0x290
+[306672.116829] PGD cea0f067 PUD cea0e067 PMD 0 
+[306672.121965] Oops: 0000 [#1] SMP 
+[306672.125994] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp hid_generic kvm_intel usbhid hid kvm crct10dif_pclmul snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic crc32_pclmul snd_hda_intel ghash_clmulni_intel snd_hda_controller i915 ppdev iTCO_wdt snd_hda_codec snd_hda_core aesni_intel aes_x86_64 lrw snd_hwdep gf128mul snd_pcm iTCO_vendor_support evdev glue_helper drm_kms_helper parport_pc drm pcspkr snd_timer ablk_helper snd cryptd soundcore processor button psmouse xhci_pci serio_raw xhci_hcd mei_me video battery lpc_ich parport mei i2c_i801 i2c_algo_bit tpm_tis tpm mfd_core wmi sg sr_mod sd_mod cdrom ehci_pci ehci_hcd ahci libahci e1000e libata ptp usbcore scsi_mod crc32c_intel usb_common pps_core thermal fan thermal_sys
+[306672.203832] CPU: 1 PID: 606 Comm: perf_fuzzer Tainted: G        W       4.1.0-rc2+ #144
+[306672.213036] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[306672.221600] task: ffff8800c40b0590 ti: ffff8800c40e0000 task.ti: ffff8800c40e0000
+[306672.230293] RIP: 0010:[<ffffffff81029cf8>]  [<ffffffff81029cf8>] perf_assign_events+0xa8/0x290
+[306672.240224] RSP: 0018:ffff8800c40e3c28  EFLAGS: 00010293
+[306672.246580] RAX: ffff880118dd8800 RBX: 0000000000000000 RCX: 0000000000000000
+[306672.254891] RDX: 0000000000000020 RSI: 0000000000000002 RDI: ffff8800c40e3c88
+[306672.263220] RBP: ffff8800c40e3ca8 R08: 0000000000000000 R09: ffff880036fcf520
+[306672.271541] R10: ffff8800c40e3c28 R11: 0000000000000005 R12: ffffffff00000000
+[306672.279874] R13: 0000000000000000 R14: 0000000000000002 R15: 0000000000000005
+[306672.288220] FS:  00007fad66e4e700(0000) GS:ffff88011ea40000(0000) knlGS:0000000000000000
+[306672.297573] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[306672.304432] CR2: 0000000000000000 CR3: 0000000036f38000 CR4: 00000000001407e0
+[306672.312745] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[306672.321097] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[306672.329459] Stack:
+[306672.332304]  0000000200000005 ffff880036fcf520 0000000000000004 0000000200000000
+[306672.341024]  0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[306672.349720]  0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[306672.358431] Call Trace:
+[306672.361771]  [<ffffffff8102b4bd>] x86_schedule_events+0x1dd/0x250
+[306672.369002]  [<ffffffff8102a76e>] x86_pmu_event_init+0x12e/0x3d0
+[306672.376138]  [<ffffffff81160090>] ? perf_event_ctx_lock_nested+0x20/0x110
+[306672.384102]  [<ffffffff8116029d>] perf_try_init_event+0x4d/0xb0
+[306672.391139]  [<ffffffff8116840f>] perf_init_event+0x13f/0x170
+[306672.397977]  [<ffffffff811682d5>] ? perf_init_event+0x5/0x170
+[306672.404822]  [<ffffffff8116888b>] perf_event_alloc+0x44b/0x6d0
+[306672.411736]  [<ffffffff81168f03>] SYSC_perf_event_open+0x3f3/0xde0
+[306672.419063]  [<ffffffff81063051>] ? __do_page_fault+0x1d1/0x460
+[306672.426071]  [<ffffffff81169dbe>] SyS_perf_event_open+0xe/0x10
+[306672.432987]  [<ffffffff816dd1b2>] system_call_fastpath+0x16/0x7a
+[306672.440088] Code: 49 bc 00 00 00 00 ff ff ff ff 85 c0 74 65 48 63 45 94 3b 45 84 7d 5c 48 8b 55 88 48 8b 04 c2 ba 20 00 00 00 48 8b 98 98 01 00 00 <4c> 85 23 0f 85 95 00 00 00 48 63 55 98 eb 20 66 0f 1f 84 00 00 
+[306672.462285] RIP  [<ffffffff81029cf8>] perf_assign_events+0xa8/0x290
+[306672.469745]  RSP <ffff8800c40e3c28>
+[306672.474187] CR2: 0000000000000000
+[306672.478679] [drm:intel_crtc_set_config [i915]] *ERROR* failed to restore con
+fig after modeset failure
+[306672.494297] ---[ end trace 0b526460b2e0e7f3 ]---
+</pre>
+<li>
+<pre>
+*** perf_fuzzer 0.30-pre *** by Vince Weaver
+
+        Linux version 4.0.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1430333596
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1430333596
+
+Pid=31352, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 128638  Successful: 893  Currently open: 600
+                EPERM : 15
+                ENOENT : 655
+                E2BIG : 12617
+                EBADF : 7129
+                EINVAL : 106980
+                ENOSPC : 2
+                EOPNOTSUPP : 347
+                Type (Hardware 217/16996)(software 305/18705)(tracepoint 62/18326)(Cache 66/15938)(cpu 181/18359)(breakpoint 15/18543)(power 0/2255)(intel_bts 47/2379)(uncore_imc 0/2384)(#9 0/21)(#10 0/22)(#11 0/16)(#12 0/11)(#13 0/17)(#14 0/19)(>14 0/14647)
+        Close attempts: 293  Successful: 293
+        Read attempts: 874  Successful: 758
+        Write attempts: 928  Successful: 0
+        Ioctl attempts: 892  Successful: 406
+        Mmap attempts: 893  Successful: 131
+        Prctl attempts: 901  Successful: 901
+        Fork attempts: 440  Successful: 440
+        Poll attempts: 964  Successful: 953
+        Access attempts: 964  Successful: 488
+        Trash mmap attempts: 879  Successful: 879
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+[428232.701319] BUG: unable to handle kernel NULL pointer dereference at           (null)
+[428232.710197] IP: [<ffffffff8102b3e2>] x86_schedule_events+0x112/0x250
+[428232.717470] PGD cdf50067 PUD c610c067 PMD 0 
+[428232.722557] Oops: 0000 [#1] SMP 
+[428232.726490] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm crct10dif_pclmul snd_hda_codec_hdmi crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek aesni_intel snd_hda_codec_generic aes_x86_64 i915 snd_hda_intel snd_hda_controller snd_hda_codec snd_hda_core snd_hwdep lrw snd_pcm gf128mul iTCO_wdt iTCO_vendor_support drm_kms_helper glue_helper snd_timer ppdev evdev drm ablk_helper snd cryptd mei_me soundcore xhci_pci tpm_tis psmouse xhci_hcd mei serio_raw lpc_ich tpm mfd_core parport_pc pcspkr parport wmi i2c_algo_bit battery i2c_i801 button processor video sg sr_mod sd_mod cdrom ahci libahci libata ehci_pci ehci_hcd e1000e usbcore ptp crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[428232.800929] CPU: 0 PID: 31352 Comm: perf_fuzzer Tainted: G        W       4.0.0+ #136
+[428232.809912] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[428232.818447] task: ffff8800cef88bd0 ti: ffff8800c56b0000 task.ti: ffff8800c56b0000
+[428232.827119] RIP: 0010:[<ffffffff8102b3e2>]  [<ffffffff8102b3e2>] x86_schedule_events+0x112/0x250
+[428232.837221] RSP: 0018:ffff8800c56b3cb8  EFLAGS: 00010246
+[428232.843575] RAX: 0000000000000000 RBX: ffff8800c54d5000 RCX: 00000000001001b7
+[428232.851871] RDX: 0000000000000000 RSI: ffff8800c42e8000 RDI: 0000000000000000
+[428232.860128] RBP: ffff8800c56b3d18 R08: 0000000000000000 R09: ffff8800c54d5724
+[428232.868362] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000004
+[428232.876655] R13: ffff8800366ec000 R14: 0000000000000002 R15: 0000000000000004
+[428232.884987] FS:  00007f560c527700(0000) GS:ffff88011ea00000(0000) knlGS:0000000000000000
+[428232.894338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[428232.901173] CR2: 0000000000000000 CR3: 00000000c469b000 CR4: 00000000001407f0
+[428232.909498] DR0: 0000000000000000 DR1: 0000000002d54000 DR2: 0000000002b4f000
+[428232.917831] DR3: 00000000033d8000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[428232.926129] Stack:
+[428232.928950]  0000000000000001 0000000000000000 00000002fffffff4 0000000000000002
+[428232.937669]  fffffffffffffff4 0000000000000000 ffff8800c56b3d18 ffff8800366ec000
+[428232.946332]  0000000000000000 ffff8800c54d5000 ffff8800c42e8000 ffffffff81c1cfc0
+[428232.955038] Call Trace:
+[428232.958326]  [<ffffffff8102a75e>] x86_pmu_event_init+0x12e/0x3d0
+[428232.965464]  [<ffffffff81160030>] ? perf_event_ctx_lock_nested+0x20/0x110
+[428232.973486]  [<ffffffff8116023d>] perf_try_init_event+0x4d/0xb0
+[428232.980501]  [<ffffffff811683af>] perf_init_event+0x13f/0x170
+[428232.987355]  [<ffffffff81168275>] ? perf_init_event+0x5/0x170
+[428232.994194]  [<ffffffff8116882b>] perf_event_alloc+0x44b/0x6d0
+[428233.001145]  [<ffffffff81168ea3>] SYSC_perf_event_open+0x3f3/0xde0
+[428233.008400]  [<ffffffff81169d5e>] SyS_perf_event_open+0xe/0x10
+[428233.015325]  [<ffffffff816dd632>] system_call_fastpath+0x16/0x7a
+[428233.022430] Code: a0 8d 78 01 74 31 48 8b b4 c3 28 05 00 00 48 83 c0 01 48 63 96 5c 01 00 00 4c 8b 86 98 01 00 00 83 fa ff 0f 84 b4 00 00 00 89 c7 <49> 0f a3 10 45 19 c0 45 85 c0 75 a2 45 31 f6 3b 7d b4 0f 85 9a 
+[428233.044645] RIP  [<ffffffff8102b3e2>] x86_schedule_events+0x112/0x250
+[428233.052293]  RSP <ffff8800c56b3cb8>
+[428233.056712] CR2: 0000000000000000
+[428233.061189] [drm:intel_crtc_set_config [i915]] *ERROR* failed to restore config after modeset failure
+[428233.076847] ---[ end trace 5679ca0875946dbb ]---
+</pre>
+<li>
+<pre>
+*** perf_fuzzer *** by Vince Weaver                                             
+                                                                                
+Seeding random number generator with 1394465165                                 
+Kernel max sample rate currently: 6250/s                                        
+==================================================                              
+Fuzzing the following syscalls:                                                 
+        mmap perf_event_open close read write ioctl fork prctl poll             
+*NOT* Fuzzing the following syscalls:                                           
+                                                                                
+Also attempting the following:                                                  
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page                                               
+*NOT* attempting the following:                                                 
+                                                                                
+==================================================                              
+Iteration 10000                                                                 
+        Open attempts: 346033  Successful: 922                                  
+                EPERM : 21                                                      
+                ENOENT : 845                                                    
+                E2BIG : 37400                                                   
+                EBADF : 5065                                                    
+                EINVAL : 301175                                                 
+                ENOSPC : 61                                                     
+                EOPNOTSUPP : 544                                                
+        Close attempts: 914  Successful: 914                                    
+        Read attempts: 913  Successful: 787                                     
+        Write attempts: 849  Successful: 0                                      
+        Ioctl attempts: 908  Successful: 323                                    
+        Mmap attempts: 922  Successful: 219                                     
+        Prctl attempts: 895  Successful: 895                                    
+        Fork attempts: 455  Successful: 455                                     
+        Poll attempts: 902  Successful: 4                                       
+        Access attempts: 913  Successful: 463                                   
+        Trash mmap attempts: 810  Successful: 810                               
+        Overflows: 13                                                           
+        SIGIOs due to RT signal queue full: 0                                   
+[ 7321.924284] BUG: unable to handle kernel NULL pointer dereference at           (null)                                                                        
+[ 7321.928004] IP: [<ffffffff81534f7b>] _raw_spin_lock_irqsave+0x11/0x2d        
+[ 7321.928004] PGD 118d2b067 PUD 11952d067 PMD 0                                
+[ 7321.928004] Oops: 0002 [#1] SMP                                              
+[ 7321.928004] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 usbnet evdev ohci_pci psmouse serio_ra
+w coretemp pcspkr ohci_hcd video wmi i2c_nforce2 acpi_cpufreq button processor thermal_sys sg ehci_pci ehci_hcd sd_mod usbcore usb_common                       
+[ 7321.928004] CPU: 0 PID: 983 Comm: perf_fuzzer Not tainted 3.14.0-rc6 #36     
+[ 7321.928004] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012                                                            
+[ 7321.928004] task: ffff8801190b47e0 ti: ffff8800c7b28000 task.ti: ffff8800c7b28000                                                                            
+[ 7321.928004] RIP: 0010:[<ffffffff81534f7b>]  [<ffffffff81534f7b>] _raw_spin_lo
+ck_irqsave+0x11/0x2d                                                            
+[ 7321.928004] RSP: 0018:ffff8800c7b29a08  EFLAGS: 00010046                     
+[ 7321.928004] RAX: 0000000000000046 RBX: ffff88011a592c00 RCX: 0000000000000000
+[ 7321.928004] RDX: 0000000000010000 RSI: ffff88011a592c00 RDI: 0000000000000000
+[ 7321.928004] RBP: ffff8800c7b29a08 R08: ffff88011a592c00 R09: 0000000000000000
+[ 7321.928004] R10: 0000000000000000 R11: ffff88011b280000 R12: ffff88011fc0b940
+[ 7321.928004] R13: 0000000000000000 R14: ffff88011a592d58 R15: 0000000000000000
+[ 7321.928004] FS:  0000000002195840(0063) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000                                                                     
+[ 7321.928004] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 7321.928004] CR2: 0000000000000000 CR3: 0000000118dad000 CR4: 00000000000407f0
+[ 7321.928004] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 7321.928004] DR3: 0000000002197000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 7321.928004] Stack:                                                           
+[ 7321.928004]  ffff8800c7b29a58 ffffffff810198cc 0000000000000000 0000000000000
+000                                                                             
+[ 7321.928004]  ffff88011fff8d68 0000000000000000 ffff88011a592c00 ffff88011fc0b
+940                                                                             
+[ 7321.928004]  0000000000000040 0000000000000000 ffff8800c7b29a88 ffffffff81019
+a8f                                                                             
+[ 7321.928004] Call Trace:                                                      
+[ 7321.928004]  [<ffffffff810198cc>] __intel_shared_reg_get_constraints+0x5e/0x1
+9c                                                                              
+[ 7321.928004]  [<ffffffff81019a8f>] intel_get_event_constraints+0x85/0x154     
+[ 7321.928004]  [<ffffffff8101434d>] x86_schedule_events+0x54/0x185             
+[ 7321.928004]  [<ffffffff81012de6>] x86_pmu_commit_txn+0x51/0x9a               
+[ 7321.928004]  [<ffffffff810dbb46>] ? __alloc_pages_nodemask+0x174/0x737       
+[ 7321.928004]  [<ffffffff810f3d50>] ? unmap_single_vma+0x605/0x669             
+[ 7321.928004]  [<ffffffff810cd121>] ? event_sched_in+0x11d/0x12d               
+[ 7321.928004]  [<ffffffff810cd1c9>] group_sched_in+0x98/0x147                  
+[ 7321.928004]  [<ffffffff810cd3d6>] ctx_sched_in+0x15e/0x185                   
+[ 7321.928004]  [<ffffffff810cd466>] perf_event_sched_in+0x69/0x72              
+[ 7321.928004]  [<ffffffff810cd537>] __perf_install_in_context+0xc8/0xf1        
+[ 7321.928004]  [<ffffffff810cdd6a>] ? perf_event_task_output+0x13d/0x13d       
+[ 7321.928004]  [<ffffffff810cdda6>] remote_function+0x3c/0x43                  
+[ 7321.928004]  [<ffffffff810954a3>] smp_call_function_single+0x8a/0x101        
+[ 7321.928004]  [<ffffffff810cddf1>] task_function_call+0x44/0x4e               
+[ 7321.928004]  [<ffffffff810cd46f>] ? perf_event_sched_in+0x72/0x72            
+[ 7321.928004]  [<ffffffff810cdf26>] perf_install_in_context+0x81/0xbc          
+[ 7321.928004]  [<ffffffff8153330b>] ? mutex_lock+0x16/0x37                     
+[ 7321.928004]  [<ffffffff810d21f5>] SYSC_perf_event_open+0x647/0x7f5           
+[ 7321.928004]  [<ffffffff810d23ac>] SyS_perf_event_open+0x9/0xb                
+[ 7321.928004]  [<ffffffff8153bf26>] system_call_fastpath+0x1a/0x1f             
+[ 7321.928004] Code: c1 07 89 c2 c1 ea 10 66 39 c2 74 0c 66 8b 07 66 39 d0 74 04
+ f3 90 eb f4 c9 c3 55 48 89 e5 66 66 66 66 90 9c 58 fa ba 00 00 01 00 <f0> 0f c1
+ 17 89 d1 c1 e9 10 66 39 d1 74 0c 66 8b 17 66 39 ca 74                          
+[ 7321.928004] RIP  [<ffffffff81534f7b>] _raw_spin_lock_irqsave+0x11/0x2d       
+[ 7321.928004]  RSP <ffff8800c7b29a08>                                          
+[ 7321.928004] CR2: 0000000000000000                                            
+[ 7321.928004] ---[ end trace d36f8f2ae570dc66 ]---                             
+[ 7381.931999] INFO: rcu_sched detected stalls on CPUs/tasks: { 0} (detected by 
+1, t=15002 jiffies, g=55073, c=55072, q=25)                                     
+[ 7381.932000] sending NMI to all CPUs:                                         
+[ 7381.932000] NMI backtrace for cpu 1                                          
+[ 7381.932000] CPU: 1 PID: 1702 Comm: perf_fuzzer Tainted: G      D      3.14.0-
+rc6 #36                                                                         
+[ 7381.932000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 7381.932000] task: ffff880119785010 ti: ffff880119306000 task.ti: ffff88011930
+6000                                                                            
+[ 7381.932000] RIP: 0010:[<ffffffff812a7277>]  [<ffffffff812a7277>] __const_udel
+ay+0x1b/0x27                                                                    
+[ 7381.932000] RSP: 0000:ffff88011fc83d98  EFLAGS: 00000803                     
+[ 7381.932000] RAX: 0000000039558400 RBX: 0000000000000001 RCX: 0000000000000003
+[ 7381.932000] RDX: 00000000002658dc RSI: 0000000000000200 RDI: 0000000000418958
+[ 7381.932000] RBP: ffff88011fc83d98 R08: 0000000000000000 R09: 0000000000000008
+[ 7381.932000] R10: 0000000000000000 R11: 0000000000000005 R12: ffff88011fc8d510
+[ 7381.932000] R13: 0000000000000001 R14: ffffffff81a37300 R15: 0000000000000001
+[ 7381.932000] FS:  0000000002195840(0063) GS:ffff88011fc80000(0000) knlGS:00000
+00000000000                                                                     
+[ 7381.932000] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 7381.932000] CR2: 000000000040b040 CR3: 00000001196d2000 CR4: 00000000000407e0
+[ 7381.932000] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000002197000
+[ 7381.932000] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 7381.932000] Stack:                                                           
+[ 7381.932000]  ffff88011fc83db8 ffffffff8102c1ed 000000000000d720 ffffffff81a37
+300                                                                             
+[ 7381.932000]  ffff88011fc83e18 ffffffff81087ee3 0000000000000000 0000000000000
+019                                                                             
+[ 7381.932000]  ffffffff81a9eb60 0000000000000083 ffff88011fc83e08 ffff880119785
+010                                                                             
+[ 7381.932000] Call Trace:                                                      
+[ 7381.932000]  <IRQ>                                                           
+[ 7381.932000]  [<ffffffff8102c1ed>] arch_trigger_all_cpu_backtrace+0x79/0x8d   
+[ 7381.932000]  [<ffffffff81087ee3>] rcu_check_callbacks+0x462/0x5dd            
+[ 7381.932000]  [<ffffffff8104a14c>] update_process_times+0x41/0x6a             
+[ 7381.932000]  [<ffffffff81090ebd>] tick_sched_handle+0x4a/0x59                
+[ 7381.932000]  [<ffffffff8109108e>] tick_sched_timer+0x5d/0x7c                 
+[ 7381.932000]  [<ffffffff8105e5e4>] __run_hrtimer+0xba/0x145                   
+[ 7381.932000]  [<ffffffff81091031>] ? tick_nohz_handler+0xb0/0xb0              
+[ 7381.932000]  [<ffffffff8105e8b9>] hrtimer_interrupt+0xd5/0x1c3               
+[ 7381.932000]  [<ffffffff8102b2a3>] local_apic_timer_interrupt+0x58/0x5d       
+[ 7381.932000]  [<ffffffff8102bc5f>] smp_trace_apic_timer_interrupt+0x53/0x91   
+[ 7381.932000]  [<ffffffff8153cc3a>] trace_apic_timer_interrupt+0x6a/0x70       
+[ 7381.932000]  <EOI>                                                           
+[ 7381.932000] Code: 48 89 e5 66 66 66 66 90 ff 15 ee 8f 7b 00 c9 c3 55 48 8d 04
+ bd 00 00 00 00 65 48 8b 14 25 e0 22 01 00 48 89 e5 48 6b d2 3e f7 e2 <48> 8d 7a
+ 01 ff 15 c7 8f 7b 00 c9 c3 55 48 89 e5 66 66 66 66 90                          
+[ 7322.969219] NMI backtrace for cpu 0                                          
+[ 7381.932000] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
+oo long to run: 692.154 msecs                                                   
+[ 7322.969219] CPU: 0 PID: 983 Comm: perf_fuzzer Tainted: G      D      3.14.0-r
+c6 #36                                                                          
+[ 7322.969219] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIO
+S 080015  10/19/2012                                                            
+[ 7322.969219] task: ffff8801190b47e0 ti: ffff8800c7b28000 task.ti: ffff8800c7b2
+8000                                                                            
+[ 7322.969219] RIP: 0010:[<ffffffff81534ff3>]  [<ffffffff81534ff3>] _raw_spin_lo
+ck+0x26/0x2a                                                                    
+[ 7322.969219] RSP: 0018:ffff88011fc03e48  EFLAGS: 00000097                     
+[ 7322.969219] RAX: 000000006f8f6f8e RBX: ffff88011a2a92c0 RCX: ffff88011fc03e98
+[ 7322.969219] RDX: 0000000000006f8f RSI: ffff88011a2a92c0 RDI: ffff88011fc15b2c
+[ 7322.969219] RBP: ffff88011fc03e48 R08: ffff88011fc0d010 R09: 0000000000000104
+[ 7322.969219] R10: ffff88011fc12ae0 R11: ffff88011fc0d010 R12: ffff88011a2a92c0
+[ 7322.969219] R13: ffff88011fc15c08 R14: 0000000000000000 R15: ffff88011fc0d0c8
+[ 7322.969219] FS:  0000000002195840(0063) GS:ffff88011fc00000(0000) knlGS:00000
+00000000000                                                                     
+[ 7322.969219] CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b                
+[ 7322.969219] CR2: 0000000000000000 CR3: 0000000118dad000 CR4: 00000000000407f0
+[ 7322.969219] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 7322.969219] DR3: 0000000002197000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 7322.969219] Stack:                                                           
+[ 7322.969219]  ffff88011fc03e68 ffffffff810cb8df ffff88011fc03e98 ffff88011fc15
+b20                                                                             
+[ 7322.969219]  ffff88011fc03e98 ffffffff810cd5da ffff88011fc15c08 ffff88011fc0d
+010                                                                             
+[ 7322.969219]  ffff88011fc0d050 ffff88011fc03f28 ffff88011fc03ee8 ffffffff8105e
+5e4                                                                             
+[ 7322.969219] Call Trace:                                                      
+[ 7322.969219]  <IRQ>                                                           
+[ 7322.969219]  [<ffffffff810cb8df>] perf_ctx_lock+0x15/0x27                    
+[ 7322.969219]  [<ffffffff810cd5da>] perf_cpu_hrtimer_handler+0x7a/0x1b0        
+[ 7322.969219]  [<ffffffff8105e5e4>] __run_hrtimer+0xba/0x145                   
+[ 7322.969219]  [<ffffffff810cd560>] ? __perf_install_in_context+0xf1/0xf1      
+[ 7322.969219]  [<ffffffff8105e8b9>] hrtimer_interrupt+0xd5/0x1c3               
+[ 7322.969219]  [<ffffffff8102b2a3>] local_apic_timer_interrupt+0x58/0x5d       
+[ 7322.969219]  [<ffffffff8102bc5f>] smp_trace_apic_timer_interrupt+0x53/0x91   
+[ 7322.969219]  [<ffffffff8153cc3a>] trace_apic_timer_interrupt+0x6a/0x70       
+[ 7322.969219]  <EOI>                                                           
+[ 7322.969219]  [<ffffffff8105f36d>] ? blocking_notifier_call_chain+0x14/0x16   
+[ 7322.969219]  [<ffffffff8109be4f>] ? acct_collect+0x175/0x17d                 
+[ 7322.969219]  [<ffffffff81041a14>] do_exit+0x22f/0x947                        
+[ 7322.969219]  [<ffffffff81535fd2>] oops_end+0xb5/0xbd                         
+[ 7322.969219]  [<ffffffff81034a30>] no_context+0x26d/0x27c                     
+[ 7322.969219]  [<ffffffff81034bfc>] __bad_area_nosemaphore+0x1bd/0x1dd         
+[ 7322.969219]  [<ffffffff81034c78>] bad_area+0x47/0x4e                         
+[ 7322.969219]  [<ffffffff8153831d>] __do_page_fault+0x25b/0x3ed                
+[ 7322.969219]  [<ffffffff810cd3d6>] ? ctx_sched_in+0x15e/0x185                 
+[ 7322.969219]  [<ffffffff810cd466>] ? perf_event_sched_in+0x69/0x72            
+[ 7322.969219]  [<ffffffff81538539>] trace_do_page_fault+0x8a/0x93              
+[ 7322.969219]  [<ffffffff81535572>] trace_page_fault+0x22/0x30                 
+[ 7322.969219]  [<ffffffff81534f7b>] ? _raw_spin_lock_irqsave+0x11/0x2d         
+[ 7322.969219]  [<ffffffff810198cc>] __intel_shared_reg_get_constraints+0x5e/0x1
+9c                                                                              
+[ 7322.969219]  [<ffffffff81019a8f>] intel_get_event_constraints+0x85/0x154     
+[ 7322.969219]  [<ffffffff8101434d>] x86_schedule_events+0x54/0x185             
+[ 7322.969219]  [<ffffffff81012de6>] x86_pmu_commit_txn+0x51/0x9a               
+[ 7322.969219]  [<ffffffff810dbb46>] ? __alloc_pages_nodemask+0x174/0x737       
+[ 7322.969219]  [<ffffffff810f3d50>] ? unmap_single_vma+0x605/0x669             
+[ 7322.969219]  [<ffffffff810cd121>] ? event_sched_in+0x11d/0x12d               
+[ 7322.969219]  [<ffffffff810cd1c9>] group_sched_in+0x98/0x147                  
+[ 7322.969219]  [<ffffffff810cd3d6>] ctx_sched_in+0x15e/0x185                   
+[ 7322.969219]  [<ffffffff810cd466>] perf_event_sched_in+0x69/0x72              
+[ 7322.969219]  [<ffffffff810cd537>] __perf_install_in_context+0xc8/0xf1        
+[ 7322.969219]  [<ffffffff810cdd6a>] ? perf_event_task_output+0x13d/0x13d       
+[ 7322.969219]  [<ffffffff810cdda6>] remote_function+0x3c/0x43                  
+[ 7322.969219]  [<ffffffff810954a3>] smp_call_function_single+0x8a/0x101        
+[ 7322.969219]  [<ffffffff810cddf1>] task_function_call+0x44/0x4e               
+[ 7322.969219]  [<ffffffff810cd46f>] ? perf_event_sched_in+0x72/0x72            
+[ 7322.969219]  [<ffffffff810cdf26>] perf_install_in_context+0x81/0xbc          
+[ 7322.969219]  [<ffffffff8153330b>] ? mutex_lock+0x16/0x37                     
+[ 7322.969219]  [<ffffffff810d21f5>] SYSC_perf_event_open+0x647/0x7f5           
+[ 7322.969219]  [<ffffffff810d23ac>] SyS_perf_event_open+0x9/0xb                
+[ 7322.969219]  [<ffffffff8153bf26>] system_call_fastpath+0x1a/0x1f             
+[ 7322.969219] Code: 90 eb f4 c9 c3 55 48 89 e5 66 66 66 66 90 b8 00 00 01 00 f0
+ 0f c1 07 89 c2 c1 ea 10 66 39 c2 74 0c 66 8b 07 66 39 d0 74 04 f3 90 <eb> f4 c9
+ c3 55 48 89 e5 41 56 41 55 41 54 53 66 66 66 66 90 48                          
+[ 7322.969219] INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took t
+oo long to run: 1971.954 msecs                                                  
+</pre>
+<li>Probably same bug
+<pre>
+[  573.054155] BUG: unable to handle kernel NULL pointer dereference at        )
+[  573.057564] IP: [<ffffffff81520a44>] _raw_spin_lock_irqsave+0x11/0x2d
+[  573.057564] PGD c814b067 PUD cb183067 PMD 0 
+[  573.057564] Oops: 0002 [#1] SMP 
+[  573.057564] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[  573.057564] CPU: 1 PID: 3926 Comm: perf_fuzzer Tainted: G        W    3.12.04
+[  573.057564] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[  573.057564] task: ffff880037cfd0c0 ti: ffff8800ca4ae000 task.ti: ffff8800ca40
+[  573.057564] RIP: 0010:[<ffffffff81520a44>]  [<ffffffff81520a44>] _raw_spin_ld
+[  573.057564] RSP: 0018:ffff8800ca4afa08  EFLAGS: 00010046
+[  573.057564] RAX: 0000000000000046 RBX: ffff8800c813e800 RCX: 0000000000000000
+[  573.057564] RDX: 0000000000010000 RSI: ffff8800c813e800 RDI: 0000000000000000
+[  573.057564] RBP: ffff8800ca4afa08 R08: ffff8800c813e800 R09: ffff8800ca4afdf8
+[  573.057564] R10: ffff88011a2261c0 R11: 0000000000000246 R12: ffff88011fc8b940
+[  573.057564] R13: 0000000000000000 R14: ffff8800c813e948 R15: 0000000000000000
+[  573.057564] FS:  00007fc238e92700(0000) GS:ffff88011fc80000(0000) knlGS:00000
+[  573.057564] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[  573.057564] CR2: 0000000000000000 CR3: 00000000c88c4000 CR4: 00000000000407e0
+[  573.057564] DR0: 0000000000033c20 DR1: 0000000000000000 DR2: 0000000000000000
+[  573.057564] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[  573.057564] Stack:
+[  573.057564]  ffff8800ca4afa58 ffffffff810190b0 0000000000000000 0000000000000
+[  573.057564]  ffff88011fff8680 0000000000000000 ffff8800c813e800 ffff88011fc80
+[  573.057564]  0000000000000040 0000000000000000 ffff8800ca4afa88 ffffffff81013
+[  573.057564] Call Trace:
+[  573.057564]  [<ffffffff810190b0>] __intel_shared_reg_get_constraints+0x5e/0xc
+[  573.057564]  [<ffffffff81019273>] intel_get_event_constraints+0x85/0x154
+[  573.057564]  [<ffffffff81013bcc>] x86_schedule_events+0x54/0x185
+[  573.057564]  [<ffffffff8101284f>] ? x86_pmu_add+0xf8/0x110
+[  573.057564]  [<ffffffff810126ee>] x86_pmu_commit_txn+0x51/0x9a
+[  573.057564]  [<ffffffff810d6fef>] ? __alloc_pages_nodemask+0x173/0x718
+[  573.057564]  [<ffffffff810c88bc>] ? event_sched_in+0x7a/0x109
+[  573.057564]  [<ffffffff810c89e3>] group_sched_in+0x98/0x147
+[  573.057564]  [<ffffffff81067436>] ? sched_clock_cpu+0xc3/0xd1
+[  573.057564]  [<ffffffff810c8bf0>] ctx_sched_in+0x15e/0x185
+[  573.057564]  [<ffffffff810c8c80>] perf_event_sched_in+0x69/0x72
+[  573.057564]  [<ffffffff810c8d51>] __perf_install_in_context+0xc8/0xf1
+[  573.057564]  [<ffffffff810c956f>] ? perf_event_task_output+0x13d/0x13d
+[  573.057564]  [<ffffffff810c95ab>] remote_function+0x3c/0x43
+[  573.057564]  [<ffffffff8108c655>] smp_call_function_single+0x8a/0x101
+[  573.057564]  [<ffffffff810c95f6>] task_function_call+0x44/0x4e
+[  573.057564]  [<ffffffff810c8c89>] ? perf_event_sched_in+0x72/0x72
+[  573.057564]  [<ffffffff810c9a0c>] perf_install_in_context+0x81/0xbc
+[  573.057564]  [<ffffffff8151dddc>] ? mutex_lock+0x16/0x37
+[  573.057564]  [<ffffffff810cd56b>] SYSC_perf_event_open+0x634/0x7e9
+[  573.057564]  [<ffffffff810cd729>] SyS_perf_event_open+0x9/0xb
+[  573.057564]  [<ffffffff81527b56>] system_call_fastpath+0x1a/0x1f
+[  573.057564] Code: c1 07 89 c2 c1 ea 10 66 39 c2 74 0c 66 8b 07 66 39 d0 74 0 
+[  573.057564] RIP  [<ffffffff81520a44>] _raw_spin_lock_irqsave+0x11/0x2d
+[  573.057564]  RSP <ffff8800ca4afa08>
+[  573.057564] CR2: 0000000000000000
+[  573.057564] ---[ end trace ee0dc4a441b301c0 ]---
+[  577.000000] ------------[ cut here ]------------
+[  577.000000] WARNING: CPU: 0 PID: 15546 at kernel/watchdog.c:245 watchdog_ove)
+[  577.000000] Watchdog detected hard LOCKUP on cpu 0
+[  577.000000] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powern
+[  577.000000] CPU: 0 PID: 15546 Comm: perf_fuzzer Tainted: G      D W    3.12.4
+[  577.000000] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BI2
+[  577.000000]  00000000000000f5 ffff88011fc07bc8 ffffffff8151d8ec 0000000000005
+[  577.000000]  ffff88011fc07c18 ffff88011fc07c08 ffffffff8103cda9 ffff88011fc08
+[  577.000000]  ffffffff810a137f ffff88011b313400 0000000000000000 ffff88011fc08
+[  577.000000] Call Trace:
+[  577.000000]  <NMI>  [<ffffffff8151d8ec>] dump_stack+0x49/0x5d
+[  577.000000]  [<ffffffff8103cda9>] warn_slowpath_common+0x81/0x9b
+[  577.000000]  [<ffffffff810a137f>] ? watchdog_overflow_callback+0x9b/0xa6
+[  577.000000]  [<ffffffff8103ce66>] warn_slowpath_fmt+0x46/0x48
+[  577.000000]  [<ffffffff810a137f>] watchdog_overflow_callback+0x9b/0xa6
+[  577.000000]  [<ffffffff810cbb94>] __perf_event_overflow+0x137/0x1c1
+[  577.000000]  [<ffffffff81018991>] ? intel_pmu_enable_all+0x4c/0xa4
+[  577.000000]  [<ffffffff810cc23a>] perf_event_overflow+0x14/0x16
+[  577.000000]  [<ffffffff81018fbd>] intel_pmu_handle_irq+0x2b8/0x34d
+[  577.000000]  [<ffffffff8151f82a>] ? __schedule+0x514/0x54b
+[  577.000000]  [<ffffffff81522253>] perf_event_nmi_handler+0x2d/0x4a
+[  577.000000]  [<ffffffff81521b86>] nmi_handle+0x5e/0x13a
+[  577.000000]  [<ffffffff81521d0a>] do_nmi+0xa8/0x2c0
+[  577.000000]  [<ffffffff81521337>] end_repeat_nmi+0x1e/0x2e
+[  577.000000]  [<ffffffff81520abf>] ? _raw_spin_lock+0x26/0x2a
+[  577.000000]  [<ffffffff81520abf>] ? _raw_spin_lock+0x26/0x2a
+[  577.000000]  [<ffffffff81520abf>] ? _raw_spin_lock+0x26/0x2a
+[  577.000000]  <<EOE>>  <IRQ>  [<ffffffff8106cf00>] sched_rt_period_timer+0x8be
+[  577.000000]  [<ffffffff8105c156>] __run_hrtimer+0xba/0x145
+[  577.000000]  [<ffffffff8106ce75>] ? init_rt_bandwidth+0x46/0x46
+[  577.000000]  [<ffffffff8105c42b>] hrtimer_interrupt+0xd5/0x1c3
+[  577.000000]  [<ffffffff81028469>] local_apic_timer_interrupt+0x58/0x5d
+[  577.000000]  [<ffffffff8152983e>] smp_apic_timer_interrupt+0x2a/0x3c
+[  577.000000]  [<ffffffff815287ca>] apic_timer_interrupt+0x6a/0x70
+[  577.000000]  <EOI> 
+[  577.000000] ---[ end trace ee0dc4a441b301c1 ]---
+</pre>
+<li>
+<pre>
+[ 2715.629603] BUG: unable to handle kernel NULL pointer dereference at           (null)
+[ 2715.632001] IP: [<ffffffff8151dc71>] _raw_spin_lock_irqsave+0x11/0x2d
+[ 2715.632001] PGD bc11f067 PUD c234d067 PMD 0 
+[ 2715.632001] Oops: 0002 [#1] SMP 
+[ 2715.632001] Modules linked in: cpufreq_userspace cpufreq_stats cpufreq_powersave cpufreq_conservative f71882fg mcs7830 acpi_cpufreq usbnet psmouse evdev serio_raw coretemp pcspkr button wmi video ohci_pci ohci_hcd processor i2c_nforce2 thermal_sys ehci_pci sg ehci_hcd sd_mod usbcore usb_common
+[ 2715.632001] CPU: 1 PID: 9731 Comm: perf_fuzzer Tainted: G        W    3.12.0 #3
+[ 2715.632001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[ 2715.632001] task: ffff8800cbad9890 ti: ffff8800bc0c2000 task.ti: ffff8800bc0c2000
+[ 2715.632001] RIP: 0010:[<ffffffff8151dc71>]  [<ffffffff8151dc71>] _raw_spin_lock_irqsave+0x11/0x2d
+[ 2715.632001] RSP: 0018:ffff8800bc0c3af8  EFLAGS: 00010046
+[ 2715.632001] RAX: 0000000000000046 RBX: ffff8800bec9c000 RCX: 0000000000000000
+[ 2715.632001] RDX: 0000000000010000 RSI: ffff8800bec9c000 RDI: 0000000000000000
+[ 2715.632001] RBP: ffff8800bc0c3af8 R08: ffff8800bec9c000 R09: ffff8800bc0c3d18
+[ 2715.632001] R10: 00007f7bf54c80a4 R11: 0000000000000246 R12: ffff88011fc8b940
+[ 2715.632001] R13: 0000000000000000 R14: ffff8800bec9c148 R15: 0000000000000000
+[ 2715.632001] FS:  00007f7bf56e0700(0000) GS:ffff88011fc80000(0000) knlGS:0000000000000000
+[ 2715.632001] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 2715.632001] CR2: 0000000000000000 CR3: 00000000bcbc6000 CR4: 00000000000407e0
+[ 2715.632001] DR0: 00000000a86fb8ff DR1: 000000000080ffcd DR2: 000040dbdfdbdbdb
+[ 2715.632001] DR3: 0000000100000000 DR6: 00000000ffff0ff0 DR7: 0000000000030602
+[ 2715.632001] Stack:
+[ 2715.632001]  ffff8800bc0c3b48 ffffffff81018db4 0000000000000000 0000000000000000
+[ 2715.632001]  00007fffb0ae0fff 0000000000000000 ffff8800bec9c000 ffff88011fc8b940
+[ 2715.632001]  0000000000000040 0000000000000000 ffff8800bc0c3b78 ffffffff81018f77
+[ 2715.632001] Call Trace:
+[ 2715.632001]  [<ffffffff81018db4>] ? __intel_shared_reg_get_constraints+0x5e/0x19c
+[ 2715.632001]  [<ffffffff81018f77>] ? intel_get_event_constraints+0x85/0x154
+[ 2715.632001]  [<ffffffff810138db>] ? x86_schedule_events+0x53/0x17f
+[ 2715.632001]  [<ffffffff81012490>] ? x86_pmu_commit_txn+0x4a/0x8d
+[ 2715.632001]  [<ffffffff810ccf04>] ? perf_output_copy+0x2f/0x85
+[ 2715.632001]  [<ffffffff810c5833>] ? perf_swevent_add+0x37/0xf7
+[ 2715.632001]  [<ffffffff810c7394>] ? event_sched_in+0x79/0x107
+[ 2715.632001]  [<ffffffff810c74b1>] ? group_sched_in+0x8f/0x142
+[ 2715.632001]  [<ffffffff810c7394>] ? event_sched_in+0x79/0x107
+[ 2715.632001]  [<ffffffff810c74b1>] ? group_sched_in+0x8f/0x142
+[ 2715.632001]  [<ffffffff810c7c81>] ? __perf_event_enable+0x118/0x173
+[ 2715.632001]  [<ffffffff810c7fd6>] ? perf_event_task_output+0x117/0x117
+[ 2715.632001]  [<ffffffff810c800a>] ? remote_function+0x34/0x39
+[ 2715.632001]  [<ffffffff8108c378>] ? smp_call_function_single+0x8a/0x101
+[ 2715.632001]  [<ffffffff810c8051>] ? task_function_call+0x42/0x4c
+[ 2715.632001]  [<ffffffff810c7b69>] ? __perf_event_task_sched_in+0x108/0x108
+[ 2715.632001]  [<ffffffff810c857f>] ? perf_event_enable+0x10a/0x141
+[ 2715.632001]  [<ffffffff8151b011>] ? mutex_lock+0x16/0x37
+[ 2715.632001]  [<ffffffff810c8475>] ? perf_install_in_context+0xb8/0xb8
+[ 2715.632001]  [<ffffffff810c5c2f>] ? perf_event_for_each_child+0x56/0x88
+[ 2715.632001]  [<ffffffff810c5d0c>] ? perf_event_task_enable+0x3f/0x6c
+[ 2715.632001]  [<ffffffff8104eb35>] ? SyS_prctl+0x151/0x341
+[ 2715.632001]  [<ffffffff81524d16>] ? system_call_fastpath+0x1a/0x1f
+[ 2715.632001] Code: c1 07 89 c2 c1 ea 10 66 39 c2 74 0c 66 8b 07 66 39 d0 74 04 f3 90 eb f4 c9 c3 55 48 89 e5 66 66 66 66 90 9c 58 fa ba 00 00 01 00 <f0> 0f c1 17 89 d1 c1 e9 10 66 39 d1 74 0c 66 8b 17 66 39 ca 74 
+[ 2715.632001] RIP  [<ffffffff8151dc71>] _raw_spin_lock_irqsave+0x11/0x2d
+[ 2715.632001]  RSP <ffff8800bc0c3af8>
+[ 2715.632001] CR2: 0000000000000000
+[ 2715.632001] ---[ end trace 2f66a1bf606d6b56 ]---
+
+</pre>
+</ol>
+
+<hr>
+
+<a href="bugs_found.html">Back to bugs found page</a>
+
+</body>
+</html>
+
