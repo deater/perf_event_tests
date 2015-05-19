@@ -73,26 +73,26 @@ void dump_summary(FILE *fff, int print_values) {
 	}
 	fprintf(fff,"\n");
 
-	fprintf(fff,"\tClose attempts: %lld  Successful: %lld\n",
-	       stats.close_attempts,stats.close_successful);
-	fprintf(fff,"\tRead attempts: %lld  Successful: %lld\n",
-	       stats.read_attempts,stats.read_successful);
-	fprintf(fff,"\tWrite attempts: %lld  Successful: %lld\n",
-	       stats.write_attempts,stats.writes_successful);
-	fprintf(fff,"\tIoctl attempts: %lld  Successful: %lld\n",
-	       stats.ioctl_attempts,stats.ioctl_successful);
-	fprintf(fff,"\tMmap attempts: %lld  Successful: %lld\n",
-	       stats.mmap_attempts,stats.mmap_successful);
-	fprintf(fff,"\tPrctl attempts: %lld  Successful: %lld\n",
-	       stats.prctl_attempts,stats.prctl_successful);
-	fprintf(fff,"\tFork attempts: %lld  Successful: %lld\n",
-	       stats.fork_attempts,stats.fork_successful);
-	fprintf(fff,"\tPoll attempts: %lld  Successful: %lld\n",
-	       stats.poll_attempts,stats.poll_successful);
-	fprintf(fff,"\tAccess attempts: %lld  Successful: %lld\n",
-	       stats.access_attempts,stats.access_successful);
-	fprintf(fff,"\tTrash mmap attempts: %lld  Successful: %lld\n",
-		stats.trash_mmap_attempts,stats.trash_mmap_successful);
+	fprintf(fff,"\tClose:\t%lld/%lld Successful\n",
+	       stats.close_successful,stats.close_attempts);
+	fprintf(fff,"\tRead:\t%lld/%lld Successful\n",
+	       stats.read_successful,stats.read_attempts);
+	fprintf(fff,"\tWrite:\t%lld/%lld Successful\n",
+	       stats.write_successful,stats.write_attempts);
+	fprintf(fff,"\tIoctl:\t%lld/%lld Successful\n",
+	       stats.ioctl_successful,stats.ioctl_attempts);
+	fprintf(fff,"\tMmap:\t%lld/%lld Successful\n",
+	       stats.mmap_successful,stats.mmap_attempts);
+	fprintf(fff,"\tPrctl:\t%lld/%lld Successful\n",
+	       stats.prctl_successful,stats.prctl_attempts);
+	fprintf(fff,"\tFork:\t%lld/%lld Successful\n",
+	       stats.fork_successful,stats.fork_attempts);
+	fprintf(fff,"\tPoll:\t%lld/%lld Successful\n",
+	       stats.poll_successful,stats.poll_attempts);
+	fprintf(fff,"\tAccess:\t%lld/%lld Successful\n",
+	       stats.access_successful,stats.access_attempts);
+	fprintf(fff,"\tTrash mmap:\t%lld/%lld Successful\n",
+		stats.trash_mmap_successful,stats.trash_mmap_attempts);
 	fprintf(fff,"\tOverflows: %lld\n", stats.overflows);
 	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",stats.sigios);
 
@@ -102,7 +102,7 @@ void dump_summary(FILE *fff, int print_values) {
 	stats.open_attempts=0; stats.open_successful=0;
 	stats.close_attempts=0; stats.close_successful=0;
 	stats.read_attempts=0; stats.read_successful=0;
-	stats.write_attempts=0; stats.writes_successful=0;
+	stats.write_attempts=0; stats.write_successful=0;
 	stats.ioctl_attempts=0; stats.ioctl_successful=0;
 	stats.mmap_attempts=0; stats.mmap_successful=0;
 	stats.prctl_attempts=0; stats.prctl_successful=0;

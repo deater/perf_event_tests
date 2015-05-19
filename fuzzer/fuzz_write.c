@@ -46,7 +46,7 @@ void write_random_event(void) {
 
 	/* logging */
 	if (result>0) {
-	        stats.writes_successful++;
+	        stats.write_successful++;
 		if (logging&TYPE_WRITE) {
 			sprintf(log_buffer,"W %d %d\n",event_data[i].fd,
 						write_size);

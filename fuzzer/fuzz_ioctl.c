@@ -18,6 +18,7 @@
 void ioctl_random_event(void) {
 
 	int i,arg,arg2,result;
+	unsigned int type;
 	long long id;
 
 	i=find_random_active_event();
@@ -25,7 +26,9 @@ void ioctl_random_event(void) {
 	/* Exit if no events */
 	if (i<0) return;
 
-	switch(rand()%9) {
+	type=rand()%9;
+
+	switch(type) {
 		case 0:
 			arg=rand_ioctl_arg();
 			if (ignore_but_dont_skip.ioctl) return;
@@ -122,7 +125,14 @@ void ioctl_random_event(void) {
 	}
 
 	stats.ioctl_attempts++;
-	if (result>=0) stats.ioctl_successful++;
 
+	if (result>=0) {
+		stats.ioctl_successful++;
+		stats.ioctl_type_success[ (type>MAX_IOCTL_TYPE-1)?
+			MAX_IOCTL_TYPE-1:type]++;
+	} else {
+		stats.ioctl_type_fail[ (type>MAX_IOCTL_TYPE-1)?
+			MAX_IOCTL_TYPE-1:type]++;
+	}
 }
 
