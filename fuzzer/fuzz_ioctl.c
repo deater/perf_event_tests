@@ -6,30 +6,10 @@
 #include <sys/ioctl.h>
 
 #include "perf_fuzzer.h"
+#include "fuzzer_random.h"
 #include "fuzzer_stats.h"
 
 #include "../include/perf_event.h"
-
-
-/* pick an intelligently random ioctl argument */
-static int rand_ioctl_arg(void) {
-
-	int value=0;
-
-	switch(rand()%3) {
-		case 0:	value=0;
-			break;
-		case 1: value|=PERF_IOC_FLAG_GROUP;
-			break;
-		case 2: value=rand();
-			break;
-		default:
-			break;
-	}
-
-	return value;
-
-}
 
 
 void ioctl_random_event(void) {
@@ -42,19 +22,21 @@ void ioctl_random_event(void) {
 	/* Exit if no events */
 	if (i<0) return;
 
-#if 0
-
 	switch(rand()%9) {
 		case 0:
 			arg=rand_ioctl_arg();
+#if 0
 			if (ignore_but_dont_skip_ioctl) return;
+
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
 					event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
+#endif
 			break;
+#if 0
 		case 1:
 			arg=rand_ioctl_arg();
 			if (ignore_but_dont_skip_ioctl) return;
@@ -138,8 +120,9 @@ void ioctl_random_event(void) {
 			}
 
 			break;
-	}
 #endif
+	}
+
 	stats.ioctl_attempts++;
 	if (result>=0) stats.ioctl_successful++;
 
