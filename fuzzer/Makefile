@@ -109,6 +109,7 @@ perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o get_cpuinfo.o \
+		fuzz_ioctl.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
