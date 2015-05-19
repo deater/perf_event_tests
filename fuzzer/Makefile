@@ -23,6 +23,14 @@ fuzz_ioctl.x32.o:	fuzz_ioctl.c fuzz_ioctl.h
 
 ###
 
+fuzz_prctl.o:	fuzz_prctl.c fuzz_prctl.h
+	$(CC) $(CFLAGS) -c fuzz_prctl.c
+
+fuzz_prctl.x32.o:	fuzz_prctl.c fuzz_prctl.h
+	$(CC) $(CFLAGS_X32) -o fuzz_prctl.x32.o -c fuzz_prctl.c
+
+###
+
 fuzz_read.o:	fuzz_read.c fuzz_read.h
 	$(CC) $(CFLAGS) -c fuzz_read.c
 
@@ -119,13 +127,13 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 ####
 
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
-		fuzz_ioctl.o fuzz_read.o fuzz_write.o \
+		fuzz_ioctl.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o get_cpuinfo.o \
-		fuzz_ioctl.o fuzz_read.o fuzz_write.o \
+		fuzz_ioctl.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
