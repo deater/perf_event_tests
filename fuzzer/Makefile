@@ -15,6 +15,14 @@ x32:	perf_fuzzer.x32 replay_log.x32 log_to_code filter_log active_events
 
 ###
 
+fuzz_ioctl.o:	fuzz_ioctl.c fuzz_ioctl.h
+	$(CC) $(CFLAGS) -c fuzz_ioctl.c
+
+fuzz_ioctl.x32.o:	fuzz_ioctl.c fuzz_ioctl.h
+	$(CC) $(CFLAGS_X32) -o fuzz_ioctl.x32.o -c fuzz_ioctl.c
+
+###
+
 perf_attr_print.o:	perf_attr_print.c perf_attr_print.h
 	$(CC) $(CFLAGS) -c perf_attr_print.c
 
@@ -78,6 +86,7 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 ####
 
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
+		fuzz_ioctl.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
