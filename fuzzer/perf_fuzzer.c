@@ -45,6 +45,8 @@
 #include "fuzzer_stats.h"
 
 #include "fuzz_ioctl.h"
+#include "fuzz_read.h"
+#include "fuzz_write.h"
 
 #include "get_cpuinfo.h"
 #include "perf_attr_print.h"
@@ -873,90 +875,6 @@ static void prctl_random_event(void) {
 	if (ret==0) stats.prctl_successful++;
 }
 
-#define MAX_READ_SIZE 65536
-
-static long long data[MAX_READ_SIZE];
-
-
-static void read_random_event(void) {
-
-	int i,result,read_size;
-
-	i=find_random_active_event();
-
-	/* Exit if no events */
-	if (i<0) return;
-
-	/* Exit if event has fd of 0, not want to read stdin */
-	if (event_data[i].fd==0) return;
-
-	switch (rand()%4) {
-		case 0:	read_size=event_data[i].read_size;
-			break;
-		case 1: read_size=(rand()%8)*sizeof(long long);
-			break;
-		case 2: read_size=(rand()%MAX_READ_SIZE);
-			break;
-		default: read_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
-	}
-
-	stats.read_attempts++;
-	if (ignore_but_dont_skip.read) return;
-	result=read(event_data[i].fd,data,read_size);
-
-	if (result>0) {
-	        stats.read_successful++;
-		if (logging&TYPE_READ) {
-
-		if (read_size==54624) trigger_failure_logging=1;
-
-			sprintf(log_buffer,"R %d %d\n",event_data[i].fd,read_size);
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-
-	}
-
-}
-
-static void write_random_event(void) {
-
-	int i,result,write_size;
-
-	i=find_random_active_event();
-
-	/* Exit if no events */
-	if (i<0) return;
-
-	/* Exit if event has fd of 0, not want to read stdin */
-	if (event_data[i].fd==0) return;
-
-	switch (rand()%4) {
-		case 0:	write_size=event_data[i].read_size;
-			break;
-		case 1: write_size=(rand()%8)*sizeof(long long);
-			break;
-		case 2: write_size=(rand()%MAX_READ_SIZE);
-			break;
-		default: write_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
-	}
-
-	if (ignore_but_dont_skip.write) return;
-
-	stats.write_attempts++;
-
-	result=write(event_data[i].fd,data,write_size);
-
-	/* logging */
-	if (result>0) {
-	        stats.writes_successful++;
-		if (logging&TYPE_WRITE) {
-			sprintf(log_buffer,"W %d %d\n",event_data[i].fd,
-						write_size);
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-	}
-
-}
 
 static void poll_random_event(void) {
 
