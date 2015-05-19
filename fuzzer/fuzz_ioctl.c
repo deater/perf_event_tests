@@ -22,6 +22,8 @@ void ioctl_random_event(void) {
 	unsigned int type;
 	long long id;
 	int any_event,sampling_event;
+	char filter[]="sys_read";
+	int custom;
 
 	any_event=find_random_active_event();
 	sampling_event=find_random_active_sampling_event();
@@ -139,45 +141,74 @@ void ioctl_random_event(void) {
 
 			break;
 
-		case 5: arg=event_data[find_random_active_event()].fd;
+		/* PERF_EVENT_IOC_SET_OUTPUT */
+		/* specifies an alternate fd to send output notifications */
+		case 5:
+			arg=event_data[find_random_active_event()].fd;
+			if (rand()%10==0) arg=-1;
+
 			if (ignore_but_dont_skip.ioctl) return;
-			result=ioctl(event_data[any_event].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
+
+			result=ioctl(event_data[sampling_event].fd,
+					PERF_EVENT_IOC_SET_OUTPUT,arg);
+
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %lld\n",
-					event_data[any_event].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
+					event_data[sampling_event].fd,
+					PERF_EVENT_IOC_SET_OUTPUT,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
-		case 6: arg=rand();
+
+		/* PERF_EVENT_IOCTL_SET_FILTER */
+		/* Argument is a pointer to a filter? FIXME*/
+		/* FIXME: preferentially find ftrace events */
+		case 6:
+
+			custom=rand()%2;
+
+			if (custom) arg=rand();
+			else arg=(long)&filter;
+
 			if (ignore_but_dont_skip.ioctl) return;
 			/* FIXME -- read filters from file */
 			/* under debugfs tracing/events/ * / * /id */
-			result=ioctl(event_data[any_event].fd,PERF_EVENT_IOC_SET_FILTER,arg);
+			result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_SET_FILTER,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %ld %lld\n",
-					event_data[any_event].fd,(long)PERF_EVENT_IOC_SET_FILTER,arg);
+				sprintf(log_buffer,"I %d %ld %d %lld %s\n",
+					event_data[any_event].fd,
+					(long)PERF_EVENT_IOC_SET_FILTER,
+					custom,arg,filter);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 
 		/* PERF_EVENT_IOC_ID */
+		/* Read the event id into a 64-bit value */
 		case 7: arg=rand();
 			if (ignore_but_dont_skip.ioctl) return;
-			result=ioctl(event_data[any_event].fd,PERF_EVENT_IOC_ID,&id);
+			result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_ID,&id);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
-					event_data[any_event].fd,(long)PERF_EVENT_IOC_ID,id);
+					event_data[any_event].fd,
+					(long)PERF_EVENT_IOC_ID,id);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
 
 		/* PERF_EVENT_IOC_SET_BPF */
-		case 8: arg=rand();
+		/* FIXME: argument is bpf file descriptor */
+		case 8:
+			arg=rand();
 			if (ignore_but_dont_skip.ioctl) return;
-			result=ioctl(event_data[any_event].fd,PERF_EVENT_IOC_SET_BPF,&id);
+			result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_SET_BPF,&id);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
-					event_data[any_event].fd,(long)PERF_EVENT_IOC_ID,id);
+					event_data[any_event].fd,
+					(long)PERF_EVENT_IOC_ID,id);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
