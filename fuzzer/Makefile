@@ -21,6 +21,15 @@ fuzz_ioctl.o:	fuzz_ioctl.c fuzz_ioctl.h
 fuzz_ioctl.x32.o:	fuzz_ioctl.c fuzz_ioctl.h
 	$(CC) $(CFLAGS_X32) -o fuzz_ioctl.x32.o -c fuzz_ioctl.c
 
+
+###
+
+fuzzer_stats.o:	fuzzer_stats.c fuzzer_stats.h
+	$(CC) $(CFLAGS) -c fuzzer_stats.c
+
+fuzzer_stats.x32.o:	fuzzer_stats.c fuzzer_stats.h
+	$(CC) $(CFLAGS_X32) -o fuzzer_stats.x32.o -c fuzzer_stats.c
+
 ###
 
 perf_attr_print.o:	perf_attr_print.c perf_attr_print.h
@@ -87,10 +96,12 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 		fuzz_ioctl.o \
+		fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o get_cpuinfo.o \
+		fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 

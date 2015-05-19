@@ -136,20 +136,6 @@ static int type=TYPE_MMAP|
 static int log_fd;
 static char log_buffer[BUFSIZ];
 
-#define MAX_ERRNOS 1023
-static int errno_count[MAX_ERRNOS];
-
-#define MAX_TYPE_COUNT 16
-static int type_count_success[MAX_TYPE_COUNT];
-static int type_count_fail[MAX_TYPE_COUNT];
-
-static char type_count_names[MAX_TYPE_COUNT][20]={
-	"Hardware","Software","Tracepoint","Cache",
-	"Raw","Breakpoint","#6","#7",
-	"#8","#9","#10","#11",
-	"#12","#13","#14",">14"
-};
-
 static int throttle_close_event=0;
 
 static int already_forked=0;
@@ -823,7 +809,7 @@ static void open_random_event(void) {
 
 		/* If we succede, break out of the infinite loop */
 		if (fd>0) {
-			type_count_success[which_type]++;
+			stats.type_count_success[which_type]++;
 			break;
 		}
 #if 0
@@ -840,8 +826,8 @@ static void open_random_event(void) {
 
 		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) {
-			errno_count[errno]++;
-			type_count_fail[which_type]++;
+			stats.errno_count[errno]++;
+			stats.type_count_fail[which_type]++;
 		}
 
 		/* no more file descriptors, so give up */
@@ -1424,80 +1410,6 @@ static void fork_random_event(void) {
 	}
 }
 
-
-static void dump_summary(FILE *fff, int print_values) {
-
-	int i;
-
-	if (print_values) {
-
-	fprintf(fff,"Iteration %lld\n",stats.total_iterations);
-	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Currently open: %lld\n",
-	       stats.open_attempts,stats.open_successful,stats.current_open);
-	for(i=0;i<MAX_ERRNOS;i++) {
-		if (errno_count[i]!=0) {
-			fprintf(fff,"\t\t");
-			print_errno_name(fff,i);
-			fprintf(fff," : %d\n",errno_count[i]);
-		}
-	}
-
-	fprintf(fff,"\t\tType ");
-	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		fprintf(fff,"(%s %d/%d)",type_count_names[i],
-				type_count_success[i],
-				type_count_success[i]+type_count_fail[i]);
-	}
-	fprintf(fff,"\n");
-
-	fprintf(fff,"\tClose attempts: %lld  Successful: %lld\n",
-	       stats.close_attempts,stats.close_successful);
-	fprintf(fff,"\tRead attempts: %lld  Successful: %lld\n",
-	       stats.read_attempts,stats.read_successful);
-	fprintf(fff,"\tWrite attempts: %lld  Successful: %lld\n",
-	       stats.write_attempts,stats.writes_successful);
-	fprintf(fff,"\tIoctl attempts: %lld  Successful: %lld\n",
-	       stats.ioctl_attempts,stats.ioctl_successful);
-	fprintf(fff,"\tMmap attempts: %lld  Successful: %lld\n",
-	       stats.mmap_attempts,stats.mmap_successful);
-	fprintf(fff,"\tPrctl attempts: %lld  Successful: %lld\n",
-	       stats.prctl_attempts,stats.prctl_successful);
-	fprintf(fff,"\tFork attempts: %lld  Successful: %lld\n",
-	       stats.fork_attempts,stats.fork_successful);
-	fprintf(fff,"\tPoll attempts: %lld  Successful: %lld\n",
-	       stats.poll_attempts,stats.poll_successful);
-	fprintf(fff,"\tAccess attempts: %lld  Successful: %lld\n",
-	       stats.access_attempts,stats.access_successful);
-	fprintf(fff,"\tTrash mmap attempts: %lld  Successful: %lld\n",
-		stats.trash_mmap_attempts,stats.trash_mmap_successful);
-	fprintf(fff,"\tOverflows: %lld\n", stats.overflows);
-	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",stats.sigios);
-
-	}
-
-	/* Reset counts back to zero */
-	stats.open_attempts=0; stats.open_successful=0;
-	stats.close_attempts=0; stats.close_successful=0;
-	stats.read_attempts=0; stats.read_successful=0;
-	stats.write_attempts=0; stats.writes_successful=0;
-	stats.ioctl_attempts=0; stats.ioctl_successful=0;
-	stats.mmap_attempts=0; stats.mmap_successful=0;
-	stats.prctl_attempts=0; stats.prctl_successful=0;
-	stats.fork_attempts=0; stats.fork_successful=0;
-	stats.poll_attempts=0; stats.poll_successful=0;
-	stats.access_attempts=0; stats.access_successful=0;
-	stats.trash_mmap_attempts=0; stats.trash_mmap_successful=0;
-	stats.overflows=0;
-	stats.sigios=0;
-	for(i=0;i<MAX_ERRNOS;i++) {
-		errno_count[i]=0;
-	}
-	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		type_count_success[i]=0;
-		type_count_fail[i]=0;
-	}
-}
-
 static int get_sample_rate(void) {
 
 	FILE *fff;
@@ -1714,13 +1626,13 @@ int main(int argc, char **argv) {
 
 	/* Clear errnos count */
 	for(i=0;i<MAX_ERRNOS;i++) {
-		errno_count[i]=0;
+		stats.errno_count[i]=0;
 	}
 
 	/* Clear type counts */
 	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		type_count_success[i]=0;
-		type_count_fail[i]=0;
+		stats.type_count_success[i]=0;
+		stats.type_count_fail[i]=0;
 	}
 
 	/* Write seed to disk so we can find it later */
@@ -1850,10 +1762,8 @@ int main(int argc, char **argv) {
 	/* This depends on trinity exporting the values */
 	if (pmus!=NULL) {
 		for(i=0;i<num_pmus;i++) {
-//			printf("VMW: %d t=%d n=%s\n",i,pmus[i].type,pmus[i].name);
 			if (pmus[i].type<MAX_TYPE_COUNT) {
-				strncpy(type_count_names[pmus[i].type],
-						pmus[i].name,20);
+				stats_set_pmu_name(pmus[i].type,pmus[i].name);
 			}
 		}
 	}
