@@ -26,7 +26,7 @@ void ioctl_random_event(void) {
 	/* Exit if no events */
 	if (i<0) return;
 
-	type=rand()%9;
+	type=rand()%10;
 
 	switch(type) {
 		case 0:
@@ -101,6 +101,8 @@ void ioctl_random_event(void) {
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 			break;
+
+		/* PERF_EVENT_IOC_ID */
 		case 7: arg=rand();
 			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
@@ -111,8 +113,21 @@ void ioctl_random_event(void) {
 			}
 			break;
 
+		/* PERF_EVENT_IOC_SET_BPF */
+		case 8: arg=rand();
+			if (ignore_but_dont_skip.ioctl) return;
+			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_BPF,&id);
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
+				sprintf(log_buffer,"I %d %ld %lld\n",
+					event_data[i].fd,(long)PERF_EVENT_IOC_ID,id);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+			break;
+
+		/* Random */
 		default:
 			arg=rand(); arg2=rand();
+			type=arg;
 			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,arg,arg2);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {

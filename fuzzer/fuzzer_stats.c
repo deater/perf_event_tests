@@ -15,6 +15,13 @@ static char open_type_names[MAX_OPEN_TYPE][20]={
 	"#12","#13","#14",">14"
 };
 
+static char ioctl_type_names[MAX_IOCTL_TYPE][20]={
+	"ENABLE","DISABLE","REFRESH","RESET",
+	"PERIOD","SET_OUTPUT","SET_FILTER","ID",
+	"SET_BPF","#9","#10","#11",
+	"#12","#13","#14",">14"
+};
+
 void stats_set_pmu_name(int which, char *name) {
 	strncpy(open_type_names[which],name,20);
 }
@@ -79,8 +86,17 @@ void dump_summary(FILE *fff, int print_values) {
 	       stats.read_successful,stats.read_attempts);
 	fprintf(fff,"\tWrite:\t%lld/%lld Successful\n",
 	       stats.write_successful,stats.write_attempts);
-	fprintf(fff,"\tIoctl:\t%lld/%lld Successful\n",
+	fprintf(fff,"\tIoctl:\t%lld/%lld Successful: ",
 	       stats.ioctl_successful,stats.ioctl_attempts);
+
+	for(i=0;i<MAX_IOCTL_TYPE;i++) {
+		fprintf(fff,"(%s %d/%d)",ioctl_type_names[i],
+				stats.ioctl_type_success[i],
+				stats.ioctl_type_success[i]+
+					stats.ioctl_type_fail[i]);
+	}
+	fprintf(fff,"\n");
+
 	fprintf(fff,"\tMmap:\t%lld/%lld Successful\n",
 	       stats.mmap_successful,stats.mmap_attempts);
 	fprintf(fff,"\tPrctl:\t%lld/%lld Successful\n",
@@ -118,5 +134,9 @@ void dump_summary(FILE *fff, int print_values) {
 	for(i=0;i<MAX_OPEN_TYPE;i++) {
 		stats.open_type_success[i]=0;
 		stats.open_type_fail[i]=0;
+	}
+	for(i=0;i<MAX_IOCTL_TYPE;i++) {
+		stats.ioctl_type_success[i]=0;
+		stats.ioctl_type_fail[i]=0;
 	}
 }
