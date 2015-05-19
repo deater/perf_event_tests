@@ -5,9 +5,11 @@
 
 #include <sys/ioctl.h>
 
+#include "perf_fuzzer.h"
+#include "fuzzer_stats.h"
+
 #include "../include/perf_event.h"
 
-#if 0
 
 /* pick an intelligently random ioctl argument */
 static int rand_ioctl_arg(void) {
@@ -29,6 +31,7 @@ static int rand_ioctl_arg(void) {
 
 }
 
+
 void ioctl_random_event(void) {
 
 	int i,arg,arg2,result;
@@ -38,6 +41,8 @@ void ioctl_random_event(void) {
 
 	/* Exit if no events */
 	if (i<0) return;
+
+#if 0
 
 	switch(rand()%9) {
 		case 0:
@@ -134,8 +139,9 @@ void ioctl_random_event(void) {
 
 			break;
 	}
-	ioctl_attempts++;
-	if (result>=0) ioctl_successful++;
+#endif
+	stats.ioctl_attempts++;
+	if (result>=0) stats.ioctl_successful++;
 
 }
-#endif
+

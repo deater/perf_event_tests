@@ -77,6 +77,7 @@ static int trigger_failure_logging=0;
 
 #include "fuzz_compat.h"
 
+#include "perf_fuzzer.h"
 #include "fuzzer_stats.h"
 
 #include "get_cpuinfo.h"
@@ -169,7 +170,7 @@ extern struct syscallentry syscall_perf_event_open;
 
 static int active_events=0;
 
-static int find_random_active_event(void) {
+int find_random_active_event(void) {
 
 	int i,x,j=0;
 
