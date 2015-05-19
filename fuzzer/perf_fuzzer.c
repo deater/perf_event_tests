@@ -7,45 +7,6 @@
 
 #define _GNU_SOURCE 1
 
-/* Try to allow minimal determinism while at the same	*/
-/* time skipping unnecessary system calls.		*/
-#if 0
-/* Minimal syscalls needed for bug I am tracking */
-static int ignore_but_dont_skip_mmap=1;
-static int ignore_but_dont_skip_overflow=1;
-static int ignore_but_dont_skip_open=0;
-static int ignore_but_dont_skip_close=0;
-static int ignore_but_dont_skip_read=1;
-static int ignore_but_dont_skip_write=1;
-static int ignore_but_dont_skip_ioctl=1;
-static int ignore_but_dont_skip_fork=0;
-static int ignore_but_dont_skip_prctl=1;
-static int ignore_but_dont_skip_poll=1;
-static int ignore_but_dont_skip_million=1;
-static int ignore_but_dont_skip_access=1;
-static int ignore_but_dont_skip_trash_mmap=1;
-#else
-static int ignore_but_dont_skip_mmap=0;
-static int ignore_but_dont_skip_overflow=0;
-static int ignore_but_dont_skip_open=0;
-static int ignore_but_dont_skip_close=0;
-static int ignore_but_dont_skip_read=0;
-static int ignore_but_dont_skip_write=0;
-static int ignore_but_dont_skip_ioctl=0;
-static int ignore_but_dont_skip_fork=0;
-static int ignore_but_dont_skip_prctl=0;
-static int ignore_but_dont_skip_poll=0;
-static int ignore_but_dont_skip_million=0;
-static int ignore_but_dont_skip_access=0;
-static int ignore_but_dont_skip_trash_mmap=0;
-#endif
-
-
-#define LOG_FAILURES	0
-static int trigger_failure_logging=0;
-
-#define FSYNC_EVERY	0
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,6 +39,7 @@ static int trigger_failure_logging=0;
 #include "fuzz_compat.h"
 
 #include "perf_fuzzer.h"
+#include "fuzzer_determinism.h"
 #include "fuzzer_logging.h"
 #include "fuzzer_random.h"
 #include "fuzzer_stats.h"
@@ -104,10 +66,18 @@ struct fuzzer_stats_t stats;
 
 /* Logging globals */
 int logging=0;
+int trigger_failure_logging=0;
 int stop_after=0;
 int attempt_determinism=0;
 int log_fd;
 char log_buffer[BUFSIZ];
+
+/* Determinism Globals */
+struct skip_t ignore_but_dont_skip;
+
+/* Our Globals */
+struct event_data_t event_data[NUM_EVENTS];
+
 
 /* Type selection */
 static int type=TYPE_MMAP|
@@ -129,27 +99,6 @@ static int throttle_close_event=0;
 
 static int already_forked=0;
 static pid_t forked_pid;
-
-
-#define NUM_EVENTS 100000
-
-struct event_data_t {
-	int active;
-	int fd;
-	struct perf_event_attr attr;
-	pid_t pid;
-	int cpu;
-	int group_fd;
-	unsigned long flags;
-	int read_size;
-	int number_in_group;
-	struct sigaction sa;
-	char *mmap;
-	int mmap_size;
-	int last_refresh;
-	int overflows;
-	int throttles;
-} event_data[NUM_EVENTS];
 
 static struct sigaction sigio;
 static struct sigaction sigquit;
@@ -242,7 +191,7 @@ static void close_event(int i, int from_sigio) {
 
 	unmap_before_close=rand()%2;
 
-	if (ignore_but_dont_skip_close) return;
+	if (ignore_but_dont_skip.close) return;
 
 	/* here to avoid race in overflow where we munmap or close */
 	/* but event still marked active */
@@ -664,7 +613,7 @@ static void open_random_event(void) {
 		/* Debugging code */
 		/* We don't usually log failed opens as there are so many */
 
-	if (ignore_but_dont_skip_open) return;
+	if (ignore_but_dont_skip.open) return;
 
 	        if (logging&TYPE_OPEN) {
 #if LOG_FAILURES
@@ -787,7 +736,7 @@ static void open_random_event(void) {
 
 		event_data[i].mmap=NULL;
 
-if (!ignore_but_dont_skip_mmap) {
+if (!ignore_but_dont_skip.mmap) {
 
 		stats.mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
@@ -823,7 +772,7 @@ if (!ignore_but_dont_skip_mmap) {
 	/* Setup overflow 50% of the time */
 	if ((type&TYPE_OVERFLOW) && (rand()%2)) {
 
-	if (!ignore_but_dont_skip_overflow) {
+	if (!ignore_but_dont_skip.overflow) {
 
 		if (logging&TYPE_OVERFLOW) {
 			sprintf(log_buffer,"o %d\n",event_data[i].fd);
@@ -868,7 +817,7 @@ static void trash_random_mmap(void) {
 
 		value=rand();
 
-		if (ignore_but_dont_skip_trash_mmap) return;
+		if (ignore_but_dont_skip.trash_mmap) return;
 
 		/* can't write high pages? */
 		//event_data[i].mmap_size);
@@ -906,7 +855,7 @@ static void ioctl_random_event(void) {
 	switch(rand()%9) {
 		case 0:
 			arg=rand_ioctl_arg();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ENABLE,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -916,7 +865,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 1:
 			arg=rand_ioctl_arg();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_DISABLE,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -926,7 +875,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 2:
 			arg=rand_refresh();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_REFRESH,arg);
 			if (result>0) {
 				event_data[i].last_refresh=arg;
@@ -939,7 +888,7 @@ static void ioctl_random_event(void) {
 			break;
 		case 3:
 			arg=rand_ioctl_arg();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_RESET,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -948,7 +897,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 4: arg=rand_period();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_PERIOD,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %d\n",
@@ -957,7 +906,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 5: arg=event_data[find_random_active_event()].fd;
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -966,7 +915,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 6: arg=rand();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			/* FIXME -- read filters from file */
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_SET_FILTER,arg);
@@ -977,7 +926,7 @@ static void ioctl_random_event(void) {
 			}
 			break;
 		case 7: arg=rand();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,PERF_EVENT_IOC_ID,&id);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
@@ -988,7 +937,7 @@ static void ioctl_random_event(void) {
 
 		default:
 			arg=rand(); arg2=rand();
-			if (ignore_but_dont_skip_ioctl) return;
+			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[i].fd,arg,arg2);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %d %d\n",
@@ -1012,7 +961,7 @@ static void prctl_random_event(void) {
 
 	type=rand()%2;
 
-	if (ignore_but_dont_skip_prctl) return;
+	if (ignore_but_dont_skip.prctl) return;
 
 	if (type) {
 		ret=prctl(PR_TASK_PERF_EVENTS_ENABLE);
@@ -1060,14 +1009,14 @@ static void read_random_event(void) {
 	}
 
 	stats.read_attempts++;
-	if (ignore_but_dont_skip_read) return;
+	if (ignore_but_dont_skip.read) return;
 	result=read(event_data[i].fd,data,read_size);
 
 	if (result>0) {
 	        stats.read_successful++;
 		if (logging&TYPE_READ) {
 
-if (read_size==54624) trigger_failure_logging=1;
+		if (read_size==54624) trigger_failure_logging=1;
 
 			sprintf(log_buffer,"R %d %d\n",event_data[i].fd,read_size);
 			write(log_fd,log_buffer,strlen(log_buffer));
@@ -1099,7 +1048,7 @@ static void write_random_event(void) {
 		default: write_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
 	}
 
-	if (ignore_but_dont_skip_write) return;
+	if (ignore_but_dont_skip.write) return;
 
 	stats.write_attempts++;
 
@@ -1137,7 +1086,7 @@ static void poll_random_event(void) {
 	/* Want short timeout (ms) */
 	timeout=rand()%10;
 
-	if (ignore_but_dont_skip_poll) return;
+	if (ignore_but_dont_skip.poll) return;
 
 	stats.poll_attempts++;
 	result=poll(pollfds,num_fds,timeout);
@@ -1190,7 +1139,7 @@ static void access_random_file(void) {
 
 	if (rand()%2) {
 
-		if (ignore_but_dont_skip_access) return;
+		if (ignore_but_dont_skip.access) return;
 
 		/* read */
 		fff=fopen(filenames[which_file],"r");
@@ -1216,7 +1165,7 @@ static void access_random_file(void) {
 			write_value=((unsigned long long)rand()<<32)|rand();
 
 
-		if (!ignore_but_dont_skip_access) {
+		if (!ignore_but_dont_skip.access) {
 			result=fprintf(fff,"%lld\n",write_value);
 
 			if (logging&TYPE_ACCESS) {
@@ -1242,7 +1191,7 @@ static void access_random_file(void) {
 
 static void run_a_million_instructions(void) {
 
-	if (ignore_but_dont_skip_million) return;
+	if (ignore_but_dont_skip.million) return;
 
 	instructions_million();
 
@@ -1254,7 +1203,7 @@ static void fork_random_event(void) {
 
 	int status;
 
-	if (ignore_but_dont_skip_fork) return;
+	if (ignore_but_dont_skip.fork) return;
 
 	if (already_forked) {
 
