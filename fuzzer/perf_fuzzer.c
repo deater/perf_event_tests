@@ -20,8 +20,6 @@
 #include <sys/wait.h>
 #include <sys/utsname.h>
 
-#include <poll.h>
-
 #include <fcntl.h>
 
 /* Trinity Includes */
@@ -44,6 +42,7 @@
 #include "fuzzer_stats.h"
 
 #include "fuzz_ioctl.h"
+#include "fuzz_poll.h"
 #include "fuzz_prctl.h"
 #include "fuzz_read.h"
 #include "fuzz_write.h"
@@ -845,49 +844,6 @@ static void trash_random_mmap(void) {
 	stats.trash_mmap_successful++;
 
 }
-
-static void poll_random_event(void) {
-
-#define MAX_POLL_FDS 128
-
-	int i,result,num_fds;
-
-	struct pollfd pollfds[MAX_POLL_FDS];
-	int timeout;
-	char log_buffer[BUFSIZ];
-
-	num_fds=rand()%MAX_POLL_FDS;
-
-	for(i=0;i<num_fds;i++) {
-		pollfds[i].fd=event_data[find_random_active_event()].fd;
-		pollfds[i].events=POLLIN;
-	}
-
-	/* Want short timeout (ms) */
-	timeout=rand()%10;
-
-	if (ignore_but_dont_skip.poll) return;
-
-	stats.poll_attempts++;
-	result=poll(pollfds,num_fds,timeout);
-
-	if (result>0) {
-	        stats.poll_successful++;
-		if (logging&TYPE_POLL) {
-			sprintf(log_buffer,"p %d ",num_fds);
-			write(log_fd,log_buffer,strlen(log_buffer));
-			for(i=0;i<num_fds;i++) {
-				sprintf(log_buffer,"%d %x ",pollfds[i].fd,
-							pollfds[i].events);
-				write(log_fd,log_buffer,strlen(log_buffer));
-			}
-			sprintf(log_buffer,"%d\n",timeout);
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-	}
-
-}
-
 
 static void access_random_file(void) {
 
