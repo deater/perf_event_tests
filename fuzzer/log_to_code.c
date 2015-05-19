@@ -143,9 +143,10 @@ static void ioctl_arg_print(int arg) {
 
 static void ioctl_event(char *line) {
 
-	int fd,arg,arg2;
+	int fd,arg;
+	long long arg2;
 
-	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
+	sscanf(line,"%*c %d %d %lld",&fd,&arg,&arg2);
 
 	switch(arg) {
 		case PERF_EVENT_IOC_ENABLE:
@@ -159,7 +160,7 @@ static void ioctl_event(char *line) {
 			printf(");\n");
 			break;
 		case PERF_EVENT_IOC_REFRESH:
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_REFRESH,%d);\n",
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_REFRESH,%lld);\n",
 				fd,arg2);
 			break;
 		case PERF_EVENT_IOC_RESET:
@@ -168,30 +169,31 @@ static void ioctl_event(char *line) {
 			printf(");\n");
 			break;
 		case PERF_EVENT_IOC_PERIOD:
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_PERIOD,%d);\n",
-				fd,arg2);
+			printf("\tperiod=%lld\n",arg2);
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_PERIOD,&period);\n",
+				fd);
 			break;
 		case PERF_EVENT_IOC_SET_OUTPUT:
 			if (arg2==-1) {
 				printf("\tioctl(fd[%d],"
-					"PERF_EVENT_IOC_SET_OUTPUT,%d);\n",
+					"PERF_EVENT_IOC_SET_OUTPUT,%lld);\n",
 					fd,arg2);
 			}
 			else {
 				printf("\tioctl(fd[%d],"
-					"PERF_EVENT_IOC_SET_OUTPUT,fd[%d]);\n",
+					"PERF_EVENT_IOC_SET_OUTPUT,fd[%lld]);\n",
 					fd,arg2);
 			}
 			break;
 		case PERF_EVENT_IOC_SET_FILTER:
-			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_FILTER,%d);\n",
+			printf("\tioctl(fd[%d],PERF_EVENT_IOC_SET_FILTER,%lld);\n",
 				fd,arg2);
 			break;
 		case PERF_EVENT_IOC_ID:
 			printf("\tioctl(fd[%d],PERF_EVENT_IOC_ID,&id);\n",fd);
 			break;
 		default:
-			printf("\tioctl(fd[%d],%d,%d);\n",fd,arg,arg2);
+			printf("\tioctl(fd[%d],%d,%lld);\n",fd,arg,arg2);
 			break;
 	}
 
@@ -388,6 +390,8 @@ int main(int argc, char **argv) {
 
 	/* For ioctl(PERF_EVENT_IOC_ID); */
 	printf("static long long id;\n");
+	/* For ioctl(PERF_EVENT_IOC_PERIOD); */
+	printf("static long long period;\n");
 
 	printf("\n");
 

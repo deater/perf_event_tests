@@ -17,8 +17,8 @@
 
 void ioctl_random_event(void) {
 
-	int arg,arg2,result;
-	long long arg64;
+	long long arg,arg2;
+	int result;
 	unsigned int type;
 	long long id;
 	int any_event,sampling_event;
@@ -51,7 +51,7 @@ void ioctl_random_event(void) {
 					PERF_EVENT_IOC_ENABLE,arg);
 
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %lld\n",
 					event_data[any_event].fd,
 					PERF_EVENT_IOC_ENABLE,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -70,7 +70,7 @@ void ioctl_random_event(void) {
 					PERF_EVENT_IOC_DISABLE,arg);
 
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %lld\n",
 					event_data[any_event].fd,
 					PERF_EVENT_IOC_DISABLE,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -92,7 +92,7 @@ void ioctl_random_event(void) {
 			}
 
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %lld\n",
 					event_data[sampling_event].fd,
 					PERF_EVENT_IOC_REFRESH,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -112,7 +112,7 @@ void ioctl_random_event(void) {
 					PERF_EVENT_IOC_RESET,arg);
 
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %lld\n",
 					event_data[any_event].fd,
 						PERF_EVENT_IOC_RESET,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
@@ -123,17 +123,17 @@ void ioctl_random_event(void) {
 		/* fd to adjust period as first argument */
 		/* argument is a pointer to a 64-bit value (new period) */
 		case 4:
-			arg64=rand_period();
+			arg=rand_period();
 			if (ignore_but_dont_skip.ioctl) return;
 
 			result=ioctl(event_data[sampling_event].fd,
-					PERF_EVENT_IOC_PERIOD,&arg64);
+					PERF_EVENT_IOC_PERIOD,&arg);
 
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
 					event_data[sampling_event].fd,
 					(long)PERF_EVENT_IOC_PERIOD,
-					arg64);
+					arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
@@ -143,7 +143,7 @@ void ioctl_random_event(void) {
 			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[any_event].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %d %lld\n",
 					event_data[any_event].fd,PERF_EVENT_IOC_SET_OUTPUT,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
@@ -154,7 +154,7 @@ void ioctl_random_event(void) {
 			/* under debugfs tracing/events/ * / * /id */
 			result=ioctl(event_data[any_event].fd,PERF_EVENT_IOC_SET_FILTER,arg);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %ld %d\n",
+				sprintf(log_buffer,"I %d %ld %lld\n",
 					event_data[any_event].fd,(long)PERF_EVENT_IOC_SET_FILTER,arg);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
@@ -189,7 +189,7 @@ void ioctl_random_event(void) {
 			if (ignore_but_dont_skip.ioctl) return;
 			result=ioctl(event_data[any_event].fd,arg,arg2);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
-				sprintf(log_buffer,"I %d %d %d\n",
+				sprintf(log_buffer,"I %d %lld %lld\n",
 					event_data[any_event].fd,arg,arg2);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}

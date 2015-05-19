@@ -326,10 +326,12 @@ static void close_event(char *line) {
 
 static void ioctl_event(char *line) {
 
-	int fd,arg,arg2,result;
+	int fd,arg,result;
 	long long id;
+	long long period;
+	long long arg2;
 
-	sscanf(line,"%*c %d %d %d",&fd,&arg,&arg2);
+	sscanf(line,"%*c %d %d %lld",&fd,&arg,&arg2);
 
 	errno=0;
 
@@ -345,13 +347,17 @@ static void ioctl_event(char *line) {
 		case PERF_EVENT_IOC_ID:
 			result=ioctl(fd_remap[fd],arg,&id);
 			break;
+		case PERF_EVENT_IOC_PERIOD:
+			period=arg2;
+			result=ioctl(fd_remap[fd],arg,&period);
+			break;
 		default:
 			result=ioctl(fd_remap[fd],arg,arg2);
 			break;
 	}
 
 	if (result<0) {
-		fprintf(stderr,"Line %lld Error with ioctl %d %d on %d/%d : %s\n",
+		fprintf(stderr,"Line %lld Error with ioctl %d %lld on %d/%d : %s\n",
 			line_num,arg,arg2,fd,fd_remap[fd],strerror(errno));
 		error=1;
 		return;
