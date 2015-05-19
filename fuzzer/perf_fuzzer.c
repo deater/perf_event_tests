@@ -658,34 +658,6 @@ void perf_log_attr(struct perf_event_attr *attr) {
 
 }
 
-static void print_errno_name(FILE *fff, int e) {
-
-	switch(e) {
-		case EPERM:	fprintf(fff,"EPERM");
-				break;
-		case ENOENT:	fprintf(fff,"ENOENT");
-				break;
-		case E2BIG:	fprintf(fff,"E2BIG");
-				break;
-		case EBADF:	fprintf(fff,"EBADF");
-				break;
-		case EINVAL:	fprintf(fff,"EINVAL");
-				break;
-		case EOPNOTSUPP:	fprintf(fff,"EOPNOTSUPP");
-				break;
-		case ENOSPC:	fprintf(fff,"ENOSPC");
-				break;
-		case EMFILE:	fprintf(fff,"EMFILE");
-				break;
-		case EACCES:	fprintf(fff,"EACCES");
-				break;
-		case EBUSY:	fprintf(fff,"EBUSY");
-				break;
-		default:	fprintf(fff,"UNKNOWN %d",e);
-				break;
-	}
-}
-
 static int update_read_size(int i) {
 
 	int read_size=1;
