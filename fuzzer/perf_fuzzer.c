@@ -78,6 +78,7 @@ static int trigger_failure_logging=0;
 #include "fuzz_compat.h"
 
 #include "perf_fuzzer.h"
+#include "fuzzer_logging.h"
 #include "fuzzer_random.h"
 #include "fuzzer_stats.h"
 
@@ -101,26 +102,14 @@ struct fuzzer_stats_t stats;
 
 #define MAX_THROTTLES		10
 
-#define TYPE_ALL		0xffffffff
-#define TYPE_MMAP		0x0001
-#define TYPE_OVERFLOW		0x0002
-#define TYPE_OPEN		0x0004
-#define TYPE_CLOSE		0x0008
-#define TYPE_READ		0x0010
-#define TYPE_WRITE		0x0020
-#define TYPE_IOCTL		0x0040
-#define TYPE_FORK		0x0080
-/* missing */
-#define TYPE_PRCTL		0x0200
-#define TYPE_POLL		0x0400
-#define TYPE_MILLION		0x0800
-#define TYPE_ACCESS		0x1000
-#define TYPE_TRASH_MMAP		0x2000
+/* Logging globals */
+int logging=0;
+int stop_after=0;
+int attempt_determinism=0;
+int log_fd;
+char log_buffer[BUFSIZ];
 
-static int logging=0;
-static int stop_after=0;
-static int attempt_determinism=0;
-
+/* Type selection */
 static int type=TYPE_MMAP|
 		TYPE_OVERFLOW|
 		TYPE_OPEN|
@@ -135,8 +124,6 @@ static int type=TYPE_MMAP|
 		TYPE_ACCESS|
 		TYPE_TRASH_MMAP;
 
-static int log_fd;
-static char log_buffer[BUFSIZ];
 
 static int throttle_close_event=0;
 
