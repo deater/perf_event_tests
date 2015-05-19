@@ -1,5 +1,5 @@
 #define MAX_ERRNOS 1023
-#define MAX_TYPE_COUNT 16
+#define MAX_OPEN_TYPE 16
 
 struct fuzzer_stats_t {
 	long long total_iterations;
@@ -18,8 +18,8 @@ struct fuzzer_stats_t {
 	long long access_attempts,access_successful;
 	long long trash_mmap_attempts,trash_mmap_successful;
 	int errno_count[MAX_ERRNOS];
-	int type_count_success[MAX_TYPE_COUNT];
-	int type_count_fail[MAX_TYPE_COUNT];
+	int open_type_success[MAX_OPEN_TYPE];
+	int open_type_fail[MAX_OPEN_TYPE];
 };
 
 extern struct fuzzer_stats_t stats;

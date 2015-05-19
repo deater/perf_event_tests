@@ -8,7 +8,7 @@
 struct fuzzer_stats_t stats;
 
 /* Local Variables */
-static char type_count_names[MAX_TYPE_COUNT][20]={
+static char open_type_names[MAX_OPEN_TYPE][20]={
 	"Hardware","Software","Tracepoint","Cache",
 	"Raw","Breakpoint","#6","#7",
 	"#8","#9","#10","#11",
@@ -16,7 +16,7 @@ static char type_count_names[MAX_TYPE_COUNT][20]={
 };
 
 void stats_set_pmu_name(int which, char *name) {
-	strncpy(type_count_names[which],name,20);
+	strncpy(open_type_names[which],name,20);
 }
 
 static void print_errno_name(FILE *fff, int e) {
@@ -65,11 +65,11 @@ void dump_summary(FILE *fff, int print_values) {
 	}
 
 	fprintf(fff,"\t\tType ");
-	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		fprintf(fff,"(%s %d/%d)",type_count_names[i],
-				stats.type_count_success[i],
-				stats.type_count_success[i]+
-					stats.type_count_fail[i]);
+	for(i=0;i<MAX_OPEN_TYPE;i++) {
+		fprintf(fff,"(%s %d/%d)",open_type_names[i],
+				stats.open_type_success[i],
+				stats.open_type_success[i]+
+					stats.open_type_fail[i]);
 	}
 	fprintf(fff,"\n");
 
@@ -115,8 +115,8 @@ void dump_summary(FILE *fff, int print_values) {
 	for(i=0;i<MAX_ERRNOS;i++) {
 		stats.errno_count[i]=0;
 	}
-	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		stats.type_count_success[i]=0;
-		stats.type_count_fail[i]=0;
+	for(i=0;i<MAX_OPEN_TYPE;i++) {
+		stats.open_type_success[i]=0;
+		stats.open_type_fail[i]=0;
 	}
 }

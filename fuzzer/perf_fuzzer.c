@@ -658,14 +658,14 @@ static void open_random_event(void) {
 
 		int which_type=event_data[i].attr.type;
 
-		if ((which_type<0) || (which_type>MAX_TYPE_COUNT-1)) {
-			which_type=MAX_TYPE_COUNT-1;
+		if ((which_type<0) || (which_type>MAX_OPEN_TYPE-1)) {
+			which_type=MAX_OPEN_TYPE-1;
 		}
 
 
 		/* If we succede, break out of the infinite loop */
 		if (fd>0) {
-			stats.type_count_success[which_type]++;
+			stats.open_type_success[which_type]++;
 			break;
 		}
 #if 0
@@ -683,7 +683,7 @@ static void open_random_event(void) {
 		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) {
 			stats.errno_count[errno]++;
-			stats.type_count_fail[which_type]++;
+			stats.open_type_fail[which_type]++;
 		}
 
 		/* no more file descriptors, so give up */
@@ -1292,9 +1292,9 @@ int main(int argc, char **argv) {
 	}
 
 	/* Clear type counts */
-	for(i=0;i<MAX_TYPE_COUNT;i++) {
-		stats.type_count_success[i]=0;
-		stats.type_count_fail[i]=0;
+	for(i=0;i<MAX_OPEN_TYPE;i++) {
+		stats.open_type_success[i]=0;
+		stats.open_type_fail[i]=0;
 	}
 
 	/* Write seed to disk so we can find it later */
@@ -1424,7 +1424,7 @@ int main(int argc, char **argv) {
 	/* This depends on trinity exporting the values */
 	if (pmus!=NULL) {
 		for(i=0;i<num_pmus;i++) {
-			if (pmus[i].type<MAX_TYPE_COUNT) {
+			if (pmus[i].type<MAX_OPEN_TYPE) {
 				stats_set_pmu_name(pmus[i].type,pmus[i].name);
 			}
 		}
