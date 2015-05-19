@@ -25,13 +25,23 @@ int rand_period(void) {
 
 	int period;
 
-	switch(rand()%6) {
-		case 0:	period=0;	break;
-		case 1: period=1;	break;
-		case 2: period=-1;	break;
-		case 3:	period=rand()%100000; break;
-		case 4: period=rand();	break;
-		default: period=1;
+	/* Most likely a random number */
+	if (rand()%2) {
+		period=rand();
+	}
+	/* Otherwise, some corner cases */
+	else {
+
+		switch(rand()%8) {
+			case 0:	period=0;		break;
+			case 1: period=1;		break;
+			case 2: period=-1;		break;
+			case 3:	period=rand()%100000;	break;
+			case 4: period=rand();		break;
+			case 5: period=rand()%256;	break;
+			case 6: period=-(rand()%256);	break;
+			default: period=rand();
+		}
 	}
 
 	return period;
@@ -42,12 +52,16 @@ int rand_ioctl_arg(void) {
 
 	int value=0;
 
-	switch(rand()%3) {
+	switch(rand()%4) {
 		case 0:	value=0;
 			break;
 		case 1: value|=PERF_IOC_FLAG_GROUP;
 			break;
-		case 2: value=rand();
+		/* A small value */
+		case 2: value=rand()%256;
+			break;
+		/* Completely random */
+		case 3: value=rand();
 			break;
 		default:
 			break;

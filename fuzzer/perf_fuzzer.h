@@ -21,3 +21,4 @@ struct event_data_t {
 extern struct event_data_t event_data[NUM_EVENTS];
 
 int find_random_active_event(void);
+int find_random_active_sampling_event(void);
