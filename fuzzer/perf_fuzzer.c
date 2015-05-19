@@ -77,10 +77,14 @@ static int trigger_failure_logging=0;
 
 #include "fuzz_compat.h"
 
+#include "fuzzer_stats.h"
+
 #include "get_cpuinfo.h"
 #include "perf_attr_print.h"
 
 #include "pmus.h"
+
+
 
 /* Globals from Trinity */
 int page_size;
@@ -90,6 +94,7 @@ unsigned int num_online_cpus;
 unsigned int max_children=1;
 unsigned int get_cpu(void);
 
+struct fuzzer_stats_t stats;
 
 
 #define MAX_THROTTLES		10
@@ -144,23 +149,6 @@ static char type_count_names[MAX_TYPE_COUNT][20]={
 	"#8","#9","#10","#11",
 	"#12","#13","#14",">14"
 };
-
-
-static long long total_iterations=0;
-static long long overflows=0;
-static long long sigios=0;
-static long long current_open=0;
-static long long open_attempts=0,open_successful=0;
-static long long close_attempts=0,close_successful=0;
-static long long mmap_attempts=0,mmap_successful=0;
-static long long read_attempts=0,read_successful=0;
-static long long write_attempts=0,writes_successful=0;
-static long long ioctl_attempts=0,ioctl_successful=0;
-static long long prctl_attempts=0,prctl_successful=0;
-static long long fork_attempts=0,fork_successful=0;
-static long long poll_attempts=0,poll_successful=0;
-static long long access_attempts=0,access_successful=0;
-static long long trash_mmap_attempts=0,trash_mmap_successful=0;
 
 static int throttle_close_event=0;
 
@@ -301,11 +289,11 @@ static void close_event(int i, int from_sigio) {
 		event_data[i].mmap=0;
 	}
 
-	close_attempts++;
+	stats.close_attempts++;
 	result=close(event_data[i].fd);
 	if (result==0) {
-		close_successful++;
-		current_open--;
+		stats.close_successful++;
+		stats.current_open--;
 	}
 
 	if ((!from_sigio) && (logging&TYPE_CLOSE)) {
@@ -403,7 +391,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	already_handling=1;
 
-	overflows++;
+	stats.overflows++;
 
 	/* disable the event for the time being */
 	/* we were having trouble with signal storms */
@@ -518,7 +506,7 @@ static void sigio_handler(int signum, siginfo_t *info, void *uc) {
 		printf("SIGIO from fd %d band %lx code %d\n",fd,band,code);
 	}
 
-	sigios++;
+	stats.sigios++;
 }
 
 /* Print status when ^\ pressed */
@@ -824,7 +812,7 @@ static void open_random_event(void) {
 			event_data[i].cpu,
 			event_data[i].group_fd,
 			event_data[i].flags);
-		open_attempts++;
+		stats.open_attempts++;
 
 		int which_type=event_data[i].attr.type;
 
@@ -863,8 +851,8 @@ static void open_random_event(void) {
 
 	/* We successfully opened an event! */
 
-	open_successful++;
-	current_open++;
+	stats.open_successful++;
+	stats.current_open++;
 
 	if (logging&TYPE_OPEN) {
 		sprintf(log_buffer,"O %d %d %d %d %lx ",
@@ -912,7 +900,7 @@ static void open_random_event(void) {
 
 if (!ignore_but_dont_skip_mmap) {
 
-		mmap_attempts++;
+		stats.mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
 			PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
 
@@ -938,7 +926,7 @@ if (!ignore_but_dont_skip_mmap) {
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
-			mmap_successful++;
+			stats.mmap_successful++;
 		}
 }
 	}
@@ -1011,8 +999,8 @@ static void trash_random_mmap(void) {
 
 	}
 
-	trash_mmap_attempts++;
-	trash_mmap_successful++;
+	stats.trash_mmap_attempts++;
+	stats.trash_mmap_successful++;
 
 }
 
@@ -1121,8 +1109,8 @@ static void ioctl_random_event(void) {
 
 			break;
 	}
-	ioctl_attempts++;
-	if (result>=0) ioctl_successful++;
+	stats.ioctl_attempts++;
+	if (result>=0) stats.ioctl_successful++;
 
 }
 
@@ -1131,7 +1119,7 @@ static void prctl_random_event(void) {
 	int ret;
 	int type;
 
-	prctl_attempts++;
+	stats.prctl_attempts++;
 
 	type=rand()%2;
 
@@ -1152,7 +1140,7 @@ static void prctl_random_event(void) {
 		}
 
 	}
-	if (ret==0) prctl_successful++;
+	if (ret==0) stats.prctl_successful++;
 }
 
 #define MAX_READ_SIZE 65536
@@ -1182,12 +1170,12 @@ static void read_random_event(void) {
 		default: read_size=(rand()%MAX_READ_SIZE)*sizeof(long long);
 	}
 
-	read_attempts++;
+	stats.read_attempts++;
 	if (ignore_but_dont_skip_read) return;
 	result=read(event_data[i].fd,data,read_size);
 
 	if (result>0) {
-	        read_successful++;
+	        stats.read_successful++;
 		if (logging&TYPE_READ) {
 
 if (read_size==54624) trigger_failure_logging=1;
@@ -1224,13 +1212,13 @@ static void write_random_event(void) {
 
 	if (ignore_but_dont_skip_write) return;
 
-	write_attempts++;
+	stats.write_attempts++;
 
 	result=write(event_data[i].fd,data,write_size);
 
 	/* logging */
 	if (result>0) {
-	        writes_successful++;
+	        stats.writes_successful++;
 		if (logging&TYPE_WRITE) {
 			sprintf(log_buffer,"W %d %d\n",event_data[i].fd,
 						write_size);
@@ -1262,11 +1250,11 @@ static void poll_random_event(void) {
 
 	if (ignore_but_dont_skip_poll) return;
 
-	poll_attempts++;
+	stats.poll_attempts++;
 	result=poll(pollfds,num_fds,timeout);
 
 	if (result>0) {
-	        poll_successful++;
+	        stats.poll_successful++;
 		if (logging&TYPE_POLL) {
 			sprintf(log_buffer,"p %d ",num_fds);
 			write(log_fd,log_buffer,strlen(log_buffer));
@@ -1305,7 +1293,7 @@ static void access_random_file(void) {
 	/* So this should never trigger any bugs   */
 	/* unless running as root (a bad idea)	   */
 
-	access_attempts++;
+	stats.access_attempts++;
 
 	which_file=rand()%MAX_FILENAMES;
 
@@ -1327,7 +1315,7 @@ static void access_random_file(void) {
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
-			if (result>0) access_successful++;
+			if (result>0) stats.access_successful++;
 
 			fclose(fff);
 		}
@@ -1348,7 +1336,7 @@ static void access_random_file(void) {
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
-			if (result>0) access_successful++;
+			if (result>0) stats.access_successful++;
 		}
 
 			fclose(fff);
@@ -1419,7 +1407,7 @@ static void fork_random_event(void) {
 			}
 		}
 
-		fork_attempts++;
+		stats.fork_attempts++;
 
 		/* We do see failures sometimes */
 		/* And when we do, if we foolishly kill process "-1" */
@@ -1430,7 +1418,7 @@ static void fork_random_event(void) {
 			already_forked=0;
 		}
 		else {
-			fork_successful++;
+			stats.fork_successful++;
 			already_forked=1;
 		}
 	}
@@ -1443,9 +1431,9 @@ static void dump_summary(FILE *fff, int print_values) {
 
 	if (print_values) {
 
-	fprintf(fff,"Iteration %lld\n",total_iterations);
+	fprintf(fff,"Iteration %lld\n",stats.total_iterations);
 	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Currently open: %lld\n",
-	       open_attempts,open_successful,current_open);
+	       stats.open_attempts,stats.open_successful,stats.current_open);
 	for(i=0;i<MAX_ERRNOS;i++) {
 		if (errno_count[i]!=0) {
 			fprintf(fff,"\t\t");
@@ -1463,44 +1451,44 @@ static void dump_summary(FILE *fff, int print_values) {
 	fprintf(fff,"\n");
 
 	fprintf(fff,"\tClose attempts: %lld  Successful: %lld\n",
-	       close_attempts,close_successful);
+	       stats.close_attempts,stats.close_successful);
 	fprintf(fff,"\tRead attempts: %lld  Successful: %lld\n",
-	       read_attempts,read_successful);
+	       stats.read_attempts,stats.read_successful);
 	fprintf(fff,"\tWrite attempts: %lld  Successful: %lld\n",
-	       write_attempts,writes_successful);
+	       stats.write_attempts,stats.writes_successful);
 	fprintf(fff,"\tIoctl attempts: %lld  Successful: %lld\n",
-	       ioctl_attempts,ioctl_successful);
+	       stats.ioctl_attempts,stats.ioctl_successful);
 	fprintf(fff,"\tMmap attempts: %lld  Successful: %lld\n",
-	       mmap_attempts,mmap_successful);
+	       stats.mmap_attempts,stats.mmap_successful);
 	fprintf(fff,"\tPrctl attempts: %lld  Successful: %lld\n",
-	       prctl_attempts,prctl_successful);
+	       stats.prctl_attempts,stats.prctl_successful);
 	fprintf(fff,"\tFork attempts: %lld  Successful: %lld\n",
-	       fork_attempts,fork_successful);
+	       stats.fork_attempts,stats.fork_successful);
 	fprintf(fff,"\tPoll attempts: %lld  Successful: %lld\n",
-	       poll_attempts,poll_successful);
+	       stats.poll_attempts,stats.poll_successful);
 	fprintf(fff,"\tAccess attempts: %lld  Successful: %lld\n",
-	       access_attempts,access_successful);
+	       stats.access_attempts,stats.access_successful);
 	fprintf(fff,"\tTrash mmap attempts: %lld  Successful: %lld\n",
-		trash_mmap_attempts,trash_mmap_successful);
-	fprintf(fff,"\tOverflows: %lld\n", overflows);
-	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",sigios);
+		stats.trash_mmap_attempts,stats.trash_mmap_successful);
+	fprintf(fff,"\tOverflows: %lld\n", stats.overflows);
+	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",stats.sigios);
 
 	}
 
 	/* Reset counts back to zero */
-	open_attempts=0; open_successful=0;
-	close_attempts=0; close_successful=0;
-	read_attempts=0; read_successful=0;
-	write_attempts=0; writes_successful=0;
-	ioctl_attempts=0; ioctl_successful=0;
-	mmap_attempts=0; mmap_successful=0;
-	prctl_attempts=0; prctl_successful=0;
-	fork_attempts=0; fork_successful=0;
-	poll_attempts=0; poll_successful=0;
-	access_attempts=0; access_successful=0;
-	trash_mmap_attempts=0; trash_mmap_successful=0;
-	overflows=0;
-	sigios=0;
+	stats.open_attempts=0; stats.open_successful=0;
+	stats.close_attempts=0; stats.close_successful=0;
+	stats.read_attempts=0; stats.read_successful=0;
+	stats.write_attempts=0; stats.writes_successful=0;
+	stats.ioctl_attempts=0; stats.ioctl_successful=0;
+	stats.mmap_attempts=0; stats.mmap_successful=0;
+	stats.prctl_attempts=0; stats.prctl_successful=0;
+	stats.fork_attempts=0; stats.fork_successful=0;
+	stats.poll_attempts=0; stats.poll_successful=0;
+	stats.access_attempts=0; stats.access_successful=0;
+	stats.trash_mmap_attempts=0; stats.trash_mmap_successful=0;
+	stats.overflows=0;
+	stats.sigios=0;
 	for(i=0;i<MAX_ERRNOS;i++) {
 		errno_count[i]=0;
 	}
@@ -1964,10 +1952,10 @@ int main(int argc, char **argv) {
 
 		next_overflow_refresh=rand()%2;
 		next_refresh=rand_refresh();
-		total_iterations++;
+		stats.total_iterations++;
 		watchdog_counter++;
 
-		if ((stop_after) && (total_iterations>=stop_after)) {
+		if ((stop_after) && (stats.total_iterations>=stop_after)) {
 			dump_summary(stderr,1);
 
 			/* Kill child, doesn't happen automatically? */
@@ -1982,7 +1970,7 @@ int main(int argc, char **argv) {
 		/* Print status update every 10000 iterations      */
 		/* Don't print if logging to stdout as it clutters */
 		/* up the trace file.				   */
-		if (total_iterations%10000==0) {
+		if (stats.total_iterations%10000==0) {
 			if (log_fd!=1) {
 				dump_summary(stderr,1);
 			}
