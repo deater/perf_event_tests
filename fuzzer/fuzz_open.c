@@ -28,13 +28,10 @@
 #include "syscall.h"
 #include "tables.h"
 unsigned int get_cpu(void);
-
+extern struct syscallentry syscall_perf_event_open;
 
 #include "../include/perf_helpers.h"
-#include "get_cpuinfo.h"
 
-
-extern struct syscallentry syscall_perf_event_open;
 
 static void perf_log_attr(struct perf_event_attr *attr) {
 
@@ -182,46 +179,34 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 
 		}
 
-//		if (event_data[i].attr.type==6) {
-//			event_data[i].pid=-1;
-//			event_data[i].cpu=0;
-//			event_data[i].flags=0;
-//			event_data[i].group_fd=-1;
-//			memset(&event_data[i].attr,0,sizeof(struct perf_event_attr));
-//			event_data[i].attr.type=6;
-//			event_data[i].attr.config=2;
-//		}
+		if (ignore_but_dont_skip.open) return;
 
 		/* Debugging code */
 		/* We don't usually log failed opens as there are so many */
 
-	if (ignore_but_dont_skip.open) return;
-
-	        if (logging&TYPE_OPEN) {
+		if (logging&TYPE_OPEN) {
 #if LOG_FAILURES
-		if (trigger_failure_logging) {
-		  /* uncomment if failing opens are causing crashes */
-//			static int quit_next=0;
-//			if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
-	                sprintf(log_buffer,"# O -1 %d %d %d %lx ",
-				event_data[i].pid,
-				event_data[i].cpu,
-				event_data[i].group_fd,
-				event_data[i].flags);
-			write(log_fd,log_buffer,strlen(log_buffer));
-	                perf_log_attr(&event_data[i].attr);
-//			fsync(log_fd);
-//			}
-//			if (quit_next==1) exit(1);
+			if (trigger_failure_logging) {
+				/* uncomment if failing opens causing crashes */
+//				static int quit_next=0;
+//				if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
+				sprintf(log_buffer,"# O -1 %d %d %d %lx ",
+					event_data[i].pid,
+					event_data[i].cpu,
+					event_data[i].group_fd,
+					event_data[i].flags);
+				write(log_fd,log_buffer,strlen(log_buffer));
+	                	perf_log_attr(&event_data[i].attr);
+//				fsync(log_fd);
+//				}
+//				if (quit_next==1) exit(1);
 
-//			if (quit_next) quit_next--;
+//				if (quit_next) quit_next--;
 
-//		        if ((event_data[i].attr.read_format==0x2d2d2d))
-//                      quit_next=2;
+//				if ((event_data[i].attr.read_format==0x2d2d2d))
+//				quit_next=2;
 
-		        // if ((event_data[i].group_fd==152) &&
-                        //    (event_data[i].flags==0x800e9e9)) quit_next=1;
-		}
+			}
 #endif
 	        }
 
@@ -239,7 +224,6 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 		if ((which_type<0) || (which_type>MAX_OPEN_TYPE-1)) {
 			which_type=MAX_OPEN_TYPE-1;
 		}
-
 
 		/* If we succede, break out of the infinite loop */
 		if (fd>0) {
@@ -318,7 +302,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 
 		event_data[i].mmap=NULL;
 
-if (!ignore_but_dont_skip.mmap) {
+		if (!ignore_but_dont_skip.mmap) {
 
 		stats.mmap_attempts++;
 		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
