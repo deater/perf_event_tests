@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <sys/mman.h>
+
 #include <signal.h>
 
 #include "../include/perf_event.h"
@@ -78,3 +80,57 @@ void trash_random_mmap(void) {
 	stats.trash_mmap_successful++;
 
 }
+
+void setup_mmap(int i) {
+
+
+	/* to be valid we really want to be 1+2^x pages */
+	switch(rand()%3) {
+		case 0: event_data[i].mmap_size=(rand()%64)*getpagesize();
+			break;
+		case 1: event_data[i].mmap_size=
+				(1 + (1<<rand()%10) )*getpagesize();
+			break;
+		default: event_data[i].mmap_size=rand()%65535;
+	}
+
+	event_data[i].mmap=NULL;
+
+	if (!ignore_but_dont_skip.mmap) {
+
+		stats.mmap_attempts++;
+		event_data[i].mmap=mmap(NULL, event_data[i].mmap_size,
+			PROT_READ|PROT_WRITE, MAP_SHARED, event_data[i].fd, 0);
+
+		if (event_data[i].mmap==MAP_FAILED) {
+			event_data[i].mmap=NULL;
+#if LOG_FAILURES
+			if (logging&TYPE_MMAP) {
+				if (trigger_failure_logging) {
+					sprintf(log_buffer,"# M %d %d %p\n",
+						event_data[i].mmap_size,
+						event_data[i].fd,
+						event_data[i].mmap);
+					write(log_fd,log_buffer,
+						strlen(log_buffer));
+				}
+			}
+#endif
+		}
+
+		else {
+
+			if (logging&TYPE_MMAP) {
+				sprintf(log_buffer,"M %d %d %p\n",
+					event_data[i].mmap_size,
+					event_data[i].fd,
+					event_data[i].mmap);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			stats.mmap_successful++;
+		}
+	}
+}
+
+
