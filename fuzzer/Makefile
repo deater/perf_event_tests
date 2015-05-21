@@ -46,6 +46,30 @@ fuzz_million.x32.o:	fuzz_million.c fuzz_million.h
 
 ###
 
+fuzz_mmap.o:	fuzz_mmap.c fuzz_mmap.h
+	$(CC) $(CFLAGS) -c fuzz_mmap.c
+
+fuzz_mmap.x32.o:	fuzz_mmap.c fuzz_mmap.h
+	$(CC) $(CFLAGS_X32) -o fuzz_mmap.x32.o -c fuzz_mmap.c
+
+###
+
+fuzz_open.o:	fuzz_open.c fuzz_open.h
+	$(CC) $(CFLAGS) -c fuzz_open.c
+
+fuzz_open.x32.o:	fuzz_open.c fuzz_open.h
+	$(CC) $(CFLAGS_X32) -o fuzz_open.x32.o -c fuzz_open.c
+
+###
+
+fuzz_overflow.o:	fuzz_overflow.c fuzz_overflow.h
+	$(CC) $(CFLAGS) -c fuzz_overflow.c
+
+fuzz_overflow.x32.o:	fuzz_overflow.c fuzz_overflow.h
+	$(CC) $(CFLAGS_X32) -o fuzz_overflow.x32.o -c fuzz_overflow.c
+
+###
+
 fuzz_poll.o:	fuzz_poll.c fuzz_poll.h
 	$(CC) $(CFLAGS) -c fuzz_poll.c
 
@@ -158,17 +182,17 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 ####
 
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
-		fuzz_access.o fuzz_fork.o fuzz_ioctl.o fuzz_million.o \
-		fuzz_poll.o fuzz_prctl.o \
-		fuzz_read.o fuzz_write.o \
+		fuzz_access.o fuzz_close.o fuzz_fork.o fuzz_ioctl.o \
+		fuzz_million.o fuzz_mmap.o fuzz_open.o fuzz_overflow.o \
+		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o get_cpuinfo.o \
-		fuzz_access.o fuzz_fork.o fuzz_ioctl.o fuzz_million.o \
-		fuzz_poll.o fuzz_prctl.o \
-		fuzz_read.o fuzz_write.o \
+		fuzz_access.o fuzz_close.o fuzz_fork.o fuzz_ioctl.o \
+		fuzz_million.o fuzz_mmap.o fuzz_open.o fuzz_overflow.o \
+		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
