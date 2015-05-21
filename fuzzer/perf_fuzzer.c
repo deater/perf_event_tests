@@ -31,7 +31,6 @@
 /* perf_event_test infrastructure */
 #include "../include/perf_event.h"
 #include "../include/perf_helpers.h"
-#include "../include/instructions_testcode.h"
 
 #include "fuzz_compat.h"
 
@@ -42,6 +41,7 @@
 #include "fuzzer_stats.h"
 
 #include "fuzz_access.h"
+#include "fuzz_fork.h"
 #include "fuzz_ioctl.h"
 #include "fuzz_poll.h"
 #include "fuzz_prctl.h"
@@ -100,9 +100,6 @@ static int type=TYPE_MMAP|
 
 
 static int throttle_close_event=0;
-
-static int already_forked=0;
-static pid_t forked_pid;
 
 static struct sigaction sigio;
 static struct sigaction sigquit;
@@ -862,80 +859,6 @@ static void trash_random_mmap(void) {
 	stats.trash_mmap_attempts++;
 	stats.trash_mmap_successful++;
 
-}
-
-
-static void run_a_million_instructions(void) {
-
-	if (ignore_but_dont_skip.million) return;
-
-	instructions_million();
-
-}
-
-
-
-static void fork_random_event(void) {
-
-	int status;
-
-	if (ignore_but_dont_skip.fork) return;
-
-	if (already_forked) {
-
-		if (logging&TYPE_FORK) {
-			sprintf(log_buffer,"F 0\n");
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-
-		kill(forked_pid,SIGKILL);
-
-		/* not sure if this will cause us to miss bugs */
-		/* but it does make the logs more deterministic */
-		if (attempt_determinism) {
-			waitpid(forked_pid, &status, 0);
-		}
-
-		already_forked=0;
-	}
-	else {
-
-		if (logging&TYPE_FORK) {
-			sprintf(log_buffer,"F 1\n");
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-
-		forked_pid=fork();
-
-		/* we're the child */
-		if (forked_pid==0) {
-			while(1) {
-				instructions_million();
-				/* we were orphaned, exit */
-				/* Had problems with orphans clogging up */
-				/* the system if the parent emergency */
-				/* exited */
-				if (getppid()==1) {
-					exit(1);
-				}
-			}
-		}
-
-		stats.fork_attempts++;
-
-		/* We do see failures sometimes */
-		/* And when we do, if we foolishly kill process "-1" */
-		/* It will kill *all* processes beloning to the user */
-		/* Logging you out on all windows.                   */
-		if (forked_pid==-1) {
-			printf("Fork failed! %s\n",strerror(errno));
-			already_forked=0;
-		}
-		else {
-			stats.fork_successful++;
-			already_forked=1;
-		}
-	}
 }
 
 static int get_sample_rate(void) {

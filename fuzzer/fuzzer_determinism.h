@@ -1,3 +1,5 @@
+extern int attempt_determinism;
+
 /* Try to allow minimal determinism while at the same	*/
 /* time skipping unnecessary system calls.		*/
 #if 0

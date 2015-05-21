@@ -20,6 +20,13 @@ fuzz_access.o:	fuzz_access.c fuzz_access.h
 
 fuzz_access.x32.o:	fuzz_access.c fuzz_access.h
 	$(CC) $(CFLAGS_X32) -o fuzz_access.x32.o -c fuzz_access.c
+###
+
+fuzz_fork.o:	fuzz_fork.c fuzz_fork.h
+	$(CC) $(CFLAGS) -c fuzz_fork.c
+
+fuzz_fork.x32.o:	fuzz_fork.c fuzz_fork.h
+	$(CC) $(CFLAGS_X32) -o fuzz_fork.x32.o -c fuzz_fork.c
 
 ###
 
@@ -28,6 +35,14 @@ fuzz_ioctl.o:	fuzz_ioctl.c fuzz_ioctl.h
 
 fuzz_ioctl.x32.o:	fuzz_ioctl.c fuzz_ioctl.h
 	$(CC) $(CFLAGS_X32) -o fuzz_ioctl.x32.o -c fuzz_ioctl.c
+
+###
+
+fuzz_million.o:	fuzz_million.c fuzz_million.h
+	$(CC) $(CFLAGS) -c fuzz_million.c
+
+fuzz_million.x32.o:	fuzz_million.c fuzz_million.h
+	$(CC) $(CFLAGS_X32) -o fuzz_million.x32.o -c fuzz_million.c
 
 ###
 
@@ -143,14 +158,16 @@ log_to_code.o:	log_to_code.c perf_attr_print.h
 ####
 
 perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
-		fuzz_access.o fuzz_ioctl.o fuzz_poll.o fuzz_prctl.o \
+		fuzz_access.o fuzz_fork.o fuzz_ioctl.o fuzz_million.o \
+		fuzz_poll.o fuzz_prctl.o \
 		fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o get_cpuinfo.o \
-		fuzz_access.o fuzz_ioctl.o fuzz_poll.o fuzz_prctl.o \
+		fuzz_access.o fuzz_fork.o fuzz_ioctl.o fuzz_million.o \
+		fuzz_poll.o fuzz_prctl.o \
 		fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/perf_helpers.o ../lib/instructions_testcode.o \
