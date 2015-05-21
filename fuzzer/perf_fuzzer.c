@@ -5,36 +5,25 @@
 
 #include "version.h"
 
-#define _GNU_SOURCE 1
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
 #include <errno.h>
 #include <signal.h>
-#include <sys/mman.h>
 #include <time.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
-
 #include <fcntl.h>
 
 /* Trinity Includes */
 #include "shm.h"
-#include "sanitise.h"
-#include "syscall.h"
-#include "tables.h"
 
 /* perf_event_test infrastructure */
 #include "../include/perf_event.h"
-#include "../include/perf_helpers.h"
-
-#include "fuzz_compat.h"
 
 #include "perf_fuzzer.h"
+
 #include "fuzzer_determinism.h"
 #include "fuzzer_logging.h"
 #include "fuzzer_random.h"
@@ -66,12 +55,9 @@ struct shm_s *shm;
 char *page_rand;
 unsigned int num_online_cpus;
 unsigned int max_children=1;
-unsigned int get_cpu(void);
 
+/* Stats globals */
 struct fuzzer_stats_t stats;
-
-
-#define MAX_THROTTLES		10
 
 /* Logging globals */
 int logging=0;
@@ -86,7 +72,7 @@ struct skip_t ignore_but_dont_skip;
 
 /* Our Globals */
 struct event_data_t event_data[NUM_EVENTS];
-
+int active_events=0;
 
 /* Type selection */
 static int type=TYPE_MMAP|
@@ -109,9 +95,7 @@ static int throttle_close_event=0;
 static struct sigaction sigio;
 static struct sigaction sigquit;
 
-extern struct syscallentry syscall_perf_event_open;
 
-int active_events=0;
 
 int find_random_active_event(void) {
 
