@@ -70,11 +70,11 @@ int main(int argc, char** argv) {
 	struct sigaction sa;
 
 	void *our_mmap;
-	char test_string[]="Testing catching overflow with poll()...";
+	char test_string[]="Testing catching overflow with signal...";
 
 	quiet=test_quiet();
 
-	if (!quiet) printf("This tests using poll() to catch overflow.\n");
+	if (!quiet) printf("This tests using signal to catch overflow.\n");
 
 	/* fork off a child */
 	pid=fork();
