@@ -355,6 +355,12 @@ echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_validation
 
 echo
+echo "* Checking OpenMP support"
+echo "  + $TESTS_DIR/openmp/openmp_test"
+echo -n "    "
+$TESTS_DIR/openmp/openmp_support
+
+echo
 echo "* Checking proposed interface updates (not in any released kernel)"
 echo "  + $TESTS_DIR/corner_cases/ioctl_refresh_0"
 echo -n "    "
