@@ -1,7 +1,7 @@
-/* overflow_read.c  */
+/* overflow_poll.c  */
 /* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
-/* Test single-shot overflow */
+/* Test using poll to catch overflow */
 
 
 #include <stdio.h>
@@ -181,7 +181,9 @@ int main(int argc, char** argv) {
 			break;
 		}
 
-		/* On Haswell we hit POLLHUP? */
+		/* On 3.18 and newer we get infinite POLLHUP	*/
+		/* When the child exits	rather than an error	*/
+
 		if (fds[0].revents&POLLHUP) {
 			printf("Returned HUP!\n");
 			break;
