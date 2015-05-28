@@ -10,6 +10,7 @@ all:
 	cd ioctl && make
 	cd multiplexing && make
 	cd multithread && make
+	cd openmp && make
 	cd overflow && make
 	cd rdpmc && make
 	cd record_sample && make
@@ -32,6 +33,7 @@ clean:
 	cd ioctl && make clean
 	cd multiplexing && make clean
 	cd multithread && make clean
+	cd openmp && make clean
 	cd overflow && make clean
 	cd rdpmc && make clean
 	cd record_sample && make clean
