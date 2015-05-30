@@ -476,6 +476,24 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 			break;
 
+		/* Throttle/Unthrottle */
+		case PERF_RECORD_THROTTLE:
+		case PERF_RECORD_UNTHROTTLE: {
+			long long throttle_time,id,stream_id;
+
+			memcpy(&throttle_time,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tTime: %lld\n",throttle_time);
+			offset+=8;
+			memcpy(&id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tID: %lld\n",id);
+			offset+=8;
+			memcpy(&stream_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tStream ID: %lld\n",stream_id);
+			offset+=8;
+
+			}
+			break;
+
 		/* Sample */
 		case PERF_RECORD_SAMPLE:
 			if (sample_type & PERF_SAMPLE_IP) {
