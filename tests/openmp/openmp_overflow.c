@@ -1,5 +1,9 @@
 /* openmp_overflow -- Test how overflow works on openmp programs	*/
 
+/* Up to at least Linux 4.0 there is a bug where inherited events	*/
+/* Do not inherit the fasync state, meaning children will not signal	*/
+/* the parent when an overflow happens					*/
+
 /* by Vince Weaver, vincent.weaver _at_ maine.edu			*/
 
 #define _GNU_SOURCE 1
@@ -22,7 +26,11 @@
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+#include <syscall.h>
 
+int gettid(void) {
+	return syscall( SYS_gettid );
+}
 
 static char test_string[]="Testing OpenMP overflow results...";
 static int quiet=0;
@@ -34,13 +42,12 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	int fd = info->si_fd;
 
-
 	/*  Disable will disable count for *all* threads */
 
 
 //        ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 
-	printf("Overflow %d\n",count_total);
+	printf("Overflow %d in %d\n",count_total,gettid());
 
         count_total++;
 
@@ -88,6 +95,8 @@ int main (int argc, char **argv) {
 //	pe.wakeup_events=1;
 	pe.sample_period=1000000;
 //	pe.sample_type=PERF_SAMPLE_IP;
+//	pe.freq=1;
+//	pe.sample_freq=4000;
 
 	arch_adjust_domain(&pe,quiet);
 
@@ -115,9 +124,9 @@ int main (int argc, char **argv) {
 		pid_t pid;
 	} owner;
 
-	owner.type=F_OWNER_PGRP;
+//	owner.type=F_OWNER_PGRP;
+	owner.type=F_OWNER_PID;
 	owner.pid=getpid();
-
 	fcntl(fd, F_SETOWN_EX,&owner);
 
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
@@ -135,7 +144,8 @@ int main (int argc, char **argv) {
 		printf("Running with %d threads\n", nthreads);
 	}
 
-	printf("\t+ Running 10 million instructions in thread %d\n", tid);
+	printf("\t+ Running 10 million instructions in thread %d %d\n", 
+		tid,gettid());
 
 	{
 		int i;
