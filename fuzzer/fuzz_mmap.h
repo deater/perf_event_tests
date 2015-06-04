@@ -1,5 +1,5 @@
-long long perf_mmap_read( void *our_mmap,
-				int mmap_size,
-				long long prev_head);
+long long perf_mmap_read(int which);
 void trash_random_mmap(void);
-void setup_mmap(int i);
+int setup_mmap(int which);
+void mmap_random_event(int type);
+void unmap_mmap(int i,int from_sigio);

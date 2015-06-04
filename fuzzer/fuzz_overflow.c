@@ -135,9 +135,7 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 		else {
 
 			/* read the event */
-			prev_head=perf_mmap_read(event_data[i].mmap,
-					event_data[i].mmap_size,
-					prev_head);
+			perf_mmap_read(event_data[i].mmap);
 
 			/* cannot call rand() from signal handler! */
 			/* we re-enter and get stuck in a futex :( */

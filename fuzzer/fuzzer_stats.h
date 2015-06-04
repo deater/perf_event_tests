@@ -10,6 +10,9 @@ struct fuzzer_stats_t {
 	long long open_attempts,open_successful;
 	long long close_attempts,close_successful;
 	long long mmap_attempts,mmap_successful;
+	long long mmap_trash_attempts,mmap_trash_successful;
+	long long mmap_unmap_attempts,mmap_unmap_successful;
+	long long mmap_read_attempts,mmap_read_successful;
 	long long read_attempts,read_successful;
 	long long write_attempts,write_successful;
 	long long ioctl_attempts,ioctl_successful;
@@ -17,7 +20,6 @@ struct fuzzer_stats_t {
 	long long fork_attempts,fork_successful;
 	long long poll_attempts,poll_successful;
 	long long access_attempts,access_successful;
-	long long trash_mmap_attempts,trash_mmap_successful;
 	int errno_count[MAX_ERRNOS];
 	int open_type_success[MAX_OPEN_TYPE];
 	int open_type_fail[MAX_OPEN_TYPE];

@@ -632,8 +632,8 @@ int main(int argc, char **argv) {
 					poll_random_event();
 				}
 				break;
-			case 9: if (type&TYPE_TRASH_MMAP) {
-					trash_random_mmap();
+			case 9:if (type&TYPE_MMAP) {
+					mmap_random_event(type);
 				}
 				break;
 			default:

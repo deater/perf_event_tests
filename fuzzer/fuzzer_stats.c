@@ -97,8 +97,18 @@ void dump_summary(FILE *fff, int print_values) {
 	}
 	fprintf(fff,"\n");
 
-	fprintf(fff,"\tMmap:\t%lld/%lld Successful\n",
-	       stats.mmap_successful,stats.mmap_attempts);
+	fprintf(fff,"\tMmap:\t%lld/%lld Successful: ",
+		stats.mmap_successful,stats.mmap_attempts);
+		fprintf(fff,"(MMAP %lld/%lld)",
+		stats.mmap_successful,stats.mmap_attempts);
+		fprintf(fff,"(TRASH %lld/%lld)",
+		stats.mmap_trash_successful,stats.mmap_trash_attempts);
+		fprintf(fff,"(READ %lld/%lld)",
+		stats.mmap_read_successful,stats.mmap_read_attempts);
+		fprintf(fff,"(UNMAP %lld/%lld)",
+		stats.mmap_unmap_successful,stats.mmap_unmap_attempts);
+		fprintf(fff,"\n");
+
 	fprintf(fff,"\tPrctl:\t%lld/%lld Successful\n",
 	       stats.prctl_successful,stats.prctl_attempts);
 	fprintf(fff,"\tFork:\t%lld/%lld Successful\n",
@@ -107,8 +117,6 @@ void dump_summary(FILE *fff, int print_values) {
 	       stats.poll_successful,stats.poll_attempts);
 	fprintf(fff,"\tAccess:\t%lld/%lld Successful\n",
 	       stats.access_successful,stats.access_attempts);
-	fprintf(fff,"\tTrash mmap:\t%lld/%lld Successful\n",
-		stats.trash_mmap_successful,stats.trash_mmap_attempts);
 	fprintf(fff,"\tOverflows: %lld\n", stats.overflows);
 	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",stats.sigios);
 
@@ -121,11 +129,13 @@ void dump_summary(FILE *fff, int print_values) {
 	stats.write_attempts=0; stats.write_successful=0;
 	stats.ioctl_attempts=0; stats.ioctl_successful=0;
 	stats.mmap_attempts=0; stats.mmap_successful=0;
+	stats.mmap_trash_attempts=0; stats.mmap_trash_successful=0;
+	stats.mmap_read_attempts=0; stats.mmap_read_successful=0;
+	stats.mmap_unmap_attempts=0; stats.mmap_unmap_successful=0;
 	stats.prctl_attempts=0; stats.prctl_successful=0;
 	stats.fork_attempts=0; stats.fork_successful=0;
 	stats.poll_attempts=0; stats.poll_successful=0;
 	stats.access_attempts=0; stats.access_successful=0;
-	stats.trash_mmap_attempts=0; stats.trash_mmap_successful=0;
 	stats.overflows=0;
 	stats.sigios=0;
 	for(i=0;i<MAX_ERRNOS;i++) {

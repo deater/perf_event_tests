@@ -15,6 +15,7 @@
 #include "fuzzer_stats.h"
 
 #include "fuzz_close.h"
+#include "fuzz_mmap.h"
 
 void close_event(int i, int from_sigio) {
 
@@ -36,16 +37,8 @@ void close_event(int i, int from_sigio) {
 	/* unmap any associated memory */
 	/* we tried not doing this randomly, */
 	/* but rapidly ran out of memory */
-	if ((event_data[i].mmap) && unmap_before_close) {
-		munmap(event_data[i].mmap,event_data[i].mmap_size);
-		if ((!from_sigio) && (logging&TYPE_MMAP)) {
-			sprintf(log_buffer,"U %d %d %p\n",
-				event_data[i].fd,
-				event_data[i].mmap_size,
-				event_data[i].mmap);
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-		event_data[i].mmap=0;
+	if (unmap_before_close) {
+		unmap_mmap(event_data[i].mmap,from_sigio);
 	}
 
 	stats.close_attempts++;
@@ -61,16 +54,8 @@ void close_event(int i, int from_sigio) {
 	}
 
 	/* sometimes unmap after we've closed */
-	if ((event_data[i].mmap) && !unmap_before_close) {
-		munmap(event_data[i].mmap,event_data[i].mmap_size);
-		if ((!from_sigio) && (logging&TYPE_MMAP)) {
-			sprintf(log_buffer,"U %d %d %p\n",
-				event_data[i].fd,
-				event_data[i].mmap_size,
-				event_data[i].mmap);
-			write(log_fd,log_buffer,strlen(log_buffer));
-		}
-		event_data[i].mmap=0;
+	if (!unmap_before_close) {
+		unmap_mmap(event_data[i].mmap,from_sigio);
 	}
 
 	active_events--;

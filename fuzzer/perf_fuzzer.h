@@ -11,8 +11,9 @@ struct event_data_t {
 	int read_size;
 	int number_in_group;
 	struct sigaction sa;
-	char *mmap;
-	int mmap_size;
+	int mmap;
+//	char *mmap;
+//	int mmap_size;
 	int last_refresh;
 	int overflows;
 	int throttles;
