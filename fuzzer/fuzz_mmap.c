@@ -10,11 +10,12 @@
 #include "../include/perf_event.h"
 #include "../include/perf_helpers.h"
 
-
 #include "perf_fuzzer.h"
 #include "fuzzer_determinism.h"
 #include "fuzzer_logging.h"
 #include "fuzzer_stats.h"
+
+#include "fuzz_mmap.h"
 
 #define MAX_MMAPS	1024
 
@@ -194,6 +195,89 @@ int setup_mmap(int which) {
 			}
 
 			stats.mmap_successful++;
+		}
+	}
+
+	/* Randomly try to set up an aux mmap too */
+	if (rand()%4==0) {
+		setup_mmap_aux(which,i);
+	}
+
+	return 0;
+}
+
+int setup_mmap_aux(int which_fd, int which_mmap) {
+
+	int i;
+
+	i=find_empty_mmap();
+	if (i<0) return -1;
+
+	/* need locking? */
+	mmaps[i].active=1;
+
+	/* to be valid we really want to be 2^x pages */
+	switch(rand()%3) {
+		case 0: mmaps[i].size=(rand()%64)*getpagesize();
+			break;
+		case 1: mmaps[i].size=
+				((1<<rand()%10) )*getpagesize();
+			break;
+		default: mmaps[i].size=rand()%65535;
+	}
+
+	mmaps[i].addr=NULL;
+
+	if (!ignore_but_dont_skip.mmap) {
+
+		stats.mmap_aux_attempts++;
+
+		/* Hook into existing mmap */
+		struct perf_event_mmap_page *mmap_control;
+
+		mmap_control = (struct perf_event_mmap_page *)
+				mmaps[which_mmap].addr;
+
+		if (mmap_control!=NULL) {
+			mmap_control->aux_offset=mmaps[which_mmap].size;
+			mmap_control->aux_size=mmaps[i].size;
+		}
+
+		mmaps[i].addr=mmap(NULL, mmaps[i].size,
+			PROT_READ|PROT_WRITE, MAP_SHARED,
+			event_data[which_fd].fd, mmaps[which_mmap].size);
+
+		if (mmaps[i].addr==MAP_FAILED) {
+			mmaps[i].addr=NULL;
+			mmaps[i].active=0;
+#if LOG_FAILURES
+			if (logging&TYPE_MMAP) {
+				if (trigger_failure_logging) {
+					sprintf(log_buffer,"# M %d %d %p\n",
+						mmaps[i].size,
+						event_data[which_fd].fd,
+						mmaps[i].addr);
+					write(log_fd,log_buffer,
+						strlen(log_buffer));
+				}
+			}
+#endif
+		}
+
+		else {
+			active_mmaps++;
+			event_data[which_fd].mmap=i;
+			mmaps[i].fd=event_data[which_fd].fd;
+
+			if (logging&TYPE_MMAP) {
+				sprintf(log_buffer,"M %d %d %p\n",
+					mmaps[i].size,
+					event_data[which_fd].fd,
+					mmaps[i].addr);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			stats.mmap_aux_successful++;
 		}
 	}
 	return 0;

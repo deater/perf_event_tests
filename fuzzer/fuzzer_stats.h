@@ -13,6 +13,7 @@ struct fuzzer_stats_t {
 	long long mmap_trash_attempts,mmap_trash_successful;
 	long long mmap_unmap_attempts,mmap_unmap_successful;
 	long long mmap_read_attempts,mmap_read_successful;
+	long long mmap_aux_attempts,mmap_aux_successful;
 	long long read_attempts,read_successful;
 	long long write_attempts,write_successful;
 	long long ioctl_attempts,ioctl_successful;

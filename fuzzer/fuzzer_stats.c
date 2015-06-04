@@ -107,6 +107,8 @@ void dump_summary(FILE *fff, int print_values) {
 		stats.mmap_read_successful,stats.mmap_read_attempts);
 		fprintf(fff,"(UNMAP %lld/%lld)",
 		stats.mmap_unmap_successful,stats.mmap_unmap_attempts);
+		fprintf(fff,"(AUX %lld/%lld)",
+		stats.mmap_aux_successful,stats.mmap_aux_attempts);
 		fprintf(fff,"\n");
 
 	fprintf(fff,"\tPrctl:\t%lld/%lld Successful\n",
@@ -132,6 +134,7 @@ void dump_summary(FILE *fff, int print_values) {
 	stats.mmap_trash_attempts=0; stats.mmap_trash_successful=0;
 	stats.mmap_read_attempts=0; stats.mmap_read_successful=0;
 	stats.mmap_unmap_attempts=0; stats.mmap_unmap_successful=0;
+	stats.mmap_aux_attempts=0; stats.mmap_aux_successful=0;
 	stats.prctl_attempts=0; stats.prctl_successful=0;
 	stats.fork_attempts=0; stats.fork_successful=0;
 	stats.poll_attempts=0; stats.poll_successful=0;
