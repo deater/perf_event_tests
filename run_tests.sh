@@ -358,7 +358,7 @@ echo
 echo "* Checking OpenMP support"
 echo "  + $TESTS_DIR/openmp/openmp_test"
 echo -n "    "
-$TESTS_DIR/openmp/openmp_support
+$TESTS_DIR/openmp/openmp_test
 
 echo
 echo "* Checking proposed interface updates (not in any released kernel)"
