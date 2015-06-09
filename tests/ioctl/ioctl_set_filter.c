@@ -3,6 +3,16 @@
 
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
+/* This sets a ftrace filter.
+	ftrace events are found under /sys/kernel/debug/tracing/events
+	Valid ftrace filter strings are based on the parameters found in
+	/sys/kernel/debug/tracing/events/ * / * /format
+
+	A way to generate them using perf:
+		perf record -e irq:irq_handler_entry --filter irq==28 \
+			-e irq:softirq_entry --filter vec==6 -a -- sleep 5
+*/
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -60,8 +70,8 @@ int main(int argc, char** argv) {
 	pe1.type=PERF_TYPE_TRACEPOINT;
 	pe1.size=sizeof(struct perf_event_attr);
 
-	/* raw_syscalls/sys_enter */
-	pe1.config=39;
+	/* irq/irq_handler_entry */
+	pe1.config=85;
 	/* ftrace/function */
 //	pe1.config=1;
 	pe1.disabled=1;
@@ -152,6 +162,23 @@ int main(int argc, char** argv) {
 		if (!quiet) printf("Unexpected %d %s\n",result,strerror(errno));
 		errors++;
 	}
+
+
+	/* Valid filter */
+	if (!quiet) {
+		printf("\t+ Valid filter: ");
+	}
+	strcpy(filter,"irq==28");
+
+	result=ioctl(fd1, PERF_EVENT_IOC_SET_FILTER, filter);
+	if (result==0) {
+		if (!quiet) printf("Success\n");
+	}
+	else {
+		if (!quiet) printf("Unexpected %d %s\n",result,strerror(errno));
+		errors++;
+	}
+
 
 	/* tracefs usually under /sys/kernel/tracing */
 
