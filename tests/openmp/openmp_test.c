@@ -26,7 +26,7 @@ int fd;
 
 int main (int argc, char **argv) {
 
-	int nthreads, tid, fd, result, read_result;
+	int nthreads, tid, fd, result, read_result,i;
 	struct perf_event_attr pe;
 	long long count;
 
@@ -79,19 +79,19 @@ int main (int argc, char **argv) {
 	/* Only master thread does this */
 	if (tid == 0) {
 		nthreads = omp_get_num_threads();
-		printf("Running with %d threads\n", nthreads);
-	}
-
-	printf("\t+ Running 10 million instructions in thread %d\n", tid);
-
-	{
-		int i;
-
-		for(i=0;i<10;i++) {
-			result=instructions_million();
+		if (!quiet) {
+			printf("Running with %d threads\n", nthreads);
 		}
-
 	}
+
+	if (!quiet) {
+		printf("\t+ Running 10 million instructions in thread %d\n", tid);
+	}
+
+	for(i=0;i<10;i++) {
+		result=instructions_million();
+	}
+
 
 }
 	/* All threads join master thread and disband */
