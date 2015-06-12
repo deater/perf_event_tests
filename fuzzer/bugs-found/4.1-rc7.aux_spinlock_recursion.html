@@ -1,0 +1,160 @@
+<html>
+<head>
+<title>aux BUG: spinlock recursion on CPU#4
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+aux BUG: spinlock recursion on CPU#4
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Crash
+
+<h3>First Seen</h3>
+4.1-rc7
+
+<h3>Most recently Seen</h3>
+4.1-rc7
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+11 June 2015: perf: aux area related crash and warnings
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0-rc7+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1434073616
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1434073616
+
+Pid=2685, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 137243  Successful: 879  Currently open: 50
+                EPERM : 17
+                ENOENT : 791
+                E2BIG : 12161
+                EBADF : 11651
+                EACCES : 550
+                EBUSY : 3
+                EINVAL : 110844
+                EOPNOTSUPP : 347
+                Type (Hardware 219/19290)(software 326/20010)(tracepoint 53/19787)(Cache 42/17112)(cpu 185/19677)(breakpoint 10/19520)(power 0/2423)(intel_bts 44/2483)(uncore_imc 0/2591)(#9 0/17)(#10 0/15)(#11 0/3)(#12 0/11)(#13 0/11)(#14 0/8)(>14 0/14285)
+        Close:  829/829 Successful
+        Read:   803/877 Successful
+        Write:  0/852 Successful
+        Ioctl:  387/891 Successful: (ENABLE 98/98)(DISABLE 102/102)(REFRESH 3/93)(RESET 78/78)(PERIOD 7/90)(SET_OUTPUT 5/92)(SET_FILTER 0/94)(ID 94/94)(SET_BPF 0/71)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/79)
+        Mmap:   441/1042 Successful: (MMAP 441/1042)(TRASH 127/156)(READ 26/164)(UNMAP 441/991)(AUX 4/260)(AUX_READ 4/16)
+        Prctl:  888/888 Successful
+        Fork:   453/453 Successful
+        Poll:   853/921 Successful
+        Access: 463/922 Successful
+        Overflows: 15
+        SIGIOs due to RT signal queue full: 0
+
+[36298.986117] BUG: spinlock recursion on CPU#4, perf_fuzzer/3410
+[36298.992915]  lock: 0xffff88011edf7cd0, .magic: dead4ead, .owner: perf_fuzzer/3410, .owner_cpu: 4
+[36299.002919] CPU: 4 PID: 3410 Comm: perf_fuzzer Tainted: G        W       4.1.0-rc7+ #155
+[36299.012152] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[36299.020606]  ffff88011edf7cd0 ffff88011eb059a0 ffffffff816d7229 0000000000000054
+[36299.029199]  ffff8800c2f4ac50 ffff88011eb059c0 ffffffff810c2895 ffff88011edf7cd0
+[36299.037796]  ffffffff81a1e481 ffff88011eb059e0 ffffffff810c2916 ffff88011edf7cd0
+[36299.046338] Call Trace:
+[36299.049501]  <NMI>  [<ffffffff816d7229>] dump_stack+0x45/0x57
+[36299.056284]  [<ffffffff810c2895>] spin_dump+0x85/0xe0
+[36299.062282]  [<ffffffff810c2916>] spin_bug+0x26/0x30
+[36299.068111]  [<ffffffff810c2acf>] do_raw_spin_lock+0x13f/0x180
+[36299.074897]  [<ffffffff816de6e9>] _raw_spin_lock+0x39/0x40
+[36299.081276]  [<ffffffff8117a039>] ? free_pcppages_bulk+0x39/0x620
+[36299.088340]  [<ffffffff8117a039>] free_pcppages_bulk+0x39/0x620
+[36299.095182]  [<ffffffff81177e14>] ? free_pages_prepare+0x3a4/0x550
+[36299.102291]  [<ffffffff811c9936>] ? kfree_debugcheck+0x16/0x40
+[36299.108987]  [<ffffffff8117a938>] free_hot_cold_page+0x178/0x1a0
+[36299.115850]  [<ffffffff8117aa47>] __free_pages+0x37/0x50
+[36299.121991]  [<ffffffff8116ae0a>] rb_free_aux+0xba/0xf0
+[36299.128034]  [<ffffffff8116b0e7>] perf_aux_output_end+0xb7/0xf0
+[36299.134793]  [<ffffffff81037b0e>] intel_bts_interrupt+0x8e/0xd0
+[36299.141543]  [<ffffffff810338bf>] intel_pmu_handle_irq+0x4f/0x450
+[36299.148482]  [<ffffffff810bc288>] ? check_chain_key+0x128/0x1e0
+[36299.155249]  [<ffffffff8102a4ab>] perf_event_nmi_handler+0x2b/0x50
+[36299.162273]  [<ffffffff810185d0>] nmi_handle+0xa0/0x150
+[36299.168278]  [<ffffffff81018535>] ? nmi_handle+0x5/0x150
+[36299.174377]  [<ffffffff8101887a>] default_do_nmi+0x4a/0x140
+[36299.180735]  [<ffffffff81018a08>] do_nmi+0x98/0xe0
+[36299.186219]  [<ffffffff816e13ef>] end_repeat_nmi+0x1e/0x2e
+[36299.192501]  [<ffffffff810bdc4e>] ? __lock_acquire.isra.31+0x27e/0x1000
+[36299.199951]  [<ffffffff810bdc4e>] ? __lock_acquire.isra.31+0x27e/0x1000
+[36299.207410]  [<ffffffff810bdc4e>] ? __lock_acquire.isra.31+0x27e/0x1000
+[36299.214898]  <<EOE>>  [<ffffffff810bdd89>] ? __lock_acquire.isra.31+0x3b9/0x1000
+[36299.223222]  [<ffffffff810bf365>] lock_acquire+0xa5/0x130
+[36299.229409]  [<ffffffff8117b379>] ? __rmqueue+0x109/0x510
+[36299.235551]  [<ffffffff8117b379>] ? __rmqueue+0x109/0x510
+[36299.241720]  [<ffffffff8117810b>] bad_range+0x6b/0x150
+[36299.247612]  [<ffffffff8117b379>] ? __rmqueue+0x109/0x510
+[36299.253757]  [<ffffffff8116a8c5>] ? perf_output_begin+0x5/0x270
+[36299.260489]  [<ffffffff8117b379>] __rmqueue+0x109/0x510
+[36299.266501]  [<ffffffff8117bf63>] get_page_from_freelist+0x7e3/0xa50
+[36299.273680]  [<ffffffff8117c4cb>] __alloc_pages_nodemask+0x1fb/0xa90
+[36299.280872]  [<ffffffff811c416b>] ? alloc_pages_vma+0x10b/0x290
+[36299.287586]  [<ffffffff810bdd89>] ? __lock_acquire.isra.31+0x3b9/0x1000
+[36299.295017]  [<ffffffff811c416b>] alloc_pages_vma+0x10b/0x290
+[36299.301544]  [<ffffffff8119f1a4>] ? wp_page_copy.isra.51+0x84/0x4f0
+[36299.308613]  [<ffffffff8119f1a4>] wp_page_copy.isra.51+0x84/0x4f0
+[36299.315506]  [<ffffffff811a0d94>] ? do_wp_page+0x84/0x6a0
+[36299.321633]  [<ffffffff811a0dad>] do_wp_page+0x9d/0x6a0
+[36299.327533]  [<ffffffff811a2b69>] ? handle_mm_fault+0x309/0x1770
+[36299.334245]  [<ffffffff811a364c>] handle_mm_fault+0xdec/0x1770
+[36299.340854]  [<ffffffff81063034>] __do_page_fault+0x1b4/0x460
+[36299.347337]  [<ffffffff8106334e>] trace_do_page_fault+0x3e/0xc0
+[36299.354021]  [<ffffffff816e1068>] trace_page_fault+0x28/0x30
+[36315.086708] ------------[ cut here ]------------
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+

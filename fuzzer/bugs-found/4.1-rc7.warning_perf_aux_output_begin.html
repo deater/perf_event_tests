@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>WARNING: perf_aux_output_begin()
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: perf_aux_output_begin()
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+4.1-rc7
+
+<h3>Most recently Seen</h3>
+4.1-rc7
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+11 June 2015: perf: aux area related crash and warnings
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0-rc7+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1434065037
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1434065037
+
+Pid=17043, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 149044  Successful: 967  Currently open: 84
+                EPERM : 21
+                ENOENT : 865
+                E2BIG : 12954
+                EBADF : 12584
+                EACCES : 610
+                EBUSY : 8
+                EINVAL : 120702
+                EOPNOTSUPP : 333
+                Type (Hardware 215/20957)(software 356/21563)(tracepoint 75/21550)(Cache 68/18818)(cpu 192/21199)(breakpoint 11/21207)(power 0/2675)(intel_bts 50/2628)(uncore_imc 0/2747)(#9 0/16)(#10 0/18)(#11 0/8)(#12 0/10)(#13 0/7)(#14 0/12)(>14 0/15629)
+        Close:  883/883 Successful
+        Read:   784/876 Successful
+        Write:  0/943 Successful
+        Ioctl:  374/851 Successful: (ENABLE 93/93)(DISABLE 82/82)(REFRESH 6/103)(RESET 79/79)(PERIOD 16/79)(SET_OUTPUT 9/79)(SET_FILTER 0/88)(ID 89/89)(SET_BPF 0/89)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/70)
+        Mmap:   473/1119 Successful: (MMAP 473/1119)(TRASH 119/140)(READ 14/134)(UNMAP 466/1045)(AUX 1/262)(AUX_READ 2/13)
+        Prctl:  908/908 Successful
+        Fork:   438/438 Successful
+        Poll:   894/923 Successful
+        Access: 446/898 Successful
+        Overflows: 1
+        SIGIOs due to RT signal queue full: 0
+[27716.779727] ------------[ cut here ]------------
+[27716.785131] WARNING: CPU: 2 PID: 17655 at kernel/events/ring_buffer.c:282 perf_aux_output_begin+0x1ce/0x1f0()
+[27716.796157] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic snd_hda_intel snd_hda_controller crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec aesni_intel snd_hda_core aes_x86_64 iTCO_wdt lrw snd_hwdep gf128mul snd_pcm iTCO_vendor_support ppdev i915 snd_timer glue_helper evdev ablk_helper snd cryptd mei_me mei psmouse pcspkr soundcore serio_raw lpc_ich drm_kms_helper parport_pc battery tpm_tis mfd_core parport drm video tpm i2c_i801 i2c_algo_bit wmi processor button sg sr_mod cdrom sd_mod ehci_pci ehci_hcd ahci libahci libata xhci_pci xhci_hcd e1000e ptp scsi_mod crc32c_intel usbcore pps_core usb_common thermal fan thermal_sys
+[27716.873350] CPU: 2 PID: 17655 Comm: perf_fuzzer Tainted: G        W       4.1.0-rc7+ #155
+[27716.882671] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[27716.891168]  ffffffff81a230f2 ffff8800cf9afc68 ffffffff816d7229 0000000000000000
+[27716.899782]  0000000000000000 ffff8800cf9afca8 ffffffff81072eba 000000000000cf80
+[27716.908372]  ffff880036d85a00 ffff88011ea8cf80 ffff880119106000 000000000000cf80
+[27716.916981] Call Trace:
+[27716.920180]  [<ffffffff816d7229>] dump_stack+0x45/0x57
+[27716.926250]  [<ffffffff81072eba>] warn_slowpath_common+0x8a/0xc0
+[27716.933244]  [<ffffffff81072faa>] warn_slowpath_null+0x1a/0x20
+[27716.939999]  [<ffffffff8116b00e>] perf_aux_output_begin+0x1ce/0x1f0
+[27716.947225]  [<ffffffff81164785>] ? perf_event_update_userpage+0x5/0x170
+[27716.954875]  [<ffffffff8103767d>] bts_event_add+0x6d/0x150
+[27716.961259]  [<ffffffff81162ddb>] event_sched_in.isra.85+0xfb/0x330
+[27716.968495]  [<ffffffff811630ca>] group_sched_in+0xba/0x1e0
+[27716.974957]  [<ffffffff8101df2a>] ? native_sched_clock+0x2a/0x90
+[27716.981888]  [<ffffffff811633c0>] ctx_sched_in+0x1d0/0x3f0
+[27716.988274]  [<ffffffff81163649>] perf_event_sched_in+0x69/0xa0
+[27716.995082]  [<ffffffff81163bc0>] perf_event_context_sched_in+0x90/0x160
+[27717.002714]  [<ffffffff81164148>] __perf_event_task_sched_in+0xa8/0xc0
+[27717.010160]  [<ffffffff8109897d>] finish_task_switch+0xed/0x140
+[27717.016988]  [<ffffffff81012723>] ? __switch_to+0x263/0x5d0
+[27717.023400]  [<ffffffff8109e5a1>] schedule_tail+0x11/0xa0
+[27717.029652]  [<ffffffff816df57f>] ret_from_fork+0xf/0x70
+[27717.035806] ---[ end trace bdbfeef5d81e5fa4 ]---
+
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
