@@ -1,0 +1,137 @@
+<html>
+<head>
+<title>WARNING: kernel/trace/trace_events_filter.c:1640 replace_preds
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: kernel/trace/trace_events_filter.c:1640 replace_preds
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+4.1-rc7
+
+<h3>Most recently Seen</h3>
+4.1-rc7
+
+<h3>Reproducible</h3>
+probably
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+12 June 2015: perf, ftrace: fuzzer triggers warning in trace_events_filter code
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0-rc7+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1434153687
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1434153687
+
+Pid=8654, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+       
+==================================================
+FILTER FAILED compaction:mm_compaction_begin zone_start<965
+FILTER SUCCEDED ext4:ext4_es_find_delayed_extent_range_exit (status!=467)
+FILTER SUCCEDED ext4:ext4_other_inode_update_time (common_preempt_count&201)
+FILTER FAILED ftrace:function common_pid<=922
+FILTER FAILED ftrace:function ((parent_ip>103)common_flags==342)
+Iteration 10000
+        Open attempts: 150513  Successful: 937  Currently open: 103
+                EPERM : 16
+                ENOENT : 892
+                E2BIG : 13241
+                EBADF : 12564
+                EACCES : 608
+                EBUSY : 2
+                EINVAL : 121894
+                EOPNOTSUPP : 359
+                Type (Hardware 197/20981)(software 367/21960)(tracepoint 59/21721)(Cache 53/18838)(cpu 198/21630)(breakpoint 21/21378)(power 0/2710)(intel_bts 42/2768)(uncore_imc 0/2859)(#9 0/20)(#10 0/13)(#11 0/5)(#12 0/14)(#13 0/13)(#14 0/14)(>14 0/15589)
+        Close:  834/834 Successful
+        Read:   832/907 Successful
+        Write:  0/910 Successful
+        Ioctl:  414/917 Successful: (ENABLE 87/87)(DISABLE 94/94)(REFRESH 8/93)(RESET 98/98)(PERIOD 15/101)(SET_OUTPUT 10/92)(SET_FILTER 2/67)(ID 100/100)(SET_BPF 0/108)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/77)
+        Mmap:   442/1105 Successful: (MMAP 442/1105)(TRASH 100/136)(READ 36/162)(UNMAP 437/992)(AUX 0/276)(AUX_READ 3/14)
+        Prctl:  895/895 Successful
+        Fork:   428/428 Successful
+        Poll:   873/899 Successful
+        Access: 453/919 Successful
+        Overflows: 17
+        SIGIOs due to RT signal queue full: 0
+FILTER FAILED ext4:ext4_ext_put_in_cache (common_flags>213)
+FILTER FAILED ext4:ext4_ext_put_in_cache (start!=152)
+[43108.400112] ------------[ cut here ]------------
+[43108.405520] WARNING: CPU: 1 PID: 8654 at kernel/trace/trace_events_filter.c:1640 replace_preds+0x4f2/0x9b0()
+[43108.405520] WARNING: CPU: 1 PID: 8654 at kernel/trace/trace_events_filter.c:1640 replace_preds+0x4f2/0x9b0()
+[43108.416413] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp snd_hda_codec_realtek intel_rapl iosf_mbi snd_hda_codec_hdmi snd_hda_codec_generic snd_hda_intel coretemp snd_hda_controller kvm_intel kvm crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec snd_hda_core aesni_intel snd_hwdep tpm_tis ppdev i915 iTCO_wdt evdev iTCO_vendor_support snd_pcm aes_x86_64 snd_timer lrw snd tpm gf128mul soundcore glue_helper ablk_helper cryptd psmouse drm_kms_helper lpc_ich serio_raw pcspkr parport_pc mei_me mfd_core parport mei drm battery i2c_i801 video i2c_algo_bit wmi processor button sg sr_mod sd_mod cdrom ehci_pci ehci_hcd xhci_pci ahci xhci_hcd libahci libata e1000e crc32c_intel ptp fan scsi_mod usbcore pps_core usb_common thermal thermal_sys
+[43108.493166] CPU: 1 PID: 8654 Comm: perf_fuzzer Tainted: G        W       4.1.0-rc7+ #155
+[43108.502259] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[43108.510634]  ffffffff81a1abb0 ffff8800c61c3cb8 ffffffff816d7229 0000000000000000
+[43108.519088]  0000000000000000 ffff8800c61c3cf8 ffffffff81072eba ffffffff814238ec
+[43108.527630]  ffff880036cd6408 ffff88003665ca90 0000000000000000 ffff880036cd6400
+[43108.536122] Call Trace:
+[43108.539190]  [<ffffffff816d7229>] dump_stack+0x45/0x57
+[43108.545169]  [<ffffffff81072eba>] warn_slowpath_common+0x8a/0xc0
+[43108.552047]  [<ffffffff814238ec>] ? _kstrtoull+0x2c/0x90
+[43108.558182]  [<ffffffff81072faa>] warn_slowpath_null+0x1a/0x20
+[43108.564879]  [<ffffffff8114b3c2>] replace_preds+0x4f2/0x9b0
+[43108.571222]  [<ffffffff8114c213>] ? ftrace_profile_set_filter+0x23/0x100
+[43108.578790]  [<ffffffff8114b902>] create_filter+0x82/0xb0
+[43108.584987]  [<ffffffff8114c244>] ftrace_profile_set_filter+0x54/0x100
+[43108.592361]  [<ffffffff8119088b>] ? strndup_user+0x4b/0xc0
+[43108.598696]  [<ffffffff811661c0>] perf_ioctl+0x170/0x4d0
+[43108.604827]  [<ffffffff81063051>] ? __do_page_fault+0x1d1/0x460
+[43108.611547]  [<ffffffff81202270>] do_vfs_ioctl+0x2e0/0x4e0
+[43108.617817]  [<ffffffff81168305>] ? __perf_sw_event+0x65/0xa0
+[43108.624373]  [<ffffffff8106312d>] ? __do_page_fault+0x2ad/0x460
+[43108.631122]  [<ffffffff812024f1>] SyS_ioctl+0x81/0xa0
+[43108.637044]  [<ffffffff816df172>] system_call_fastpath+0x16/0x7a
+[43108.643875] ---[ end trace 2ea55cf8a8b076c8 ]---
+FILTER FAILED ext4:ext4_truncate_exit (((dev<=913)blocks==916)common_type&756)
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
