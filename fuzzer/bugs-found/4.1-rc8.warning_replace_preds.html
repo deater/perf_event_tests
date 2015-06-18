@@ -1,0 +1,178 @@
+<html>
+<head>
+<title>WARNING: kernel/trace/trace_events_filter.c:1388 replace_preds
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: kernel/trace/trace_events_filter.c:1388 replace_preds
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+4.1-rc8
+
+<h3>Most recently Seen</h3>
+4.1-rc8
+
+<h3>Reproducible</h3>
+probably
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+17 June 2015: perf/ftrace: fuzzer triggers another warning with PERF_EVENT_IOC_SET_FILTER
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0-rc8+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1434548402
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 50000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 1
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1434548402
+
+Pid=731, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+FILTER FAILED ftrace:function ((common_preempt_count>=479)||common_preempt_count!=256) Invalid argument
+FILTER FAILED ftrace:function (ip<555) Invalid argument
+FILTER FAILED ftrace:function (((common_preempt_count~890)||ip>=110)&&common_pid&139) Invalid argument
+FILTER FAILED ext4:ext4_collapse_range offset<=650 Invalid argument
+FILTER FAILED ftrace:function common_pid>195 Invalid argument
+FILTER SUCCEDED i2c:smbus_result (common_preempt_count==444)
+FILTER SUCCEDED vmscan:mm_vmscan_direct_reclaim_begin may_writepage>=98
+FILTER FAILED ftrace:function parent_ip==261 Invalid argument
+FILTER FAILED ftrace:function (common_flags==707) Invalid argument
+FILTER FAILED ftrace:function (((common_flags~422)&&common_pid~523)||common_type>=78) Invalid argument
+FILTER FAILED ftrace:function ip<802 Invalid argument
+Iteration 10000
+        Open attempts: 144277  Successful: 920  Currently open: 47
+                EPERM : 24
+                ENOENT : 783
+                E2BIG : 12577
+                EBADF : 12118
+                EACCES : 588
+                EBUSY : 6
+                EINVAL : 116933
+                EOPNOTSUPP : 328
+                Type (Hardware 200/19733)(software 333/20972)(tracepoint 67/20782)(Cache 60/18015)(cpu 210/20976)(breakpoint 22/20669)(power 0/2625)(intel_bts 28/2456)(uncore_imc 0/2733)(#9 0/17)(#10 0/9)(#11 0/8)(#12 0/10)(#13 0/6)(#14 0/6)(>14 0/15260)
+        Close:  873/873 Successful
+        Read:   744/844 Successful
+        Write:  0/887 Successful
+        Ioctl:  328/873 Successful: (ENABLE 76/76)(DISABLE 82/82)(REFRESH 6/104)(RESET 70/70)(PERIOD 5/84)(SET_OUTPUT 7/95)(SET_FILTER 2/108)(ID 80/80)(SET_BPF 0/84)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/90)
+        Mmap:   434/1063 Successful: (MMAP 434/1063)(TRASH 95/146)(READ 21/127)(UNMAP 428/1046)(AUX 0/251)(AUX_READ 3/14)
+        Prctl:  880/880 Successful
+        Fork:   450/450 Successful
+        Poll:   820/897 Successful
+        Access: 452/915 Successful
+        Overflows: 0
+        SIGIOs due to RT signal queue full: 0
+FILTER FAILED nfs4:nfs4_set_acl (((fhandle&379)&&fileid!=518)&&dev~430) Bad address
+FILTER FAILED kvmmmu:check_mmio_spte ((common_flags>214)&&common_flags~329) Invalid argument
+FILTER FAILED mei:mei_reg_write ((val~282)&&common_flags~955) Bad address
+FILTER FAILED ftrace:function ((common_pid!=109)||common_flags<2) Invalid argument
+FILTER FAILED nfs4:nfs4_set_acl (((common_pid&346)&&fhandle&799)||error<541) Bad address
+FILTER FAILED sunrpc:xprt_complete_rqst (common_flags>=106) Bad address
+FILTER FAILED nfsd:layout_get_lookup_fail (((si_generation>=229)&&common_pid~762)||cl_id>=963) Bad address
+FILTER FAILED ftrace:function ((ip!=313)&&common_type&680) Invalid argument
+FILTER FAILED ftrace:function ((ip~740)||common_type<611) Invalid argument
+FILTER FAILED ftrace:function (((common_type<1011)&&common_pid!=613)&&common_pid<152) Invalid argument
+FILTER FAILED ftrace:function (((common_pid==381)&&common_pid>=653)&&common_preempt_count>887) Invalid argument
+FILTER FAILED ftrace:function ((common_type>=663)||common_preempt_count==616) Invalid argument
+FILTER FAILED ext4:ext4_ext_rm_leaf (common_pid<=811) Bad address
+FILTER FAILED pagemap:mm_lru_activate ((page<=483)||common_flags~273) Invalid argument
+FILTER FAILED ftrace:function ((common_type<=734)&&common_flags<885) Invalid argument
+Iteration 20000
+        Open attempts: 140551  Successful: 909  Currently open: 18
+                EPERM : 24
+                ENOENT : 828
+                E2BIG : 12496
+                EBADF : 11609
+                EACCES : 627
+                EBUSY : 3
+                EINVAL : 113724
+                EOPNOTSUPP : 331
+                Type (Hardware 180/19848)(software 356/20547)(tracepoint 69/20388)(Cache 56/17613)(cpu 203/20052)(breakpoint 13/19858)(power 0/2515)(intel_bts 32/2483)(uncore_imc 0/2685)(#9 0/11)(#10 0/16)(#11 0/17)(#12 0/18)(#13 0/14)(#14 0/4)(>14 0/14482)
+        Close:  938/938 Successful
+        Read:   866/950 Successful
+        Write:  0/866 Successful
+        Ioctl:  403/925 Successful: (ENABLE 96/96)(DISABLE 103/103)(REFRESH 6/85)(RESET 83/83)(PERIOD 4/93)(SET_OUTPUT 13/93)(SET_FILTER 0/86)(ID 98/98)(SET_BPF 0/89)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/99)
+        Mmap:   428/1070 Successful: (MMAP 428/1070)(TRASH 112/134)(READ 13/160)(UNMAP 432/1091)(AUX 1/268)(AUX_READ 4/8)
+        Prctl:  867/867 Successful
+        Fork:   442/442 Successful
+        Poll:   906/913 Successful
+        Access: 470/916 Successful
+        Overflows: 13
+        SIGIOs due to RT signal queue full: 0
+FILTER FAILED ext4:ext4_get_reserved_cluster_alloc (((common_type==395)&&len<=1000)||common_flags~1014) Invalid argument
+FILTER FAILED ext4:ext4_readpage (((common_pid<935)||common_pid<111)||common_pid&510) Invalid argument
+FILTER FAILED ext4:ext4_ext_show_extent common_pid~768 Invalid argument
+[65903.654711] ------------[ cut here ]------------
+[65903.660154] WARNING: CPU: 1 PID: 731 at kernel/trace/trace_events_filter.c:1388 replace_preds+0x2e4/0xa50()
+[65903.671042] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi aesni_intel aes_x86_64 snd_hda_intel lrw gf128mul snd_hda_controller glue_helper i915 drm_kms_helper ppdev iTCO_wdt evdev iTCO_vendor_support ablk_helper drm parport_pc snd_hda_codec mei_me snd_hda_core psmouse snd_hwdep snd_pcm parport serio_raw i2c_algo_bit pcspkr cryptd mei snd_timer snd processor video soundcore wmi lpc_ich tpm_tis button battery i2c_i801 tpm mfd_core sg sr_mod sd_mod cdrom ahci ehci_pci libahci ehci_hcd xhci_pci e1000e libata xhci_hcd ptp usbcore crc32c_intel pps_core scsi_mod usb_common fan thermal thermal_sys
+[65903.748080] CPU: 1 PID: 731 Comm: perf_fuzzer Tainted: G        W       4.1.0-rc8+ #157
+[65903.757203] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[65903.765711]  ffffffff81a1ac00 ffff880117117cb8 ffffffff816d7419 0000000000000000
+[65903.774323]  0000000000000000 ffff880117117cf8 ffffffff81072eba 0000000000000005
+[65903.782924]  0000000000000003 ffff8800366bd018 ffff8800366bd000 ffff8800cf3e9220
+[65903.791516] Call Trace:
+[65903.794688]  [<ffffffff816d7419>] dump_stack+0x45/0x57
+[65903.800732]  [<ffffffff81072eba>] warn_slowpath_common+0x8a/0xc0
+[65903.807712]  [<ffffffff81072faa>] warn_slowpath_null+0x1a/0x20
+[65903.814477]  [<ffffffff8114b1c4>] replace_preds+0x2e4/0xa50
+[65903.820974]  [<ffffffff8114c2c3>] ? ftrace_profile_set_filter+0x23/0x100
+[65903.828640]  [<ffffffff8114b9b2>] create_filter+0x82/0xb0
+[65903.834917]  [<ffffffff8114c2f4>] ftrace_profile_set_filter+0x54/0x100
+[65903.842436]  [<ffffffff811909eb>] ? strndup_user+0x4b/0xc0
+[65903.848794]  [<ffffffff81166290>] perf_ioctl+0x170/0x4d0
+[65903.854959]  [<ffffffff812023d0>] do_vfs_ioctl+0x2e0/0x4e0
+[65903.861286]  [<ffffffff816dcdfe>] ? mutex_unlock+0xe/0x10
+[65903.867492]  [<ffffffff81164756>] ? perf_event_task_enable+0xb6/0xd0
+[65903.874754]  [<ffffffff81202651>] SyS_ioctl+0x81/0xa0
+[65903.880655]  [<ffffffff816df372>] system_call_fastpath+0x16/0x7a
+[65903.887534] ---[ end trace 48137d0593a025d9 ]---
+FILTER FAILED nfs4:nfs4_fsinfo (((fhandle~601)&&valid&809)&&common_type>=860) Invalid argument
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
