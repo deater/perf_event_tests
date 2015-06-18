@@ -5,6 +5,8 @@
 
 #include <signal.h>
 
+#include <errno.h>
+
 #include <sys/ioctl.h>
 
 #include "../include/perf_event.h"
@@ -17,8 +19,9 @@
 
 #include "trace_filters.h"
 
+#define MAX_FILTER_SIZE 8192
 
-static char filter[8192];
+static char filter[MAX_FILTER_SIZE];
 
 static struct trace_event_t *find_event(int event) {
 
@@ -80,6 +83,8 @@ static void print_whitespace(int max_amount) {
 
 	int i,amount;
 
+	if (max_amount==0) max_amount=1;
+
 	amount=rand()%max_amount;
 
 	for(i=0;i<amount;i++) {
@@ -106,60 +111,163 @@ static void print_comparison(int type) {
 	}
 }
 
+static void print_bool(void) {
+
+	switch(rand()%2) {
+		case 0: strcat(filter,"&&"); break;
+		case 1: strcat(filter,"||"); break;
+	}
+}
+
 static void print_value(int type) {
 
+	int i;
 
 	char temp[BUFSIZ];
 
 	if (type==FILTER_TYPE_STR) {
-		strcat(filter,"\"blah\"");
+		switch(rand()%15)  {
+
+			case 0: strcat(filter,"\"");
+				break;
+
+			case 1: temp[1]=0;
+				strcat(filter,"\"");
+				for(i=0;i<rand()%256;i++) {
+					temp[0]=(rand()%254)+1;
+					strcat(filter,temp);
+				}
+				strcat(filter,"\"");
+				break;
+
+			default: sprintf(temp,"\"blah\"");
+				strcat(filter,temp);
+				break;
+		}
+
 	}
 	else {
-		sprintf(temp,"%d",rand()%1024);
+		switch(rand()%10) {
+			case 0: sprintf(temp,"%d",rand());
+				break;
+			case 1: sprintf(temp,"%d%d",rand(),rand());
+				break;
+			case 2: sprintf(temp,"0x%x",rand());
+				break;
+			case 3: sprintf(temp,"-%d",rand());
+				break;
+			default: sprintf(temp,"%d",rand()%1024);
+				break;
+		}
 		strcat(filter,temp);
 
 	}
 }
 
 
-int print_filter(struct trace_event_t *event,
-		int max_levels, int max_whitespace) {
+static void print_expression(struct trace_event_t *event,
+			int max_whitespace,int try_valid) {
+
+	int field;
+
+	if (event->num_filters==0) return;
+
+	field=rand()%event->num_filters;
+
+	if (try_valid) {
+		strcat(filter,event->filter[field].name);
+	}
+	else {
+		switch(rand()%3) {
+			case 0: strcat(filter,event->filter[field].name);
+				break;
+			case 1: print_value(rand()%2);
+				break;
+			case 2:
+				break;
+		}
+
+	}
 
 
-	int levels,l,field;
+	print_whitespace(max_whitespace);
+
+	if (try_valid) {
+		print_comparison(event->filter[field].type);
+	}
+	else {
+		if (rand()%3==1) print_comparison(event->filter[field].type);
+	}
+
+	print_whitespace(max_whitespace);
+
+	if (try_valid) {
+		print_value(event->filter[field].type);
+	}
+	else {
+		switch(rand()%3) {
+			case 0: strcat(filter,event->filter[field].name);
+				break;
+			case 1: print_value(rand()%2);
+				break;
+			case 2:
+				break;
+		}
+	}
+
+	print_whitespace(max_whitespace);
+
+}
+
+int make_filter(struct trace_event_t *event,
+		int max_levels, int max_whitespace,
+		int try_valid) {
+
+
+	int levels,l;
 
 	if (event->num_filters==0) return -1;
 
-	levels=rand()%max_levels;
+	levels=rand()%(max_levels+1);
 
 	print_whitespace(max_whitespace);
 
 	for(l=0;l<levels;l++) {
-		strcat(filter,"(");
+		if (try_valid) {
+			strcat(filter,"(");
+		}
+		else {
+			if (rand()%3==1) strcat(filter,"(");
+		}
 		print_whitespace(max_whitespace);
+		if (rand()%5==1) strcat(filter,"!");
 	}
 
 	l=0;
 	do {
-		field=rand()%event->num_filters;
-		strcat(filter,event->filter[field].name);
 
-		print_whitespace(max_whitespace);
-
-		print_comparison(event->filter[field].type);
-
-		print_whitespace(max_whitespace);
-
-		print_value(event->filter[field].type);
-
-		print_whitespace(max_whitespace);
+		print_expression(event,max_whitespace,try_valid);
 
 		if (levels==0) break;
-		strcat(filter,")");
 
+		if (try_valid) {
+			strcat(filter,")");
+		}
+		else {
+			if (rand()%3==1) strcat(filter,")");
+		}
 		print_whitespace(max_whitespace);
 
-		if (l!=levels-1) strcat(filter,"&&");
+		if (l!=levels-1) {
+			if (try_valid) {
+				print_bool();
+			}
+			else {
+				if (rand()%3==1) {
+					print_bool();
+				}
+			}
+		}
 
 		print_whitespace(max_whitespace);
 
@@ -170,6 +278,33 @@ int print_filter(struct trace_event_t *event,
 
 }
 
+int make_crazy_filter(void) {
+
+	int length=rand()%(MAX_FILTER_SIZE-1);
+	int i=0;
+
+	filter[0]=0;
+
+	char random_mess[]="()&=!><~|";
+
+	while(i<length) {
+
+		switch(rand()%3) {
+			case 0: filter[i]=random_mess[rand()%9];
+				break;
+			case 1: filter[i]=(rand()%254)+1;
+				break;
+			case 2: filter[i]=(rand()%10)+'0';
+				break;
+
+		}
+		i++;
+	}
+
+	filter[i]=0;
+
+	return 0;
+}
 
 static int fill_filter(int which) {
 
@@ -180,10 +315,32 @@ static int fill_filter(int which) {
 	event=find_event(which);
 	if (event==NULL) return -1;
 
-	print_filter(event, 4 /* MAX LEVELS */,
-				1 /* MAX WHITESPACE */);
+	switch(rand()%30) {
+		case 0:	make_crazy_filter();
+			break;
 
+		case 1: 
+		case 2: make_filter(event, rand()%20 /* MAX LEVELS */,
+				rand()%20 /* MAX WHITESPACE */,
+				0 /* TRY_VALID */);
+			break;
+
+		default: make_filter(event, 4 /* MAX LEVELS */,
+				1 /* MAX WHITESPACE */,
+				1 /* TRY_VALID */);
+			break;
+	}
 	return 0;
+}
+
+static char *tracepoint_name(int which) {
+
+	struct trace_event_t *event;
+
+	event=find_event(which);
+	if (event==NULL) return NULL;
+
+	return event->name;
 }
 
 
@@ -196,6 +353,7 @@ void ioctl_random_event(void) {
 	long long id;
 	int any_event,sampling_event;
 	int custom;
+	int which_tracepoint;
 
 	any_event=find_random_active_event();
 	sampling_event=find_random_active_sampling_event();
@@ -342,7 +500,9 @@ void ioctl_random_event(void) {
 			if (custom) arg=rand();
 			else arg=(long)&filter;
 
-			fill_filter(event_data[any_event].attr.config);
+			which_tracepoint=event_data[any_event].attr.config;
+
+			fill_filter(which_tracepoint);
 
 			if (ignore_but_dont_skip.ioctl) return;
 			/* FIXME -- read filters from file */
@@ -358,10 +518,16 @@ void ioctl_random_event(void) {
 			}
 
 			if (result<0) {
-			//	printf("FILTER FAILED %s\n",filter);
+				if (filter[0]!=0) {
+					printf("FILTER FAILED %s %s %s\n",
+						tracepoint_name(which_tracepoint),
+						filter,strerror(errno));
+				}
 			}
 			else {
-//				printf("FILTER SUCCEDED %d %s\n",result,filter);
+				printf("FILTER SUCCEDED %s %s\n",
+					tracepoint_name(which_tracepoint),
+					filter);
 			}
 
 
