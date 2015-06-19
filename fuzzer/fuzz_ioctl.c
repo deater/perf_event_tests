@@ -119,31 +119,52 @@ static void print_bool(void) {
 	}
 }
 
-static void print_value(int type) {
+static void print_value(int type, int try_valid) {
 
 	int i;
 
 	char temp[BUFSIZ];
+	char string[BUFSIZ];
+	int length,offset;
 
-	if (type==FILTER_TYPE_STR) {
+	if ((type==FILTER_TYPE_STR) || (!try_valid && rand()%5==1)) {
+
+		string[0]=0;
+
 		switch(rand()%15)  {
 
-			case 0: strcat(filter,"\"");
+			case 0: strcat(string,"\"");
 				break;
 
-			case 1: temp[1]=0;
-				strcat(filter,"\"");
-				for(i=0;i<rand()%256;i++) {
-					temp[0]=(rand()%254)+1;
-					strcat(filter,temp);
+			case 1:
+			case 2:
+			case 3:
+				strcat(string,"\"");
+				length=rand()%256;
+				for(i=0;i<length;i++) {
+					string[i+1]=(rand()%254)+1;
 				}
-				strcat(filter,"\"");
+				string[i]='\"';
+				string[i+1]=0;
 				break;
 
-			default: sprintf(temp,"\"blah\"");
-				strcat(filter,temp);
+			default: sprintf(string,"\"blah\"");
 				break;
 		}
+
+		length=strlen(string);
+		switch(rand()%10) {
+			case 0:	if (length!=0) string[rand()%length]='*';
+				break;
+			case 1:	if (length!=0) {
+					offset=rand()%length;
+					string[offset]='*';
+					string[offset+1]='\"';
+					string[offset+2]=0;
+				}
+				break;
+		}
+		strcat(filter,string);
 
 	}
 	else {
@@ -181,7 +202,7 @@ static void print_expression(struct trace_event_t *event,
 		switch(rand()%3) {
 			case 0: strcat(filter,event->filter[field].name);
 				break;
-			case 1: print_value(rand()%2);
+			case 1: print_value(rand()%2,try_valid);
 				break;
 			case 2:
 				break;
@@ -202,13 +223,13 @@ static void print_expression(struct trace_event_t *event,
 	print_whitespace(max_whitespace);
 
 	if (try_valid) {
-		print_value(event->filter[field].type);
+		print_value(event->filter[field].type,try_valid);
 	}
 	else {
 		switch(rand()%3) {
 			case 0: strcat(filter,event->filter[field].name);
 				break;
-			case 1: print_value(rand()%2);
+			case 1: print_value(rand()%2,try_valid);
 				break;
 			case 2:
 				break;
