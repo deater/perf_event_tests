@@ -1,0 +1,173 @@
+<html>
+<head>
+<title>
+intel_pmu_drain_pebs_nhm() warning !event-&gt;attr.precise_ip
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+intel_pmu_drain_pebs_nhm() warning !event-&gt;attr.precise_ip
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+4.2-rc0
+
+<h3>Most recently Seen</h3>
+4.2-rc0
+
+<h3>Reproducible</h3>
+maybe.  It's warn_on_once.
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+2 July 2015 -- 
+perf: fuzzer triggered warning in intel_pmu_drain_pebs_nhm()
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<pre>
+Maps to
+	arch/x86/kernel/cpu/perf_event_intel_ds.c:1198 intel_pmu_drain_pebs_nhm+0x283/0x2e0()
+
+which is
+	WARN_ON_ONCE(!event->attr.precise_ip);
+
+
+</pre>
+
+<h3>Kernel Splat</h3>
+<ol>
+
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1435845420
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 3250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1435845420
+
+Pid=18924, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 110716  Successful: 935  Currently open: 4
+                EPERM : 9
+                ENOENT : 608
+                E2BIG : 9816
+                EBADF : 9292
+                EBUSY : 1
+                EINVAL : 89770
+                EOPNOTSUPP : 285
+                Type (Hardware 183/15443)(software 364/16258)(tracepoint 54/15862)(Cache 57/13736)(cpu 228/16060)(breakpoint 9/15903)(power 3/2006)(intel_bts 37/2057)(uncore_imc 0/2036)(#9 0/5)(#10 0/12)(#11 0/5)(#12 0/11)(#13 0/5)(#14 0/7)(>14 0/11310)
+        Close:  931/931 Successful
+        Read:   782/865 Successful
+        Write:  0/823 Successful
+        Ioctl:  389/902 Successful: (ENABLE 95/95)(DISABLE 93/93)(REFRESH 7/88)(RESET 102/102)(PERIOD 8/96)(SET_OUTPUT 6/98)(SET_FILTER 0/75)(ID 78/78)(SET_BPF 0/91)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/86)
+        Mmap:   464/1069 Successful: (MMAP 464/1069)(TRASH 113/148)(READ 16/133)(UNMAP 466/1090)(AUX 3/269)(AUX_READ 1/14)
+        Prctl:  919/919 Successful
+        Fork:   460/460 Successful
+        Poll:   888/925 Successful
+        Access: 443/880 Successful
+        Overflows: 0
+[  584.352324] WARNING: CPU: 2 PID: 18924 at arch/x86/kernel/cpu/perf_event_inte
+l_ds.c:1198 intel_pmu_drain_pebs_nhm+0x283/0x2e0()
+[  584.364649] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp int
+el_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_hdmi crct10dif_pclmul crc3
+2_pclmul ghash_clmulni_intel hmac drbg i915 ansi_cprng snd_hda_codec_realtek snd
+_hda_codec_generic iTCO_wdt ppdev snd_hda_intel snd_hda_codec aesni_intel aes_x8
+6_64 snd_hda_core lrw evdev snd_hwdep drm_kms_helper drm psmouse iTCO_vendor_sup
+port snd_pcm gf128mul glue_helper ablk_helper serio_raw pcspkr cryptd snd_timer 
+i2c_i801 processor battery video snd mei_me parport_pc i2c_algo_bit button sound
+core lpc_ich mfd_core tpm_tis mei parport tpm wmi sg sr_mod sd_mod cdrom ehci_pc
+i ehci_hcd ahci libahci libata xhci_pci xhci_hcd e1000e ptp usbcore crc32c_intel
+ fan scsi_mod pps_core usb_common thermal thermal_sys
+[  584.440755] CPU: 2 PID: 18924 Comm: perf_fuzzer Tainted: G        W       4.1.0+ #160
+[  584.449736] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  584.458241]  ffffffff81a100e0 ffff8800cd793898 ffffffff8169e763 0000000000000000
+[  584.466868]  0000000000000000 ffff8800cd7938d8 ffffffff8106ecba ffffffff810b7806
+[  584.475466]  0000000000000000 0000000000000001 ffff88011ea8bd80 ffff8801190400c0
+[  584.484101] Call Trace:
+[  584.487287]  [<ffffffff8169e763>] dump_stack+0x45/0x57
+[  584.493360]  [<ffffffff8106ecba>] warn_slowpath_common+0x8a/0xc0
+[  584.500393]  [<ffffffff810b7806>] ? __lock_acquire.isra.31+0x3a6/0xf90
+[  584.507953]  [<ffffffff8106edaa>] warn_slowpath_null+0x1a/0x20
+[  584.514770]  [<ffffffff8102f783>] intel_pmu_drain_pebs_nhm+0x283/0x2e0
+[  584.522287]  [<ffffffff8102ec48>] intel_pmu_drain_pebs_buffer+0x18/0x20
+[  584.529870]  [<ffffffff8115bb9b>] ? ___perf_sw_event+0x13b/0x170
+[  584.536856]  [<ffffffff811569e8>] ? perf_pmu_sched_task+0xa8/0x140
+[  584.543978]  [<ffffffff810303c1>] ? intel_pmu_pebs_disable_all+0x31/0x40
+[  584.551590]  [<ffffffff81030a49>] ? __intel_pmu_disable_all+0x49/0x70
+[  584.559021]  [<ffffffff81030064>] intel_pmu_pebs_sched_task+0x14/0x20
+[  584.566387]  [<ffffffff8103070d>] intel_pmu_sched_task+0x3d/0x40
+[  584.573311]  [<ffffffff81028646>] x86_pmu_sched_task+0x16/0x20
+[  584.580002]  [<ffffffff81156a01>] perf_pmu_sched_task+0xc1/0x140
+[  584.586954]  [<ffffffff8115695e>] ? perf_pmu_sched_task+0x1e/0x140
+[  584.594023]  [<ffffffff81158596>] __perf_event_task_sched_out+0x66/0x4c0
+[  584.601657]  [<ffffffff810b641d>] ? __lock_is_held+0x4d/0x70
+[  584.608184]  [<ffffffff816a0a07>] __schedule+0x427/0xa50
+[  584.614334]  [<ffffffff816a1067>] schedule+0x37/0x80
+[  584.620114]  [<ffffffff816a502c>] schedule_timeout+0x1bc/0x250
+[  584.626829]  [<ffffffff816a2228>] ? wait_for_completion+0x28/0x100
+[  584.633877]  [<ffffffff816a22be>] ? wait_for_completion+0xbe/0x100
+[  584.640955]  [<ffffffff816a22c6>] wait_for_completion+0xc6/0x100
+[  584.647842]  [<ffffffff81098cb0>] ? wake_up_q+0x70/0x70
+[  584.653888]  [<ffffffff810d63c0>] ? call_rcu_bh+0x20/0x20
+[  584.660135]  [<ffffffff810d2fcd>] wait_rcu_gp+0x5d/0x80
+[  584.666191]  [<ffffffff810d2f10>] ? trace_raw_output_rcu_utilization+0x60/0x60
+[  584.674389]  [<ffffffff81152156>] ? perf_unpin_context+0x16/0x30
+[  584.681272]  [<ffffffff810d52eb>] synchronize_sched+0x3b/0x50
+[  584.687867]  [<ffffffff8113d998>] perf_trace_event_unreg.isra.1+0x38/0x90
+[  584.695620]  [<ffffffff8113dcec>] perf_trace_destroy+0x3c/0x50
+[  584.702349]  [<ffffffff81152d79>] tp_perf_event_destroy+0x9/0x10
+[  584.709207]  [<ffffffff81158ed1>] _free_event+0xc1/0x250
+[  584.715306]  [<ffffffff811591ff>] free_event+0x1f/0x50
+[  584.721224]  [<ffffffff8115c8e0>] SYSC_perf_event_open+0x400/0xd40
+[  584.728289]  [<ffffffff8105f89b>] ? __do_page_fault+0x1ab/0x3f0
+[  584.735056]  [<ffffffff8115d699>] SyS_perf_event_open+0x9/0x10
+[  584.741649]  [<ffffffff816a64b2>] entry_SYSCALL_64_fastpath+0x16/0x7a
+[  584.748915] ---[ end trace e3d880444bf5705b ]---
+
+</pre>
+
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
