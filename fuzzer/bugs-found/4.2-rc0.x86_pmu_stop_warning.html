@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>x86_pmu_stop() warning hw.state PERF_HES_STOPPED
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+x86_pmu_stop() warning hw.state PERF_HES_STOPPED
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+possibly related to much older bugs seen
+
+<h3>Most recently Seen</h3>
+4.2-rc0
+
+<h3>Reproducible</h3>
+maybe.  It's warn_on_once.
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+2 July 2015 -- perf: fuzzer, lots of warnings
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<pre>
+Maps to
+	arch/x86/kernel/cpu/perf_event.c:1307 x86_pmu_stop+0xb8/0xd0()
+
+which is
+	WARN_ON_ONCE(hwc->state & PERF_HES_STOPPED);
+
+</pre>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1435846044
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 3250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1435846044
+
+Pid=7953, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 101345  Successful: 897  Currently open: 20
+                EPERM : 10
+                ENOENT : 519
+                E2BIG : 8711
+                EBADF : 8517
+                EBUSY : 1
+                EINVAL : 82427
+                EOPNOTSUPP : 263
+                Type (Hardware 177/14007)(software 343/14606)(tracepoint 60/14544)(Cache 53/12620)(cpu 202/14755)(breakpoint 13/14682)(power 0/1834)(intel_bts 45/1774)(uncore_imc 4/1862)(#9 0/11)(#10 0/11)(#11 0/4)(#12 0/5)(#13 0/7)(#14 0/2)(>14 0/10621)
+        Close:  877/877 Successful
+        Read:   782/872 Successful
+        Write:  0/829 Successful
+        Ioctl:  360/820 Successful: (ENABLE 81/81)(DISABLE 85/85)(REFRESH 7/77)(RESET 85/85)(PERIOD 9/83)(SET_OUTPUT 11/87)(SET_FILTER 2/82)(ID 80/80)(SET_BPF 0/72)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/88)
+        Mmap:   413/1055 Successful: (MMAP 413/1055)(TRASH 112/159)(READ 25/131)(UNMAP 412/1026)(AUX 1/263)(AUX_READ 3/15)
+        Prctl:  912/912 Successful
+        Fork:   451/451 Successful
+        Poll:   748/839 Successful
+        Access: 448/892 Successful
+        Overflows: 0
+Iteration 20000
+        Open attempts: 108412  Successful: 951  Currently open: 91
+                EPERM : 12
+                ENOENT : 658
+                E2BIG : 9590
+                EBADF : 8748
+                EBUSY : 2
+                EINVAL : 88145
+                EOPNOTSUPP : 306
+                Type (Hardware 198/15217)(software 362/15743)(tracepoint 61/15597)(Cache 54/13512)(cpu 211/15680)(breakpoint 20/15464)(power 2/1939)(intel_bts 43/1905)(uncore_imc 0/1980)(#9 0/12)(#10 0/14)(#11 0/10)(#12 0/13)(#13 0/4)(#14 0/4)(>14 0/11318)
+        Close:  880/880 Successful
+        Read:   852/958 Successful
+        Write:  0/892 Successful
+        Ioctl:  399/927 Successful: (ENABLE 86/86)(DISABLE 107/107)(REFRESH 2/100)(RESET 89/89)(PERIOD 2/84)(SET_OUTPUT 9/77)(SET_FILTER 0/98)(ID 104/104)(SET_BPF 0/89)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/93)
+        Mmap:   499/1103 Successful: (MMAP 499/1103)(TRASH 120/133)(READ 7668/7784)(UNMAP 494/1046)(AUX 0/281)(AUX_READ 2/6)
+        Prctl:  849/849 Successful
+        Fork:   470/470 Successful
+        Poll:   867/877 Successful
+        Access: 474/898 Successful
+        Overflows: 7658
+[ 1210.496111] ------------[ cut here ]------------
+[ 1210.501445] WARNING: CPU: 6 PID: 0 at arch/x86/kernel/cpu/perf_event.c:1307 x
+86_pmu_stop+0xb8/0xd0()
+[ 1210.511622] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_hdmi crct10dif_pclmul crc32_pclmul ghash_clmulni_intel hmac drbg i915 ansi_cprng snd_hda_codec_realtek snd_hda_codec_generic iTCO_wdt ppdev snd_hda_intel snd_hda_codec aesni_intel aes_x86_64 snd_hda_core lrw evdev snd_hwdep drm_kms_helper drm psmouse iTCO_vendor_support snd_pcm gf128mul glue_helper ablk_helper serio_raw pcspkr cryptd snd_timer i2c_i801 processor battery video snd mei_me parport_pc i2c_algo_bit button soundcore lpc_ich mfd_core tpm_tis mei parport tpm wmi sg sr_mod sd_mod cdrom ehci_pci ehci_hcd ahci libahci libata xhci_pci xhci_hcd e1000e ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 1210.588151] CPU: 6 PID: 0 Comm: swapper/6 Tainted: G        W       4.1.0+ #160
+[ 1210.596395] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 1210.604743]  ffffffff81a0f9f0 ffff88011eb83d98 ffffffff8169e763 0000000000000000
+[ 1210.613195]  0000000000000000 ffff88011eb83dd8 ffffffff8106ecba 0000000000000008
+[ 1210.621646]  ffff88011eb8bd80 ffff8801172fc000 0000000000000004 ffff88011eb9deb0
+[ 1210.630071] Call Trace:
+[ 1210.633120]  <IRQ>  [<ffffffff8169e763>] dump_stack+0x45/0x57
+[ 1210.639787]  [<ffffffff8106ecba>] warn_slowpath_common+0x8a/0xc0
+[ 1210.646665]  [<ffffffff8106edaa>] warn_slowpath_null+0x1a/0x20
+[ 1210.653328]  [<ffffffff810291b8>] x86_pmu_stop+0xb8/0xd0
+[ 1210.659466]  [<ffffffff81029216>] x86_pmu_del+0x46/0x140
+[ 1210.665607]  [<ffffffff81156244>] event_sched_out.isra.80+0x124/0x320
+[ 1210.672924]  [<ffffffff81156553>] ? __perf_event_disable+0x53/0x130
+[ 1210.680097]  [<ffffffff81156488>] group_sched_out+0x48/0xc0
+[ 1210.686530]  [<ffffffff8101d2a8>] ? native_sched_clock+0x28/0x90
+[ 1210.693445]  [<ffffffff811565fe>] __perf_event_disable+0xfe/0x130
+[ 1210.700408]  [<ffffffff811532c0>] ? cpu_clock_event_start+0x40/0x40
+[ 1210.707550]  [<ffffffff81153302>] remote_function+0x42/0x50
+[ 1210.713942]  [<ffffffff810f0dab>] flush_smp_call_function_queue+0x7b/0x170
+[ 1210.721762]  [<ffffffff810f1793>] generic_smp_call_function_single_interrupt+0x13/0x60
+[ 1210.730679]  [<ffffffff81049228>] smp_trace_call_function_single_interrupt+0x38/0xb0
+[ 1210.739467]  [<ffffffff816a78db>] trace_call_function_single_interrupt+0x6b/0x70
+[ 1210.747820]  <EOI>  [<ffffffff81543f24>] ? cpuidle_enter_state+0xf4/0x220
+[ 1210.755614]  [<ffffffff81543f00>] ? cpuidle_enter_state+0xd0/0x220
+[ 1210.762708]  [<ffffffff81544087>] cpuidle_enter+0x17/0x20
+[ 1210.768966]  [<ffffffff810b05db>] call_cpuidle+0x3b/0x70
+[ 1210.775135]  [<ffffffff81544063>] ? cpuidle_select+0x13/0x20
+[ 1210.781637]  [<ffffffff810b0855>] cpu_startup_entry+0x245/0x310
+[ 1210.788411]  [<ffffffff81049a40>] start_secondary+0x120/0x130
+[ 1210.795024] ---[ end trace e3d880444bf5705c ]---
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+

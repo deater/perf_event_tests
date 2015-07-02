@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>
+intel_pmu_lbr_disable() warning cpuc-&gt;lbr_users
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+intel_pmu_lbr_disable() warning cpuc-&gt;lbr_users
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+4.2-rc0
+
+<h3>Most recently Seen</h3>
+4.2-rc0
+
+<h3>Reproducible</h3>
+maybe.  It's warn_on_once.
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+2 July 2015 -- 
+perf: fuzzer, lots of warnings
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+<pre>
+Maps to
+	arch/x86/kernel/cpu/perf_event_intel_lbr.c:349 intel_pmu_lbr_disable+0xbc/0xd0()
+
+which is
+	WARN_ON_ONCE(cpuc->lbr_users < 0);
+
+
+</pre>
+
+<h3>Kernel Splat</h3>
+<ol>
+
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1435846478
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 3250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1435846478
+
+Pid=25543, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+[ 1638.697162] ------------[ cut here ]------------
+[ 1638.702578] WARNING: CPU: 2 PID: 25543 at arch/x86/kernel/cpu/perf_event_intel_lbr.c:349 intel_pmu_lbr_disable+0xbc/0xd0()
+[ 1638.714859] Modules linked in: fuse x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_hdmi crct10dif_pclmul crc32_pclmul ghash_clmulni_intel hmac drbg i915 ansi_cprng snd_hda_codec_realtek snd_hda_codec_generic iTCO_wdt ppdev snd_hda_intel snd_hda_codec aesni_intel aes_x86_64 snd_hda_core lrw evdev snd_hwdep drm_kms_helper drm psmouse iTCO_vendor_support snd_pcm gf128mul glue_helper ablk_helper serio_raw pcspkr cryptd snd_timer i2c_i801 processor battery video snd mei_me parport_pc i2c_algo_bit button soundcore lpc_ich mfd_core tpm_tis mei parport tpm wmi sg sr_mod sd_mod cdrom ehci_pci ehci_hcd ahci libahci libata xhci_pci xhci_hcd e1000e ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 1638.792196] CPU: 2 PID: 25543 Comm: perf_fuzzer Tainted: G        W       4.1.0+ #160
+[ 1638.801112] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 1638.809578]  ffffffff81a100b0 ffff8800c5f9bd58 ffffffff8169e763 0000000000000000
+[ 1638.818108]  0000000000000000 ffff8800c5f9bd98 ffffffff8106ecba 0000000000000000
+[ 1638.826633]  ffff88011ea8bd80 ffff8801185f0000 ffff8801185f0000 ffff88011ea1deb0
+[ 1638.835153] Call Trace:
+[ 1638.838258]  [<ffffffff8169e763>] dump_stack+0x45/0x57
+[ 1638.844290]  [<ffffffff8106ecba>] warn_slowpath_common+0x8a/0xc0
+[ 1638.851186]  [<ffffffff8106edaa>] warn_slowpath_null+0x1a/0x20
+[ 1638.857921]  [<ffffffff8102e56c>] intel_pmu_lbr_disable+0xbc/0xd0
+[ 1638.864874]  [<ffffffff81031812>] intel_pmu_disable_event+0xc2/0x130
+[ 1638.872125]  [<ffffffff81030a49>] ? __intel_pmu_disable_all+0x49/0x70
+[ 1638.879455]  [<ffffffff81029175>] x86_pmu_stop+0x75/0xd0
+[ 1638.885560]  [<ffffffff81159f1a>] perf_ioctl+0x40a/0x470
+[ 1638.891650]  [<ffffffff811f199a>] do_vfs_ioctl+0x2ba/0x4a0
+[ 1638.897945]  [<ffffffff811dd9ac>] ? vfs_read+0x11c/0x130
+[ 1638.904069]  [<ffffffff811f27bd>] ? poll_select_set_timeout+0x4d/0x70
+[ 1638.911417]  [<ffffffff811f1bf9>] SyS_ioctl+0x79/0x90
+[ 1638.917295]  [<ffffffff816a64b2>] entry_SYSCALL_64_fastpath+0x16/0x7a
+[ 1638.924613] ---[ end trace e3d880444bf5705d ]---
+
+</pre>
+
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
