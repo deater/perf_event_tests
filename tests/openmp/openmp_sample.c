@@ -96,6 +96,7 @@ int main (int argc, char **argv) {
 	struct perf_event_attr pe;
 	struct sigaction sa;
 	int i, errors=0;
+	int total=0;
 
 	quiet=test_quiet();
 
@@ -234,10 +235,19 @@ int main (int argc, char **argv) {
 
 	for(i=0;i<num_cpus;i++) {
 		if (mmap_info[i].count < 9 ) {
-			printf("ERROR! CPU%d overflow count low!\n",i);
-			errors++;
+			printf("WARNING! CPU%d overflow count low!\n",i);
+//			errors++;
 		}
+		total+=mmap_info[i].count;
 	}
+	if (!quiet) {
+		printf("Total overflows: %d\n",total);
+	}
+	if (total<90) {
+		if (!quiet) printf("Unexpected low number of overflows!\n");
+		errors++;
+	}
+
 
 	if (errors==0) {
 		test_pass(test_string);

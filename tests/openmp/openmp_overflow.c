@@ -181,7 +181,9 @@ int main (int argc, char **argv) {
 		printf("\tOverflows=%d, expected roughly 100\n",count_total);
 	}
 
-	if ((count_total<100) || (count_total>200)) {
+	/* Should be closer to 100 */
+	/* but we might be overflowing so fast some are getting lost */
+	if ((count_total<50) || (count_total>200)) {
 		if (!quiet) {
 			printf("ERROR: unexpected overflow count! ");
 			printf("Likely a kernel bug if < 4.2\n");
@@ -283,8 +285,8 @@ int main (int argc, char **argv) {
 	}
 
 	if (!quiet) {
-		printf("\tCount=%lld, expected roughly 10M "
-			"(only counted thread 0)\n",count);
+		printf("\tCount=%lldM, expected roughly 10M "
+			"(only counted thread 0)\n",count/1000000);
 		printf("\tOverflows=%d, expected roughly 10\n",count_total);
 	}
 	close(fd);
