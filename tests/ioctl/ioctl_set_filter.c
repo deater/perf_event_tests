@@ -70,10 +70,10 @@ int main(int argc, char** argv) {
 	pe1.type=PERF_TYPE_TRACEPOINT;
 	pe1.size=sizeof(struct perf_event_attr);
 
-	/* irq/irq_handler_entry */
-	pe1.config=85;
-	/* ftrace/function */
-//	pe1.config=1;
+	/* Try to pick one that is valid on most kernels/machines */
+	/* writeback:writeback_start*/
+	pe1.config=226;
+
 	pe1.disabled=1;
 	pe1.exclude_kernel=0;
 	pe1.exclude_hv=0;
@@ -163,12 +163,11 @@ int main(int argc, char** argv) {
 		errors++;
 	}
 
-
 	/* Valid filter */
 	if (!quiet) {
 		printf("\t+ Valid filter: ");
 	}
-	strcpy(filter,"irq==28");
+	strcpy(filter,"nr_pages==2");
 
 	result=ioctl(fd1, PERF_EVENT_IOC_SET_FILTER, filter);
 	if (result==0) {
