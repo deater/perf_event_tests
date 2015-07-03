@@ -2,6 +2,8 @@
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu			*/
 
+#define _GNU_SOURCE 1
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,25 +19,27 @@
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
+#include <syscall.h>
 
+int gettid(void) {
+	return syscall( SYS_gettid );
+}
 
-char test_string[]="Testing OpenMP results...";
-int quiet=0;
-int fd;
-
+static char test_string[]="Testing OpenMP results...";
+static int quiet=0;
 
 int main (int argc, char **argv) {
 
-	int nthreads, num_threads=0, tid, fd, result, read_result,i;
+	int nthreads, num_threads=0, tid, fd, result, read_result, i;
+	int errors=0;
 	struct perf_event_attr pe;
 	long long count;
-	int errors=0;
+
 
 	quiet=test_quiet();
 
 	if (!quiet) {
 		printf("Testing OpenMP behavior\n\n");
-		printf("Testing the inherit case\n");
 		printf("Note!!! Inherit only works if the event is created\n");
 		printf("before the fork happens!  OpenMP creates thread pools\n");
 		printf("so if you create the event after the thread pools hae been\n");
@@ -59,7 +63,6 @@ int main (int argc, char **argv) {
 	pe.exclude_kernel=1;
 	pe.exclude_hv=1;
 	pe.inherit=1;
-	pe.inherit_stat=1;
 
 	arch_adjust_domain(&pe,quiet);
 
@@ -73,7 +76,7 @@ int main (int argc, char **argv) {
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
 	/* Start a parallel group of threads */
-#pragma omp parallel private(nthreads, tid)
+#pragma omp parallel private(nthreads, i, tid)
 {
 
 	/* Obtain thread number */
@@ -89,13 +92,13 @@ int main (int argc, char **argv) {
 	}
 
 	if (!quiet) {
-		printf("\t+ Running 10 million instructions in thread %d\n", tid);
+		printf("\t+ Running 10 million instructions in thread %d %d\n",
+			tid,gettid());
 	}
 
 	for(i=0;i<10;i++) {
 		result=instructions_million();
 	}
-
 
 }
 	/* All threads join master thread and disband */
@@ -115,9 +118,8 @@ int main (int argc, char **argv) {
 
 	if (!quiet) {
 		printf("\tCount=%lldM, expected roughly %dM\n",
-			count/1000000,10*num_threads);
+			count/1000000, 10*num_threads);
 	}
-	close(fd);
 
 	if ((count < 10000000*num_threads) || (count > 20000000*num_threads)) {
 		if (!quiet) {
@@ -126,6 +128,7 @@ int main (int argc, char **argv) {
 		errors++;
 	}
 
+	close(fd);
 
 	/************************************************/
 	/* With non-inherit				*/

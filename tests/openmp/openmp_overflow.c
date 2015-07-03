@@ -60,7 +60,8 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 int main (int argc, char **argv) {
 
-	int nthreads, tid, fd, result, read_result;
+	int nthreads, num_threads=0, tid, fd, result, read_result, i;
+	int errors=0;
 	struct perf_event_attr pe;
 	long long count;
 	struct sigaction sa;
@@ -68,7 +69,11 @@ int main (int argc, char **argv) {
 	quiet=test_quiet();
 
 	if (!quiet) {
-		printf("Testing OpenMP overflow behavior\n");
+		printf("Testing OpenMP overflow behavior\n\n");
+		printf("Note!!! Inherit only works if the event is created\n");
+		printf("before the fork happens!  OpenMP creates thread pools\n");
+		printf("so if you create the event after the thread pools hae been\n");
+		printf("created it may be too late and you won't get child events!\n\n");
 	}
 
 
@@ -78,10 +83,8 @@ int main (int argc, char **argv) {
 
 	if (!quiet) {
 		printf("Testing the inherit case\n");
-		printf("Note!!! Inherit only works if the event is created\n");
-		printf("before the fork happens!  OpenMP creates thread pools\n");
-		printf("so if you create the event after the thread pools hae been\n");
-		printf("created it may be too late and you won't get child events!\n");
+		printf("10Million instructions, with overflow every 1 million\n");
+
 	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
@@ -132,7 +135,7 @@ int main (int argc, char **argv) {
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
 	/* Start a parallel group of threads */
-#pragma omp parallel private(nthreads, tid)
+#pragma omp parallel private(nthreads, i, tid)
 {
 
 	/* Obtain thread number */
@@ -141,19 +144,19 @@ int main (int argc, char **argv) {
 	/* Only master thread does this */
 	if (tid == 0) {
 		nthreads = omp_get_num_threads();
-		printf("Running with %d threads\n", nthreads);
+		num_threads = nthreads;
+		if (!quiet) {
+			printf("\tRunning with %d threads\n", nthreads);
+		}
 	}
 
-	printf("\t+ Running 10 million instructions in thread %d %d\n", 
-		tid,gettid());
+	if (!quiet) {
+		printf("\t+ Running 10 million instructions in thread %d %d\n",
+			tid,gettid());
+	}
 
-	{
-		int i;
-
-		for(i=0;i<10;i++) {
-			result=instructions_million();
-		}
-
+	for(i=0;i<10;i++) {
+		result=instructions_million();
 	}
 
 }
@@ -173,9 +176,18 @@ int main (int argc, char **argv) {
 	}
 
 	if (!quiet) {
-		printf("\tCount=%lld, expected roughly 40M\n",count);
-		printf("\tOverflows=%d\n",count_total);
+		printf("\tCount=%lldM, expected roughly %dM\n",
+			count/1000000, 10*num_threads);
+		printf("\tOverflows=%d, expected roughly 10\n",count_total);
 	}
+
+	if ((count_total<10) || (count_total>15)) {
+		if (!quiet) {
+			printf("ERROR: unexpected overflow count!\n");
+		}
+		errors++;
+	}
+
 	close(fd);
 
 	/************************************************/
@@ -183,7 +195,7 @@ int main (int argc, char **argv) {
 	/************************************************/
 
 	if (!quiet) {
-		printf("Testing the non-inherit case\n");
+		printf("\nTesting the non-inherit case\n");
 	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
@@ -253,7 +265,12 @@ int main (int argc, char **argv) {
 	}
 	close(fd);
 
-	test_pass(test_string);
+	if (errors==0) {
+		test_pass(test_string);
+	}
+	else {
+		test_fail(test_string);
+	}
 
 	return 0;
 }
