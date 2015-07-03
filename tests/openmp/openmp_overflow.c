@@ -47,7 +47,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 //        ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 
-	printf("Overflow %d in %d\n",count_total,gettid());
+	if (!quiet) printf("Overflow %d in %d\n",count_total,gettid());
 
         count_total++;
 

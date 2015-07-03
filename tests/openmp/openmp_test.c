@@ -173,10 +173,15 @@ int main (int argc, char **argv) {
 	/* Only master thread does this */
 	if (tid == 0) {
 		nthreads = omp_get_num_threads();
-		printf("\tRunning with %d threads\n", nthreads);
+		if (!quiet) {
+			printf("\tRunning with %d threads\n", nthreads);
+		}
 	}
 
-	printf("\t+ Running 10 million instructions in thread %d\n", tid);
+	if (!quiet) {
+		printf("\t+ Running 10 million instructions in thread %d\n", 
+			tid);
+	}
 
 	for(i=0;i<10;i++) {
 		result=instructions_million();

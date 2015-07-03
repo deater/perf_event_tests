@@ -2,6 +2,11 @@
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu			*/
 
+
+/* for performance reasons the kernel does not let you have inherited   */
+/* events share one single mmap buffer (too much cross-CPU mem traffic) */
+/* So instead you need to create one mmap buffer per CPU		*/
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -74,8 +79,6 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 //        ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 
-
-
 	mmap_info[i].count++;
 
 	/* why not refresh? */
@@ -92,7 +95,7 @@ int main (int argc, char **argv) {
 	int nthreads, tid, result;
 	struct perf_event_attr pe;
 	struct sigaction sa;
-	int i;
+	int i, errors=0;
 
 	quiet=test_quiet();
 
@@ -106,11 +109,10 @@ int main (int argc, char **argv) {
 	/****************************************/
 
 	if (!quiet) {
-		printf("Testing the inherit case\n");
 		printf("Note!!! Inherit only works if the event is created\n");
 		printf("before the fork happens!  OpenMP creates thread pools\n");
 		printf("so if you create the event after the thread pools hae been\n");
-		printf("created it may be too late and you won't get child events!\n");
+		printf("created it may be too late and you won't get child events!\n\n");
 	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
@@ -182,7 +184,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Start a parallel group of threads */
-#pragma omp parallel private(nthreads, tid)
+#pragma omp parallel private(nthreads, tid, i)
 {
 
 	/* Obtain thread number */
@@ -191,20 +193,20 @@ int main (int argc, char **argv) {
 	/* Only master thread does this */
 	if (tid == 0) {
 		nthreads = omp_get_num_threads();
-		printf("Running with %d threads\n", nthreads);
-	}
-
-	printf("\t+ Running 10 million instructions in thread %d %d\n", 
-		tid,gettid());
-
-	{
-		int i;
-
-		for(i=0;i<10;i++) {
-			result=instructions_million();
+		if (!quiet) {
+			printf("Running with %d threads\n", nthreads);
 		}
-
 	}
+
+	if (!quiet) {
+		printf("\t+ Running 10 million instructions in thread %d %d\n",
+			tid,gettid());
+	}
+
+	for(i=0;i<10;i++) {
+		result=instructions_million();
+	}
+
 
 }
 	/* All threads join master thread and disband */
@@ -229,7 +231,21 @@ int main (int argc, char **argv) {
 		}
 	}
 
-	test_pass(test_string);
+
+	for(i=0;i<num_cpus;i++) {
+		if (mmap_info[i].count < 9 ) {
+			printf("ERROR! CPU%d overflow count low!\n",i);
+			errors++;
+		}
+	}
+
+	if (errors==0) {
+		test_pass(test_string);
+	}
+	else {
+		test_fail(test_string);
+	}
+
 
 	return 0;
 }
