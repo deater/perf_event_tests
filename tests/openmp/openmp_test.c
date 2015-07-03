@@ -76,7 +76,7 @@ int main (int argc, char **argv) {
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
 	/* Start a parallel group of threads */
-#pragma omp parallel private(nthreads, i, tid)
+#pragma omp parallel private(nthreads, tid, i)
 {
 
 	/* Obtain thread number */
@@ -164,7 +164,7 @@ int main (int argc, char **argv) {
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
 	/* Start a parallel group of threads */
-#pragma omp parallel private(nthreads, tid)
+#pragma omp parallel private(nthreads, tid, i)
 {
 
 	/* Obtain thread number */
@@ -178,13 +178,8 @@ int main (int argc, char **argv) {
 
 	printf("\t+ Running 10 million instructions in thread %d\n", tid);
 
-	{
-		int i;
-
-		for(i=0;i<10;i++) {
-			result=instructions_million();
-		}
-
+	for(i=0;i<10;i++) {
+		result=instructions_million();
 	}
 
 }

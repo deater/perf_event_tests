@@ -1,6 +1,6 @@
 /* openmp_overflow -- Test how overflow works on openmp programs	*/
 
-/* Up to at least Linux 4.0 there is a bug where inherited events	*/
+/* Up to at least Linux 4.1 there is a bug where inherited events	*/
 /* Do not inherit the fasync state, meaning children will not signal	*/
 /* the parent when an overflow happens					*/
 
@@ -95,8 +95,8 @@ int main (int argc, char **argv) {
 	pe.exclude_kernel=1;
 	pe.exclude_hv=1;
 	pe.inherit=1;
-//	pe.wakeup_events=1;
 	pe.sample_period=1000000;
+//	pe.wakeup_events=1;
 //	pe.sample_type=PERF_SAMPLE_IP;
 //	pe.freq=1;
 //	pe.sample_freq=4000;
@@ -178,12 +178,13 @@ int main (int argc, char **argv) {
 	if (!quiet) {
 		printf("\tCount=%lldM, expected roughly %dM\n",
 			count/1000000, 10*num_threads);
-		printf("\tOverflows=%d, expected roughly 10\n",count_total);
+		printf("\tOverflows=%d, expected roughly 100\n",count_total);
 	}
 
-	if ((count_total<10) || (count_total>15)) {
+	if ((count_total<100) || (count_total>200)) {
 		if (!quiet) {
-			printf("ERROR: unexpected overflow count!\n");
+			printf("ERROR: unexpected overflow count! ");
+			printf("Likely a kernel bug if < 4.2\n");
 		}
 		errors++;
 	}
@@ -206,7 +207,7 @@ int main (int argc, char **argv) {
 	pe.exclude_kernel=1;
 	pe.exclude_hv=1;
 	pe.inherit=1;
-	pe.inherit_stat=1;
+	pe.sample_period=1000000;
 
 	arch_adjust_domain(&pe,quiet);
 
@@ -217,10 +218,31 @@ int main (int argc, char **argv) {
 		test_fail(test_string);
 	}
 
+	count_total=0;
+
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = our_handler;
+	sa.sa_flags = SA_SIGINFO;
+
+	if (sigaction( SIGIO, &sa, NULL) < 0) {
+		fprintf(stderr,"Error setting up signal handler\n");
+		exit(1);
+	}
+
+	fcntl(fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+	fcntl(fd, F_SETSIG, SIGIO);
+
+//	owner.type=F_OWNER_PGRP;
+	owner.type=F_OWNER_PID;
+	owner.pid=getpid();
+	fcntl(fd, F_SETOWN_EX,&owner);
+
+
+
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
 	/* Start a parallel group of threads */
-#pragma omp parallel private(nthreads, tid)
+#pragma omp parallel private(nthreads, tid, i)
 {
 
 	/* Obtain thread number */
@@ -229,19 +251,20 @@ int main (int argc, char **argv) {
 	/* Only master thread does this */
 	if (tid == 0) {
 		nthreads = omp_get_num_threads();
-		printf("Running with %d threads\n", nthreads);
-	}
-
-	printf("\t+ Running 10 million instructions in thread %d\n", tid);
-
-	{
-		int i;
-
-		for(i=0;i<10;i++) {
-			result=instructions_million();
+		if (!quiet) {
+			printf("Running with %d threads\n", nthreads);
 		}
-
 	}
+
+	if (!quiet) {
+		printf("\t+ Running 10 million instructions in thread %d\n", 
+			tid);
+	}
+
+	for(i=0;i<10;i++) {
+		result=instructions_million();
+	}
+
 
 }
 	/* All threads join master thread and disband */
@@ -262,8 +285,18 @@ int main (int argc, char **argv) {
 	if (!quiet) {
 		printf("\tCount=%lld, expected roughly 10M "
 			"(only counted thread 0)\n",count);
+		printf("\tOverflows=%d, expected roughly 10\n",count_total);
 	}
 	close(fd);
+
+	if ((count_total<10) || (count_total>20)) {
+		if (!quiet) {
+			printf("ERROR: unexpected overflow count!\n");
+		}
+		errors++;
+	}
+
+	/* Report any errors as failure */
 
 	if (errors==0) {
 		test_pass(test_string);
