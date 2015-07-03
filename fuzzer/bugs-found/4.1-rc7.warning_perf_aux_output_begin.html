@@ -22,7 +22,7 @@ Warning
 4.1-rc7
 
 <h3>Most recently Seen</h3>
-4.1-rc7
+4.2-rc0
 
 <h3>Reproducible</h3>
 yes
@@ -41,8 +41,88 @@ n/a
 
 <h3>Details</h3>
 
+<pre>
+       if (WARN_ON_ONCE(local_xchg(&rb->aux_nest, 1)))
+</pre>
+
+
 <h3>Kernel Splat</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.1.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1435912557
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1435912557
+
+Pid=28074, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Iteration 10000
+        Open attempts: 114865  Successful: 917  Currently open: 49
+                EPERM : 18
+                ENOENT : 681
+                E2BIG : 10083
+                EBADF : 9591
+                EBUSY : 3
+                EINVAL : 93247
+                EOPNOTSUPP : 325
+                Type (Hardware 191/16111)(software 341/16759)(tracepoint 76/16367)(Cache 54/14289)(cpu 212/16536)(breakpoint 16/16489)(power 1/2093)(intel_bts 25/2066)(uncore_imc 1/2238)(#9 0/12)(#10 0/8)(#11 0/5)(#12 0/9)(#13 0/2)(#14 0/10)(>14 0/11871)
+        Close:  868/868 Successful
+        Read:   790/889 Successful
+        Write:  0/883 Successful
+        Ioctl:  392/901 Successful: (ENABLE 99/99)(DISABLE 97/97)(REFRESH 3/75)(RESET 87/87)(PERIOD 12/101)(SET_OUTPUT 6/81)(SET_FILTER 0/89)(ID 88/88)(SET_BPF 0/82)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/102)
+        Mmap:   473/1078 Successful: (MMAP 473/1078)(TRASH 130/153)(READ 12/138)(UNMAP 469/1031)(AUX 0/264)(AUX_READ 1/9)
+        Prctl:  910/910 Successful
+        Fork:   475/475 Successful
+        Poll:   917/932 Successful
+        Access: 425/898 Successful
+        Overflows: 0
+[44655.375617] ------------[ cut here ]------------
+[44655.381034] WARNING: CPU: 3 PID: 28074 at kernel/events/ring_buffer.c:294 perf_aux_output_begin+0x1a8/0x1c0()
+[44655.392172] Modules linked in: fuse snd_hda_codec_hdmi i915 x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel psmouse kvm snd_hda_codec_realtek snd_hda_codec_generic crct10dif_pclmul iTCO_wdt crc32_pclmul serio_raw pcspkr ghash_clmulni_intel snd_hda_intel snd_hda_codec hmac iTCO_vendor_support evdev ppdev drbg ansi_cprng drm_kms_helper snd_hda_core drm parport_pc aesni_intel aes_x86_64 lrw gf128mul snd_hwdep glue_helper ablk_helper cryptd i2c_algo_bit snd_pcm parport snd_timer snd mei_me wmi processor video battery i2c_i801 button lpc_ich soundcore mfd_core tpm_tis tpm mei sg sr_mod sd_mod cdrom ehci_pci ehci_hcd ahci libahci libata xhci_pci xhci_hcd e1000e ptp crc32c_intel fan scsi_mod usbcore pps_core usb_common thermal thermal_sys
+[44655.469242] CPU: 3 PID: 28074 Comm: perf_fuzzer Tainted: G        W       4.1.0+ #162
+[44655.478088] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[44655.486480]  ffffffff81a29b45 ffff88011eac3c58 ffffffff8169e763 0000000000000000
+[44655.494987]  0000000000000000 ffff88011eac3c98 ffffffff8106ecba 000000000000cf40
+[44655.503453]  ffff880036dd5c00 ffff88011eaccf40 ffff8800c2670800 000000000000cf40
+[44655.512032] Call Trace:
+[44655.515103]  <IRQ>  [<ffffffff8169e763>] dump_stack+0x45/0x57
+[44655.521749]  [<ffffffff8106ecba>] warn_slowpath_common+0x8a/0xc0
+[44655.528702]  [<ffffffff8106edaa>] warn_slowpath_null+0x1a/0x20
+[44655.535418]  [<ffffffff8115e778>] perf_aux_output_begin+0x1a8/0x1c0
+[44655.542548]  [<ffffffff810359dd>] bts_event_add+0x6d/0x140
+[44655.548917]  [<ffffffff81156b96>] event_sched_in.isra.85+0xf6/0x2e0
+[44655.556117]  [<ffffffff81156e2e>] group_sched_in+0xae/0x1c0
+[44655.562568]  [<ffffffff8101d2a8>] ? native_sched_clock+0x28/0x90
+[44655.569495]  [<ffffffff81157118>] ctx_sched_in+0x1d8/0x3e0
+[44655.575889]  [<ffffffff81157384>] perf_event_sched_in+0x64/0x90
+[44655.582680]  [<ffffffff81157aa4>] perf_mux_hrtimer_handler+0x114/0x1f0
+[44655.590164]  [<ffffffff81157990>] ? perf_event_context_sched_in+0x150/0x150
+[44655.598124]  [<ffffffff810dcf73>] __hrtimer_run_queues+0xd3/0x260
+[44655.605121]  [<ffffffff810dd4eb>] hrtimer_interrupt+0xab/0x1b0
+[44655.611886]  [<ffffffff8104b30c>] local_apic_timer_interrupt+0x3c/0x70
+[44655.619364]  [<ffffffff816a90e1>] smp_apic_timer_interrupt+0x41/0x60
+[44655.626618]  [<ffffffff816a732b>] apic_timer_interrupt+0x6b/0x70
+[44655.633506]  <EOI> 
+[44655.635582] ---[ end trace 1b52d9dc94e8716c ]---
+
+</pre>
 <li>
 <pre>
 *** perf_fuzzer 0.31-pre *** by Vince Weaver

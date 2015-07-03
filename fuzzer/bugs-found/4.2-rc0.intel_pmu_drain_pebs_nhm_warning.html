@@ -57,6 +57,57 @@ which is
 <ol>
 
 <li>
+Maybe related
+<pre>
+[18356.578896] WARNING: CPU: 1 PID: 27699 at kernel/watchdog.c:311 watchdog_overflow_callback+0x84/0xa0()
+[18356.590213] Watchdog detected hard LOCKUP on cpu 1>8||=^T
+[18356.706920] CPU: 1 PID: 27699 Comm: perf_fuzzer Tainted: G        W       4.1.0+ #162
+[18356.716672] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[18356.725951]  ffffffff81a27b92 ffff88011ea45af0  ffffffff8169e763 00000000000000004
+[18356.738175]  ffff88011ea45b40 ffff88011ea45b309 ffffffff8106ecba ffff88011ea45c40126
+[18356.750305]  ffff8801197c7800 00000000000000017 ffff88011ea45c40 ffff88011ea45ef8
+[18356.761131] Call Trace:
+[18356.765163]  <NMI>  [<ffffffff8169e763>] dump_stack+0x45/0x57
+[18356.772761]  [<ffffffff8106ecba>] warn_slowpath_common+0x8a/0xc0
+[18356.780580]  [<ffffffff8106ed36>] warn_slowpath_fmt+0x46/0x50
+[18356.788080]  [<ffffffff8102f676>] ? intel_pmu_drain_pebs_nhm+0x176/0x2e0
+[18356.796685]  [<ffffffff8111b694>] watchdog_overflow_callback+0x84/0xa0
+[18356.805063]  [<ffffffff8115ae7c>] __perf_event_overflow+0x8c/0x1b0
+[18356.813081]  [<ffffffff8115b9d4>] perf_event_overflow+0x14/0x20
+[18356.820813]  [<ffffffff81032194>] intel_pmu_handle_irq+0x1d4/0x440
+[18356.828795]  [<ffffffff81028e76>] perf_event_nmi_handler+0x26/0x40
+[18356.836761]  [<ffffffff810181ad>] nmi_handle+0x9d/0x140
+[18356.843764]  [<ffffffff81018115>] ? nmi_handle+0x5/0x140
+[18356.850868]  [<ffffffff810184b9>] default_do_nmi+0xc9/0x120
+[18356.858228]  [<ffffffff8101859d>] do_nmi+0x8d/0xc0
+[18356.864793]  [<ffffffff816a86df>] end_repeat_nmi+0x1e/0x2e
+[18356.872062]  <<EOE>>
+[18356.875986] ---[ end trace 1b52d9dc94e8716a ]---
+
+
+[18359.393390] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detected by 6, t=5253 jiffies, g=2341684, c=2341683, q=71)
+[18359.405806] Task dump for CPU 1:
+[18359.409688] perf_fuzzer     R  running task        0 27699   2386 0x00000008
+[18359.417712]  ffff8800cfb7c680 00007f889f330fff 0000000000000096 0000000000000002
+[18359.426147]  ffff8800cfb7c680 ffffffff82a107e0 0000000000000001 ffff8800c4413c28
+[18359.434553]  0000000000000096 ffffffff814090e0 00007f8800000000 000000019f400000
+[18359.443023] Call Trace:
+[18359.446107]  [<ffffffff814090e0>] ? debug_check_no_obj_freed+0x90/0x200
+[18359.453610]  [<ffffffff81409162>] ? debug_check_no_obj_freed+0x112/0x200
+[18359.461226]  [<ffffffff81409162>] ? debug_check_no_obj_freed+0x112/0x200
+[18359.468840]  [<ffffffff811bc096>] ? kfree_debugcheck+0x16/0x40
+[18359.475521]  [<ffffffff8119e14e>] ? mmap_region+0x49e/0x5d0
+[18359.481915]  [<ffffffff8118468b>] ? vm_mmap_pgoff+0x9b/0xc0
+[18359.488362]  [<ffffffff810b5023>] ? up_write+0x23/0x50
+[18359.494362]  [<ffffffff8118468b>] ? vm_mmap_pgoff+0x9b/0xc0
+[18359.500807]  [<ffffffff811fbec5>] ? __fget+0x5/0xd0
+[18359.506498]  [<ffffffff8119c978>] ? SyS_mmap_pgoff+0xe8/0x270
+[18359.513100]  [<ffffffff81003012>] ? lockdep_sys_exit_thunk+0x12/0x14
+[18359.520351]  [<ffffffff816a64bc>] ? entry_SYSCALL_64_fastpath+0x20/0x7a
+
+</pre>
+
+<li>
 <pre>
 *** perf_fuzzer 0.31-pre *** by Vince Weaver
 
