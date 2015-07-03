@@ -40,7 +40,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
         int ret;
 
-	int fd = info->si_fd;
+//	int fd = info->si_fd;
 
 	/*  Disable will disable count for *all* threads */
 

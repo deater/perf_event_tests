@@ -23,6 +23,7 @@
 #include "test_utils.h"
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
+#include "parse_record.h"
 
 #include <syscall.h>
 
@@ -214,6 +215,10 @@ int main (int argc, char **argv) {
 
 	for(i=0;i<num_cpus;i++) {
 		close(fds[i]);
+	}
+
+	if (result==CODE_UNIMPLEMENTED) {
+		test_skip(test_string);
 	}
 
 
