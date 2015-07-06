@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 	}
 
 	fscanf(fff,"%d",&kprobe_id);
-
+	fclose(fff);
 
 
 	memset(&pe1,0,sizeof(struct perf_event_attr));

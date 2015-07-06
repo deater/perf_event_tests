@@ -22,6 +22,7 @@
 #include "fuzz_mmap.h"
 #include "fuzz_overflow.h"
 #include "fuzz_open.h"
+#include "fuzz_ioctl.h"
 
 /* Trinity Includes */
 #include "shm.h"
@@ -179,6 +180,14 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 //			}
 
 		}
+
+		/* Randomly try to use a kprobe */
+		if (event_data[i].attr.type==PERF_TYPE_TRACEPOINT) {
+			if (rand()%10==5) {
+				event_data[i].attr.config=kprobe_id;
+			}
+		}
+
 
 		if (ignore_but_dont_skip.open) return;
 

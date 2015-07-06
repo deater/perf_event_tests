@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #include <signal.h>
 
@@ -18,6 +19,17 @@
 #include "fuzzer_stats.h"
 
 #include "trace_filters.h"
+
+#include "bpf.h"
+#include "libbpf.h"
+#include <sys/utsname.h>
+#include <asm/unistd.h>
+
+
+long sys_bpf(int cmd, union bpf_attr *attr, unsigned long size) {
+
+	return syscall(__NR_bpf, cmd, attr, size);
+}
 
 #define MAX_FILTER_SIZE 8192
 
@@ -365,6 +377,86 @@ static char *tracepoint_name(int which) {
 }
 
 
+static int kprobe_initialized=0;
+
+int kprobe_id=0;
+
+
+
+static int setup_bpf_fd(void) {
+
+	FILE *fff;
+	static int bpf_fd=0;
+	union bpf_attr battr;
+
+	if (!kprobe_initialized) {
+
+		fff=fopen("/sys/kernel/tracing/kprobe_events", "w");
+		if (fff==NULL) {
+			printf("Cannot create kprobe!\n");
+			return -1;
+		}
+
+		fprintf(fff,"p:probe/VMW _text+1664816");
+		fclose(fff);
+
+		fff=fopen("/sys/kernel/tracing/events/probe/VMW/id","r");
+		if (fff==NULL) {
+			return -1;
+		}
+
+		fscanf(fff,"%d",&kprobe_id);
+		fclose(fff);
+
+		kprobe_initialized=1;
+
+		struct bpf_insn instructions[] = {
+			BPF_MOV64_IMM(BPF_REG_0, 0),	/* r0 = 0 */
+			BPF_EXIT_INSN(),		/* return r0 */
+		};
+
+		unsigned char license[]="GPL";
+
+		#define LOG_BUF_SIZE 65536
+		static char bpf_log_buf[LOG_BUF_SIZE];
+
+		/* Kernel will EINVAL if unused bits aren't zero */
+		memset(&battr,0,sizeof(battr));
+
+		/* Version has to match currently running kernel */
+
+		struct utsname version;
+		int major, minor, subminor, version_code;
+
+		uname(&version);
+
+		sscanf(version.release,"%d.%d.%d",&major,&minor,&subminor);
+
+		version_code = (major<<16) | (minor<<8) | subminor;
+
+		battr.prog_type = BPF_PROG_TYPE_KPROBE;
+		battr.insn_cnt= sizeof(instructions) / sizeof(struct bpf_insn);
+		battr.insns = (uint64_t) (unsigned long) instructions;
+		battr.license = (uint64_t) (unsigned long) license;
+		battr.log_buf = (uint64_t) (unsigned long) bpf_log_buf;
+		battr.log_size = LOG_BUF_SIZE;
+		battr.log_level = 1;
+		battr.kern_version = version_code;
+
+		bpf_log_buf[0] = 0;
+
+		bpf_fd = sys_bpf(BPF_PROG_LOAD, &battr, sizeof(battr));
+		if (bpf_fd < 0) {
+			printf("bpf: load: failed to load program, %s\n"
+				"-- BEGIN DUMP LOG ---\n%s\n-- END LOG --\n",
+				strerror(errno), bpf_log_buf);
+		}
+
+        }
+
+	return bpf_fd;
+}
+
 
 void ioctl_random_event(void) {
 
@@ -375,6 +467,7 @@ void ioctl_random_event(void) {
 	int any_event,sampling_event;
 	int custom;
 	int which_tracepoint;
+	int bpf_fd;
 
 	any_event=find_random_active_event();
 	sampling_event=find_random_active_sampling_event();
@@ -569,12 +662,15 @@ void ioctl_random_event(void) {
 			break;
 
 		/* PERF_EVENT_IOC_SET_BPF */
-		/* FIXME: argument is bpf file descriptor */
+		/* argument is bpf file descriptor */
 		case 8:
 			arg=rand();
 			if (ignore_but_dont_skip.ioctl) return;
+			bpf_fd=setup_bpf_fd();
+
 			result=ioctl(event_data[any_event].fd,
-					PERF_EVENT_IOC_SET_BPF,&id);
+					PERF_EVENT_IOC_SET_BPF,bpf_fd);
+
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
 					event_data[any_event].fd,
