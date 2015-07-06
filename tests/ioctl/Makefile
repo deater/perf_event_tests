@@ -120,5 +120,6 @@ clean:
 	ioctl_flag_group \
 	ioctl_id \
 	ioctl_period \
+	ioctl_set_bpf \
 	ioctl_set_filter \
 	ioctl_set_output
