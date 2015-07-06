@@ -1,0 +1,14 @@
+Generating BPF files is a pain.
+
+They are architecture specific and have to be re-built each time
+you re-build the kernel.
+
+Also you need a version of the clang compiler to build them.
+
+The sample code in this directory is from a lkml posting
+	Date: Fri, 15 May 2015 17:20:42 +0800
+	From: "Wangnan (F)" <wangnan0@huawei.com>
+	Subject: Re: [BUG] kernel panic after bpf program removed.
+
+You will need CLANG 3.7 or newer.  You can get nightly snapshots for
+	Debian from http://llvm.org/apt/
