@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE 1
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,7 +57,7 @@ char filter[MAX_FILTER];
 
 int main(int argc, char** argv) {
 
-	int fd,bpf_fd,i;
+	int fd,bpf_fd;
 	struct perf_event_attr pe1;
 	int errors=0;
 
@@ -103,17 +104,16 @@ int main(int argc, char** argv) {
 	}
 
 	unsigned char instructions[8192];
-	unsigned char license[8192];
-	unsigned char prog_name[8192];
+	unsigned char license[]="GPL";
 
 #define LOG_BUF_SIZE 65536
 	static char bpf_log_buf[LOG_BUF_SIZE];
 
 	battr.prog_type = BPF_PROG_TYPE_KPROBE;
 	battr.insn_cnt = 0;
-	battr.insns = instructions;
-	battr.license = license;
-	battr.log_buf = bpf_log_buf;
+	battr.insns = (uint64_t) (unsigned long) instructions;
+	battr.license = (uint64_t) (unsigned long) license;
+	battr.log_buf = (uint64_t) (unsigned long) bpf_log_buf;
 	battr.log_size = LOG_BUF_SIZE;
 	battr.log_level = 1;
 	battr.kern_version = 0;
@@ -123,9 +123,9 @@ int main(int argc, char** argv) {
 	bpf_fd = sys_bpf(BPF_PROG_LOAD, &battr, sizeof(battr));
 
 	if (bpf_fd < 0) {
-		printf("bpf: load: failed to load program %s:\n"
+		printf("bpf: load: failed to load program, %s\n"
 			"-- BEGIN DUMP LOG ---\n%s\n-- END LOG --\n",
-			prog_name, bpf_log_buf);
+			strerror(errno), bpf_log_buf);
 			return bpf_fd;
 	}
 
