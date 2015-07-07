@@ -366,6 +366,7 @@ static int fill_filter(int which) {
 	return 0;
 }
 
+#if DEBUG_TRACEPOINT
 static char *tracepoint_name(int which) {
 
 	struct trace_event_t *event;
@@ -375,7 +376,7 @@ static char *tracepoint_name(int which) {
 
 	return event->name;
 }
-
+#endif
 
 static int kprobe_initialized=0;
 
@@ -397,7 +398,8 @@ static int setup_bpf_fd(void) {
 			return -1;
 		}
 
-		fprintf(fff,"p:probe/VMW _text+1664816");
+		/* perf probe -a VMW=handle_mm_fault */
+		fprintf(fff,"p:probe/VMW _text+1664624");
 		fclose(fff);
 
 		fff=fopen("/sys/kernel/tracing/events/probe/VMW/id","r");
@@ -631,6 +633,7 @@ void ioctl_random_event(void) {
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
+#if DEBUG_FILTER
 			if (result<0) {
 				if (filter[0]!=0) {
 					printf("FILTER FAILED %s %s %s\n",
@@ -644,7 +647,7 @@ void ioctl_random_event(void) {
 					filter);
 			}
 
-
+#endif
 			break;
 
 		/* PERF_EVENT_IOC_ID */
