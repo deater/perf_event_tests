@@ -1,0 +1,202 @@
+<html>
+<head>
+<title>
+WARNING: disarm_kprobe arm_kprobe
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: disarm_kprobe arm_kprobe
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>Severity</h3>
+Warning
+
+<h3>First Seen</h3>
+possibly there for a while, usually don't run fuzzer as root
+
+<h3>Most recently Seen</h3>
+4.2-rc1
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel</h3>
+6 July 2015 -- perf, kprobes: fuzzer generates huge number of WARNings
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed in</h3>
+n/a
+
+<h3>Details</h3>
+
+Need to run as root
+<pre>
+</pre>
+
+<h3>Kernel Splat</h3>
+<ol>
+<li>
+<pre>
+[ 5447.623713] ------------[ cut here ]------------
+[ 5447.629160] WARNING: CPU: 1 PID: 4158 at kernel/kprobes.c:939 arm_kprobe+0xe3/0xf0()
+[ 5447.637944] Failed to arm kprobe-ftrace at ffffffff81196670 (-19)
+[ 5447.644991] Modules linked in: binfmt_misc x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic crct10dif_pclmul crc32_pclmul ghash_clmulni_intel hmac drbg ansi_cprng snd_hda_intel aesni_intel snd_hda_codec snd_hda_core aes_x86_64 snd_hwdep lrw i915 snd_pcm snd_timer snd gf128mul glue_helper drm_kms_helper drm ablk_helper soundcore ppdev evdev psmouse iTCO_wdt iTCO_vendor_support lpc_ich cryptd mei_me tpm_tis tpm sg mei serio_raw pcspkr i2c_i801 i2c_algo_bit battery mfd_core parport_pc parport wmi video processor button sr_mod sd_mod cdrom ehci_pci ahci libahci xhci_pci ehci_hcd libata e1000e xhci_hcd ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 5447.723237] CPU: 1 PID: 4158 Comm: perf_fuzzer Tainted: G        W       4.2.0-rc1+ #169
+[ 5447.732454] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 5447.740897]  ffffffff81a2894e ffff8801161b3bf8 ffffffff816a0fd3 0000000000000000
+[ 5447.749426]  ffff8801161b3c48 ffff8801161b3c38 ffffffff8106ec8a 000000000000aed0
+[ 5447.757931]  ffff88011847b810 0000000000000000 ffff8800cd8b8000 ffffffff81d25640
+[ 5447.766463] Call Trace:
+[ 5447.769567]  [<ffffffff816a0fd3>] dump_stack+0x45/0x57
+[ 5447.775569]  [<ffffffff8106ec8a>] warn_slowpath_common+0x8a/0xc0
+[ 5447.782504]  [<ffffffff8106ed06>] warn_slowpath_fmt+0x46/0x50
+[ 5447.789111]  [<ffffffff8118996a>] ? pcpu_alloc+0x36a/0x630
+[ 5447.795466]  [<ffffffff81196670>] ? vm_insert_mixed+0x40/0x40
+[ 5447.802098]  [<ffffffff81119083>] arm_kprobe+0xe3/0xf0
+[ 5447.808095]  [<ffffffff81119108>] enable_kprobe+0x78/0x80
+[ 5447.814353]  [<ffffffff81143489>] kprobe_register+0x59/0xe0
+[ 5447.820805]  [<ffffffff8113dc95>] perf_trace_init+0x1b5/0x2c0
+[ 5447.827471]  [<ffffffff81152e2a>] perf_tp_event_init+0x2a/0x50
+[ 5447.834197]  [<ffffffff8115442b>] perf_try_init_event+0x8b/0xa0
+[ 5447.841012]  [<ffffffff8115bec3>] perf_init_event+0x133/0x160
+[ 5447.847658]  [<ffffffff8115bd90>] ? perf_bp_event+0x90/0x90
+[ 5447.854101]  [<ffffffff8115c31a>] perf_event_alloc+0x42a/0x680
+[ 5447.860840]  [<ffffffff8115c937>] SYSC_perf_event_open+0x3c7/0xd20
+[ 5447.867949]  [<ffffffff8115d709>] SyS_perf_event_open+0x9/0x10
+[ 5447.874702]  [<ffffffff816a8d32>] entry_SYSCALL_64_fastpath+0x16/0x7a
+[ 5447.882093] ---[ end trace 5d38212a775ec3f3 ]---
+[ 5447.887538] ------------[ cut here ]------------
+[ 5447.892984] WARNING: CPU: 1 PID: 4158 at kernel/kprobes.c:943 arm_kprobe+0xae/0xf0()
+[ 5447.901755] Failed to init kprobe-ftrace (-19)
+[ 5447.907003] Modules linked in: binfmt_misc x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic crct10dif_pclmul crc32_pclmul ghash_clmulni_intel hmac drbg ansi_cprng snd_hda_intel aesni_intel snd_hda_codec snd_hda_core aes_x86_64 snd_hwdep lrw i915 snd_pcm snd_timer snd gf128mul glue_helper drm_kms_helper drm ablk_helper soundcore ppdev evdev psmouse iTCO_wdt iTCO_vendor_support lpc_ich cryptd mei_me tpm_tis tpm sg mei serio_raw pcspkr i2c_i801 i2c_algo_bit battery mfd_core parport_pc parport wmi video processor button sr_mod sd_mod cdrom ehci_pci ahci libahci xhci_pci ehci_hcd libata e1000e xhci_hcd ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 5447.985337] CPU: 1 PID: 4158 Comm: perf_fuzzer Tainted: G        W       4.2.0-rc1+ #169
+[ 5447.994611] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 5448.003174]  ffffffff81a2894e ffff8801161b3bf8 ffffffff816a0fd3 0000000000000000
+[ 5448.011805]  ffff8801161b3c48 ffff8801161b3c38 ffffffff8106ec8a ffffffff81125c1a
+[ 5448.020424]  ffff88011847b810 0000000000000000 ffff8800cd8b8000 ffffffff81d25640
+[ 5448.029074] Call Trace:
+[ 5448.032265]  [<ffffffff816a0fd3>] dump_stack+0x45/0x57
+[ 5448.038342]  [<ffffffff8106ec8a>] warn_slowpath_common+0x8a/0xc0
+[ 5448.045376]  [<ffffffff81125c1a>] ? register_ftrace_function+0x4a/0x70
+[ 5448.052930]  [<ffffffff8106ed06>] warn_slowpath_fmt+0x46/0x50
+[ 5448.059617]  [<ffffffff816a686e>] ? mutex_unlock+0xe/0x10
+[ 5448.065951]  [<ffffffff8111904e>] arm_kprobe+0xae/0xf0
+[ 5448.072003]  [<ffffffff81119108>] enable_kprobe+0x78/0x80
+[ 5448.078341]  [<ffffffff81143489>] kprobe_register+0x59/0xe0
+[ 5448.084823]  [<ffffffff8113dc95>] perf_trace_init+0x1b5/0x2c0
+[ 5448.091484]  [<ffffffff81152e2a>] perf_tp_event_init+0x2a/0x50
+[ 5448.098212]  [<ffffffff8115442b>] perf_try_init_event+0x8b/0xa0
+[ 5448.105068]  [<ffffffff8115bec3>] perf_init_event+0x133/0x160
+[ 5448.111689]  [<ffffffff8115bd90>] ? perf_bp_event+0x90/0x90
+[ 5448.118116]  [<ffffffff8115c31a>] perf_event_alloc+0x42a/0x680
+[ 5448.124825]  [<ffffffff8115c937>] SYSC_perf_event_open+0x3c7/0xd20
+[ 5448.131946]  [<ffffffff8115d709>] SyS_perf_event_open+0x9/0x10
+[ 5448.138640]  [<ffffffff816a8d32>] entry_SYSCALL_64_fastpath+0x16/0x7a
+[ 5448.146065] ---[ end trace 5d38212a775ec3f4 ]---
+[ 5448.228748] ------------[ cut here ]------------
+[ 5448.234201] WARNING: CPU: 2 PID: 4247 at kernel/kprobes.c:955 disarm_kprobe+0xf8/0x100()
+[ 5448.243366] Failed to init kprobe-ftrace (-19)
+[ 5448.248612] Modules linked in: binfmt_misc x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic crct10dif_pclmul crc32_pclmul ghash_clmulni_intel hmac drbg ansi_cprng snd_hda_intel aesni_intel snd_hda_codec snd_hda_core aes_x86_64 snd_hwdep lrw i915 snd_pcm snd_timer snd gf128mul glue_helper drm_kms_helper drm ablk_helper soundcore ppdev evdev psmouse iTCO_wdt iTCO_vendor_support lpc_ich cryptd mei_me tpm_tis tpm sg mei serio_raw pcspkr i2c_i801 i2c_algo_bit battery mfd_core parport_pc parport wmi video processor button sr_mod sd_mod cdrom ehci_pci ahci libahci xhci_pci ehci_hcd libata e1000e xhci_hcd ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 5448.327114] CPU: 2 PID: 4247 Comm: perf_fuzzer Tainted: G        W       4.2.0-rc1+ #169
+[ 5448.336416] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 5448.344935]  ffffffff81a2894e ffff8801187a79e8 ffffffff816a0fd3 0000000000000000
+[ 5448.353549]  ffff8801187a7a38 ffff8801187a7a28 ffffffff8106ec8a ffffffff81124f6a
+[ 5448.362177]  ffff88011847b810 ffff88011847b810 ffff88011847b800 ffff8801160c02a8
+[ 5448.370824] Call Trace:
+[ 5448.374033]  [<ffffffff816a0fd3>] dump_stack+0x45/0x57
+[ 5448.380146]  [<ffffffff8106ec8a>] warn_slowpath_common+0x8a/0xc0
+[ 5448.387148]  [<ffffffff81124f6a>] ? unregister_ftrace_function+0x1a/0x50
+[ 5448.394880]  [<ffffffff8106ed06>] warn_slowpath_fmt+0x46/0x50
+[ 5448.401603]  [<ffffffff816a686e>] ? mutex_unlock+0xe/0x10
+[ 5448.407920]  [<ffffffff81119208>] disarm_kprobe+0xf8/0x100
+[ 5448.414326]  [<ffffffff811192a9>] __disable_kprobe+0x99/0xc0
+[ 5448.420874]  [<ffffffff811192f7>] disable_kprobe+0x27/0x50
+[ 5448.427222]  [<ffffffff81142863>] disable_trace_kprobe+0xc3/0xf0
+[ 5448.434140]  [<ffffffff8114345d>] kprobe_register+0x2d/0xe0
+[ 5448.440586]  [<ffffffff8113da83>] perf_trace_event_unreg.isra.1+0x33/0x90
+[ 5448.448349]  [<ffffffff8113dddc>] perf_trace_destroy+0x3c/0x50
+[ 5448.455058]  [<ffffffff81152e59>] tp_perf_event_destroy+0x9/0x10
+[ 5448.461945]  [<ffffffff81158f61>] _free_event+0xc1/0x250
+[ 5448.468093]  [<ffffffff811591fa>] put_event+0x10a/0x150
+[ 5448.474167]  [<ffffffff8115911b>] ? put_event+0x2b/0x150
+[ 5448.480313]  [<ffffffff81152db5>] ? perf_fasync+0x55/0x70
+[ 5448.486552]  [<ffffffff81159260>] perf_release+0x10/0x20
+[ 5448.492735]  [<ffffffff811df3ec>] __fput+0xdc/0x1e0
+[ 5448.498420]  [<ffffffff811df53e>] ____fput+0xe/0x10
+[ 5448.504110]  [<ffffffff8108c27b>] task_work_run+0x9b/0xb0
+[ 5448.510315]  [<ffffffff81071615>] do_exit+0x3a5/0xa90
+[ 5448.516184]  [<ffffffff8107d182>] ? get_signal+0xe2/0x720
+[ 5448.522407]  [<ffffffff81071da4>] do_group_exit+0x54/0xe0
+[ 5448.528671]  [<ffffffff8107d320>] get_signal+0x280/0x720
+[ 5448.534830]  [<ffffffff81013478>] do_signal+0x28/0xb50
+[ 5448.540792]  [<ffffffff810b78f6>] ? __lock_acquire.isra.31+0x3a6/0xf90
+[ 5448.548277]  [<ffffffff810815a5>] ? sys_getppid+0x5/0x80
+[ 5448.554413]  [<ffffffff81014002>] do_notify_resume+0x62/0x70
+[ 5448.560950]  [<ffffffff816a9a1e>] retint_signal+0x44/0x86
+[ 5448.567208] ---[ end trace 5d38212a775ec3f5 ]---
+[ 5448.572624] ------------[ cut here ]------------
+[ 5448.578045] WARNING: CPU: 2 PID: 4247 at kernel/kprobes.c:959 disarm_kprobe+0xca/0x100()
+[ 5448.587194] Failed to disarm kprobe-ftrace at ffffffff81196670 (-19)
+[ 5448.594474] Modules linked in: binfmt_misc x86_pkg_temp_thermal intel_powerclamp intel_rapl iosf_mbi coretemp kvm_intel kvm snd_hda_codec_realtek snd_hda_codec_hdmi snd_hda_codec_generic crct10dif_pclmul crc32_pclmul ghash_clmulni_intel hmac drbg ansi_cprng snd_hda_intel aesni_intel snd_hda_codec snd_hda_core aes_x86_64 snd_hwdep lrw i915 snd_pcm snd_timer snd gf128mul glue_helper drm_kms_helper drm ablk_helper soundcore ppdev evdev psmouse iTCO_wdt iTCO_vendor_support lpc_ich cryptd mei_me tpm_tis tpm sg mei serio_raw pcspkr i2c_i801 i2c_algo_bit battery mfd_core parport_pc parport wmi video processor button sr_mod sd_mod cdrom ehci_pci ahci libahci xhci_pci ehci_hcd libata e1000e xhci_hcd ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[ 5448.672321] CPU: 2 PID: 4247 Comm: perf_fuzzer Tainted: G        W       4.2.0-rc1+ #169
+[ 5448.681431] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 5448.689813]  ffffffff81a2894e ffff8801187a79e8 ffffffff816a0fd3 0000000000000000
+[ 5448.698271]  ffff8801187a7a38 ffff8801187a7a28 ffffffff8106ec8a ffffffff81124f6a
+[ 5448.706783]  ffff88011847b810 ffff88011847b810 ffff88011847b800 ffff8801160c02a8
+[ 5448.715255] Call Trace:
+[ 5448.718342]  [<ffffffff816a0fd3>] dump_stack+0x45/0x57
+[ 5448.724346]  [<ffffffff8106ec8a>] warn_slowpath_common+0x8a/0xc0
+[ 5448.731233]  [<ffffffff81124f6a>] ? unregister_ftrace_function+0x1a/0x50
+[ 5448.738872]  [<ffffffff8106ed06>] warn_slowpath_fmt+0x46/0x50
+[ 5448.745467]  [<ffffffff816a686e>] ? mutex_unlock+0xe/0x10
+[ 5448.751708]  [<ffffffff81196670>] ? vm_insert_mixed+0x40/0x40
+[ 5448.758336]  [<ffffffff811191da>] disarm_kprobe+0xca/0x100
+[ 5448.764683]  [<ffffffff811192a9>] __disable_kprobe+0x99/0xc0
+[ 5448.771186]  [<ffffffff811192f7>] disable_kprobe+0x27/0x50
+[ 5448.777504]  [<ffffffff81142863>] disable_trace_kprobe+0xc3/0xf0
+[ 5448.784424]  [<ffffffff8114345d>] kprobe_register+0x2d/0xe0
+[ 5448.790863]  [<ffffffff8113da83>] perf_trace_event_unreg.isra.1+0x33/0x90
+[ 5448.798558]  [<ffffffff8113dddc>] perf_trace_destroy+0x3c/0x50
+[ 5448.805285]  [<ffffffff81152e59>] tp_perf_event_destroy+0x9/0x10
+[ 5448.812218]  [<ffffffff81158f61>] _free_event+0xc1/0x250
+[ 5448.818384]  [<ffffffff811591fa>] put_event+0x10a/0x150
+[ 5448.824422]  [<ffffffff8115911b>] ? put_event+0x2b/0x150
+[ 5448.830593]  [<ffffffff81152db5>] ? perf_fasync+0x55/0x70
+[ 5448.836862]  [<ffffffff81159260>] perf_release+0x10/0x20
+[ 5448.843023]  [<ffffffff811df3ec>] __fput+0xdc/0x1e0
+[ 5448.848709]  [<ffffffff811df53e>] ____fput+0xe/0x10
+[ 5448.854382]  [<ffffffff8108c27b>] task_work_run+0x9b/0xb0
+[ 5448.860620]  [<ffffffff81071615>] do_exit+0x3a5/0xa90
+[ 5448.866469]  [<ffffffff8107d182>] ? get_signal+0xe2/0x720
+[ 5448.872714]  [<ffffffff81071da4>] do_group_exit+0x54/0xe0
+[ 5448.878990]  [<ffffffff8107d320>] get_signal+0x280/0x720
+[ 5448.885163]  [<ffffffff81013478>] do_signal+0x28/0xb50
+[ 5448.891117]  [<ffffffff810b78f6>] ? __lock_acquire.isra.31+0x3a6/0xf90
+[ 5448.898586]  [<ffffffff810815a5>] ? sys_getppid+0x5/0x80
+[ 5448.904712]  [<ffffffff81014002>] do_notify_resume+0x62/0x70
+[ 5448.911245]  [<ffffffff816a9a1e>] retint_signal+0x44/0x86
+[ 5448.917526] ---[ end trace 5d38212a775ec3f6 ]---
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
