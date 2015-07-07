@@ -392,9 +392,11 @@ static int setup_bpf_fd(void) {
 
 	if (!kprobe_initialized) {
 
+		kprobe_initialized=1;
+
 		fff=fopen("/sys/kernel/tracing/kprobe_events", "w");
 		if (fff==NULL) {
-			printf("Cannot create kprobe!\n");
+			printf("Cannot open /sys/kernel/tracing/kprobe_events\n");
 			return -1;
 		}
 
@@ -404,13 +406,12 @@ static int setup_bpf_fd(void) {
 
 		fff=fopen("/sys/kernel/tracing/events/probe/VMW/id","r");
 		if (fff==NULL) {
+			printf("Cannot open /sys/kernel/tracing/events/probe/VMW/id\n");
 			return -1;
 		}
 
 		fscanf(fff,"%d",&kprobe_id);
 		fclose(fff);
-
-		kprobe_initialized=1;
 
 		struct bpf_insn instructions[] = {
 			BPF_MOV64_IMM(BPF_REG_0, 0),	/* r0 = 0 */
