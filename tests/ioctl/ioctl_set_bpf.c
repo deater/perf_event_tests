@@ -96,7 +96,8 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-	fprintf(fff,"p:probe/VMW _text+1664816");
+	/*  perf probe -a VMW=handle_mm_fault */
+	fprintf(fff,"p:probe/VMW _text+1664624");
 	fclose(fff);
 
 	fff=fopen("/sys/kernel/tracing/events/probe/VMW/id","r");
