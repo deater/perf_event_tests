@@ -38,11 +38,13 @@
 #include <sys/utsname.h>
 
 #include "bpf_helpers.h"
+#include "tracefs_helpers.h"
 
 static int quiet;
 
 #define MAX_FILTER 8192
 char filter[MAX_FILTER];
+
 
 int main(int argc, char** argv) {
 
@@ -73,9 +75,26 @@ int main(int argc, char** argv) {
 	FILE *fff;
 	int kprobe_id;
 
-	fff=fopen("/sys/kernel/tracing/kprobe_events", "w");
+	char filename[BUFSIZ];
+	char tracefs_location[BUFSIZ];
+	char *find_result;
+
+	find_result=find_tracefs_location(tracefs_location,quiet);
+
+	if (find_result==NULL) {
+
+		if (!quiet) {
+			fprintf(stderr,"Error finding tracefs location!\n");
+		}
+
+		test_skip(test_string);
+	}
+
+	sprintf(filename,"%s/kprobe_events",tracefs_location);
+
+	fff=fopen(filename, "w");
 	if (fff==NULL) {
-		printf("Cannot open!\n");
+		printf("Cannot open %s!\n",filename);
 		test_fail(test_string);
 	}
 
@@ -83,9 +102,11 @@ int main(int argc, char** argv) {
 	fprintf(fff,"p:probe/VMW _text+1664624");
 	fclose(fff);
 
-	fff=fopen("/sys/kernel/tracing/events/probe/VMW/id","r");
+	sprintf(filename,"%s/events/probe/VMW/id",tracefs_location);
+
+	fff=fopen(filename, "r");
 	if (fff==NULL) {
-		printf("Cannot open id!\n");
+		printf("Cannot open %s!\n",filename);
 		test_fail(test_string);
 	}
 
