@@ -11,6 +11,7 @@ all:	branches_testcode.o instructions_testcode.o nops_testcode.o \
 	matrix_multiply.o \
 	detect_cache.o \
 	parse_record.o \
+	bpf_helpers.o \
 	perf_helpers.o \
 	test_utils.o
 
@@ -52,6 +53,14 @@ parse_record.o:	parse_record.c
 
 parse_record.x32.o:	prase_record.c
 	$(CC) $(CFLAGS_X32) -o parse_record.x32.o -c parse_record.c
+
+#####
+
+bpf_helpers.o:	bpf_helpers.c
+	$(CC) $(CFLAGS) -c bpf_helpers.c
+
+bpf_helpers.x32.o:	bpf_helpers.c
+	$(CC) $(CFLAGS_X32) -o bpf_helpers.x32.o -c bpf_helpers.c
 
 #####
 
