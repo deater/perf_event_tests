@@ -186,7 +186,8 @@ perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 		fuzz_million.o fuzz_mmap.o fuzz_open.o fuzz_overflow.o \
 		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
-		../lib/perf_helpers.o ../lib/instructions_testcode.o \
+		../lib/perf_helpers.o ../lib/bpf_helpers.o \
+		../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 	$(CC) $(LFLAGS) -o perf_fuzzer perf_fuzzer.o \
 		perf_attr_print.o get_cpuinfo.o \
@@ -194,7 +195,8 @@ perf_fuzzer:	perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 		fuzz_million.o fuzz_mmap.o fuzz_open.o fuzz_overflow.o \
 		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
-		../lib/perf_helpers.o ../lib/instructions_testcode.o \
+		../lib/perf_helpers.o ../lib/bpf_helpers.o \
+		../lib/instructions_testcode.o \
 		trinity_files/trinity_lib.a
 
 perf_fuzzer.o:	perf_fuzzer.c get_cpuinfo.h perf_attr_print.h version.h

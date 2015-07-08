@@ -25,6 +25,9 @@ $(LIB)/matrix_multiply.o:	$(LIB)/matrix_multiply.c
 $(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
 	cd $(LIB) && make
 
+$(LIB)/bpf_helpers.o:	$(LIB)/bpf_helpers.c
+	cd $(LIB) && make
+
 $(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
 	cd $(LIB) && make
 
@@ -74,11 +77,13 @@ ioctl_period.o:	ioctl_period.c
 ###
 
 ioctl_set_bpf:	ioctl_set_bpf.o $(LIB)/test_utils.o \
+					$(LIB)/bpf_helpers.o \
 					$(LIB)/perf_helpers.o \
 					$(LIB)/instructions_testcode.o
 	$(CC) $(LFLAGS) -o ioctl_set_bpf ioctl_set_bpf.o \
 				$(LIB)/test_utils.o \
 				$(LIB)/instructions_testcode.o \
+				$(LIB)/bpf_helpers.o \
 				$(LIB)/perf_helpers.o -lpthread
 
 ioctl_set_bpf.o:	ioctl_set_bpf.c
