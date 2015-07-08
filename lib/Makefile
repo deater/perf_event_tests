@@ -13,6 +13,7 @@ all:	branches_testcode.o instructions_testcode.o nops_testcode.o \
 	parse_record.o \
 	bpf_helpers.o \
 	perf_helpers.o \
+	tracefs_helpers.o \
 	test_utils.o
 
 x32:	perf_helpers.x32.o instructions_testcode.x32.o
@@ -69,6 +70,14 @@ perf_helpers.o:	perf_helpers.c
 
 perf_helpers.x32.o:	perf_helpers.c
 	$(CC) $(CFLAGS_X32) -o perf_helpers.x32.o -c perf_helpers.c
+
+#####
+
+tracefs_helpers.o:	tracefs_helpers.c
+	$(CC) $(CFLAGS) -c tracefs_helpers.c
+
+tracefs_helpers.x32.o:	tracefs_helpers.c
+	$(CC) $(CFLAGS_X32) -o tracefs_helpers.x32.o -c tracefs_helpers.c
 
 
 #####
