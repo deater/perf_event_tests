@@ -17,6 +17,11 @@
 
 #include "fuzz_mmap.h"
 
+/* MAP_32BIT only exists on x86_64 */
+#ifndef MAP_32BIT
+#define MAP_32BIT 0
+#endif
+
 #define MAX_MMAPS	1024
 
 struct our_mmap_t {
