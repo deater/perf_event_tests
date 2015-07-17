@@ -1,89 +1,24 @@
-CC = gcc
+include ../Makefile.globals.inc
 
-CFLAGS = -Wall -O2 -I../include
+CPPFLAGS += -I../include
+CFLAGS += -Wall -O2
+#CFLAGS_X32 = -mx32 -Wall -O2 -I../include
 
-CFLAGS_X32 = -mx32 -Wall -O2 -I../include
+LIBNAME = libhelper.a
 
+PAPI_FILE_LIST_C := $(wildcard papi*.c)
 
-include ../Makefile.papi.inc
+FILE_LIST_C := $(filter-out $(PAPI_FILE_LIST_C),$(wildcard *.c))
+FILE_LIST_C_OBJS := $(FILE_LIST_C:.c=.o)
 
-all:	branches_testcode.o instructions_testcode.o nops_testcode.o \
-	matrix_multiply.o \
-	detect_cache.o \
-	parse_record.o \
-	bpf_helpers.o \
-	perf_helpers.o \
-	tracefs_helpers.o \
-	test_utils.o
+all: $(LIBNAME)
 
-x32:	perf_helpers.x32.o instructions_testcode.x32.o
+$(LIBNAME): $(FILE_LIST_C_OBJS)
+	$(AR) ru $@ $^
+	$(RANLIB) $@
 
-papi:	papi_helpers.o
-
-branches_testcode.o:	branches_testcode.c
-	$(CC) $(CFLAGS) -c branches_testcode.c
-
-####
-
-instructions_testcode.o:	instructions_testcode.c
-	$(CC) $(CFLAGS) -c instructions_testcode.c
-
-instructions_testcode.x32.o:	instructions_testcode.c
-	$(CC) $(CFLAGS_X32) -o instructions_testcode.x32.o -c instructions_testcode.c
-
-####
-
-nops_testcode.o:	nops_testcode.c
-	$(CC) $(CFLAGS) -c nops_testcode.c
-
-matrix_multiply.o:	matrix_multiply.c
-	$(CC) $(CFLAGS) -c matrix_multiply.c
-
-
-detect_cache.o:	detect_cache.c
-	$(CC) $(CFLAGS) -c detect_cache.c
-
-papi_helpers.o:	papi_helpers.c
-	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_helpers.c
-
-#####
-
-
-parse_record.o:	parse_record.c
-	$(CC) $(CFLAGS) -c parse_record.c
-
-parse_record.x32.o:	prase_record.c
-	$(CC) $(CFLAGS_X32) -o parse_record.x32.o -c parse_record.c
-
-#####
-
-bpf_helpers.o:	bpf_helpers.c
-	$(CC) $(CFLAGS) -c bpf_helpers.c
-
-bpf_helpers.x32.o:	bpf_helpers.c
-	$(CC) $(CFLAGS_X32) -o bpf_helpers.x32.o -c bpf_helpers.c
-
-#####
-
-perf_helpers.o:	perf_helpers.c
-	$(CC) $(CFLAGS) -c perf_helpers.c
-
-perf_helpers.x32.o:	perf_helpers.c
-	$(CC) $(CFLAGS_X32) -o perf_helpers.x32.o -c perf_helpers.c
-
-#####
-
-tracefs_helpers.o:	tracefs_helpers.c
-	$(CC) $(CFLAGS) -c tracefs_helpers.c
-
-tracefs_helpers.x32.o:	tracefs_helpers.c
-	$(CC) $(CFLAGS_X32) -o tracefs_helpers.x32.o -c tracefs_helpers.c
-
-
-#####
-
-test_utils.o:	test_utils.c
-	$(CC) $(CFLAGS) -c test_utils.c
-
-clean:	
-	rm -f *~ *.o
+clean:
+	@- $(RM) $(LIBNAME)
+	@- $(RM) $(FILE_LIST_C_OBJS)
+	@- $(RM) *.o
+	@- $(RM) *~

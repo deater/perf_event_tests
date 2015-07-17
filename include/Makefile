@@ -1,4 +1,2 @@
-all:	
-
-clean:	
-	rm -f *~
+clean:
+	@- $(RM) *~

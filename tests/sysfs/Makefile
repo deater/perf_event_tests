@@ -1,27 +1,17 @@
-CC = gcc
-CFLAGS = -Wall -O2 -I../../include
-LFLAGS =
+include ../../Makefile.globals.inc
+
+CPPFLAGS += -I../../include
+CFLAGS += -Wall -O2
+LDFLAGS +=
 LIB = ../../lib
 
-all:	events
+PROGRAM_LIST = events
 
+all: $(PROGRAM_LIST)
 
-###
+events: events.o $(LIB)/libhelper.a
 
-$(LIB)/test_utils.o:	$(LIB)/test_utils.c
-	cd $(LIB) && make
-
-###
-
-events:	events.o $(LIB)/test_utils.o
-	$(CC) $(LFLAGS) -o events events.o $(LIB)/test_utils.o
-
-events.o:	events.c
-	$(CC) $(CFLAGS) -c events.c
-
-###
-
-clean:	
-	rm -f *~ *.o \
-		events
-
+clean:
+	@- $(RM) $(PROGRAM_LIST)
+	@- $(RM) *.o
+	@- $(RM) *~
