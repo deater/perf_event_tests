@@ -21,7 +21,9 @@ lots_of_forks: lots_of_forks.o \
 open_fork_close_kill: open_fork_close_kill.o \
 		$(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

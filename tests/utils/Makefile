@@ -12,7 +12,9 @@ all: $(PROGRAM_LIST)
 
 get_cache_info: get_cache_info.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

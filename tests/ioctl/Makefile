@@ -27,7 +27,9 @@ ioctl_set_filter: ioctl_set_filter.o $(LIB)/libhelper.a
 
 ioctl_set_output: ioctl_set_output.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

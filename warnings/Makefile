@@ -17,7 +17,9 @@ kec_2122_warn: kec_2122_warn.o ../lib/libhelper.a
 
 pec_1076_warn: pec_1076_warn.o ../lib/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

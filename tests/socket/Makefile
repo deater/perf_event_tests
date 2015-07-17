@@ -11,7 +11,9 @@ all: $(PROGRAM_LIST)
 
 socket_pass: socket_pass.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

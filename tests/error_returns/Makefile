@@ -45,7 +45,9 @@ esrch: esrch.o $(LIB)/libhelper.a
 
 non-existent: non-existent.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

@@ -11,7 +11,9 @@ all: $(PROGRAM_LIST)
 
 check_constraints: check_constraints.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

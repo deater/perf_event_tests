@@ -54,7 +54,9 @@ uncore_group_cbox: uncore_group_cbox.o $(LIB)/libhelper.a
 
 uncore_cpu_cbox: uncore_cpu_cbox.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

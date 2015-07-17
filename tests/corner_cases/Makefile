@@ -62,7 +62,9 @@ wrong_size_enospc: wrong_size_enospc.o \
 ioctl_refresh_0: ioctl_refresh_0.o \
 		$(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

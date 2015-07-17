@@ -49,7 +49,9 @@ read_format_range_check:	read_format_range_check.o $(LIB)/libhelper.a
 
 sample_type_range_check:	sample_type_range_check.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

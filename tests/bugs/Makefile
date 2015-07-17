@@ -25,7 +25,9 @@ sync_read_required: sync_read_required.o \
 nmi_watchdog_group_leader: nmi_watchdog_group_leader.o \
 				$(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

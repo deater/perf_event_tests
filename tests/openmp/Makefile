@@ -18,7 +18,9 @@ openmp_overflow: openmp_overflow.o \
 openmp_sample: openmp_sample.o \
 		$(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~
