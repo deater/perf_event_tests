@@ -51,7 +51,9 @@ single_shot_w_enable: single_shot_w_enable.o $(LIB)/libhelper.a
 
 wakeup_events_overflow: wakeup_events_overflow.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

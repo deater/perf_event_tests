@@ -1,2 +1,4 @@
-clean:
+clean: clean-local
+
+clean-local:
 	@- $(RM) *~

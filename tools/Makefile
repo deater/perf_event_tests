@@ -16,7 +16,9 @@ event_parser: event_parser.o
 trace_event_parser: trace_event_parser.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

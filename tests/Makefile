@@ -20,7 +20,7 @@ all:
 	$(MAKE) -C utils
 	$(MAKE) -C x86_intel
 
-clean:
+clean: clean-local
 	$(MAKE) -C attr_fields clean
 	$(MAKE) -C breakpoints clean
 	$(MAKE) -C bugs clean
@@ -41,4 +41,6 @@ clean:
 	$(MAKE) -C tracepoints clean
 	$(MAKE) -C utils clean
 	$(MAKE) -C x86_intel clean
+
+clean-local:
 	@- $(RM) *~

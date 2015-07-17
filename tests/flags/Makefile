@@ -22,7 +22,9 @@ flags_fd_output:flags_fd_output.o $(LIB)/libhelper.a
 
 flags_range_check: flags_range_check.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

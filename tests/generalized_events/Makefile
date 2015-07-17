@@ -28,7 +28,9 @@ l1-dcache-stores: l1-dcache-stores.o $(LIB)/libhelper.a
 
 instructions: instructions.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

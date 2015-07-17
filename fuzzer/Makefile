@@ -30,8 +30,10 @@ perf_fuzzer: perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 trinity_files/trinity_lib.a:
 	$(MAKE) -C trinity_files
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	$(MAKE) -C trinity_files clean
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

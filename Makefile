@@ -8,11 +8,13 @@ all:
 papi:
 	$(MAKE) -C papi
 
-clean:
+clean: clean-local
 	$(MAKE) -C lib clean
 	$(MAKE) -C tests clean
 	$(MAKE) -C papi clean
 	$(MAKE) -C crashes clean
 	$(MAKE) -C fuzzer clean
 	$(MAKE) -C tools clean
+
+clean-local:
 	@- $(RM) *~

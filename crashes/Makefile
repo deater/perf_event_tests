@@ -45,7 +45,9 @@ css_cgroup_crash: css_cgroup_crash.o ../lib/libhelper.a
 
 rapl_crash: rapl_crash.o ../lib/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

@@ -21,7 +21,9 @@ check_multiplexing: check_multiplexing.o \
 
 old_multiplexing: old_multiplexing.o $(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

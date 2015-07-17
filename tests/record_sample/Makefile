@@ -77,7 +77,9 @@ sample_stack_user: sample_stack_user.o \
 sample_weight: sample_weight.o \
 		$(LIB)/libhelper.a
 
-clean:
+clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~

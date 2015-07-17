@@ -17,8 +17,10 @@ $(LIBNAME): $(FILE_LIST_C_OBJS)
 	$(AR) ru $@ $^
 	$(RANLIB) $@
 
-clean:
+clean: clean-local
 	@- $(RM) $(LIBNAME)
 	@- $(RM) $(FILE_LIST_C_OBJS)
 	@- $(RM) *.o
+
+clean-local:
 	@- $(RM) *~
