@@ -1,44 +1,23 @@
-CC = gcc
-CFLAGS = -O2 -Wall -I../include 
-LFLAGS = 
+include ../Makefile.globals.inc
 
-all:	core2_nmi_flood kec_2122_warn pec_1076_warn
+CPPFLAGS += -I../include
+CFLAGS += -Wall -O2
+LDFLAGS +=
 
+PROGRAM_LIST = \
+	core2_nmi_flood \
+	kec_2122_warn \
+	pec_1076_warn
 
-####
+all: $(PROGRAM_LIST)
 
-../lib/perf_helpers.o:	../lib/perf_helpers.c
-	cd ../lib && make
+core2_nmi_flood: core2_nmi_flood.o
 
-####
+kec_2122_warn: kec_2122_warn.o ../lib/libhelper.a
 
-core2_nmi_flood:	core2_nmi_flood.o
-	$(CC) $(LFLAGS) -o core2_nmi_flood core2_nmi_flood.o
+pec_1076_warn: pec_1076_warn.o ../lib/libhelper.a
 
-core2_nmi_flood.o:	core2_nmi_flood.c
-	$(CC) $(CFLAGS) -c core2_nmi_flood.c
-
-####
-
-kec_2122_warn:	kec_2122_warn.o
-	$(CC) $(LFLAGS) -o kec_2122_warn kec_2122_warn.o ../lib/perf_helpers.o $(LFLAGS)
-
-kec_2122_warn.c:	kec_2122_warn.c
-	$(CC) $(CFLAGS) -c kec_2122_warn.c
-
-####
-
-pec_1076_warn:	pec_1076_warn.o ../lib/perf_helpers.o
-	$(CC) $(LFLAGS) -o pec_1076_warn pec_1076_warn.o
-
-pec_1076_warn.o:	pec_1076_warn.c
-	$(CC) $(CFLAGS) -c pec_1076_warn.c
-
-####
-
-clean:	
-	rm -f *~ *.o \
-		core2_nmi_flood kec_2122_warn pec_1076_warn
-
-
-
+clean:
+	@- $(RM) $(PROGRAM_LIST)
+	@- $(RM) *.o
+	@- $(RM) *~
