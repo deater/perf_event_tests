@@ -4,9 +4,9 @@
 #include <malloc.h>
 #include <unistd.h>
 
-#include "../include/hw_breakpoint.h"
-#include "../include/perf_event.h"
-#include "../include/perf_helpers.h"
+#include "hw_breakpoint.h"
+#include "perf_event.h"
+#include "perf_helpers.h"
 
 #include "perf_attr_print.h"
 

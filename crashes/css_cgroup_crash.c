@@ -27,7 +27,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "../include/perf_helpers.h"
+#include "perf_helpers.h"
 
 //#define PERF_FLAG_PID_CGROUP    (1U << 2)
 
