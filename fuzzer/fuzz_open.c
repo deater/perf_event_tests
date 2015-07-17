@@ -12,7 +12,7 @@
 
 #include <signal.h>
 
-#include "../include/perf_event.h"
+#include "perf_event.h"
 
 #include "perf_fuzzer.h"
 #include "fuzzer_determinism.h"
@@ -32,7 +32,7 @@
 unsigned int get_cpu(void);
 extern struct syscallentry syscall_perf_event_open;
 
-#include "../include/perf_helpers.h"
+#include "perf_helpers.h"
 
 
 static void perf_log_attr(struct perf_event_attr *attr) {

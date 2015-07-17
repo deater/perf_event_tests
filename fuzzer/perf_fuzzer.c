@@ -20,7 +20,7 @@
 #include "shm.h"
 
 /* perf_event_test infrastructure */
-#include "../include/perf_event.h"
+#include "perf_event.h"
 
 #include "perf_fuzzer.h"
 

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "../include/perf_event.h"
+#include "perf_event.h"
 
 /* Pick an intelligently random refresh value */
 int rand_refresh(void) {

@@ -10,7 +10,7 @@
 
 #include <sys/ioctl.h>
 
-#include "../include/perf_event.h"
+#include "perf_event.h"
 
 #include "perf_fuzzer.h"
 #include "fuzzer_determinism.h"

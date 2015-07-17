@@ -15,10 +15,10 @@
 
 #include <fcntl.h>
 
-#include "shm.h"
-#include "syscall.h"
-#include "../include/perf_event.h"
-#include "../include/perf_helpers.h"
+#include <shm.h>
+#include <syscall.h>
+#include "perf_event.h"
+#include "perf_helpers.h"
 
 #include "fuzz_compat.h"
 

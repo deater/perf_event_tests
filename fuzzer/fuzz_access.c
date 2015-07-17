@@ -5,8 +5,7 @@
 
 #include <signal.h>
 
-#include "../include/perf_event.h"
-
+#include "perf_event.h"
 #include "perf_fuzzer.h"
 #include "fuzzer_determinism.h"
 #include "fuzzer_logging.h"

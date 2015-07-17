@@ -8,8 +8,8 @@
 
 #include <sys/wait.h>
 
-#include "../include/instructions_testcode.h"
-#include "../include/perf_event.h"
+#include "instructions_testcode.h"
+#include "perf_event.h"
 
 #include "perf_fuzzer.h"
 #include "fuzzer_determinism.h"
