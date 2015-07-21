@@ -1,10 +1,10 @@
-/* check_multiplexing.c  */
-/* by Vince Weaver   vweaver1 _at_ eecs.utk.edu */
+/* check_multiplexing.c						*/
+/* by Vince Weaver   vincent.weaver _at_ maine.edu		*/
 
-/* Prior to 2.6.34 perf_event multiplexing was unreliable */
-/* The values were not updated properly.                  */
-/* This was probably fixed by                             */
-/* 45e16a6834b6af098702e5ea6c9a40de42ff77d8               */
+/* Prior to 2.6.34 perf_event multiplexing was unreliable	*/
+/* The values were not updated properly.			*/
+/* This was probably fixed by					*/
+/* 45e16a6834b6af098702e5ea6c9a40de42ff77d8			*/
 
 
 #include <stdio.h>
@@ -28,16 +28,16 @@
 
 int fd[NUM_EVENTS];
 long long events[NUM_EVENTS]={
-   PERF_COUNT_HW_CPU_CYCLES,
-   PERF_COUNT_HW_INSTRUCTIONS,
-   PERF_COUNT_HW_CPU_CYCLES,
-   PERF_COUNT_HW_INSTRUCTIONS,
-   PERF_COUNT_HW_CPU_CYCLES,
-   PERF_COUNT_HW_INSTRUCTIONS,
-   PERF_COUNT_HW_CPU_CYCLES,
-   PERF_COUNT_HW_INSTRUCTIONS,
-   PERF_COUNT_HW_CPU_CYCLES,
-   PERF_COUNT_HW_INSTRUCTIONS,
+	PERF_COUNT_HW_CPU_CYCLES,
+	PERF_COUNT_HW_INSTRUCTIONS,
+	PERF_COUNT_HW_CPU_CYCLES,
+	PERF_COUNT_HW_INSTRUCTIONS,
+	PERF_COUNT_HW_CPU_CYCLES,
+	PERF_COUNT_HW_INSTRUCTIONS,
+	PERF_COUNT_HW_CPU_CYCLES,
+	PERF_COUNT_HW_INSTRUCTIONS,
+	PERF_COUNT_HW_CPU_CYCLES,
+	PERF_COUNT_HW_INSTRUCTIONS,
 };
 
 long long base_results[NUM_EVENTS][3];
@@ -49,178 +49,181 @@ int bad_error=0;
 
 int test_routine(void) {
 
-  int i,result;
+	int i,result;
 
-  for(i=0;i<500;i++) {
-     result=instructions_million();
-  }
+	for(i=0;i<500;i++) {
+		result=instructions_million();
+	}
 
-  return result;
+	return result;
 }
 
 int main(int argc, char** argv) {
-   
-   int ret,quiet,i;
 
-   struct perf_event_attr pe;
+	int ret,quiet,i;
 
-   char test_string[]="Testing if multiplexing works...";
+	struct perf_event_attr pe;
 
-   quiet=test_quiet();
-   
-   if (!quiet) {
-      printf("Before 2.6.34 the values returned when multiplexing\n");
-      printf("  were not reliable and could result in wrong results.\n");
-   }
+	char test_string[]="Testing if multiplexing works...";
 
-   /*************************************************/
-   /* Collect results for each counter individually */
-   /*************************************************/
+	quiet=test_quiet();
 
-   for(i=0;i<NUM_EVENTS;i++) {
+	if (!quiet) {
+		printf("Before 2.6.34 the values returned when multiplexing\n");
+		printf("  were not reliable and could result in wrong results.\n");
+	}
 
-      memset(&pe,0,sizeof(struct perf_event_attr));
-      pe.type=PERF_TYPE_HARDWARE;
-      pe.size=sizeof(struct perf_event_attr);
-      pe.config=events[i];
-      pe.disabled=1;
-      pe.exclude_kernel=1;
-      pe.exclude_hv=1;
-      pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED | 
-	             PERF_FORMAT_TOTAL_TIME_RUNNING;
+	/*************************************************/
+	/* Collect results for each counter individually */
+	/*************************************************/
 
-      arch_adjust_domain(&pe,quiet);
+	for(i=0;i<NUM_EVENTS;i++) {
 
-      fd[i]=perf_event_open(&pe,0,-1,-1,0);
-      if (fd[i]<0) {
-	 fprintf(stderr,"Failed adding mpx event %d %s\n",i,strerror(errno));
-         test_fail(test_string);
-	 return -1;
-      }
-   }
+		memset(&pe,0,sizeof(struct perf_event_attr));
+		pe.type=PERF_TYPE_HARDWARE;
+		pe.size=sizeof(struct perf_event_attr);
+		pe.config=events[i];
+		pe.disabled=1;
+		pe.exclude_kernel=1;
+		pe.exclude_hv=1;
+		pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED |
+			PERF_FORMAT_TOTAL_TIME_RUNNING;
 
-   for(i=0;i<NUM_EVENTS;i++) {
-      ret=ioctl(fd[i], PERF_EVENT_IOC_ENABLE,0);
-      if (ret<0) {
-	 fprintf(stderr,"Error starting event %d\n",i);
-      }
+		arch_adjust_domain(&pe,quiet);
 
-      test_routine();
+		fd[i]=perf_event_open(&pe,0,-1,-1,0);
+		if (fd[i]<0) {
+			fprintf(stderr,"Failed adding mpx event %d %s\n",
+				i,strerror(errno));
+			test_fail(test_string);
+			return -1;
+		}
+	}
 
-      ret=ioctl(fd[i], PERF_EVENT_IOC_DISABLE,0);
-      if (ret<0) {
-	 fprintf(stderr,"Error stopping event %d\n",i);
-      }
-     
-      ret=read(fd[i],&base_results[i],3*sizeof(long long));
-      if (ret<3*sizeof(long long)) {
-	fprintf(stderr,"Event %d unexpected read size %d\n",i,ret);
-        test_fail(test_string);
-      }
-      if (base_results[i][1]!=base_results[i][2]) {
-	fprintf(stderr,"Event %d running %lld != %lld base\n",
-		i,base_results[i][1],base_results[i][2]);
-	test_fail(test_string);
-      }
+	for(i=0;i<NUM_EVENTS;i++) {
+		ret=ioctl(fd[i], PERF_EVENT_IOC_ENABLE,0);
+		if (ret<0) {
+			fprintf(stderr,"Error starting event %d\n",i);
+		}
 
-   }
+		test_routine();
 
-   /* we have to close, because PERF_EVENT_IOC_RESET */
-   /* does not clear multiplexing informatio.        */
-   for(i=0;i<NUM_EVENTS;i++) {
-     close(fd[i]);
-   }
+		ret=ioctl(fd[i], PERF_EVENT_IOC_DISABLE,0);
+		if (ret<0) {
+			fprintf(stderr,"Error stopping event %d\n",i);
+		}
 
-   /*************************************************/
-   /* Collect multiplexed results                   */
-   /*************************************************/
+		ret=read(fd[i],&base_results[i],3*sizeof(long long));
+		if (ret<3*sizeof(long long)) {
+			fprintf(stderr,"Event %d unexpected read size %d\n",i,ret);
+			test_fail(test_string);
+		}
 
-   for(i=0;i<NUM_EVENTS;i++) {
+		if (base_results[i][1]!=base_results[i][2]) {
+			fprintf(stderr,"Event %d running %lld != %lld base\n",
+				i,base_results[i][1],base_results[i][2]);
+			test_fail(test_string);
+		}
 
-      memset(&pe,0,sizeof(struct perf_event_attr));
-      pe.type=PERF_TYPE_HARDWARE;
-      pe.size=sizeof(struct perf_event_attr);
-      pe.config=events[i];
-      pe.disabled=1;
-      pe.exclude_kernel=1;
-      pe.exclude_hv=1;
-      pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED | 
-	             PERF_FORMAT_TOTAL_TIME_RUNNING;
+	}
 
-      arch_adjust_domain(&pe,quiet);
+	/* we have to close, because PERF_EVENT_IOC_RESET */
+	/* does not clear multiplexing informatio.        */
+	for(i=0;i<NUM_EVENTS;i++) {
+		close(fd[i]);
+	}
 
-      fd[i]=perf_event_open(&pe,0,-1,-1,0);
-      if (fd[i]<0) {
-	 fprintf(stderr,"Failed adding mpx event %d %s\n",i,strerror(errno));
-         test_fail(test_string);
-	 return -1;
-      }
-   }
+	/*************************************************/
+	/* Collect multiplexed results                   */
+	/*************************************************/
 
-   for(i=0;i<NUM_EVENTS;i++) {
-      ret=ioctl(fd[i], PERF_EVENT_IOC_ENABLE,0);
-      if (ret<0) {
-	 fprintf(stderr,"Error starting event %d\n",i);
-      }
-   }
+	for(i=0;i<NUM_EVENTS;i++) {
 
+		memset(&pe,0,sizeof(struct perf_event_attr));
+		pe.type=PERF_TYPE_HARDWARE;
+		pe.size=sizeof(struct perf_event_attr);
+		pe.config=events[i];
+		pe.disabled=1;
+		pe.exclude_kernel=1;
+		pe.exclude_hv=1;
+		pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED |
+				PERF_FORMAT_TOTAL_TIME_RUNNING;
 
-   test_routine();
+		arch_adjust_domain(&pe,quiet);
 
-   for(i=0;i<NUM_EVENTS;i++) {
-      ret=ioctl(fd[i], PERF_EVENT_IOC_DISABLE,0);
-      if (ret<0) {
-	 fprintf(stderr,"Error stopping event %d\n",i);
-      }
-   }
+		fd[i]=perf_event_open(&pe,0,-1,-1,0);
+		if (fd[i]<0) {
+			fprintf(stderr,"Failed adding mpx event %d %s\n",
+				i,strerror(errno));
+			test_fail(test_string);
+			return -1;
+		}
+	}
 
-     
-   for(i=0;i<NUM_EVENTS;i++) {
-      ret=read(fd[i],&mpx_results[i],5*sizeof(long long));
-      if (ret<3*sizeof(long long)) {
-	fprintf(stderr,"Event %d unexpected read size %d\n",i,ret);
-        test_fail(test_string);
-      }
-
-      scale = (mpx_results[i][1] * 100LL) / mpx_results[i][2];
-      scale = scale * mpx_results[i][0];
-      scale = scale / 100LL;
-      scaled_results[i] = scale;
-
-   }
-
-   for(i=0;i<NUM_EVENTS;i++) {
-     error[i]=((double)base_results[i][0] - (double)scaled_results[i])/
-       (double)base_results[i][0];
-     error[i]*=100.0;
-     if ((error[i]>10.0) || (error[i]<-10.0)) {
-        bad_error++;
-     }
-
-   }
-
-   if (!quiet) {
-      printf("Event\tTotalCount\tRawCount\tScale\tScaledCount\tError\n");
-      for(i=0;i<NUM_EVENTS;i++) {
-
-         printf("%d\t%lld\t%lld\t%.2f\t%lld\t%.2f%%\n",i,
-		base_results[i][0],
-		mpx_results[i][0],
-		(double)mpx_results[i][1]/(double)mpx_results[i][2],
-		scaled_results[i],
-		error[i]);
-
-      }
-   }
-
-   if (bad_error>0) {
-      fprintf(stderr,"Error on %d events is too high.\n",bad_error);
-      test_fail(test_string);
-   }
+	for(i=0;i<NUM_EVENTS;i++) {
+		ret=ioctl(fd[i], PERF_EVENT_IOC_ENABLE,0);
+		if (ret<0) {
+			fprintf(stderr,"Error starting event %d\n",i);
+		}
+	}
 
 
-   test_pass(test_string);
-      
-   return 0;
+	test_routine();
+
+	for(i=0;i<NUM_EVENTS;i++) {
+		ret=ioctl(fd[i], PERF_EVENT_IOC_DISABLE,0);
+		if (ret<0) {
+			fprintf(stderr,"Error stopping event %d\n",i);
+		}
+	}
+
+
+	for(i=0;i<NUM_EVENTS;i++) {
+		ret=read(fd[i],&mpx_results[i],5*sizeof(long long));
+		if (ret<3*sizeof(long long)) {
+			fprintf(stderr,"Event %d unexpected read size %d\n",
+				i,ret);
+			test_fail(test_string);
+		}
+
+		scale = (mpx_results[i][1] * 100LL) / mpx_results[i][2];
+		scale = scale * mpx_results[i][0];
+		scale = scale / 100LL;
+		scaled_results[i] = scale;
+	}
+
+	for(i=0;i<NUM_EVENTS;i++) {
+		error[i]=((double)base_results[i][0] -
+				(double)scaled_results[i])/
+				(double)base_results[i][0];
+		error[i]*=100.0;
+		if ((error[i]>10.0) || (error[i]<-10.0)) {
+			bad_error++;
+		}
+
+	}
+
+	if (!quiet) {
+		printf("Event\tTotalCount\tRawCount\tScale\tScaledCount\tError\n");
+		for(i=0;i<NUM_EVENTS;i++) {
+
+			printf("%d\t%lld\t%lld\t%.2f\t%lld\t%.2f%%\n",i,
+				base_results[i][0],
+				mpx_results[i][0],
+				(double)mpx_results[i][1]/(double)mpx_results[i][2],
+				scaled_results[i],
+				error[i]);
+
+		}
+	}
+
+	if (bad_error>0) {
+		fprintf(stderr,"Error on %d events is too high.\n",bad_error);
+		test_fail(test_string);
+	}
+
+	test_pass(test_string);
+
+	return 0;
 }
 
