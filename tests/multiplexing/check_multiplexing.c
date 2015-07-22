@@ -211,14 +211,12 @@ int main(int argc, char** argv) {
 		printf("Event\tTotalCount\tRawCount\tScale\tScaledCount\tError\n");
 		for(i=0;i<NUM_EVENTS;i++) {
 
-			printf("%d\t%lld\t%lld\t%.2f (%llx %llx)\t%lld\t%.2f%%\n",
+			printf("%d\t%lld\t%lld\t%.2f\t%lld\t%.2f%%\n",
 				i,
 				base_results[i][0],
 				mpx_results[i][0],
 				(double)mpx_results[i][TIME_RUNNING]/(
 				double)mpx_results[i][TIME_TOTAL],
-				mpx_results[i][TIME_RUNNING],
-				mpx_results[i][TIME_TOTAL],
 				scaled_results[i],
 				error[i]);
 
