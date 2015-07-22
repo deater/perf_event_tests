@@ -40,14 +40,17 @@ long long events[NUM_EVENTS]={
 	PERF_COUNT_HW_INSTRUCTIONS,
 };
 
-long long base_results[NUM_EVENTS][3];
-long long mpx_results[NUM_EVENTS][5];
-long long scaled_results[NUM_EVENTS];
-long long scale;
-double error[NUM_EVENTS];
+static long long base_results[NUM_EVENTS][3];
+static long long mpx_results[NUM_EVENTS][5];
+static long long scaled_results[NUM_EVENTS];
+static long long scale;
+static double error[NUM_EVENTS];
 int bad_error=0;
 
-int test_routine(void) {
+#define TIME_RUNNING	1
+#define TIME_TOTAL	2
+
+static int test_routine(void) {
 
 	int i,result;
 
@@ -119,16 +122,17 @@ int main(int argc, char** argv) {
 			test_fail(test_string);
 		}
 
-		if (base_results[i][1]!=base_results[i][2]) {
+		if (base_results[i][TIME_RUNNING]!=base_results[i][TIME_TOTAL]) {
 			fprintf(stderr,"Event %d running %lld != %lld base\n",
-				i,base_results[i][1],base_results[i][2]);
+				i,base_results[i][TIME_RUNNING],
+				base_results[i][TIME_TOTAL]);
 			test_fail(test_string);
 		}
 
 	}
 
 	/* we have to close, because PERF_EVENT_IOC_RESET */
-	/* does not clear multiplexing informatio.        */
+	/* does not clear multiplexing information.       */
 	for(i=0;i<NUM_EVENTS;i++) {
 		close(fd[i]);
 	}
@@ -186,7 +190,7 @@ int main(int argc, char** argv) {
 			test_fail(test_string);
 		}
 
-		scale = (mpx_results[i][1] * 100LL) / mpx_results[i][2];
+		scale = (mpx_results[i][TIME_RUNNING] * 100LL) / mpx_results[i][TIME_TOTAL];
 		scale = scale * mpx_results[i][0];
 		scale = scale / 100LL;
 		scaled_results[i] = scale;
@@ -207,10 +211,14 @@ int main(int argc, char** argv) {
 		printf("Event\tTotalCount\tRawCount\tScale\tScaledCount\tError\n");
 		for(i=0;i<NUM_EVENTS;i++) {
 
-			printf("%d\t%lld\t%lld\t%.2f\t%lld\t%.2f%%\n",i,
+			printf("%d\t%lld\t%lld\t%.2f (%llx %llx)\t%lld\t%.2f%%\n",
+				i,
 				base_results[i][0],
 				mpx_results[i][0],
-				(double)mpx_results[i][1]/(double)mpx_results[i][2],
+				(double)mpx_results[i][TIME_RUNNING]/(
+				double)mpx_results[i][TIME_TOTAL],
+				mpx_results[i][TIME_RUNNING],
+				mpx_results[i][TIME_TOTAL],
 				scaled_results[i],
 				error[i]);
 
