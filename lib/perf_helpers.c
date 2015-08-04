@@ -552,6 +552,22 @@ int get_latency_load_event(unsigned long long *config,
 
 	switch(processor) {
 
+	case PROCESSOR_NEHALEM:
+	case PROCESSOR_NEHALEM_EX:
+		*config=0x100b;
+		*config1=0x3;
+		*precise_ip=2;
+		strcpy(name,"MEM_INST_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
+	/* env LIBPFM_ENCODE_INACTIVE=1 \
+		./check_events wsm::MEM_INST_RETIRED:LATENCY_ABOVE_THRESHOLD */
+	case PROCESSOR_WESTMERE:
+	case PROCESSOR_WESTMERE_EX:
+		*config=0x100b;
+		*config1=0x3;
+		*precise_ip=2;
+		strcpy(name,"MEM_INST_RETIRED:LATENCY_ABOVE_THRESHOLD");
+		break;
 	case PROCESSOR_SANDYBRIDGE:
 	case PROCESSOR_SANDYBRIDGE_EP:
 		*config=0x1cd;
