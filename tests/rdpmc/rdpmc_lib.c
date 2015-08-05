@@ -17,6 +17,7 @@
 #include "test_utils.h"
 #include "perf_helpers.h"
 
+#include "rdpmc_inlines.h"
 #include "rdpmc_lib.h"
 
 #include <sys/mman.h>
@@ -26,38 +27,9 @@
 
 #if defined(__i386__) || defined (__x86_64__)
 
-inline unsigned long long rdtsc(void) {
-
-	unsigned a,d;
-
-	__asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
-
-	return ((unsigned long long)a) | (((unsigned long long)d) << 32);
-}
-
-inline unsigned long long rdpmc(unsigned int counter) {
-
-	unsigned int low, high;
-
-	__asm__ volatile("rdpmc" : "=a" (low), "=d" (high) : "c" (counter));
-
-	return (unsigned long long)low | ((unsigned long long)high) <<32;
-}
-
 #define barrier() __asm__ volatile("" ::: "memory")
 
 #else
-
-inline unsigned long long rdtsc(void) {
-
-	return 0;
-
-}
-
-inline unsigned long long rdpmc(unsigned int counter) {
-
-	return 0;
-}
 
 #define barrier()
 
