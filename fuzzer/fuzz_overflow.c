@@ -82,11 +82,9 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 	if (ret<0) {
 		printf("Signal from invalid fd %d %s\n",
 			fd,strerror(errno));
-		orderly_shutdown();
+		return;
+//		orderly_shutdown();
 	}
-
-
-
 
 	i=lookup_event(fd);
 
@@ -113,7 +111,8 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 			if (event_data[i].throttles > MAX_THROTTLES) {
 
 				printf("Stuck in a signal storm w/o forward progress; Max throttle count hit, giving up\n");
-				orderly_shutdown();
+				close(event_data[i].fd);
+//				orderly_shutdown();
 
 				/* In a storm we used to try to somehow stop */
 				/* it by closing all events, but this never  */
