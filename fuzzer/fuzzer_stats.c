@@ -15,6 +15,10 @@ static char open_type_names[MAX_OPEN_TYPE][20]={
 	"#12","#13","#14",">14"
 };
 
+static char open_trinity_type_names[MAX_OPEN_TRINITY_TYPE][20]={
+	"Normal","Sampling","Global","Random",
+};
+
 static char ioctl_type_names[MAX_IOCTL_TYPE][20]={
 	"ENABLE","DISABLE","REFRESH","RESET",
 	"PERIOD","SET_OUTPUT","SET_FILTER","ID",
@@ -72,6 +76,15 @@ void dump_summary(FILE *fff, int print_values) {
 			fprintf(fff," : %d\n",stats.open_errno_count[i]);
 		}
 	}
+
+	fprintf(fff,"\t\tTrinity Type ");
+	for(i=0;i<MAX_OPEN_TRINITY_TYPE;i++) {
+		fprintf(fff,"(%s %d/%d)",open_trinity_type_names[i],
+				stats.open_trinity_type_success[i],
+				stats.open_trinity_type_success[i]+
+					stats.open_trinity_type_fail[i]);
+	}
+	fprintf(fff,"\n");
 
 	fprintf(fff,"\t\tType ");
 	for(i=0;i<MAX_OPEN_TYPE;i++) {
@@ -163,6 +176,10 @@ void dump_summary(FILE *fff, int print_values) {
 	for(i=0;i<MAX_OPEN_TYPE;i++) {
 		stats.open_type_success[i]=0;
 		stats.open_type_fail[i]=0;
+	}
+	for(i=0;i<MAX_OPEN_TRINITY_TYPE;i++) {
+		stats.open_trinity_type_success[i]=0;
+		stats.open_trinity_type_fail[i]=0;
 	}
 	for(i=0;i<MAX_IOCTL_TYPE;i++) {
 		stats.ioctl_type_success[i]=0;

@@ -142,7 +142,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 
 	int fd;
 
-	int i;
+	int i,trinity_type;
 
 	i=find_empty_event();
 
@@ -157,7 +157,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 	while(1) {
 		/* call trinity random perf_event_open() code */
 		//generic_sanitise(0);
-		syscall_perf_event_open.sanitise(&shm->syscall[0]);
+		trinity_type=syscall_perf_event_open.sanitise(&shm->syscall[0]);
 
 		memcpy(&event_data[i].attr,
 			(struct perf_event_attr *)shm->syscall[0].a1,
@@ -238,6 +238,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 		/* If we succede, break out of the infinite loop */
 		if (fd>0) {
 			stats.open_type_success[which_type]++;
+			stats.open_trinity_type_success[trinity_type]++;
 			break;
 		}
 #if 0
@@ -256,6 +257,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 		if (errno<MAX_ERRNOS) {
 			stats.open_errno_count[errno]++;
 			stats.open_type_fail[which_type]++;
+			stats.open_trinity_type_fail[trinity_type]++;
 		}
 
 		/* no more file descriptors, so give up */

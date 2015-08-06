@@ -1,5 +1,6 @@
 #define MAX_ERRNOS 1023
 #define MAX_OPEN_TYPE 16
+#define MAX_OPEN_TRINITY_TYPE 4
 #define MAX_IOCTL_TYPE 16
 
 struct fuzzer_stats_t {
@@ -26,6 +27,8 @@ struct fuzzer_stats_t {
 	int fork_errno_count[MAX_ERRNOS];
 	int open_type_success[MAX_OPEN_TYPE];
 	int open_type_fail[MAX_OPEN_TYPE];
+	int open_trinity_type_success[MAX_OPEN_TYPE];
+	int open_trinity_type_fail[MAX_OPEN_TYPE];
 	int ioctl_type_success[MAX_IOCTL_TYPE];
 	int ioctl_type_fail[MAX_IOCTL_TYPE];
 };

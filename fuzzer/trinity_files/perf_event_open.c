@@ -1216,13 +1216,14 @@ static void create_random_event(struct perf_event_attr *attr)
 
 }
 
-void sanitise_perf_event_open(struct syscallrecord *rec)
+int sanitise_perf_event_open(struct syscallrecord *rec)
 {
 	struct perf_event_attr *attr;
 	unsigned long flags;
 	pid_t pid;
 	int group_leader=0;
 	void *addr;
+	int type;
 
 	addr = zmalloc(sizeof(struct perf_event_attr));
 	rec->a1 = (unsigned long) addr;
@@ -1311,7 +1312,8 @@ void sanitise_perf_event_open(struct syscallrecord *rec)
 	rec->a2 = pid;
 
 	/* set up attr structure */
-	switch (rand() % 4) {
+	type=rand() % 4;
+	switch (type) {
 	case 0:
 		create_mostly_valid_counting_event(attr,group_leader);
 		break;
@@ -1327,6 +1329,7 @@ void sanitise_perf_event_open(struct syscallrecord *rec)
 	default:
 		break;
 	}
+	return type;
 }
 
 static void post_perf_event_open(struct syscallrecord *rec)
