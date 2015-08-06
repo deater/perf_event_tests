@@ -85,6 +85,7 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 	if (ret<0) {
 		printf("Signal from invalid fd %d %s\n",
 			fd,strerror(errno));
+		already_handling=0;
 		return;
 //		orderly_shutdown();
 	}

@@ -146,7 +146,7 @@ void dump_summary(FILE *fff, int print_values) {
 	       stats.poll_successful,stats.poll_attempts);
 	fprintf(fff,"\tAccess:\t%lld/%lld Successful\n",
 	       stats.access_successful,stats.access_attempts);
-	fprintf(fff,"\tOverflows: %lld  Recusive: %lld\n",
+	fprintf(fff,"\tOverflows: %lld  Recursive: %lld\n",
 		stats.overflows, stats.already_overflows);
 	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",stats.sigios);
 
