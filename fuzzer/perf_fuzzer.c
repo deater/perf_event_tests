@@ -419,7 +419,8 @@ int main(int argc, char **argv) {
 
 	/* Clear errnos count */
 	for(i=0;i<MAX_ERRNOS;i++) {
-		stats.errno_count[i]=0;
+		stats.open_errno_count[i]=0;
+		stats.fork_errno_count[i]=0;
 	}
 
 	/* Clear type counts */

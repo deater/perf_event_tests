@@ -49,6 +49,8 @@ static void print_errno_name(FILE *fff, int e) {
 				break;
 		case EBUSY:	fprintf(fff,"EBUSY");
 				break;
+		case EAGAIN:	fprintf(fff,"EAGAIN");
+				break;
 		default:	fprintf(fff,"UNKNOWN %d",e);
 				break;
 	}
@@ -64,10 +66,10 @@ void dump_summary(FILE *fff, int print_values) {
 	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Currently open: %lld\n",
 	       stats.open_attempts,stats.open_successful,stats.current_open);
 	for(i=0;i<MAX_ERRNOS;i++) {
-		if (stats.errno_count[i]!=0) {
+		if (stats.open_errno_count[i]!=0) {
 			fprintf(fff,"\t\t");
 			print_errno_name(fff,i);
-			fprintf(fff," : %d\n",stats.errno_count[i]);
+			fprintf(fff," : %d\n",stats.open_errno_count[i]);
 		}
 	}
 
@@ -117,6 +119,16 @@ void dump_summary(FILE *fff, int print_values) {
 	       stats.prctl_successful,stats.prctl_attempts);
 	fprintf(fff,"\tFork:\t%lld/%lld Successful\n",
 	       stats.fork_successful,stats.fork_attempts);
+	if (stats.fork_successful!=stats.fork_attempts) {
+		fprintf(fff,"\t\tFORK FAILURES: ");
+		for(i=0;i<MAX_ERRNOS;i++) {
+			if (stats.fork_errno_count[i]!=0) {
+				print_errno_name(fff,i);
+				fprintf(fff," : %d ",stats.fork_errno_count[i]);
+			}
+		}
+		fprintf(fff,"\n");
+	}
 	fprintf(fff,"\tPoll:\t%lld/%lld Successful\n",
 	       stats.poll_successful,stats.poll_attempts);
 	fprintf(fff,"\tAccess:\t%lld/%lld Successful\n",
@@ -145,7 +157,8 @@ void dump_summary(FILE *fff, int print_values) {
 	stats.overflows=0;
 	stats.sigios=0;
 	for(i=0;i<MAX_ERRNOS;i++) {
-		stats.errno_count[i]=0;
+		stats.open_errno_count[i]=0;
+		stats.fork_errno_count[i]=0;
 	}
 	for(i=0;i<MAX_OPEN_TYPE;i++) {
 		stats.open_type_success[i]=0;

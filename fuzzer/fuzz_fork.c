@@ -74,7 +74,10 @@ void fork_random_event(void) {
 		/* It will kill *all* processes beloning to the user */
 		/* Logging you out on all windows.                   */
 		if (forked_pid==-1) {
-			printf("Fork failed! %s\n",strerror(errno));
+//			printf("Fork failed! %s\n",strerror(errno));
+			if (errno<MAX_ERRNOS) {
+				stats.fork_errno_count[errno]++;
+			}
 			already_forked=0;
 		}
 		else {

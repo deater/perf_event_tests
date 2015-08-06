@@ -254,7 +254,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 
 		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) {
-			stats.errno_count[errno]++;
+			stats.open_errno_count[errno]++;
 			stats.open_type_fail[which_type]++;
 		}
 
