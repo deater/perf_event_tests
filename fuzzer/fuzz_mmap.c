@@ -68,6 +68,24 @@ static int mmap_random_prot(void) {
 	return prot;
 }
 
+static int mmap_random_size(int notaux) {
+
+	int size;
+
+	/* to be valid we really want to be 2^x pages */
+	switch(rand()%3) {
+		case 0: size=(rand()%64)*getpagesize();
+			break;
+			/* Non aux should be 1+2^x */
+		case 1: size=(notaux+(1<<rand()%10) )*getpagesize();
+			break;
+		default: size=rand()%65535;
+	}
+
+	return size;
+}
+
+
 #if 0
 static void mmap_print_flags(int flags) {
 
@@ -301,38 +319,34 @@ void trash_random_mmap(void) {
 //	printf("Done trashing\n");
 }
 
+
+/* NOTE!  This function is not re-entrant!			*/
+/* If we ever want it to be we are going to have to add locking	*/
+/* We already had problems where signal handlers interrupt after*/
+/* active is set to 1 but addr is not valid.			*/
 int setup_mmap(int which) {
 
-	int i,prot,flags;
+	int i,prot,flags,size;
 
 	i=find_empty_mmap();
 	if (i<0) return -1;
 
-	/* need locking? */
-	mmaps[i].active=1;
-
-	/* to be valid we really want to be 1+2^x pages */
-	switch(rand()%3) {
-		case 0: mmaps[i].size=(rand()%64)*getpagesize();
-			break;
-		case 1: mmaps[i].size=
-				(1 + (1<<rand()%10) )*getpagesize();
-			break;
-		default: mmaps[i].size=rand()%65535;
-	}
-
-	mmaps[i].addr=NULL;
-
+	size=mmap_random_size(1);
 	prot=mmap_random_prot();
 	flags=mmap_random_flags();
+
+	/* need locking? */
+//	mmaps[i].active=1;
+	mmaps[i].addr=NULL;
 	mmaps[i].prot=prot;
 	mmaps[i].flags=flags;
+	mmaps[i].size=size;
 	mmaps[i].aux=0;
 
 	if (!ignore_but_dont_skip.mmap) {
 
 		stats.mmap_attempts++;
-		mmaps[i].addr=mmap(NULL, mmaps[i].size,
+		mmaps[i].addr=mmap(NULL, size,
 			prot, flags,
 			event_data[which].fd, 0);
 
@@ -351,6 +365,7 @@ int setup_mmap(int which) {
 				}
 			}
 #endif
+			return -1;
 		}
 
 		else {
@@ -370,40 +385,35 @@ int setup_mmap(int which) {
 		}
 	}
 
+	mmaps[i].active=1;
+
 	/* Randomly try to set up an aux mmap too */
 	if (rand()%4==0) {
 		setup_mmap_aux(which,i);
 	}
+
+
 
 	return 0;
 }
 
 int setup_mmap_aux(int which_fd, int which_mmap) {
 
-	int i,flags,prot;
+	int i,flags,prot,size;
 
 	i=find_empty_mmap();
 	if (i<0) return -1;
 
-	/* need locking? */
-	mmaps[i].active=1;
-
-	/* to be valid we really want to be 2^x pages */
-	switch(rand()%3) {
-		case 0: mmaps[i].size=(rand()%64)*getpagesize();
-			break;
-		case 1: mmaps[i].size=
-				((1<<rand()%10) )*getpagesize();
-			break;
-		default: mmaps[i].size=rand()%65535;
-	}
-
-	mmaps[i].addr=NULL;
-
+	size=mmap_random_size(0);
 	prot=mmap_random_prot();
 	flags=mmap_random_flags();
+
+	/* need locking? */
+	mmaps[i].addr=NULL;
+
 	mmaps[i].prot=prot;
 	mmaps[i].flags=flags;
+	mmaps[i].size=size;
 	mmaps[i].aux=1;
 	mmaps[i].parent_mmap=which_mmap;
 
@@ -423,7 +433,7 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 			mmap_control->aux_size=mmaps[i].size;
 		}
 
-		mmaps[i].addr=mmap(NULL, mmaps[i].size,
+		mmaps[i].addr=mmap(NULL, size,
 			prot, flags,
 			event_data[which_fd].fd, mmaps[which_mmap].size);
 
@@ -442,6 +452,7 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 				}
 			}
 #endif
+			return -1;
 		}
 
 		else {
@@ -460,6 +471,9 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 			stats.mmap_aux_successful++;
 		}
 	}
+
+	mmaps[i].active=1;
+
 	return 0;
 }
 
