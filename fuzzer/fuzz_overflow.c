@@ -46,7 +46,7 @@ void orderly_shutdown(void) {
 	exit(1);
 }
 
-static long long prev_head=0;
+//static long long prev_head=0;
 
 /* The perf tool uses poll() and never sets signals */
 /* Thus they never have most of these problems      */
@@ -62,7 +62,10 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 	/* In some cases (syscall tracepoint) */
 	/* The act of disabling an event would trigger */
 	/* Another overflow, leading to a recursive storm */
-	if (already_handling) return;
+	if (already_handling) {
+		stats.already_overflows++;
+		return;
+	}
 
 	already_handling=1;
 

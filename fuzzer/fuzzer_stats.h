@@ -6,6 +6,7 @@
 struct fuzzer_stats_t {
 	long long total_iterations;
 	long long overflows;
+	long long already_overflows;
 	long long sigios;
 	long long current_open;
 	long long open_attempts,open_successful;

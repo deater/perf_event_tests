@@ -309,6 +309,8 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 
 	if (!ignore_but_dont_skip.overflow) {
 
+		int fcntl_result;
+
 		if (logging&TYPE_OVERFLOW) {
 			sprintf(log_buffer,"o %d\n",event_data[i].fd);
 			write(log_fd,log_buffer,strlen(log_buffer));
@@ -322,9 +324,12 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 			printf("Error setting up signal handler\n");
      		}
 
-		fcntl(event_data[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
-		fcntl(event_data[i].fd, F_SETSIG, SIGRTMIN+2);
-		fcntl(event_data[i].fd, F_SETOWN,getpid());
+		fcntl_result=fcntl(event_data[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+		if (fcntl_result<0) fprintf(stderr,"F1 error!\n");
+		fcntl_result=fcntl(event_data[i].fd, F_SETSIG, SIGRTMIN+2);
+		if (fcntl_result<0) fprintf(stderr,"F1 error!\n");
+		fcntl_result=fcntl(event_data[i].fd, F_SETOWN,getpid());
+		if (fcntl_result<0) fprintf(stderr,"F1 error!\n");
 	}
 
 	}

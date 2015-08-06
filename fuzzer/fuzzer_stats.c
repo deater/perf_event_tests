@@ -146,7 +146,8 @@ void dump_summary(FILE *fff, int print_values) {
 	       stats.poll_successful,stats.poll_attempts);
 	fprintf(fff,"\tAccess:\t%lld/%lld Successful\n",
 	       stats.access_successful,stats.access_attempts);
-	fprintf(fff,"\tOverflows: %lld\n", stats.overflows);
+	fprintf(fff,"\tOverflows: %lld  Recusive: %lld\n",
+		stats.overflows, stats.already_overflows);
 	fprintf(fff,"\tSIGIOs due to RT signal queue full: %lld\n",stats.sigios);
 
 	}
@@ -168,6 +169,7 @@ void dump_summary(FILE *fff, int print_values) {
 	stats.poll_attempts=0; stats.poll_successful=0;
 	stats.access_attempts=0; stats.access_successful=0;
 	stats.overflows=0;
+	stats.already_overflows=0;
 	stats.sigios=0;
 	for(i=0;i<MAX_ERRNOS;i++) {
 		stats.open_errno_count[i]=0;
