@@ -38,9 +38,11 @@ void fork_random_event(void) {
 
 		/* not sure if this will cause us to miss bugs */
 		/* but it does make the logs more deterministic */
-		if (attempt_determinism) {
+		/* Update -- this will leak zombies unless we */
+		/* always wait for the children.	*/
+//		if (attempt_determinism) {
 			waitpid(forked_pid, &status, 0);
-		}
+//		}
 
 		already_forked=0;
 	}
