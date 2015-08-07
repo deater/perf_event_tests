@@ -25,6 +25,10 @@ sync_read_required: sync_read_required.o \
 nmi_watchdog_group_leader: nmi_watchdog_group_leader.o \
 				$(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/bugs
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/bugs
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

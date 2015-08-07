@@ -27,6 +27,10 @@ ioctl_set_filter: ioctl_set_filter.o $(LIB)/libhelper.a
 
 ioctl_set_output: ioctl_set_output.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/ioctl
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/ioctl
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

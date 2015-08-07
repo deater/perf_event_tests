@@ -51,6 +51,10 @@ single_shot_w_enable: single_shot_w_enable.o $(LIB)/libhelper.a
 
 wakeup_events_overflow: wakeup_events_overflow.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/overflow
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/overflow
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

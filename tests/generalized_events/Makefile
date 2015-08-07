@@ -28,6 +28,10 @@ l1-dcache-stores: l1-dcache-stores.o $(LIB)/libhelper.a
 
 instructions: instructions.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/generalized_events
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/generalized_events
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

@@ -54,6 +54,10 @@ uncore_group_cbox: uncore_group_cbox.o $(LIB)/libhelper.a
 
 uncore_cpu_cbox: uncore_cpu_cbox.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/x86_intel
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/x86_intel
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

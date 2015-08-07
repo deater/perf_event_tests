@@ -45,6 +45,10 @@ esrch: esrch.o $(LIB)/libhelper.a
 
 non-existent: non-existent.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/error_returns
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/error_returns
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

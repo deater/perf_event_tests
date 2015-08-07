@@ -21,6 +21,10 @@ check_multiplexing: check_multiplexing.o \
 
 old_multiplexing: old_multiplexing.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/multiplexing
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/multiplexing
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

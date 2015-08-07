@@ -45,6 +45,10 @@ css_cgroup_crash: css_cgroup_crash.o ../lib/libhelper.a
 
 rapl_crash: rapl_crash.o ../lib/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/crashes
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/crashes
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
