@@ -108,11 +108,13 @@ int detect_rdpmc(int quiet) {
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
 		fprintf(stderr,"Error opening event\n");
+		return 0;
 	}
 
 	addr=mmap(NULL,page_size, PROT_READ, MAP_SHARED,fd,0);
 	if (addr == MAP_FAILED) {
 		fprintf(stderr,"Error mmap()ing event\n");
+		return 0;
 	}
 
 	our_mmap=(struct perf_event_mmap_page *)addr;

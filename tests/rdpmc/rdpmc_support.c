@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 		}
 
 		addr[i]=mmap(NULL,page_size, PROT_READ, MAP_SHARED,fd[i],0);
-		if (addr[i] == (void *)(-1)) {
+		if (addr[i] == MAP_FAILED) {
 			fprintf(stderr,"Error mmap()ing event %d!\n",i);
 			test_fail(test_string);
 		}
