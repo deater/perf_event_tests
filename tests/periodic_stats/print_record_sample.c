@@ -30,7 +30,11 @@ int perf_event_open(struct perf_event_attr *hw_event_uptr,
                         group_fd, flags);
 }
 
+#if defined(__x86_64__)
 #define rmb() asm volatile("lfence":::"memory")
+#elif defined(__aarch64__)
+#define rmb() asm volatile("dsb " "ld" : : : "memory")
+#endif
 
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
