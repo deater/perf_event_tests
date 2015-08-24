@@ -1,7 +1,10 @@
 #!/bin/sh
 
+cd $(dirname $0)
+PERF_EVENT_ROOT=${PWD}
+
 export TESTS_QUIET=y
-export TESTS_DIR=./tests
+export TESTS_DIR=${PERF_EVENT_ROOT}/tests
 
 echo
 echo "**** RUNNING perf_event_tests ****"

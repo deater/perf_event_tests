@@ -1,9 +1,11 @@
-CC = gcc
-CFLAGS = -Wall -O2 -I../../include
-LFLAGS =
+include ../../Makefile.globals.inc
+
+CPPFLAGS += -I../../include
+CFLAGS += -Wall -O2
+LDFLAGS +=
 LIB = ../../lib
 
-all:	\
+PROGRAM_LIST = \
 	breakpoint_overflow \
 	overflow_large \
 	overflow_poll \
@@ -19,232 +21,43 @@ all:	\
 	single_shot_w_enable \
 	wakeup_events_overflow
 
+all: $(PROGRAM_LIST)
 
-###
+breakpoint_overflow: breakpoint_overflow.o $(LIB)/libhelper.a
 
-$(LIB)/test_utils.o:	$(LIB)/test_utils.c
-	cd $(LIB) && make
+overflow_poll: overflow_poll.o $(LIB)/libhelper.a
 
-$(LIB)/branches_testcode.o:	$(LIB)/branches_testcode.c
-	cd $(LIB) && make
+overflow_signal: overflow_signal.o $(LIB)/libhelper.a
 
-$(LIB)/matrix_multiply.o:	$(LIB)/matrix_multiply.c
-	cd $(LIB) && make
+overflow_large: overflow_large.o $(LIB)/libhelper.a
 
-$(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
-	cd $(LIB) && make
+simultaneous_group_overflow: simultaneous_group_overflow.o $(LIB)/libhelper.a
 
-$(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
-	cd $(LIB) && make
+simul_oneshot_group_overflow: simul_oneshot_group_overflow.o $(LIB)/libhelper.a
 
-###
+simultaneous_overflow: simultaneous_overflow.o $(LIB)/libhelper.a
 
-breakpoint_overflow:	breakpoint_overflow.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o 
-	$(CC) $(LFLAGS) -o breakpoint_overflow breakpoint_overflow.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o 
+overflow_requires_wakeup: overflow_requires_wakeup.o $(LIB)/libhelper.a
 
-breakpoint_overflow.o:	breakpoint_overflow.c
-	$(CC) $(CFLAGS) -c breakpoint_overflow.c
+simple_overflow_leader: simple_overflow_leader.o $(LIB)/libhelper.a
 
-###
+simple_overflow_leader_poll: simple_overflow_leader_poll.o $(LIB)/libhelper.a
 
-overflow_poll:	overflow_poll.o $(LIB)/test_utils.o \
-					$(LIB)/instructions_testcode.o \
-					$(LIB)/perf_helpers.o 
-	$(CC) $(LFLAGS) -o overflow_poll overflow_poll.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/instructions_testcode.o \
-				$(LIB)/perf_helpers.o 
+simple_overflow_sibling: simple_overflow_sibling.o $(LIB)/libhelper.a
 
-overflow_poll.o:	overflow_poll.c
-	$(CC) $(CFLAGS) -c overflow_poll.c
+single_shot_overflow: single_shot_overflow.o $(LIB)/libhelper.a
 
+single_shot_w_enable: single_shot_w_enable.o $(LIB)/libhelper.a
 
-###
+wakeup_events_overflow: wakeup_events_overflow.o $(LIB)/libhelper.a
 
-overflow_signal:	overflow_signal.o $(LIB)/test_utils.o \
-					$(LIB)/instructions_testcode.o \
-					$(LIB)/perf_helpers.o 
-	$(CC) $(LFLAGS) -o overflow_signal overflow_signal.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/instructions_testcode.o \
-				$(LIB)/perf_helpers.o 
+install: all
+	$(INSTALL) -d $(prefix)/tests/overflow
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/overflow
 
-overflow_signal.o:	overflow_signal.c
-	$(CC) $(CFLAGS) -c overflow_signal.c
+clean: clean-local
+	@- $(RM) $(PROGRAM_LIST)
+	@- $(RM) *.o
 
-
-###
-
-overflow_large:	overflow_large.o $(LIB)/test_utils.o \
-					$(LIB)/instructions_testcode.o \
-					$(LIB)/perf_helpers.o 
-	$(CC) $(LFLAGS) -o overflow_large overflow_large.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/instructions_testcode.o \
-				$(LIB)/perf_helpers.o 
-
-overflow_large.o:	overflow_large.c
-	$(CC) $(CFLAGS) -c overflow_large.c
-
-
-###
-
-simultaneous_group_overflow:	simultaneous_group_overflow.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o simultaneous_group_overflow simultaneous_group_overflow.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-simultaneous_group_overflow.o:	simultaneous_group_overflow.c
-	$(CC) $(CFLAGS) -c simultaneous_group_overflow.c
-
-
-###
-
-simul_oneshot_group_overflow:	simul_oneshot_group_overflow.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o simul_oneshot_group_overflow simul_oneshot_group_overflow.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-simul_oneshot_group_overflow.o:	simul_oneshot_group_overflow.c
-	$(CC) $(CFLAGS) -c simul_oneshot_group_overflow.c
-
-
-###
-
-
-
-simultaneous_overflow:	simultaneous_overflow.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o simultaneous_overflow simultaneous_overflow.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-simultaneous_overflow.o:	simultaneous_overflow.c
-	$(CC) $(CFLAGS) -c simultaneous_overflow.c
-
-
-###
-
-overflow_requires_wakeup:	overflow_requires_wakeup.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o overflow_requires_wakeup overflow_requires_wakeup.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-overflow_requires_wakeup.o:	overflow_requires_wakeup.c
-	$(CC) $(CFLAGS) -c overflow_requires_wakeup.c
-
-
-###
-
-simple_overflow_leader:	simple_overflow_leader.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o simple_overflow_leader simple_overflow_leader.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-simple_overflow_leader.o:	simple_overflow_leader.c
-	$(CC) $(CFLAGS) -c simple_overflow_leader.c
-
-###
-
-simple_overflow_leader_poll:	simple_overflow_leader_poll.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o simple_overflow_leader_poll simple_overflow_leader_poll.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-simple_overflow_leader_poll.o:	simple_overflow_leader_poll.c
-	$(CC) $(CFLAGS) -c simple_overflow_leader_poll.c
-
-
-
-
-###
-
-simple_overflow_sibling:	simple_overflow_sibling.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o simple_overflow_sibling simple_overflow_sibling.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-simple_overflow_sibling.o:	simple_overflow_sibling.c
-	$(CC) $(CFLAGS) -c simple_overflow_sibling.c
-
-
-###
-
-single_shot_overflow:	single_shot_overflow.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o single_shot_overflow single_shot_overflow.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-single_shot_overflow.o:	single_shot_overflow.c
-	$(CC) $(CFLAGS) -c single_shot_overflow.c
-
-###
-
-single_shot_w_enable:	single_shot_w_enable.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o single_shot_w_enable single_shot_w_enable.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-single_shot_w_enable.o:	single_shot_w_enable.c
-	$(CC) $(CFLAGS) -c single_shot_w_enable.c
-
-###
-
-wakeup_events_overflow:	wakeup_events_overflow.o $(LIB)/test_utils.o \
-					$(LIB)/perf_helpers.o \
-					$(LIB)/instructions_testcode.o
-	$(CC) $(LFLAGS) -o wakeup_events_overflow wakeup_events_overflow.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/instructions_testcode.o
-
-wakeup_events_overflow.o:	wakeup_events_overflow.c
-	$(CC) $(CFLAGS) -c wakeup_events_overflow.c
-
-
-clean:	
-	rm -f *~ *.o \
-	breakpoint_overflow \
-	overflow_large \
-	overflow_poll \
-	overflow_signal \
-	overflow_requires_wakeup \
-	simple_overflow_leader \
-	simple_overflow_leader_poll \
-	simple_overflow_sibling \
-	simultaneous_group_overflow \
-	simul_oneshot_group_overflow \
-	simultaneous_overflow \
-	single_shot_overflow \
-	single_shot_w_enable \
-	wakeup_events_overflow
-
+clean-local:
+	@- $(RM) *~

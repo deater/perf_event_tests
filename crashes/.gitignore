@@ -1,0 +1,13 @@
+arm_map_hw_event_oops
+arm_validate_event_oops
+css_cgroup_crash
+nmi_soft_lockup
+offcore_response_mask
+oflo_sw_cpu_clock_crash
+pe_inherit_memleak
+pe_task_schedule_panic
+perf_ftrace_event_crash
+perf_mmap_close_bug
+rapl_crash
+sw_event_config_overflow
+tracepoint_irq_work_exit

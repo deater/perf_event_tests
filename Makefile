@@ -1,19 +1,36 @@
+include Makefile.globals.inc
+
+SCRIPT_LIST = \
+	      run_crash_tests.sh \
+	      run_tests.sh
+
 all:
-	cd lib && make
-	cd tests && make
-	cd crashes && make
-	cd fuzzer && make
-	cd tools && make
+	$(MAKE) -C lib
+	$(MAKE) -C tests
+	$(MAKE) -C crashes
+	$(MAKE) -C fuzzer
+	$(MAKE) -C tools
+	$(MAKE) -C warnings
+
+install: all
+	$(MAKE) -C tests install
+	$(MAKE) -C crashes install
+	$(MAKE) -C fuzzer install
+	$(MAKE) -C tools install
+	$(MAKE) -C warnings install
+	$(INSTALL) -m755 $(SCRIPT_LIST) $(prefix)
 
 papi:
-	cd papi && make
+	$(MAKE) -C papi
 
-clean:	
-	rm -rf *~
-	cd lib && make clean
-	cd tests && make clean
-	cd crashes && make clean
-	cd papi && make clean
-	cd include && make clean
-	cd fuzzer && make clean
-	cd tools && make clean
+clean: clean-local
+	$(MAKE) -C lib clean
+	$(MAKE) -C tests clean
+	$(MAKE) -C papi clean
+	$(MAKE) -C crashes clean
+	$(MAKE) -C fuzzer clean
+	$(MAKE) -C tools clean
+	$(MAKE) -C warnings install
+
+clean-local:
+	@- $(RM) *~

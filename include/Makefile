@@ -1,4 +1,4 @@
-all:	
+clean: clean-local
 
-clean:	
-	rm -f *~
+clean-local:
+	@- $(RM) *~
