@@ -30,7 +30,7 @@ clean: clean-local
 	$(MAKE) -C crashes clean
 	$(MAKE) -C fuzzer clean
 	$(MAKE) -C tools clean
-	$(MAKE) -C warnings install
+	$(MAKE) -C warnings clean
 
 clean-local:
 	@- $(RM) *~
