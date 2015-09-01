@@ -3,3 +3,4 @@ filter_log
 log_to_code
 perf_fuzzer
 replay_log
+last.seed
