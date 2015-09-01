@@ -1,6 +1,6 @@
 #include "fuzzer_determinism.h"
 
-#include "../include/instructions_testcode.h"
+#include "instructions_testcode.h"
 
 void run_a_million_instructions(void) {
 

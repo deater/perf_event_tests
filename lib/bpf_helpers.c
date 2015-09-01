@@ -15,9 +15,9 @@
 #define __NR_bpf		357
 #elif defined(__x86_64__)
 #define __NR_bpf		321
-#elif defined __powerpc__
+#elif defined(__powerpc__)
 #define __NR_bpf		361
-#elif defined __arm__
+#elif defined(__arm__) || defined(__aarch64__)
 #define __NR_bpf		386
 #endif
 

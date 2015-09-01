@@ -17,7 +17,7 @@
 #include <syscall.h>
 #include <linux/perf_event.h>
 
-#include "../include/perf_helpers.h"
+#include "perf_helpers.h"
 
 int main(int argc, char **argv) {
 

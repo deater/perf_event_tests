@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "../include/perf_helpers.h"
+#include "perf_helpers.h"
 
 
 int main(int argc, char **argv) {

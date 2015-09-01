@@ -1,9 +1,11 @@
-CC = gcc
-CFLAGS = -Wall -O2 -g -I../../include
-LFLAGS =
+include ../../Makefile.globals.inc
+
+CPPFLAGS += -I../../include
+CFLAGS += -Wall -O2 -g
+LDFLAGS +=
 LIB = ../../lib
 
-all:	\
+PROGRAM_LIST = \
 	e2big \
 	eacces \
 	ebadf \
@@ -17,171 +19,35 @@ all:	\
 	esrch \
 	non-existent
 
-###
+all: $(PROGRAM_LIST)
 
-$(LIB)/test_utils.o:	$(LIB)/test_utils.c
-	cd $(LIB) && make
+e2big: e2big.o $(LIB)/libhelper.a
 
-$(LIB)/branches_testcode.o:	$(LIB)/branches_testcode.c
-	cd $(LIB) && make
+eacces: eacces.o $(LIB)/libhelper.a
 
-$(LIB)/matrix_multiply.o:	$(LIB)/matrix_multiply.c
-	cd $(LIB) && make
+ebadf: ebadf.o $(LIB)/libhelper.a
 
-$(LIB)/perf_helpers.o:	$(LIB)/perf_helpers.c
-	cd $(LIB) && make
+efault: efault.o $(LIB)/libhelper.a
 
-$(LIB)/detect_cache.o:	$(LIB)/detect_cache.c
-	cd $(LIB) && make
+einval: einval.o $(LIB)/libhelper.a
 
-###
+emfile: emfile.o $(LIB)/libhelper.a
 
-e2big:	e2big.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o e2big e2big.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
+enoent: enoent.o $(LIB)/libhelper.a
 
-e2big.o:	e2big.c
-	$(CC) $(CFLAGS) -c e2big.c
+enospc: enospc.o $(LIB)/libhelper.a
 
-###
+eopnotsupp: eopnotsupp.o $(LIB)/libhelper.a
 
-eacces:	eacces.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o eacces eacces.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
+eperm: eperm.o $(LIB)/libhelper.a
 
-eacces.o:	eacces.c
-	$(CC) $(CFLAGS) -c eacces.c
+esrch: esrch.o $(LIB)/libhelper.a
 
-###
+non-existent: non-existent.o $(LIB)/libhelper.a
 
-ebadf:	ebadf.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o ebadf ebadf.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
+clean: clean-local
+	@- $(RM) $(PROGRAM_LIST)
+	@- $(RM) *.o
 
-ebadf.o:	ebadf.c
-	$(CC) $(CFLAGS) -c ebadf.c
-
-###
-
-efault:	efault.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o efault efault.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-efault.o:	efault.c
-	$(CC) $(CFLAGS) -c efault.c
-
-###
-
-einval:	einval.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o einval einval.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-einval.o:	einval.c
-	$(CC) $(CFLAGS) -c einval.c
-
-###
-
-emfile:	emfile.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o emfile emfile.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-emfile.o:	emfile.c
-	$(CC) $(CFLAGS) -c emfile.c
-
-###
-
-enoent:	enoent.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o enoent enoent.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-enoent.o:	enoent.c
-	$(CC) $(CFLAGS) -c enoent.c
-
-###
-
-enospc:	enospc.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o enospc enospc.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-enospc.o:	enospc.c
-	$(CC) $(CFLAGS) -c enospc.c
-
-###
-
-eopnotsupp:	eopnotsupp.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o eopnotsupp eopnotsupp.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-eopnotsupp.o:	eopnotsupp.c
-	$(CC) $(CFLAGS) -c eopnotsupp.c
-
-###
-
-eperm:	eperm.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o eperm eperm.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-eperm.o:	eperm.c
-	$(CC) $(CFLAGS) -c eperm.c
-
-###
-
-esrch:	esrch.o $(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-	$(CC) $(LFLAGS) -o esrch esrch.o \
-			$(LIB)/test_utils.o \
-			$(LIB)/perf_helpers.o
-
-esrch.o:	esrch.c
-	$(CC) $(CFLAGS) -c esrch.c
-
-###
-
-non-existent:	non-existent.o $(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-	$(CC) $(LFLAGS) -o non-existent non-existent.o \
-				$(LIB)/test_utils.o \
-				$(LIB)/perf_helpers.o \
-				$(LIB)/matrix_multiply.o
-
-non-existent.o:	non-existent.c
-	$(CC) $(CFLAGS) -c non-existent.c
-
-###
-
-
-clean:	
-	rm -f *~ *.o \
-		e2big \
-		eacces \
-		ebadf \
-		efault \
-		einval \
-		emfile \
-		enoent \
-		enospc \
-		eopnotsupp \
-		eperm \
-		esrch \
-		non-existent
+clean-local:
+	@- $(RM) *~
