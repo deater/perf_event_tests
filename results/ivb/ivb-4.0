@@ -1,6 +1,6 @@
 
 **** RUNNING perf_event_tests ****
-Linux vincent-weaver-1 3.14-2-amd64 #1 SMP Debian 3.14.15-2 (2014-08-09) x86_64 GNU/Linux
+Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.5-1 (2015-06-16) x86_64 GNU/Linux
 
 * Checking infrastructure
   + ./tests/utils/get_cache_info
@@ -34,11 +34,11 @@ Linux vincent-weaver-1 3.14-2-amd64 #1 SMP Debian 3.14.15-2 (2014-08-09) x86_64 
   + ./tests/x86_intel/offcore_response_mask
     Testing if setting invalid offcore bits is blocked...        PASSED
   + ./tests/x86_intel/uncore_events
-    Testing uncore events...                                     FAILED
+    Testing uncore events...                                     PASSED
 
 * Checking breakpoint support
   + ./tests/breakpoints/breakpoint_support
-    Testing hardware breakpoints (717908674)...                  PASSED
+    Testing hardware breakpoints (738388707)...                  PASSED
 
 * Checking basic perf_event functionality
   + ./tests/attr_fields/disabled
@@ -66,9 +66,13 @@ Linux vincent-weaver-1 3.14-2-amd64 #1 SMP Debian 3.14.15-2 (2014-08-09) x86_64 
   + ./tests/attr_fields/exclude_host
     Testing exclude_host...                                      PASSED
   + ./tests/flags/flags_range_check
-    Testing flags invalid bits...                                FAILED (KERNEL TOO OLD)
+    Testing flags invalid bits...                                PASSED
   + ./tests/flags/flags_cgroup
-    Testing PERF_FLAG_PID_CGROUP flag...                         SKIPPED
+    Testing PERF_FLAG_PID_CGROUP flag...                         PASSED
+  + ./tests/flags/flags_fd_no_group
+    Testing PERF_FLAG_FD_NO_GROUP flag...                        PASSED
+  + ./tests/flags/flags_fd_output
+    Testing PERF_FLAG_FD_OUTPUT flag...                          FAILED
   + ./tests/socket/socket_pass
     Testing passing fd over a socket...                          PASSED
 
@@ -79,12 +83,16 @@ Linux vincent-weaver-1 3.14-2-amd64 #1 SMP Debian 3.14.15-2 (2014-08-09) x86_64 
     Testing ioctl(PERF_EVENT_IOC_ID)...                          PASSED
   + ./tests/ioctl/ioctl_period
     Testing ioctl(PERF_EVENT_IOC_PERIOD)...                      NEW BEHAVIOR
+  + ./tests/ioctl/ioctl_set_filter
+    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   FAILED
+  + ./tests/ioctl/ioctl_set_output
+    Testing PERF_EVENT_IOC_SET_OUTPUT ioctl...                   PASSED
 
 * Checking error returns
   + ./tests/error_returns/e2big
     Testing E2BIG errors...                                      PASSED
   + ./tests/error_returns/eacces
-    Testing EACCES generation...                                 PASSED
+    Testing EACCES generation...                                 FAILED
   + ./tests/error_returns/ebadf
     Testing EBADF generation...                                  PASSED
   + ./tests/error_returns/efault
@@ -92,8 +100,7 @@ Linux vincent-weaver-1 3.14-2-amd64 #1 SMP Debian 3.14.15-2 (2014-08-09) x86_64 
   + ./tests/error_returns/einval
     Testing EINVAL generation...                                 PASSED
   + ./tests/error_returns/emfile
-    Testing if EMFILE can be triggered...                        PASSED
-  + ./tests/error_returns/enoent
+      + ./tests/error_returns/enoent
     Testing ENOENT generation...                                 PASSED
   + ./tests/error_returns/enospc
     Testing ENOSPC generation...                                 PASSED
@@ -134,7 +141,8 @@ Testing reads in forked children...                          PASSED
   + ./tests/overflow/overflow_requires_wakeup
     Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
   + ./tests/overflow/overflow_poll
-    Testing catching overflow with poll()...                     PASSED
+    Returned HUP!
+Testing catching overflow with poll()...                     FAILED
   + ./tests/overflow/overflow_large
     Testing large sample_period...                               FAILED
 
@@ -156,17 +164,19 @@ Testing reads in forked children...                          PASSED
   + ./tests/record_sample/record_comm
     Testing PERF_RECORD_COMM...                                  PASSED
   + ./tests/record_sample/record_comm_exec
-    Testing PERF_RECORD_COMM_EXEC...                             FAILED (KERNEL TOO OLD)
+    Testing PERF_RECORD_COMM_EXEC...                             PASSED
   + ./tests/record_sample/record_fork
     Testing PERF_RECORD_FORK...                                  PASSED
   + ./tests/record_sample/record_mmap
     Testing PERF_RECORD_MMAP...                                  PASSED
   + ./tests/record_sample/record_mmap2
-    Testing PERF_RECORD_MMAP2...                                 FAILED (KERNEL TOO OLD)
+    Testing PERF_RECORD_MMAP2...                                 PASSED
   + ./tests/record_sample/record_mmap_data
     Testing PERF_RECORD_MMAP with mmap_data...                   PASSED
   + ./tests/record_sample/sample_data_src
     Testing PERF_SAMPLE_DATA_SRC...                              PASSED
+  + ./tests/record_sample/sample_regs_intr
+    Testing PERF_SAMPLE_REGS_INTR...                             PASSED
   + ./tests/record_sample/sample_regs_user
     Testing PERF_SAMPLE_REGS_USER...                             PASSED
   + ./tests/record_sample/sample_stack_user
@@ -198,7 +208,7 @@ Testing reads in forked children...                          PASSED
   + ./tests/constraints/check_constraints
     Testing if event constraints are enforced...                 PASSED
   + ./tests/corner_cases/context_switch_user_kernel
-    Testing if context-switches are kernel only...               NEW BEHAVIOR
+    Testing if context-switches are kernel only...               FAILED
 
 * Checking interfaces that have changed over the years
   + ./tests/corner_cases/overflow_requires_mmap
@@ -225,6 +235,21 @@ Testing reads in forked children...                          PASSED
     Testing if userspace rdpmc reads are supported...            NEW BEHAVIOR
   + ./tests/rdpmc/rdpmc_validation
     Testing if userspace rdpmc reads give expected results...    PASSED
+
+* Checking OpenMP support
+  + ./tests/openmp/openmp_test
+    Testing OpenMP results...                                    PASSED
+  + ./tests/openmp/openmp_overflow
+    Testing OpenMP overflow results...                           FAILED
+  + ./tests/openmp/openmp_sample
+    WARNING! CPU0 overflow count low!
+WARNING! CPU1 overflow count low!
+WARNING! CPU2 overflow count low!
+WARNING! CPU4 overflow count low!
+WARNING! CPU5 overflow count low!
+WARNING! CPU6 overflow count low!
+WARNING! CPU7 overflow count low!
+Testing OpenMP sampling results...                           FAILED
 
 * Checking proposed interface updates (not in any released kernel)
   + ./tests/corner_cases/ioctl_refresh_0
