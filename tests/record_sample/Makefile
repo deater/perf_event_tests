@@ -77,6 +77,10 @@ sample_stack_user: sample_stack_user.o \
 sample_weight: sample_weight.o \
 		$(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/record_sample
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/record_sample
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

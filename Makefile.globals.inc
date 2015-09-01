@@ -9,3 +9,7 @@ STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 RANLIB		= $(CROSS_COMPILE)ranlib
+
+INSTALL		= /usr/bin/install
+
+prefix = /opt/perf_event_tests

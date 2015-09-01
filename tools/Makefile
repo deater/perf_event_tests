@@ -16,6 +16,10 @@ event_parser: event_parser.o
 trace_event_parser: trace_event_parser.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
+install: all
+	$(INSTALL) -d $(prefix)/tools
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tools
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

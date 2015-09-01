@@ -15,5 +15,9 @@ clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/breakpoints
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/breakpoints
+
 clean-local:
 	@- $(RM) *~

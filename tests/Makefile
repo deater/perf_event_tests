@@ -20,6 +20,29 @@ all:
 	$(MAKE) -C utils
 	$(MAKE) -C x86_intel
 
+install: all
+	$(MAKE) -C attr_fields install
+	$(MAKE) -C breakpoints install
+	$(MAKE) -C bugs install
+	$(MAKE) -C constraints install
+	$(MAKE) -C corner_cases install
+	$(MAKE) -C error_returns install
+	$(MAKE) -C flags install
+	$(MAKE) -C generalized_events install
+	$(MAKE) -C ioctl install
+	$(MAKE) -C multiplexing install
+	$(MAKE) -C multithread install
+	$(MAKE) -C openmp install
+	$(MAKE) -C overflow install
+	$(MAKE) -C rdpmc install
+	$(MAKE) -C record_sample install
+	$(MAKE) -C socket install
+	$(MAKE) -C sysfs install
+	$(MAKE) -C tracepoints install
+	$(MAKE) -C utils install
+	$(MAKE) -C x86_intel install
+
+
 clean: clean-local
 	$(MAKE) -C attr_fields clean
 	$(MAKE) -C breakpoints clean

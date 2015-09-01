@@ -11,6 +11,10 @@ all: $(PROGRAM_LIST)
 
 events: events.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/sysfs
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/sysfs
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

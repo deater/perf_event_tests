@@ -18,6 +18,10 @@ openmp_overflow: openmp_overflow.o \
 openmp_sample: openmp_sample.o \
 		$(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/openmp
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/openmp
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

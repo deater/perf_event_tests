@@ -62,6 +62,10 @@ wrong_size_enospc: wrong_size_enospc.o \
 ioctl_refresh_0: ioctl_refresh_0.o \
 		$(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/corner_cases
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/corner_cases
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o

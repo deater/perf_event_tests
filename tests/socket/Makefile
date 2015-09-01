@@ -11,6 +11,10 @@ all: $(PROGRAM_LIST)
 
 socket_pass: socket_pass.o $(LIB)/libhelper.a
 
+install: all
+	$(INSTALL) -d $(prefix)/tests/socket
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/socket
+
 clean: clean-local
 	@- $(RM) $(PROGRAM_LIST)
 	@- $(RM) *.o
