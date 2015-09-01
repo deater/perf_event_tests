@@ -4,6 +4,8 @@
 /*    ulimit -Sn    -- soft limit (1024 on my machine) */
 /*    ulimit -Hn    -- hard limit (4096 on my machine) */
 
+/* This has been raised to 65536 on my Debian Jessie box -- 1Sep2015 */
+
 /* by Vince Weaver, vincent.weaver _at_ maine.edu                  */
 
 #include <stdlib.h>
@@ -19,32 +21,50 @@
 
 char test_string[]="Testing if EMFILE can be triggered...";
 
-/* Typically 1024 is enough */
-#define MAX_LIMIT 10000
+/* Recent systems have the limit set really high             */
+/* Stop at 10000 as things get drastically slower after that */
+#define DEFAULT_MAX_LIMIT 10000
+
+
+
 
 int main(int argc, char **argv) {
 
 	int quiet,i;
-	struct perf_event_attr pe[MAX_LIMIT];
-	int fd[MAX_LIMIT];
+	struct perf_event_attr pe;
+	int *fd;
+	int max_limit=DEFAULT_MAX_LIMIT;
+
+	if (argc>1) {
+		max_limit=atoi(argv[1]);
+		if (max_limit<=0) {
+			printf("Improper max limit %d\n",max_limit);
+		}
+	}
 
 	quiet=test_quiet();
 
-	for(i=0;i<=MAX_LIMIT;i++) {
+	fd=calloc(max_limit,sizeof(int));
+	if (fd==NULL) {
+		printf("Error allocating %d fds\n",max_limit);
+		test_fail(test_string);
+	}
+
+	for(i=0;i<max_limit;i++) {
 
 		if (!quiet) {
-			printf("Trying event %d\n",i);
+			if (i%100==0) printf("Trying event %d\n",i);
 		}
 
-		memset(&pe[i],0,sizeof(struct perf_event_attr));
-		pe[i].type=PERF_TYPE_HARDWARE;
-		pe[i].size=sizeof(struct perf_event_attr);
-		pe[i].config=PERF_COUNT_HW_INSTRUCTIONS;
-		pe[i].disabled=1;
-		pe[i].exclude_kernel=1;
-		pe[i].exclude_hv=1;
+		memset(&pe,0,sizeof(struct perf_event_attr));
+		pe.type=PERF_TYPE_HARDWARE;
+		pe.size=sizeof(struct perf_event_attr);
+		pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+		pe.disabled=1;
+		pe.exclude_kernel=1;
+		pe.exclude_hv=1;
 
-		fd[i]=perf_event_open(&pe[i],0,-1,-1,0);
+		fd[i]=perf_event_open(&pe,0,-1,-1,0);
 		if (fd[i]<0) {
 			if (i==0) {
 				if (!quiet) {
@@ -72,9 +92,9 @@ int main(int argc, char **argv) {
 	}
 
 	if (!quiet) {
-		printf("Unexpectedly managed to create %d events!\n",i);
+		printf("Was able to create %d events!\n",i);
 	}
-	test_fail( test_string );
+	test_skip( test_string );
 
 	return 0;
 }
