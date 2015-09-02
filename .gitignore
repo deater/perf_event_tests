@@ -1,4 +1,5 @@
-.o
+*.o
+*.a
 **.rej
 *.orig
 *.patch
