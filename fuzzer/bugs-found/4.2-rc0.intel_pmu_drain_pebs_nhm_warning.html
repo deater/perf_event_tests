@@ -17,7 +17,7 @@ intel_pmu_drain_pebs_nhm() warning !event-&gt;attr.precise_ip
 perf_fuzzer
 
 <h3>Severity</h3>
-Warning
+Warning / Crash?
 
 <h3>First Seen</h3>
 4.2-rc0
@@ -39,7 +39,10 @@ perf: fuzzer triggered warning in intel_pmu_drain_pebs_nhm()
 
 
 <h3>Fixed in</h3>
-n/a
+
+See if 75f80859b130a1cc84e59e71295ce2dd51fe1c81 or 
+2a853e1123cbbb43ff74cc47b4ec582ce34df262 helps.
+
 
 <h3>Details</h3>
 
@@ -55,6 +58,110 @@ which is
 
 <h3>Kernel Splat</h3>
 <ol>
+
+<li>Also maybe related
+<pre>
+Iteration 150000
+        Open attempts: 100570  Successful: 917  Currently open: 48
+                EPERM : 15
+                ENOENT : 541
+                E2BIG : 8872
+                EBADF : 8350
+                EBUSY : 1
+                EINVAL : 81591
+                EOPNOTSUPP : 283
+                Trinity Type (Normal 273/25175)(Sampling 29/25385)(Global 569/25
+155)(Random 46/24855)
+                Type (Hardware 207/14098)(software 295/14659)(tracepoint 67/1461
+6)(Cache 61/12595)(cpu 223/14205)(breakpoint 18/14302)(intel_bts 41/1787)(power 
+2/1859)(uncore_imc 3/1908)(#9 0/6)(#10 0/7)(#11 0/2)(#12 0/9)(#13 0/10)(#14 0/7)
+(>14 0/10500)
+        Close:  873/873 Successful
+        Read:   799/891 Successful
+        Write:  0/925 Successful
+        Ioctl:  386/903 Successful: (ENABLE 87/87)(DISABLE 91/91)(REFRESH 4/84)(RESET 92/92)(PERIOD 11/99)(SET_OUTPUT 5/88)(SET_FILTER 0/89)(ID 96/96)(SET_BPF 0/84)(#9 0/0)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/93)
+        Mmap:   434/1071 Successful: (MMAP 434/1071)(TRASH 120/143)(READ 15/148)(UNMAP 430/1008)(AUX 3/103)(AUX_READ 2/3)
+        Prctl:  921/921 Successful
+        Fork:   465/465 Successful
+        Poll:   902/919 Successful
+        Access: 443/834 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[185628.092805] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detected by 6, t=5252 jiffies, g=25134216, c=25134215, q=259)
+[185628.105788] Task dump for CPU 1:
+[185628.109629] perf_fuzzer     R  running task        0  5240  21485 0x00000008
+[185628.117630]  0000000001200011 ffff880036765390 ffff880036765398 ffff880036765380
+[185628.126071]  ffff880118552620 ffff8800cd115ae0 ffff8800cf927100 ffff8800cfbf80c0
+[185628.134464]  ffff880118552580 ffff8800cfbf8468 0000000000000000 ffff8800cd115a40
+[185628.142889] Call Trace:
+[185628.145901]  [<ffffffff8106dc0c>] ? _do_fork+0xdc/0x3f0
+[185628.151855]  [<ffffffff816a36fe>] ? mutex_unlock+0xe/0x10
+[185628.158017]  [<ffffffff81156d55>] ? perf_event_task_enable+0x95/0xb0
+[185628.165208]  [<ffffffff81003012>] ? lockdep_sys_exit_thunk+0x12/0x14
+[185628.172437]  [<ffffffff8106dfc9>] ? SyS_clone+0x19/0x20
+[185628.178443]  [<ffffffff816a5b72>] ? entry_SYSCALL_64_fastpath+0x16/0x7a
+[185631.225868] ------------[ cut here ]------------
+[185631.231238] WARNING: CPU: 1 PID: 5240 at kernel/watchdog.c:311 watchdog_overflow_callback+0x84/0xa0()
+[185631.241465] Watchdog detected hard LOCKUP on cpu 1
+[185631.246559] Modules linked in: binfmt_misc x86_pkg_temp_thermal intel_powerclamp snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi intel_rapl snd_hda_intel snd_hda_codec iosf_mbi snd_hda_core coretemp snd_hwdep kvm_intel kvm snd_pcm iTCO_wdt crct10dif_pclmul ppdev iTCO_vendor_support snd_timer evdev crc32_pclmul sg ghash_clmulni_intel i915 hmac drbg ansi_cprng drm_kms_helper psmouse drm aesni_intel snd aes_x86_64 lrw mei_me gf128mul glue_helper ablk_helper cryptd parport_pc lpc_ich parport soundcore pcspkr mfd_core serio_raw mei i2c_algo_bit tpm_tis video processor wmi tpm i2c_i801 battery button sr_mod cdrom sd_mod ehci_pci ehci_hcd xhci_pci ahci xhci_hcd libahci libata e1000e ptp usbcore crc32c_intel fan scsi_mod pps_core usb_common thermal thermal_sys
+[185631.324155] CPU: 1 PID: 5240 Comm: perf_fuzzer Tainted: G        W       4.2.0-rc7 #172
+[185631.333210] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[185631.341642]  ffffffff81a2990a ffff88011ea45af0 ffffffff8169df8c 0000000000000000
+[185631.350240]  ffff88011ea45b40 ffff88011ea45b30 ffffffff8106e81a ffff88011ea45c40
+[185631.358769]  ffff8801197c7800 0000000000000001 ffff88011ea45c40 ffff88011ea45ef8
+[185631.367289] Call Trace:
+[185631.370449]  <NMI>  [<ffffffff8169df8c>] dump_stack+0x45/0x57
+[185631.377163]  [<ffffffff8106e81a>] warn_slowpath_common+0x8a/0xc0
+[185631.384164]  [<ffffffff8106e896>] warn_slowpath_fmt+0x46/0x50
+[185631.390869]  [<ffffffff8102f306>] ? intel_pmu_drain_pebs_nhm+0x176/0x2e0
+[185631.398576]  [<ffffffff8111a424>] watchdog_overflow_callback+0x84/0xa0
+[185631.406127]  [<ffffffff811598ec>] __perf_event_overflow+0x8c/0x1c0
+[185631.413309]  [<ffffffff8115a454>] perf_event_overflow+0x14/0x20
+[185631.420244]  [<ffffffff81031df4>] intel_pmu_handle_irq+0x1d4/0x440
+[185631.427469]  [<ffffffff81035977>] ? intel_bts_enable_local+0x17/0x40
+[185631.434847]  [<ffffffff8104da70>] ? nmi_vprintk+0x70/0x70
+[185631.441206]  [<ffffffff81028b46>] perf_event_nmi_handler+0x26/0x40
+[185631.448436]  [<ffffffff81017e5d>] nmi_handle+0x9d/0x140
+[185631.454619]  [<ffffffff81017dc5>] ? nmi_handle+0x5/0x140
+[185631.460906]  [<ffffffff81018169>] default_do_nmi+0xc9/0x120
+[185631.467485]  [<ffffffff810182b4>] do_nmi+0xf4/0x150
+[185631.473305]  [<ffffffff816a7df4>] end_repeat_nmi+0x1a/0x1e
+[185631.479829]  [<ffffffff811944f1>] ? copy_page_range+0x5b1/0x960
+[185631.486797]  [<ffffffff811944f1>] ? copy_page_range+0x5b1/0x960
+[185631.493713]  [<ffffffff811944f1>] ? copy_page_range+0x5b1/0x960
+[185631.500632]  <<EOE>>  [<ffffffff8106cc38>] copy_process.part.27+0xc58/0x1a60
+[185631.508762]  [<ffffffff8106dc0c>] _do_fork+0xdc/0x3f0
+[185631.514780]  [<ffffffff816a36fe>] ? mutex_unlock+0xe/0x10
+[185631.521128]  [<ffffffff81156d55>] ? perf_event_task_enable+0x95/0xb0
+[185631.528509]  [<ffffffff81003012>] ? lockdep_sys_exit_thunk+0x12/0x14
+[185631.535878]  [<ffffffff8106dfc9>] SyS_clone+0x19/0x20
+[185631.541854]  [<ffffffff816a5b72>] entry_SYSCALL_64_fastpath+0x16/0x7a
+[185631.549303] ---[ end trace 544d1d7fff876eb2 ]---
+[185691.139448] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detected by 6, t=21007 jiffies, g=25134216, c=25134215, q=980)
+[185691.152971] Task dump for CPU 1:
+[185691.157011] perf_fuzzer     R  running task        0  5240  21485 0x00000008
+[185691.165224]  0000000001200011 ffff880036765390 ffff880036765398 ffff880036765380
+[185691.173849]  ffff880118552620 ffff8800cd115ae0 ffff8800cf927100 ffff8800cfbf80c0
+[185691.182493]  ffff880118552580 ffff8800cfbf8468 0000000000000000 ffff8800cd115a40
+[185691.191068] Call Trace:
+[185691.194258]  [<ffffffff8106dc0c>] ? _do_fork+0xdc/0x3f0
+[185691.200429]  [<ffffffff816a36fe>] ? mutex_unlock+0xe/0x10
+[185691.206780]  [<ffffffff81156d55>] ? perf_event_task_enable+0x95/0xb0
+[185691.214170]  [<ffffffff81003012>] ? lockdep_sys_exit_thunk+0x12/0x14
+[185691.221503]  [<ffffffff8106dfc9>] ? SyS_clone+0x19/0x20
+[185691.227638]  [<ffffffff816a5b72>] ? entry_SYSCALL_64_fastpath+0x16/0x7a
+[185754.186091] INFO: rcu_sched detected stalls on CPUs/tasks: { 1} (detected by 6, t=36762 jiffies, g=25134216, c=25134215, q=1598)
+[185754.199525] Task dump for CPU 1:
+[185754.203461] perf_fuzzer     R  running task        0  5240  21485 0x00000008
+[185754.211587]  0000000001200011 ffff880036765390 ffff880036765398 ffff880036765380
+[185754.220070]  ffff880118552620 ffff8800cd115ae0 ffff8800cf927100 ffff8800cfbf80c0
+[185754.228573]  ffff880118552580 ffff8800cfbf8468 0000000000000000 ffff8800cd115a40
+[185754.237081] Call Trace:
+[185754.240190]  [<ffffffff8106dc0c>] ? _do_fork+0xdc/0x3f0
+[185754.246290]  [<ffffffff816a36fe>] ? mutex_unlock+0xe/0x10
+[185754.252638]  [<ffffffff81156d55>] ? perf_event_task_enable+0x95/0xb0
+[185754.259967]  [<ffffffff81003012>] ? lockdep_sys_exit_thunk+0x12/0x14
+</pre>
 
 <li>
 Maybe related
