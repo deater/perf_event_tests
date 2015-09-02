@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 	for(i=0;i<max_limit;i++) {
 
 		if (!quiet) {
-			if (i%100==0) printf("Trying event %d\n",i);
+//			if (i%100==0) printf("Trying event %d\n",i);
 		}
 
 		memset(&pe,0,sizeof(struct perf_event_attr));

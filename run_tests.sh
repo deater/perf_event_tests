@@ -350,6 +350,14 @@ $TESTS_DIR/corner_cases/reset_leader
 echo "  + $TESTS_DIR/corner_cases/check_reset_mpx"
 echo -n "    "
 $TESTS_DIR/corner_cases/check_reset_mpx
+echo "  + $TESTS_DIR/corner_cases/huge_events_start"
+echo -n "    "
+$TESTS_DIR/corner_cases/huge_events_start
+echo "  + $TESTS_DIR/corner_cases/huge_group_start"
+echo -n "    "
+$TESTS_DIR/corner_cases/huge_group_start
+
+
 
 echo
 echo "* Checking for fast RDPMC support"
