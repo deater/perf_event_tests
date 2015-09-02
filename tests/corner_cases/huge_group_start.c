@@ -1,12 +1,19 @@
-/* This test tries to open the max num events, then start them  */
-/* This limit is set by the maximum number of file descriptors  */
-/* Which can be read by */
-/*    ulimit -Sn    -- soft limit (1024 on my machine) */
-/*    ulimit -Hn    -- hard limit (4096 on my machine) */
+/* This test tries to open the max num events in a group, then reads them  */
 
-/* This has been raised to 65536 on my Debian Jessie box -- 1Sep2015 */
+/* This turned up a bug in the Linux kernel!
+   The kernel internal read_size value is a u16 (16-bit)
+   But we can easily overflow that if we have a large number of events
+	in a group.
+  In this case a read() syscall misses the sanity check for the requested
+	buffer being too small for the read, and the kernel will happily
+	overflow past the buffer size we requested.
 
-/* by Vince Weaver, vincent.weaver _at_ maine.edu                  */
+  This bug was reported on 2 September 2015.
+
+  While annoying, I am not aware of any easy to exploit security implications
+	of this bug, but I am always impressed with how clever people can be */
+
+/* Vince Weaver -- vincent.weaver _at_ maine.edu */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,16 +34,21 @@ char test_string[]="Testing start of max event group...";
 
 #define DATASIZE 8192
 
+#define SENTINEL 0xfeb131978
+
 int main(int argc, char **argv) {
 
 	int quiet,i;
 	struct perf_event_attr pe;
 	int *fd;
 	int max_limit=DEFAULT_MAX_LIMIT;
-	unsigned long long data[DATASIZE];
+	unsigned long long data[DATASIZE+1];
 	int result;
 	int max_events;
 
+	data[DATASIZE]=SENTINEL;
+
+	printf("data size=%ld\n",sizeof(data));
 
 	if (argc>1) {
 		max_limit=atoi(argv[1]);
@@ -127,7 +139,16 @@ int main(int argc, char **argv) {
 
 	ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
 
-	result=read(fd[0],&data,DATASIZE*sizeof(long long));
+	printf("Trying to read %ld bytes into data\n",
+		DATASIZE*sizeof(long long));
+	result=read(fd[0],&data,29*1024);// DATASIZE*sizeof(long long));
+
+	if (data[DATASIZE]!=SENTINEL) {
+		if (!quiet) {
+			printf("Error!  Known kernel bug!  Kernel writes past end of buffer!\n");
+		}
+		test_fail(test_string);
+	}
 
 	if (!quiet) {
 		if (result<0) {
