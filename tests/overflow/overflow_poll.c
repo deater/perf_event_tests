@@ -207,8 +207,10 @@ int main(int argc, char** argv) {
 		printf("\tUNKNOWN : %d\n",count.unknown);
 	}
 
-	/* FIXME!  Why do we get IN not HUP */
-	/* in contrast to the signal test cases? */
+	/* I think it is exected that we get POLL_IN for each time the */
+	/* wakeup value is triggered (indicating data is ready) and we */
+	/* only get POLL_HUP if the monitored process exits (hangs up) */
+	/* I think older (pre-3.18?) did this differently.             */
 
 	if (count.total==0) {
 		if (!quiet) printf("No overflow events generated.\n");
@@ -220,9 +222,14 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-	if (count.hup!=0) {
-		if (!quiet) printf("POLL_HUP value %d, expected %d.\n",
-					count.hup,10);
+	if (count.hup!=1) {
+		if (!quiet) {
+			printf("POLL_HUP value %d, expected %d.\n",
+					count.hup,1);
+			printf("Expected if kernel older than 3.18, "
+				"as poll() would get an error rather than "
+				"POLL_HUP if the monitored process detached\n");
+		}
 		test_fail(test_string);
 	}
 
