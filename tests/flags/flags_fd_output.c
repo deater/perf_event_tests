@@ -4,6 +4,10 @@
 /* Note: this functionality seems to have been broken since 2.6.35
 	ac9721f3f54b27a16c7e1afb2481e7ee95a70318			*/
 
+/* It was proposed for removal in this thread:
+	https://lkml.org/lkml/2015/1/8/285
+   but nothing ever happened.  */
+
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
 #define _GNU_SOURCE 1
@@ -79,7 +83,7 @@ int main(int argc, char** argv) {
 
 	if (!quiet) {
 		printf("Testing PERF_FLAG_FD_OUTPUT flag.\n");
-		printf("Note: this feature was broken from 2.6.35 until at least 3.18\n");
+		printf("Note: this feature has been broken since 2.6.35\n");
 	}
 
 	/**********************************/
