@@ -113,8 +113,10 @@ int main(int argc, char **argv) {
 
 
 #elif defined(__i386__)
-
 	pe.sample_regs_user=(1ULL<<PERF_REG_X86_32_MAX)-1;
+
+#elif defined(__arm__)
+	pe.sample_regs_user=(1ULL<<PERF_REG_ARM_MAX)-1;
 #else
 	pe.sample_regs_user=1;
 #endif

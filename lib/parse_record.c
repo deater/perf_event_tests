@@ -127,6 +127,13 @@ static char reg_names[PERF_REG_X86_32_MAX][8]=
 			{"EAX","EBX","ECX","EDX","ESI","EDI","EBP","ESP",
 			 "EIP","EFLAGS","CS","SS","DS","ES","FS","GS"};
 
+#elif defined(__arm__)
+
+#define NUM_REGS	PERF_REG_ARM_MAX
+static char reg_names[PERF_REG_ARM_MAX][8]=
+			{"R0","R1","R2","R3","R4","R5","R6","R7",
+			 "R8","R9","R10","FP","IP","SP","LR","PC"};
+
 #else
 
 #define NUM_REGS 0
