@@ -26,21 +26,21 @@ int fd;
 
 int main(int argc, char **argv) {
 
-   int num_runs=100,i,j,read_result;
-   long long high=0,low=0,average=0;
-   double error,total_sum=0.0;
-   struct perf_event_attr pe;
+	int num_runs=100,i,j,read_result;
+	long long high=0,low=0,average=0;
+	double error,total_sum=0.0;
+	struct perf_event_attr pe;
 
-   long long count,total=0;
+	long long count,total=0;
 
-   quiet=test_quiet();
+	quiet=test_quiet();
 
-   if (!quiet) {
-      printf("\n");
+	if (!quiet) {
+		printf("\n");
 
-      printf("Testing a loop writing %d doubles %d times\n",
-          ARRAYSIZE,num_runs);
-   }
+		printf("Testing a loop writing %d doubles %d times\n",
+			ARRAYSIZE,num_runs);
+	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
 	pe.config=PERF_COUNT_HW_CACHE_L1D |
 		(PERF_COUNT_HW_CACHE_OP_WRITE<<8) |
 		(PERF_COUNT_HW_CACHE_RESULT_ACCESS <<16);
+
 	pe.disabled=1;
 	pe.exclude_kernel=1;
 	pe.exclude_hv=1;
@@ -89,61 +90,63 @@ int main(int argc, char **argv) {
 		}
 	}
 
-   for(i=0;i<num_runs;i++) {
+	for(i=0;i<num_runs;i++) {
 
-      /*******************************************************************/
-      /* Test if the C compiler uses a sane number of data cache acceess */
-      /*******************************************************************/
+	/*******************************************************************/
+	/* Test if the C compiler uses a sane number of data cache acceess */
+	/*******************************************************************/
 
-      double array[ARRAYSIZE];
-      double aSumm = 0.0;
+		double array[ARRAYSIZE];
+		double aSumm = 0.0;
 
-      ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-      ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+		ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+		ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-      for(j=0; j<ARRAYSIZE; j++) {
-	array[j]=(double)j;
-      }
+		for(j=0; j<ARRAYSIZE; j++) {
+			array[j]=(double)j;
+		}
 
-      ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-      read_result=read(fd,&count,sizeof(long long));
+		ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+		read_result=read(fd,&count,sizeof(long long));
 
-      for(j=0; j<ARRAYSIZE; j++) {
-	aSumm+=array[j];
-      }
-      total_sum+=aSumm;
+		for(j=0; j<ARRAYSIZE; j++) {
+			aSumm+=array[j];
+		}
+		total_sum+=aSumm;
 
-      //      if (result==CODE_UNIMPLEMENTED) {
-      //	 test_skip(test_string);
-      //	 fprintf(stdout,"\tNo test code for this architecture\n");
-      // }
+	//      if (result==CODE_UNIMPLEMENTED) {
+	//	 test_skip(test_string);
+	//	 fprintf(stdout,"\tNo test code for this architecture\n");
+	// }
 
-      if (read_result!=sizeof(long long)) {
-	 test_fail(test_string);
-         fprintf(stdout,"Error extra data in read %d\n",read_result);
-      }
+		if (read_result!=sizeof(long long)) {
+			test_fail(test_string);
+			fprintf(stdout,"Error extra data in read %d\n",read_result);
+		}
 
-      if (count>high) high=count;
-      if ((low==0) || (count<low)) low=count;
-      total+=count;
-   }
+		if (count>high) high=count;
+		if ((low==0) || (count<low)) low=count;
+		total+=count;
+	}
 
-   average=(total/num_runs);
+	average=(total/num_runs);
 
-   if (!quiet) printf("Keep compiler from optimizing: %lf\n",total_sum);
+	if (!quiet) printf("Keep compiler from optimizing: %lf\n",total_sum);
 
-   error=display_error(average,high,low,ARRAYSIZE,quiet);
+	error=display_error(average,high,low,ARRAYSIZE,quiet);
 
-   if ((error > 1.0) || (error<-1.0)) {
-     if (!quiet) {
-        printf("\nInstruction count off by more than 1%%\n");
-	printf("This test is known to fail on AMD fam10h machines\n\n");
-     }
-     test_fail(test_string);
-   }
-   if (!quiet) printf("\n");
+	if ((error > 1.0) || (error<-1.0)) {
+		if (!quiet) {
+			printf("\nInstruction count off by more than 1%%\n");
+			/* At least fam10h and fam15h.  The kernel event is wrong */
+			/* Sent a patch to remove it from kernel in the 4.4-rc timeframe */
+			printf("This test is known to fail on AMD machines\n\n");
+		}
+		test_fail(test_string);
+	}
+	if (!quiet) printf("\n");
 
-   test_pass( test_string );
+	test_pass( test_string );
 
-   return 0;
+	return 0;
 }
