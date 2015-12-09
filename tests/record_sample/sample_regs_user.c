@@ -172,6 +172,11 @@ int main(int argc, char **argv) {
 		if (!quiet) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
+
+	/* Disable, otherwise we can get signal after munmap which tries */
+	/* to read then invalid data */
+	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+
 	munmap(our_mmap,mmap_pages*4096);
 
 	close(fd);
