@@ -92,18 +92,10 @@ int main(int argc, char **argv) {
                 exit(1);
         }
 
-        /* Set up Instruction Event */
-
-        memset(&pe,0,sizeof(struct perf_event_attr));
-
-//	pe.type=PERF_TYPE_RAW;
-        pe.type=PERF_TYPE_HARDWARE;
+	memset(&pe,0,sizeof(struct perf_event_attr));
         pe.size=sizeof(struct perf_event_attr);
-        pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-//	pe.config=0x5300c0; // INST_RETIRED:ANY_P
         pe.sample_period=SAMPLE_FREQUENCY;
         pe.sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_REGS_USER | PERF_SAMPLE_REGS_INTR;
-
 	global_sample_type=pe.sample_type;
 
 #if defined (__x86_64__)
@@ -119,6 +111,12 @@ int main(int argc, char **argv) {
 
 	pe.sample_regs_intr=pe.sample_regs_user;
 
+        pe.read_format=0;
+        pe.disabled=1;
+        pe.pinned=1;
+        pe.wakeup_events=1;
+
+
 #elif defined(__i386__)
 	pe.sample_regs_user=(1ULL<<PERF_REG_X86_32_MAX)-1;
 	pe.sample_regs_intr=pe.sample_regs_user;
@@ -132,26 +130,67 @@ int main(int argc, char **argv) {
 
 	global_sample_regs_user=pe.sample_regs_user;
 
-        pe.read_format=0;
-        pe.disabled=1;
-        pe.pinned=1;
-        pe.exclude_kernel=0;
-        pe.exclude_hv=1;
-        pe.wakeup_events=1;
+
+	if (detect_vendor()==VENDOR_AMD) {
+		if (!quiet) printf("Using cycles:pp on AMD\n");
+		/* On AMD cycles is a precise event */
+		pe.type=PERF_TYPE_HARDWARE;
+		pe.config=PERF_COUNT_HW_CPU_CYCLES;
+
+		/* on AMD ibs the following must be false */
+		/* see bad9ac2d7f878a31cf1ae8c1ee3768077d222bcb */
+		/*	.exclude_user   = 1,
+		.exclude_kernel = 1,
+		.exclude_hv     = 1,
+		.exclude_idle   = 1,
+		.exclude_host   = 1,
+		.exclude_guest  = 1,
+		*/
+
+	        pe.exclude_user    = 0;
+        	pe.exclude_kernel  = 0;
+        	pe.exclude_hv	   = 0;
+		pe.exclude_idle	   = 0;
+		pe.exclude_host	   = 0;
+		pe.exclude_guest   = 0;
+
+	}
+
+	else {
+		if (!quiet) printf("Using instructions:pp\n");
+		/* Set up Instruction Event */
+		//	pe.type=PERF_TYPE_RAW;
+		//	pe.config=0x5300c0; // INST_RETIRED:ANY_P
+		pe.type=PERF_TYPE_HARDWARE;
+		pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+
+		pe.exclude_kernel=0;
+		pe.exclude_hv=1;
+	}
+
+	arch_adjust_domain(&pe,quiet);
 
 	/* Must be greater than 0 for sample_regs_intr to be interesting? */
 	/* Not seeing any difference. */
 	pe.precise_ip=2;
 
-	arch_adjust_domain(&pe,quiet);
-
-	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (detect_vendor()==VENDOR_AMD) {
+		/* On AMD needs to be system-wide per-cpu event */
+		/* or the IBS PMU won't work.			*/
+		fd=perf_event_open(&pe,-1,0,-1,0);
+	}
+	else {
+		fd=perf_event_open(&pe,0,-1,-1,0);
+	}
 	if (fd<0) {
 		if (!quiet) {
 			fprintf(stderr,"Problem opening leader %s\n",
 				strerror(errno));
-			test_fail(test_string);
 		}
+		if (errno==EACCES) {
+			test_skip(test_string);
+		}
+		test_fail(test_string);
 	}
 	our_mmap=mmap(NULL, mmap_pages*4096,
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
@@ -189,6 +228,9 @@ int main(int argc, char **argv) {
 		if (!quiet) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
+
+	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+
 	munmap(our_mmap,mmap_pages*4096);
 
 	close(fd);
