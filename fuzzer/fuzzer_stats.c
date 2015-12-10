@@ -12,7 +12,8 @@ static char open_type_names[MAX_OPEN_TYPE][20]={
 	"Hardware","Software","Tracepoint","Cache",
 	"Raw","Breakpoint","#6","#7",
 	"#8","#9","#10","#11",
-	"#12","#13","#14",">14"
+	"#12","#13","#14","#15",
+	"#16","#17","#18",">19",
 };
 
 static char open_trinity_type_names[MAX_OPEN_TRINITY_TYPE][20]={

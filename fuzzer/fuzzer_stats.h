@@ -1,5 +1,5 @@
 #define MAX_ERRNOS 1023
-#define MAX_OPEN_TYPE 16
+#define MAX_OPEN_TYPE 20
 #define MAX_OPEN_TRINITY_TYPE 4
 #define MAX_IOCTL_TYPE 16
 
