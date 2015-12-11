@@ -937,7 +937,7 @@ static long long random_branch_sample_type(void)
 
 	long long branch_sample = 0;
 
-	if (rand() % 2)
+	if (RAND_BOOL())
 		return rand64();
 
 	if (RAND_BOOL())
