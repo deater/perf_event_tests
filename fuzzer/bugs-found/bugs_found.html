@@ -8,18 +8,30 @@
 
 <hr><hr>
 
+<h3>Current Status></h3>
+<ul>
+<li>ARM32 -- eventually crashes due to RCU error (4.1.7 on raspberry pi)
+<li>x86/intel -- multiple warnings but no crash in short term (4.4-rc4
+	on haswell)
+<li>x86/amd -- quickly crashes in IBS code (4.4-rc4)
+</ul>
+
+<hr>
+
 
 
 <h3>Current Crashes (reproducible):</h3>
 <ul>
+<li><a href="4.4-rc4.amd_ibs_crash.html">
+    4.4-rc4 AMD IBS crash</a>
+<li><a href="3.17-rc6.arm64_stall.html">
+    4.4-rc4 ARM/ARM64 RCU stall</a>
 <li><a href="3.19-rc5.haswell_x86_pmu_del_warning.html">
     3.19-rc5 haswell pmu_del() warning/lockup</a>
 <li><a href="3.17-rc7.put_ctx_lockup.html">
     3.17-rc7 put_ctx lockup</a>
 <li><a href="3.17-rc6.do_IRQ_overflown.html">
     3.17-rc6 do_IRQ overflown stack</a>
-<li><a href="3.17-rc6.arm64_stall.html">
-    3.17-rc6 ARM64 RCU stall</a>
 </ul>
 
 <h3>Current Crashes (not reproducible):</h3>

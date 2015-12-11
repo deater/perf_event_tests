@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>
-arm64: rcu_preempt self-detected stall
+arm, arm64: rcu_preempt self-detected stall
 </title>
 </head>
 
@@ -9,7 +9,7 @@ arm64: rcu_preempt self-detected stall
 
 <center>
 <h1>
-arm64: rcu_preempt self-detected stall
+arm, arm64: rcu_preempt self-detected stall
 </h1>
 </center>
 
@@ -17,19 +17,19 @@ arm64: rcu_preempt self-detected stall
 Bug
 
 <h3>Found by</h3>
-perf_fuzzer, Mark Rutland
+perf_fuzzer, Mark Rutland, Vince Weaver
 
 <h3>First Seen</h3>
 3.17-rc6
 
 <h3>Most recently Seen</h3>
-3.17-rc6
+4.4-rc4
 
 <h3>Reproducible</h3>
 ???
 
 <h3>Found On</h3>
-???
+arm: raspberry pi 2
 
 <h3>Linux-kernel Mailing List Report</h3>
 25 September 2014:
@@ -41,6 +41,56 @@ Perf lockups / stack overflows on v3.17-rc6, x86_64, arm, arm64
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+	Linux version 4.1.7-v7+ armv7l
+	Processor: ARMv7 41 0 c07 5
+
+	Seeding random number generator with 1449780737
+	/proc/sys/kernel/perf_event_max_sample_rate currently: 3200/s
+	/proc/sys/kernel/perf_event_paranoid currently: 1
+	Logging perf_event_open() failures: no
+	Running fsync after every syscall: no
+	To reproduce, try: ./perf_fuzzer -s 30000 -r 1449780737
+
+Pid=26146, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+	mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+	
+Also attempting the following:
+	signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+	
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+[697154.732210] perf interrupt took too long (39699 > 39062), lowering kernel.perf_event_max_sample_rate to 3200
+[699238.916777] INFO: rcu_preempt detected stalls on CPUs/tasks:
+[699238.922545] 	3: (1 GPs behind) idle=42b/140000000000001/0 softirq=1260538/1260539 fqs=2101 
+[699238.930965] 	(detected by 2, t=2102 jiffies, g=936169, c=936168, q=307)
+[699238.937660] Task dump for CPU 3:
+[699238.940965] perf_fuzzer     R running      0 26146  27531 0x00000003
+[699238.947433] [<8055985c>] (__schedule) from [<000000ad>] (0xad)
+[699301.966890] INFO: rcu_preempt detected stalls on CPUs/tasks:
+[699301.972658] 	3: (1 GPs behind) idle=42b/140000000000001/0 softirq=1260538/1260539 fqs=8404 
+[699301.981078] 	(detected by 1, t=8408 jiffies, g=936169, c=936168, q=1280)
+[699301.987859] Task dump for CPU 3:
+[699301.991165] perf_fuzzer     R running      0 26146  27531 0x00000003
+[699301.997634] [<8055985c>] (__schedule) from [<000000ad>] (0xad)
+[699365.017011] INFO: rcu_preempt detected stalls on CPUs/tasks:
+[699365.022780] 	3: (1 GPs behind) idle=42b/140000000000001/0 softirq=1260538/1260539 fqs=14706 
+[699365.031286] 	(detected by 1, t=14713 jiffies, g=936169, c=936168, q=2180)
+[699365.038154] Task dump for CPU 3:
+[699365.041459] perf_fuzzer     R running      0 26146  27531 0x00000003
+[699365.047929] [<8055985c>] (__schedule) from [<000000ad>] (0xad)
+[699428.067134] INFO: rcu_preempt detected stalls on CPUs/tasks:
+[699428.072902] 	3: (1 GPs behind) idle=42b/140000000000001/0 softirq=1260538/1260539 fqs=21007 
+[699428.081409] 	(detected by 2, t=21017 jiffies, g=936169, c=936168, q=3151)
+</pre>
+
 <li>
 <pre>
 Using user-specified random seed of 1411488270
