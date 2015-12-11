@@ -22,7 +22,7 @@ Warning
 4.1-rc2
 
 <h3>Most recently Seen</h3>
-4.2-rc0
+4.4-rc4
 
 <h3>Reproducible</h3>
 maybe.  It's warn_on_once.
@@ -47,6 +47,7 @@ Possibly by:<br>
 Maps to
 	(4.0) arch/x86/kernel/cpu/perf_event.c:1151 x86_pmu_start+0xb2/0x120()
 	(4.1) arch/x86/kernel/cpu/perf_event.c:1219 x86_pmu_start+0xaa/0x100()
+	(4.4) arch/x86/kernel/cpu/perf_event.c:1209 x86_pmu_start+0xa2/0x100()
 
 which is
 	if (WARN_ON_ONCE(!(event->hw.state & PERF_HES_STOPPED)))
