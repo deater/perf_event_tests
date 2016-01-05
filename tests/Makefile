@@ -14,6 +14,7 @@ all:
 	$(MAKE) -C overflow
 	$(MAKE) -C rdpmc
 	$(MAKE) -C record_sample
+	$(MAKE) -C size
 	$(MAKE) -C socket
 	$(MAKE) -C sysfs
 	$(MAKE) -C tracepoints
@@ -36,6 +37,7 @@ install: all
 	$(MAKE) -C overflow install
 	$(MAKE) -C rdpmc install
 	$(MAKE) -C record_sample install
+	$(MAKE) -C size install
 	$(MAKE) -C socket install
 	$(MAKE) -C sysfs install
 	$(MAKE) -C tracepoints install
@@ -59,6 +61,7 @@ clean: clean-local
 	$(MAKE) -C overflow clean
 	$(MAKE) -C rdpmc clean
 	$(MAKE) -C record_sample clean
+	$(MAKE) -C size clean
 	$(MAKE) -C socket clean
 	$(MAKE) -C sysfs clean
 	$(MAKE) -C tracepoints clean

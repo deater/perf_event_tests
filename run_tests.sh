@@ -123,6 +123,25 @@ echo -n "    "
 $TESTS_DIR/socket/socket_pass
 
 echo
+echo "* Checking attr.size behavior"
+echo "  + $TESTS_DIR/size/too_big"
+echo -n "    "
+$TESTS_DIR/size/too_big
+echo "  + $TESTS_DIR/size/too_little"
+echo -n "    "
+$TESTS_DIR/size/too_little
+echo "  + $TESTS_DIR/size/just_right"
+echo -n "    "
+$TESTS_DIR/size/just_right
+echo "  + $TESTS_DIR/size/header_mismatch"
+echo -n "    "
+$TESTS_DIR/size/header_mismatch
+
+
+
+
+
+echo
 echo "* Checking perf_event ioctl calls"
 echo "  + $TESTS_DIR/ioctl/ioctl_flag_group"
 echo -n "    "
