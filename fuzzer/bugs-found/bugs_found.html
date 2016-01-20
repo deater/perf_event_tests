@@ -11,8 +11,8 @@
 <h3>Current Status></h3>
 <ul>
 <li>ARM32 -- eventually crashes due to RCU error (4.1.7 on raspberry pi)
-<li>x86/intel -- multiple warnings but no crash in short term (4.4-rc4
-	on haswell)
+<li>x86/intel -- multiple warnings.
+	Have caused hard lockup (4.5-rc0 on haswell)
 <li>x86/amd -- quickly crashes in IBS code (4.4-rc4)
 </ul>
 
@@ -54,6 +54,8 @@
 
 <h3>Current Warnings (reproducible):</h3>
 <ul>
+<li><a href="3.19.0+.breakpoint_warning.html">
+	(warning) 4.5-rc0 breakpoint warning</a>
 <li><a href="4.1-rc2.x86_pmu_start_warning.html">
 	(warning) 4.4-rc4 x86_pmu_start_warning</a>
 <li><a href="3.15-rc1.irq_loop_warning.html">
@@ -64,8 +66,6 @@
 	(warning) 4.2-rc0 perf_aux_output_begin()</a>
 <li><a href="3.12.core2_nmi_flood.html">
 	(warning) 4.2-rc0 nmi_flood messages</a>
-<li><a href="3.19.0+.breakpoint_warning.html">
-	(warning) 4.1-rc2 breakpoint warning</a>
 <li><a href="3.15-rc4.p4_x86_pmu_start_stop_warning.html">
 	(warning) 3.15-rc4 p4 x86_pmu_start/stop warnings</a>
 </ul>
