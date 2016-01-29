@@ -2,13 +2,20 @@ CC = gcc
 CFLAGS = -Wall -O2 -I../../include
 LFLAGS =
 
-all:	papi_tot_ins parse_output
+all:	100b_none 100b_papi parse_output
 
-papi_tot_ins:	papi_tot_ins.o
-	$(CC) $(LFLAGS) -o papi_tot_ins papi_tot_ins.o ../../lib/instructions_testcode.o
+100b_none:	100b_none.o
+	$(CC) $(LFLAGS) -o 100b_none 100b_none.o ../../lib/instructions_testcode.o
 
-papi_tot_ins.o:	papi_tot_ins.c
-	$(CC) $(CFLAGS) -c papi_tot_ins.c
+100b_none.o:	100b_none.c
+	$(CC) $(CFLAGS) -c 100b_none.c
+
+
+100b_papi:	100b_papi.o
+	$(CC) $(LFLAGS) -o 100b_papi 100b_papi.o ../../lib/instructions_testcode.o ~/research/papi.git/src/libpapi.a
+
+100b_papi.o:	100b_papi.c
+	$(CC) $(CFLAGS) -c 100b_papi.c
 
 
 parse_output:	parse_output.o
@@ -22,4 +29,4 @@ parse_output.o:	parse_output.c
 
 clean:	
 	rm -f *.o *~ \
-		papi_tot_ins parse_output
+		100b_none 100b_papi parse_output
