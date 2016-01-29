@@ -17,13 +17,6 @@
 
 
 
-   /* Test a simple loop of 1 million instructions             */
-   /* Most implementations should count be correct within 1%   */
-   /* This loop in in assembly language, as compiler generated */
-   /* code varies too much.                                    */
-
-
-
 long long results[NUM_RUNS];
 
 int main(int argc, char **argv) {
@@ -45,20 +38,36 @@ int main(int argc, char **argv) {
 	int events[1],result;
 	long long counts[1];
 
+	long long total=0,average,max=0,min=0x7ffffffffffffffULL;
+
 	events[0]=PAPI_TOT_INS;
+
+	PAPI_start_counters(events,1);
 
 	for(i=0;i<NUM_RUNS;i++) {
 
-		PAPI_start_counters(events,1);
 
 		result=instructions_million();
 
-		PAPI_stop_counters(counts,1);
+		PAPI_read_counters(counts,1);
+
 		results[i]=counts[0];
 
  	}
 
+	PAPI_stop_counters(counts,1);
+
+
 	PAPI_shutdown();
+
+	for(i=0;i<NUM_RUNS;i++) {
+		total+=results[i];
+		if (results[i]>max) max=results[i];
+		if (results[i]<min) min=results[i];
+	}
+
+	average=total/NUM_RUNS;
+	printf("Average=%lld max=%lld min=%lld\n",average,max,min);
 
 	(void) result;
 

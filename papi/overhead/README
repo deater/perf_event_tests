@@ -1,1 +1,72 @@
 for i in `seq 1 30` ; do perf stat -e instructions:u ./papi_tot_ins 2> out.$i ; done
+
+
+
+
+
+
+Time for PAPI with both start/stop/read inside loop:
+	102,888,727,463      instructions:u                                                (99.85%)
+	20.362240583 seconds time elapsed
+
+Only read in the loop
+	100,070,970,036      instructions:u                                                (100.00%)
+	12.902355100 seconds time elapsed
+
+
+Extra instructions/cycle overhead in usersapace?
+Extra instruction/cycle overhead in the kernel?
+Extra instruction/cycle overhead wallclock-wise?
+
+
+
+
+PAPI:
+
+Average=1000223 max=1000237 min=1000223
+
+ Performance counter stats for './100b_papi':
+
+   100,223,843,675      instructions              #    2.00  insns per cycle          (100.00%)
+    50,174,482,678      cycles                                                        (100.00%)
+
+      13.003863531 seconds time elapsed
+
+perf_event/read
+
+Average=1000023 max=1000665 min=1000023
+
+ Performance counter stats for './100b_perf':
+
+   100,096,401,218      instructions              #    2.00  insns per cycle          (100.00%)
+    50,089,061,839      cycles                                                        (100.00%)
+
+      13.003477239 seconds time elapsed
+
+
+w/o map_populate
+
+perf stat -e instructions,cycles ./100b_perf_rdpmc
+prev=-1
+prev=281474976710701
+Average=1000063 max=1001114 min=1000063
+
+ Performance counter stats for './100b_perf_rdpmc':
+
+   100,019,352,405      instructions              #    2.00  insns per cycle          (100.00%)
+    50,029,032,772      cycles                                                        (100.00%)
+
+      12.868768528 seconds time elapsed
+
+
+with map_populate
+
+Average=1000063 max=1001116 min=1000063
+
+ Performance counter stats for './100b_perf_rdpmc':
+
+   100,019,606,269      instructions              #    2.00  insns per cycle          (100.00%)
+    50,028,329,227      cycles                                                        (100.00%)
+
+      12.959220393 seconds time elapsed
+
