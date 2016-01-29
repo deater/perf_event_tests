@@ -1,0 +1,1 @@
+for i in `seq 1 30` ; do perf stat -e instructions:u ./papi_tot_ins 2> out.$i ; done
