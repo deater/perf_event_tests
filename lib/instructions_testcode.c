@@ -70,14 +70,12 @@ int instructions_million(void) {
 		: "cc", "r2" /* clobbered */
 	);
 	return 0;
-#elif defined(__arm64__)
-	asm(	"	ldr	r2,count	@ set count\n"
-		"	b       test_loop\n"
-		"count:	.word 333332\n"
+#elif defined(__aarch64__)
+	asm(	"	ldr	x2,=333332	// set count\n"
 		"test_loop:\n"
-		"	add	r2,r2,#-1\n"
-		"	cmp	r2,#0\n"
-		"	bne	test_loop	@ repeat till zero\n"
+		"	add	x2,x2,#-1\n"
+		"	cmp	x2,#0\n"
+		"	bne	test_loop	// repeat till zero\n"
 		: /* no output registers */
 		: /* no inputs */
 		: "cc", "r2" /* clobbered */
