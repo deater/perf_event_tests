@@ -6,9 +6,12 @@ LDFLAGS +=
 LIB = ../../lib
 
 PROGRAM_LIST = \
-	get_cache_info \
+	check_paranoid \
+	get_cache_info
 
 all: $(PROGRAM_LIST)
+
+check_paranoid: check_paranoid.o $(LIB)/libhelper.a
 
 get_cache_info: get_cache_info.o $(LIB)/libhelper.a
 
