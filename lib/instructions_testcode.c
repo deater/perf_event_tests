@@ -70,6 +70,19 @@ int instructions_million(void) {
 		: "cc", "r2" /* clobbered */
 	);
 	return 0;
+#elif defined(__arm64__)
+	asm(	"	ldr	r2,count	@ set count\n"
+		"	b       test_loop\n"
+		"count:	.word 333332\n"
+		"test_loop:\n"
+		"	add	r2,r2,#-1\n"
+		"	cmp	r2,#0\n"
+		"	bne	test_loop	@ repeat till zero\n"
+		: /* no output registers */
+		: /* no inputs */
+		: "cc", "r2" /* clobbered */
+	);
+	return 0;
 #endif
 
 	return CODE_UNIMPLEMENTED;
@@ -77,68 +90,80 @@ int instructions_million(void) {
 }
 
 
+/* fldcw instructions are counted oddly on Pentium 4 machines */
+
 int instructions_fldcw(void) {
 
-#if defined(__i386__) || (defined __x86_64__)   
-   int saved_cw,result,cw;
-   double three=3.0;
-   
-   asm( "mov     $100000,%%ecx\n"
-        "big_loop:\n"
-        "\tfldl    %1                   # load value onto fp stack\n"
-        "\tfnstcw  %0                # store control word to mem\n"
-        "\tmovzwl  %0, %%eax          # load cw from mem, zero extending\n"
-        "\tmovb    $12, %%ah                # set cw for \"round to zero\"\n"
-        "\tmovw    %%ax, %3                 # store back to memory\n"
-        "\tfldcw   %3                      # save new rounding mode\n"
-        "\tfistpl  %2                  # save stack value as integer to mem\n"
-        "\tfldcw   %0                # restore old cw\n"
-        "\tloop    big_loop                # loop to make the count more obvious\n"
-       : /* no output registers */
-       : "m"(saved_cw), "m"(three), "m"(result), "m"(cw) /* inputs */
-       : "cc", "%ecx","%eax" /* clobbered */
-    );
+#if defined(__i386__) || (defined __x86_64__)
+
+	int saved_cw,result,cw;
+	double three=3.0;
+
+	asm(	"	mov	$100000,%%ecx\n"
+		"big_loop:\n"
+		"	fldl	%1		# load value onto fp stack\n"
+		"	fnstcw	%0		# store control word to mem\n"
+		"	movzwl	%0, %%eax	# load cw from mem, zero extending\n"
+		"	movb	$12, %%ah	# set cw for \"round to zero\"\n"
+		"	movw	%%ax, %3	# store back to memory\n"
+		"	fldcw	%3		# save new rounding mode\n"
+		"	fistpl	%2		# save stack value as integer to mem\n"
+		"	fldcw	%0		# restore old cw\n"
+		"	loop	big_loop	# loop to make the count more obvious\n"
+		: /* no output registers */
+		: "m"(saved_cw), "m"(three), "m"(result), "m"(cw) /* inputs */
+		: "cc", "%ecx","%eax" /* clobbered */
+	);
     return 0;
 #endif
-    return CODE_UNIMPLEMENTED;
+
+	return CODE_UNIMPLEMENTED;
 }
 
 
+/* rep instructions are counted a bit non-intuitively */
+/* some tools like Valgrind and Pin may count differently than real hardware */
+
 int instructions_rep(void) {
 
-   char buffer_out[16384];
-
 #if defined(__i386__) || defined(__ILP32__)
-   asm("\tmov       $1000,%%edx\n"
-       "\tcld\n"
-       "loadstore:                       # test 8-bit store\n"
-       "\tmov     $0xd, %%al             # set eax to d\n"
-       "\tmov     $16384, %%ecx\n"
-       "\tmov     %0, %%edi              # set destination\n"
-       "\trep     stosb                  # store d 16384 times, auto-increment\n"
-       "\tdec     %%edx\n"
-       "\tjnz     loadstore\n"
-       : /* outputs */
-       : "rm" (buffer_out) /* inputs */
-       : "cc", "%esi","%edi","%edx","%ecx","%eax","memory" /* clobbered */
-    );
-    return 0;
+
+	char buffer_out[16384];
+
+	asm(	"	mov	$1000,%%edx\n"
+		"	cld\n"
+		"loadstore:			# test 8-bit store\n"
+		"	mov	$0xd, %%al	# set eax to d\n"
+		"	mov	$16384, %%ecx\n"
+		"	mov	%0, %%edi	# set destination\n"
+		"	rep	stosb		# store d 16384 times, auto-increment\n"
+		"	dec	%%edx\n"
+		"	jnz	loadstore\n"
+		: /* outputs */
+		: "rm" (buffer_out) /* inputs */
+		: "cc", "%esi","%edi","%edx","%ecx","%eax","memory" /* clobbered */
+	);
+	return 0;
 #elif defined (__x86_64__)
-   asm("\tmov       $1000,%%edx\n"
-       "\tcld\n"
-       "loadstore:                       # test 8-bit store\n"
-       "\tmov     $0xd, %%al             # set eax to d\n"
-       "\tmov     $16384, %%ecx\n"
-       "\tmov     %0, %%rdi              # set destination\n"
-       "\trep     stosb                  # store d 16384 times, auto-increment\n"
-       "\tdec     %%edx\n"
-       "\tjnz     loadstore\n"
-       : /* outputs */
-       : "rm" (buffer_out) /* inputs */
-       : "cc", "%esi","%edi","%edx","%ecx","%eax","memory" /* clobbered */
-    );
-    return 0;
+
+	char buffer_out[16384];
+
+	asm(	"	mov	$1000,%%edx\n"
+		"	cld\n"
+		"loadstore:			# test 8-bit store\n"
+		"	mov	$0xd, %%al	# set eax to d\n"
+		"	mov	$16384, %%ecx\n"
+		"	mov	%0, %%rdi	# set destination\n"
+		"	rep	stosb		# store d 16384 times, auto-increment\n"
+		"	dec	%%edx\n"
+		"	jnz	loadstore\n"
+		: /* outputs */
+		: "rm" (buffer_out) /* inputs */
+		: "cc", "%esi","%edi","%edx","%ecx","%eax","memory" /* clobbered */
+	);
+	return 0;
 #endif
-    return CODE_UNIMPLEMENTED;
+
+	return CODE_UNIMPLEMENTED;
 
 }
