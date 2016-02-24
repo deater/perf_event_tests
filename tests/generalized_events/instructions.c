@@ -54,7 +54,7 @@ void test_million(void) {
 
 		if (result==CODE_UNIMPLEMENTED) {
 			fprintf(stderr,"\tCode unimplemented\n");
-			test_fail(test_string);
+			test_skip(test_string);
 		}
 
 		if (read_result!=sizeof(long long)) {
