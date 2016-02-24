@@ -17,7 +17,6 @@ int get_latency_store_event(unsigned long long *config,
 			char *name);
 
 
-
 #define VENDOR_UNKNOWN -1
 #define VENDOR_INTEL    1
 #define VENDOR_AMD      2
@@ -54,6 +53,7 @@ int get_latency_store_event(unsigned long long *config,
 #define PROCESSOR_ATOM_SILVERMONT	27
 #define PROCESSOR_BROADWELL		28
 #define PROCESSOR_HASWELL_EP		29
+#define PROCESSOR_SKYLAKE		30
 
 #define PROCESSOR_POWER3      103
 #define PROCESSOR_POWER4      104
@@ -67,6 +67,8 @@ int get_latency_store_event(unsigned long long *config,
 #define PROCESSOR_CORTEX_A15	203
 #define PROCESSOR_ARM1176	204
 #define PROCESSOR_CORTEX_A7	205
+#define PROCESSOR_CORTEX_A57	206
+#define PROCESSOR_CORTEX_A53	207
 
 #define MAX_TEST_EVENTS 16
 
