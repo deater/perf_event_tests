@@ -248,3 +248,42 @@ double display_error(long long average,
    return error;
 
 }
+
+int get_paranoid_setting(void) {
+
+	FILE *fff;
+	int paranoid;
+
+	fff=fopen("/proc/sys/kernel/perf_event_paranoid","r");
+	if (fff==NULL) {
+		return -1;
+	}
+
+	fscanf(fff,"%d",&paranoid);
+
+	fclose(fff);
+
+	return paranoid;
+
+}
+
+
+int check_paranoid_setting(int desired, int quiet) {
+
+
+	int paranoid;
+
+	paranoid=get_paranoid_setting();
+
+	if (paranoid>desired) {
+		if (!quiet) {
+			fprintf(stderr,"Value of %d in /proc/sys/kernel/perf_event_paranoid too high for this test to run!\n",
+				paranoid);
+		}
+		return -1;
+	}
+
+	return 0;
+
+}
+
