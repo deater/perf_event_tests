@@ -24,11 +24,11 @@ all: $(LIBNAME)
 x32: $(LIBNAME_X32)
 
 $(LIBNAME): $(FILE_LIST_C_OBJS)
-	$(AR) ru $@ $^
+	$(AR) r $@ $^
 	$(RANLIB) $@
 
 $(LIBNAME_X32): $(FILE_LIST_X32_OBJS)
-	$(AR) ru $@ $^
+	$(AR) r $@ $^
 	$(RANLIB) $@
 
 clean: clean-local
