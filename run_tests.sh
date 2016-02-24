@@ -11,6 +11,19 @@ echo "**** RUNNING perf_event_tests ****"
 uname -a
 
 echo
+echo "* Testing /proc/sys/kernel/perf_event_paranoid setting"
+echo "  + $TESTS_DIR/utils/check_paranoid"
+echo -n "    "
+$TESTS_DIR/utils/check_paranoid
+
+if [ "$?" -ne "0" ]; then 
+	echo 
+	echo "*** PARANOID VALUE TOO HIGH, EXITING EARLY ***"
+	echo 
+	exit; 
+fi
+
+echo
 echo "* Checking infrastructure"
 echo "  + $TESTS_DIR/utils/get_cache_info"
 echo -n "    "
