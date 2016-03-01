@@ -8,7 +8,8 @@ LIB = ../../lib
 PROGRAM_LIST = \
 	rdpmc_support \
 	rdpmc_validation \
-	rdpmc_comparision_readsyscall
+	rdpmc_comparision_readsyscall \
+	rdpmc_comparision_mmap
 
 all: $(PROGRAM_LIST)
 
@@ -18,6 +19,8 @@ rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 rdpmc_validation: rdpmc_validation.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_comparision_readsyscall: rdpmc_comparision_readsyscall.o
+
+rdpmc_comparision_mmap: rdpmc_comparision_mmap.o
 
 install: all
 	$(INSTALL) -d $(prefix)/tests/rdpmc
