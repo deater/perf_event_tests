@@ -28,6 +28,7 @@
 #include "perf_event.h"
 #include "test_utils.h"
 #include "perf_helpers.h"
+#include "perf_barrier.h"
 #include "instructions_testcode.h"
 
 static int quiet;

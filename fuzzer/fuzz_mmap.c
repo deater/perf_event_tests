@@ -10,6 +10,7 @@
 
 #include "perf_event.h"
 #include "perf_helpers.h"
+#include "perf_barrier.h"
 
 #include "perf_fuzzer.h"
 #include "fuzzer_determinism.h"

@@ -23,6 +23,7 @@
 #include "perf_event.h"
 
 #include "perf_helpers.h"
+#include "perf_barrier.h"
 
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
                     pid_t pid, int cpu, int group_fd, unsigned long flags) {

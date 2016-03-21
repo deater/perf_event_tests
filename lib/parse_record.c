@@ -25,6 +25,7 @@
 #include "perf_event.h"
 
 #include "perf_helpers.h"
+#include "perf_barrier.h"
 
 #include "parse_record.h"
 
