@@ -21,6 +21,7 @@ branches:branches.o $(LIB)/libhelper.a
 branch-misses: branch-misses.o $(LIB)/libhelper.a
 
 cycles: cycles.o $(LIB)/libhelper.a
+	$(CC) $(LDFLAGS) -o $@ $^ -lrt
 
 l1-dcache-loads: l1-dcache-loads.o $(LIB)/libhelper.a
 
