@@ -6,6 +6,7 @@
 #include <sys/mman.h>
 
 #include <signal.h>
+#include <setjmp.h>
 
 #include "perf_event.h"
 #include "perf_helpers.h"
@@ -264,6 +265,17 @@ long long perf_mmap_read(int which) {
 	return head;
 }
 
+static sigjmp_buf j_buf;
+
+/* Called if we get a segfault */
+/* We only set this up when trying to trash a mmap buffer */
+static void sigsegv_handler(int ignored) {
+
+	/* restore the state to where we called sigsetjmp */
+	siglongjmp(j_buf, 1);
+}
+
+
 
 /* The first mmap() page is writeable so you can set the tail pointer */
 /* So try over-writing it to see what happens.                        */
@@ -304,7 +316,20 @@ void trash_random_mmap(void) {
 		return;
 	}
 
-	memset(mmaps[i].addr,value, 1);//getpagesize());
+	/* Before we attempt to write the mmap, setup a signal handler */
+	signal(SIGSEGV, sigsegv_handler);
+
+	/* Save state before the memset */
+	/* If the memset segfaults then we will skip it */
+	if (!sigsetjmp(j_buf, 1)) {
+		memset(mmaps[i].addr,value, 1);//getpagesize());
+	}
+	else {
+		printf("Memset at %p caused segfault!\n",mmaps[i].addr);
+	}
+
+	/* Disable the seigsegv handler */
+	signal(SIGSEGV, SIG_DFL);
 
 	if (logging&TYPE_TRASH_MMAP) {
 		sprintf(log_buffer,"Q %d %d %d\n",
