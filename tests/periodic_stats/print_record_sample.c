@@ -22,6 +22,7 @@
 
 #include "perf_event.h"
 
+#include "perf_helpers.h"
 
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
                     pid_t pid, int cpu, int group_fd, unsigned long flags) {
@@ -29,22 +30,6 @@ int perf_event_open(struct perf_event_attr *hw_event_uptr,
         return syscall(__NR_perf_event_open,hw_event_uptr, pid, cpu,
                         group_fd, flags);
 }
-
-#if defined(__x86_64__)
-#define rmb() asm volatile("lfence":::"memory")
-#elif defined(__arm__)
-// Assuming we run in CONFIG_SMP=y
-// TODO: fix for non-SMP systems
-#if __LINUX_ARM_ARCH__ >= 7
-#define rmb() asm volatile("dsb " "" : : : "memory")
-#else
-#define rmb() asm volatile("mcr p15, 0, %0, c7, c10, 4" \
-			   : : "r" (0) : "memory")
-#endif
-#elif defined(__aarch64__)
-#define rmb() asm volatile("dsb " "ld" : : : "memory")
-#endif
-
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
                     long long prev_head,
@@ -163,6 +148,8 @@ int main(int argc, char** argv) {
 			close(fd[j][i]);
 		}
 	}
+
+	(void) ret;
 
 	return 0;
 }
