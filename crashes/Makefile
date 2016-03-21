@@ -2,7 +2,7 @@ include ../Makefile.globals.inc
 
 CPPFLAGS += -I../include
 CFLAGS += -O2 -Wall
-LDFLAGS += -lpthread
+LDLIBS += -lpthread
 
 PAPI_INCLUDE = -I/usr/local/include
 PAPI_LIB = /usr/local/lib/libpapi.a

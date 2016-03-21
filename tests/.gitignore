@@ -81,6 +81,7 @@ overflow/simultaneous_overflow
 overflow/single_shot_overflow
 overflow/single_shot_w_enable
 overflow/wakeup_events_overflow
+periodic_stats/print_record_sample
 rdpmc/rdpmc_support
 rdpmc/rdpmc_validation
 record_sample/lost_record_sample

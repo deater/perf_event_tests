@@ -1,22 +1,25 @@
-CC = gcc
-CFLAGS = -Wall -O2 -I../../include
-LFLAGS =
+include ../../Makefile.globals.inc
+
+CPPFLAGS += -I../../include
+CFLAGS += -Wall -O2 -g
+LDLIBS += -lpthread
 LIB = ../../lib
 
-all:	\
-	print_record_sample 
 
-###
+PROGRAM_LIST = \
+	print_record_sample
 
-print_record_sample:	print_record_sample.o
-	$(CC) $(LFLAGS) -o print_record_sample \
-				print_record_sample.o 
+all: $(PROGRAM_LIST)
 
-print_record_sample.o:	print_record_sample.c
-	$(CC) $(CFLAGS) -c print_record_sample.c
+print_record_sample: print_record_sample.o
 
-###
+install: all
+	$(INSTALL) -d $(prefix)/tests/attr_fields
+	$(INSTALL) -m755 $(PROGRAM_LIST) $(prefix)/tests/attr_fields
 
-clean:	
-	rm -f *~ *.o \
-	print_record_sample 
+clean: clean-local
+	@- $(RM) $(PROGRAM_LIST)
+	@- $(RM) *.o
+
+clean-local:
+	@- $(RM) *~
