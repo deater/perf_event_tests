@@ -135,12 +135,16 @@ static int mmap_random_flags(void) {
 	if (rand()%2) flags|=MAP_FILE;
 	if (rand()%2) flags|=MAP_FIXED;
 	if (rand()%2) flags|=MAP_GROWSDOWN;
+#ifdef MAP_HUGETLB
 	if (rand()%2) flags|=MAP_HUGETLB;
+#endif
 	if (rand()%2) flags|=MAP_LOCKED;
 	if (rand()%2) flags|=MAP_NONBLOCK;
 	if (rand()%2) flags|=MAP_NORESERVE;
 	if (rand()%2) flags|=MAP_POPULATE;
+#ifdef MAP_STACK
 	if (rand()%2) flags|=MAP_STACK;
+#endif
 
 	/* Not supported on normal kernels */
 	/*	if (rand()%2) flags|=MAP_UNINITIALIZED; */

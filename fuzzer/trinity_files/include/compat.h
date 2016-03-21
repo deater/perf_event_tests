@@ -15,6 +15,9 @@
 #ifndef AT_EMPTY_PATH
 #define AT_EMPTY_PATH           0x1000
 #endif
+#ifndef AT_SYMLINK_NOFOLLOW
+#define AT_SYMLINK_NOFOLLOW	0x100
+#endif
 
 #ifndef O_PATH
 #define O_PATH        010000000 /* Resolve pathname but do not open file.  */
@@ -22,6 +25,10 @@
 
 #ifndef O_CLOEXEC
 #define O_CLOEXEC       02000000
+#endif
+
+#ifndef O_LARGEFILE
+#define O_LARGEFILE	00100000
 #endif
 
 #ifndef O_TMPFILE
@@ -66,6 +73,16 @@
 #define F_OFD_SETLKW      38
 #endif
 
+/* Flags for SPLICE and VMSPLICE.  */
+#ifndef SPLICE_F_MOVE
+# define SPLICE_F_MOVE		1	/* Move pages instead of copying.  */
+# define SPLICE_F_NONBLOCK	2	/* Don't block on the pipe splicing */
+# define SPLICE_F_MORE		4	/* Expect more data.  */
+#endif
+#ifndef SPLICE_F_GIFT
+# define SPLICE_F_GIFT		8	/* Pages passed in are a gift.  */
+#endif
+
 /* linux/hw_breakpoint.h */
 enum {
         HW_BREAKPOINT_LEN_1 = 1,
@@ -98,6 +115,9 @@ enum {
 #define MAP_STACK 0x20000
 #endif
 
+#ifndef MADV_FREE
+#define MADV_FREE 8
+#endif
 #ifndef MADV_MERGEABLE
 #define MADV_MERGEABLE 12
 #endif
@@ -146,6 +166,10 @@ enum {
 #endif
 #ifndef PF_IB
 #define PF_IB          AF_IB
+#endif
+
+#ifndef PF_MPLS
+#define PF_MPLS		28
 #endif
 
 #ifndef PF_CAN
@@ -239,11 +263,81 @@ enum {
 #define NETLINK_RX_RING 6
 #define NETLINK_TX_RING 7
 #endif
+#ifndef NETLINK_LISTEN_ALL_NSID
+#define NETLINK_LISTEN_ALL_NSID 8
+#endif
+#ifndef NETLINK_LIST_MEMBERSHIPS
+#define NETLINK_LIST_MEMBERSHIPS 9
+#endif
+#ifndef NETLINK_CAP_ACK
+#define NETLINK_CAP_ACK 10
+#endif
+#ifndef NETLINK_SOCK_DIAG
+#define NETLINK_SOCK_DIAG 4
+#endif
+#ifndef RTNLGRP_DCB
+#define RTNLGRP_DCB 23
+#endif
+#ifndef RTNLGRP_IPV4_NETCONF
+#define RTNLGRP_IPV4_NETCONF 24
+#endif
+#ifndef RTNLGRP_IPV6_NETCONF
+#define RTNLGRP_IPV6_NETCONF 25
+#endif
+#ifndef RTNLGRP_MDB
+#define RTNLGRP_MDB 26
+#endif
+#ifndef RTNLGRP_MPLS_ROUTE
+#define RTNLGRP_MPLS_ROUTE 27
+#endif
+#ifndef RTNLGRP_NSID
+#define RTNLGRP_NSID 28
+#endif
 
 /* linux/prctl.h */
 #ifndef PR_MCE_KILL_GET
 #define PR_MCE_KILL_GET 34
 #endif
+
+#ifndef PR_SET_MM
+#define PR_SET_MM               35
+#endif
+
+#ifndef PR_SET_CHILD_SUBREAPER
+#define PR_SET_CHILD_SUBREAPER  36
+#define PR_GET_CHILD_SUBREAPER  37
+#endif
+
+#ifndef PR_SET_NO_NEW_PRIVS
+#define PR_SET_NO_NEW_PRIVS     38
+#define PR_GET_NO_NEW_PRIVS     39
+#endif
+
+#ifndef PR_GET_TID_ADDRESS
+#define PR_GET_TID_ADDRESS      40
+#endif
+
+#ifndef PR_SET_THP_DISABLE
+#define PR_SET_THP_DISABLE      41
+#define PR_GET_THP_DISABLE      42
+#endif
+
+#ifndef PR_MPX_ENABLE_MANAGEMENT
+#define PR_MPX_ENABLE_MANAGEMENT  43
+#define PR_MPX_DISABLE_MANAGEMENT 44
+#endif
+
+#ifdef __mips__
+#ifndef PR_SET_FP_MODE
+#define PR_SET_FP_MODE         45
+#define PR_GET_FP_MODE         46
+#endif
+#endif
+
+#ifndef PR_CAP_AMBIENT
+#define PR_CAP_AMBIENT		47
+#endif
+
 
 /* linux/rds.h */
 #ifndef RDS_CANCEL_SENT_TO
@@ -366,6 +460,19 @@ enum kcmp_type {
 #define SO_BPF_EXTENSIONS       48
 #endif
 
+#ifndef SO_INCOMING_CPU
+#define SO_INCOMING_CPU		49
+#endif
+
+#ifndef SO_ATTACH_BPF
+#define SO_ATTACH_BPF		50
+#endif
+
+#ifndef SO_ATTACH_REUSEPORT_CBPF
+#define SO_ATTACH_REUSEPORT_CBPF 51
+#define SO_ATTACH_REUSEPORT_EBPF 52
+#endif
+
 /* linux/tcp.h */
 #ifndef TCP_COOKIE_TRANSACTIONS
 #define TCP_COOKIE_TRANSACTIONS	15
@@ -401,6 +508,23 @@ enum kcmp_type {
 
 #ifndef TCP_FASTOPEN
 #define TCP_FASTOPEN		23
+#endif
+
+#ifndef TCP_TIMESTAMP
+#define TCP_TIMESTAMP		24
+#endif
+
+#ifndef TCP_NOTSENT_LOWAT
+#define TCP_NOTSENT_LOWAT	25
+#endif
+
+#ifndef TCP_CC_INFO
+#define TCP_CC_INFO		26
+#endif
+
+#ifndef TCP_SAVE_SYN
+#define TCP_SAVE_SYN		27
+#define TCP_SAVED_SYN		28
 #endif
 
 /* linux/if_packet.h */
@@ -468,17 +592,61 @@ enum kcmp_type {
 #ifndef IP_NODEFRAG
 #define IP_NODEFRAG		22
 #endif
+#ifndef IP_CHECKSUM
+#define IP_CHECKSUM		23
+#endif
+#ifndef IP_BIND_ADDRESS_NO_PORT
+#define IP_BIND_ADDRESS_NO_PORT	24
+#endif
 #ifndef IP_MULTICAST_ALL
 #define IP_MULTICAST_ALL	49
 #endif
 #ifndef IP_UNICAST_IF
 #define IP_UNICAST_IF		50
 #endif
+#ifndef IPPROTO_BEETPH
+#define IPPROTO_BEETPH		94
+#endif
+#ifndef IPPROTO_MPLS
+#define IPPROTO_MPLS		137
+#endif
 
 /* linux/in6.h */
 #ifndef IPV6_FLOWINFO
 #define IPV6_FLOWINFO 11
 #endif
+
+#ifndef IPV6_FLOWLABEL_MGR
+#define IPV6_FLOWLABEL_MGR      32
+#define IPV6_FLOWINFO_SEND      33
+#endif
+
+#ifndef IPV6_RECVPATHMTU
+#define IPV6_RECVPATHMTU        60
+#define IPV6_PATHMTU            61
+#define IPV6_DONTFRAG           62
+#endif
+
+#ifndef IP6T_SO_GET_REVISION_MATCH
+#define IP6T_SO_GET_REVISION_MATCH   68
+#define IP6T_SO_GET_REVISION_TARGET  69
+#define IP6T_SO_ORIGINAL_DST         80
+#endif
+
+#ifndef IPV6_AUTOFLOWLABEL
+#define IPV6_AUTOFLOWLABEL      70
+#define IPV6_ADDR_PREFERENCES   72
+#endif
+
+#ifndef IPV6_MINHOPCOUNT
+#define IPV6_MINHOPCOUNT        73
+#define IPV6_ORIGDSTADDR        74
+#define IPV6_RECVORIGDSTADDR    IPV6_ORIGDSTADDR
+#define IPV6_TRANSPARENT        75
+#define IPV6_UNICAST_IF         76
+#endif
+
+
 
 /* asm/resource.h */
 #ifndef RLIMIT_RTTIME
@@ -878,8 +1046,64 @@ struct kvm_get_htab_fd {
 #ifndef SCHED_DEADLINE
 #define SCHED_DEADLINE 6
 #endif
+#ifndef SCHED_IDLE
+#define SCHED_IDLE 5
+#endif
 
 /* sys/swap.h */
 #ifndef SWAP_FLAG_DISCARD
 #define SWAP_FLAG_DISCARD 0x10000
+#endif
+
+/* unistd.h */
+#ifndef SEEK_DATA
+#define SEEK_DATA 3
+#endif
+#ifndef SEEK_HOLE
+#define SEEK_HOLE 4
+#endif
+
+/* sys/epoll.h */
+#ifndef EPOLLWAKEUP
+#define EPOLLWAKEUP (1u << 29)
+#endif
+
+/* time.h */
+#ifndef CLOCK_MONOTONIC_RAW
+#define CLOCK_MONOTONIC_RAW 4
+#endif
+#ifndef CLOCK_BOOTTIME
+#define CLOCK_BOOTTIME 7
+#endif
+
+/* asm-generic/poll.h */
+#ifndef POLLFREE
+#define POLLFREE 0x4000
+#endif
+#ifndef POLL_BUSY_LOOP
+#define POLL_BUSY_LOOP 0x8000
+#endif
+
+/* linux/nvme_ioctl.h */
+#ifndef NVME_IOCTL_RESET
+#define NVME_IOCTL_RESET _IO('N', 0x44)
+#endif
+
+/* linux/shm.h */
+#ifndef SHM_HUGE_SHIFT
+#define SHM_HUGE_SHIFT  26
+#endif
+#ifndef SHM_HUGE_2MB
+#define SHM_HUGE_2MB	(21 << SHM_HUGE_SHIFT)
+#define SHM_HUGE_1GB	(30 << SHM_HUGE_SHIFT)
+#endif
+
+/* bits/shm.h */
+#ifndef SHM_NORESERVE
+# define SHM_NORESERVE 010000
+#endif
+
+/* netfilter/ipset/ipset.h */
+#ifndef SO_IP_SET
+#define SO_IP_SET 83
 #endif
