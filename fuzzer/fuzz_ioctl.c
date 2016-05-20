@@ -480,7 +480,7 @@ void ioctl_random_event(void) {
 	/* Exit if no events */
 	if (any_event<0) return;
 
-	type=rand()%10;
+	type=rand()%11;
 
 	switch(type) {
 
@@ -674,7 +674,27 @@ void ioctl_random_event(void) {
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
 					event_data[any_event].fd,
-					(long)PERF_EVENT_IOC_ID,id);
+					(long)PERF_EVENT_IOC_SET_BPF,id);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			break;
+
+		/* PERF_EVENT_IOC_PAUSE_OUTPUT */
+		/* argument is to pause/unpause */
+		case 9:
+			arg=rand()%3;
+			if (arg==2) arg=rand();
+
+			if (ignore_but_dont_skip.ioctl) return;
+
+			result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_PAUSE_OUTPUT,arg);
+
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
+				sprintf(log_buffer,"I %d %ld %lld\n",
+					event_data[any_event].fd,
+					(long)PERF_EVENT_IOC_PAUSE_OUTPUT,id);
 				write(log_fd,log_buffer,strlen(log_buffer));
 			}
 
