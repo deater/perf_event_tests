@@ -121,13 +121,14 @@ all:	check_mhz_value \
 	papi_tot_ins \
 	papi_vec_dp \
 	papi_vec_ins \
-	papi_vec_sp 
+	papi_vec_sp \
+	papi_profile
 
 #	papi_bgl_oed \
-	papi_bgl_ts_32b \
-	papi_bgl_ts_full \
-	papi_bgl_tr_dpkt \
-	papi_bgl_tr_full 
+#	papi_bgl_ts_32b \
+#	papi_bgl_ts_full \
+#	papi_bgl_tr_dpkt \
+#	papi_bgl_tr_full 
 
 
 ###
@@ -1278,6 +1279,13 @@ perfevent_generalized_events.o:	perfevent_generalized_events.c
 
 ###
 
+papi_profile:	papi_profile.o
+	$(CC) $(LFLAGS) $(PAPI_LIB) -o papi_profile papi_profile.o
+
+papi_profile.o:	papi_profile.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_profile.c
+
+
 clean:
 	rm -f *.o core *~ \
 	papi_bgl_oed \
@@ -1402,6 +1410,7 @@ clean:
 	mpx_oflo \
 	offcore_response \
 	perfevent_sw_events \
-	perfevent_generalized_events
+	perfevent_generalized_events \
+	papi_profile
 
 install:	all
