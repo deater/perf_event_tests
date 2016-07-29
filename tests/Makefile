@@ -20,7 +20,9 @@ all:
 	$(MAKE) -C sysfs
 	$(MAKE) -C tracepoints
 	$(MAKE) -C utils
+	$(MAKE) -C x86_amd
 	$(MAKE) -C x86_intel
+
 
 install: all
 	$(MAKE) -C attr_fields install
@@ -44,6 +46,7 @@ install: all
 	$(MAKE) -C sysfs install
 	$(MAKE) -C tracepoints install
 	$(MAKE) -C utils install
+	$(MAKE) -C x86_amd install
 	$(MAKE) -C x86_intel install
 
 
@@ -69,6 +72,7 @@ clean: clean-local
 	$(MAKE) -C sysfs clean
 	$(MAKE) -C tracepoints clean
 	$(MAKE) -C utils clean
+	$(MAKE) -C x86_amd clean
 	$(MAKE) -C x86_intel clean
 
 clean-local:
