@@ -36,23 +36,23 @@ int mmap_data_size;
 int quiet=0;
 
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
-                  PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
-                  PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
-                  PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW ;
-   //                  PERF_SAMPLE_BRANCH_STACK;
+		PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
+		PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
+		PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW ;
+//		PERF_SAMPLE_BRANCH_STACK;
 
 
 int read_format=
-                PERF_FORMAT_GROUP |
-                PERF_FORMAT_ID |
-                PERF_FORMAT_TOTAL_TIME_ENABLED |
-                PERF_FORMAT_TOTAL_TIME_RUNNING;
+		PERF_FORMAT_GROUP |
+		PERF_FORMAT_ID |
+		PERF_FORMAT_TOTAL_TIME_ENABLED |
+		PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 
 struct validate_values validate;
 
 static struct signal_counts {
-  int in,out,msg,err,pri,hup,unknown,total;
+	int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
 
 static int fd1,fd2;
@@ -64,51 +64,55 @@ int num_oflos=0;
 long long prev_head=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
-  int ret;
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
+	int ret;
 
-  if (num_oflos%2==0) {
-     prev_head=perf_mmap_read(our_mmap,mmap_data_size,prev_head,
-		   sample_type,read_format,0,NULL,quiet,NULL);
-  }
-  num_oflos++;
+	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  switch(oh->si_code) {
-     case POLL_IN:  count.in++;  break;
-     case POLL_OUT: count.out++; break;
-     case POLL_MSG: count.msg++; break;
-     case POLL_ERR: count.err++; break;
-     case POLL_PRI: count.pri++; break;
-     case POLL_HUP: count.hup++; break;
-     default: count.unknown++; break;
-  }
+	if (num_oflos%2==0) {
+		prev_head=perf_mmap_read(our_mmap,mmap_data_size,prev_head,
+					sample_type,read_format,0,
+					NULL,quiet,NULL,RAW_NONE);
+	}
+	num_oflos++;
 
-  count.total++;
+	switch(oh->si_code) {
+		case POLL_IN:  count.in++;  break;
+		case POLL_OUT: count.out++; break;
+		case POLL_MSG: count.msg++; break;
+		case POLL_ERR: count.err++; break;
+		case POLL_PRI: count.pri++; break;
+		case POLL_HUP: count.hup++; break;
+		default: count.unknown++; break;
+	}
+
+	count.total++;
 
 	/* Corrupt! */
 	memset(our_mmap,0x55,getpagesize());
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
+	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
 
-  (void) ret;
+	(void) ret;
 
 }
 
 
 int main(int argc, char** argv) {
 
-   int ret;
-   int mmap_pages;
+	int ret;
+	int mmap_pages;
 
-   struct perf_event_attr pe;
+	struct perf_event_attr pe;
 
-   struct sigaction sa;
-   char test_string[]="Checking trashing of mmap buffer...";
+	struct sigaction sa;
+	char test_string[]="Checking trashing of mmap buffer...";
 
-   quiet=test_quiet();
+	quiet=test_quiet();
 
-   if (!quiet) printf("This checks over-writing the mmap buffer.\n");
+	if (!quiet) {
+		printf("This checks over-writing the mmap buffer.\n");
+	}
 
 	/* set up validation */
 	validate.pid=getpid();

@@ -52,18 +52,17 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 
-long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
-                    int sample_type, int read_format, long long reg_mask,
-                    struct validate_values *validate,
-                    int quiet, int *events_read );
-
-
-	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-		sample_type,read_format,
-		0, /* reg_mask */
-		NULL, /*validate */
+	prev_head=perf_mmap_read(
+		our_mmap,
+		MMAP_DATA_SIZE,
+		prev_head,
+		sample_type,
+		read_format,
+		0,	/* reg_mask */
+		NULL,	/*validate */
 		quiet,
-		NULL); /* events read */
+		NULL,	/* events read */
+		RAW_IBS_FETCH);	/* RAW type */
 
 	count_total++;
 
@@ -126,6 +125,18 @@ int main(int argc, char **argv) {
 	}
 	fscanf(fff,"%d",&pe.type);
 	fclose(fff);
+
+
+
+	/************************************************/
+	/* Set up the event				*/
+	/************************************************/
+	/* See BKDG MSRC001_1030 IBS Fetch Control (IC_IBS_CTL) */
+	/* Writable fields */
+	/* 57 = IbsRandEn */
+	/* 48 = IbsFetchEn */
+	/* 31:16 = IbsFetchCnt (updated by hardware) */
+	/* 15:0  = IbsFetchMaxCnt.  Shifted left by 4 */
 
 	/* ibs_fetch/rand_en=1 */
 	pe.config = 0x200000000000000ULL;

@@ -60,7 +60,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
 		global_sample_type,0,global_sample_regs_user,
-		NULL,quiet,NULL);
+		NULL,quiet,NULL,RAW_NONE);
 
 	count_total++;
 
@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
 	/* Drain any remaining events */
 	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
                 global_sample_type,0,global_sample_regs_user,
-                NULL,quiet,&events_read);
+                NULL,quiet,&events_read,RAW_NONE);
 
 	munmap(our_mmap,mmap_pages*4096);
 

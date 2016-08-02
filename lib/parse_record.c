@@ -1,7 +1,7 @@
 /* parse_record.c  */
 /* by Vince Weaver   vincent.weaver _at_ maine.edu */
 
-/* This just tests perf_event sampling */
+/* This code parses the records stored in a perf mmap trace buffer */
 
 #define _GNU_SOURCE 1
 
@@ -181,10 +181,11 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
-                    long long prev_head,
-		    int sample_type, int read_format, long long reg_mask,
-		    struct validate_values *validate,
-		    int quiet, int *events_read ) {
+			long long prev_head,
+			int sample_type, int read_format, long long reg_mask,
+			struct validate_values *validate,
+			int quiet, int *events_read,
+			int raw_type ) {
 
 	struct perf_event_mmap_page *control_page = our_mmap;
 	long long head,offset;

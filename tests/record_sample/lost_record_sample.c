@@ -33,17 +33,17 @@
 #define MMAP_DATA_SIZE 1
 
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
-                  PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
-                  PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
-                  PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW ;
-   //                  PERF_SAMPLE_BRANCH_STACK;
+		PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
+		PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
+		PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW ;
+//		PERF_SAMPLE_BRANCH_STACK;
 
 
 int read_format=
-                PERF_FORMAT_GROUP |
-                PERF_FORMAT_ID |
-                PERF_FORMAT_TOTAL_TIME_ENABLED |
-                PERF_FORMAT_TOTAL_TIME_RUNNING;
+		PERF_FORMAT_GROUP |
+		PERF_FORMAT_ID |
+		PERF_FORMAT_TOTAL_TIME_ENABLED |
+		PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 
 struct validate_values validate;
@@ -63,141 +63,152 @@ long long prev_head=0;
 int quiet=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
-  int ret;
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
+	int ret;
 
-  if (num_oflos%100==0) {
-     prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-		   sample_type,read_format,0,NULL,quiet,NULL);
-  }
-  num_oflos++;
+	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  switch(oh->si_code) {
-     case POLL_IN:  count.in++;  break;
-     case POLL_OUT: count.out++; break;
-     case POLL_MSG: count.msg++; break;
-     case POLL_ERR: count.err++; break;
-     case POLL_PRI: count.pri++; break;
-     case POLL_HUP: count.hup++; break;
-     default: count.unknown++; break;
-  }
+	if (num_oflos%100==0) {
+		prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
+					sample_type,read_format,0,
+					NULL,quiet,NULL, RAW_NONE);
+	}
+	num_oflos++;
 
-  count.total++;
+	switch(oh->si_code) {
+		case POLL_IN:  count.in++;  break;
+		case POLL_OUT: count.out++; break;
+		case POLL_MSG: count.msg++; break;
+		case POLL_ERR: count.err++; break;
+		case POLL_PRI: count.pri++; break;
+		case POLL_HUP: count.hup++; break;
+		default: count.unknown++; break;
+	}
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
+	count.total++;
 
-  (void) ret;
-  
+	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
+
+	(void) ret;
+
 }
 
 
 int main(int argc, char** argv) {
-   
-   int ret,i;
-   int mmap_pages=1+MMAP_DATA_SIZE;
 
-   struct perf_event_attr pe;
+	int ret,i;
+	int mmap_pages=1+MMAP_DATA_SIZE;
 
-   struct sigaction sa;
-   char test_string[]="Checking behavior on mmap overflow...";
-   
-   quiet=test_quiet();
+	struct perf_event_attr pe;
 
-   if (!quiet) printf("This checks behavior on mmap buffer being full.\n");
+	struct sigaction sa;
+	char test_string[]="Checking behavior on mmap overflow...";
 
-   /* set up validation */
-   validate.pid=getpid();
-   validate.tid=mygettid();
-   validate.events=2;
+	quiet=test_quiet();
 
-   memset(&sa, 0, sizeof(struct sigaction));
-   sa.sa_sigaction = our_handler;
-   sa.sa_flags = SA_SIGINFO;
+	if (!quiet) {
+		printf("This checks behavior on mmap buffer being full.\n");
+	}
 
-   if (sigaction( SIGIO, &sa, NULL) < 0) {
-     fprintf(stderr,"Error setting up signal handler\n");
-     exit(1);
-   }
-   
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	/* set up validation */
+	validate.pid=getpid();
+	validate.tid=mygettid();
+	validate.events=2;
 
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_INSTRUCTIONS;
-   pe.sample_period=SAMPLE_FREQUENCY;
-   pe.sample_type=sample_type;
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = our_handler;
+	sa.sa_flags = SA_SIGINFO;
 
-   pe.read_format=read_format;
-   pe.disabled=1;
-   pe.pinned=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
-   pe.wakeup_events=1;
+	if (sigaction( SIGIO, &sa, NULL) < 0) {
+		fprintf(stderr,"Error setting up signal handler\n");
+		exit(1);
+	}
 
-   arch_adjust_domain(&pe,quiet);
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   fd1=perf_event_open(&pe,0,-1,-1,0);
-   if (fd1<0) {
-     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
-   }
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.sample_period=SAMPLE_FREQUENCY;
+	pe.sample_type=sample_type;
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
+	pe.read_format=read_format;
+	pe.disabled=1;
+	pe.pinned=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
+	pe.wakeup_events=1;
 
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_CPU_CYCLES;
-   pe.sample_type=PERF_SAMPLE_IP;
-   pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
-   pe.disabled=0;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	arch_adjust_domain(&pe,quiet);
 
-   arch_adjust_domain(&pe,quiet);
+	fd1=perf_event_open(&pe,0,-1,-1,0);
+	if (fd1<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		}
+		test_fail(test_string);
+	}
 
-   fd2=perf_event_open(&pe,0,-1,fd1,0);
-   if (fd2<0) {
-     if (!quiet) fprintf(stderr,"Error opening %llx\n",pe.config);
-     test_fail(test_string);
-   }
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   our_mmap=mmap(NULL, mmap_pages*4096, 
-                 PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_CPU_CYCLES;
+	pe.sample_type=PERF_SAMPLE_IP;
+	pe.read_format=PERF_FORMAT_GROUP|PERF_FORMAT_ID;
+	pe.disabled=0;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   
-   fcntl(fd1, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
-   fcntl(fd1, F_SETSIG, SIGIO);
-   fcntl(fd1, F_SETOWN,getpid());
-   
-   ioctl(fd1, PERF_EVENT_IOC_RESET, 0);   
+	arch_adjust_domain(&pe,quiet);
 
-   ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
+	fd2=perf_event_open(&pe,0,-1,fd1,0);
+	if (fd2<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error opening %llx\n",pe.config);
+		}
+		test_fail(test_string);
+	}
 
-   if (ret<0) {
-     if (!quiet) {
-        fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
-	     "%d %s\n",errno,strerror(errno));
-     }
-     exit(1);
-   }
+	our_mmap=mmap(NULL, mmap_pages*4096,
+			PROT_READ|PROT_WRITE, MAP_SHARED, fd1, 0);
 
-   for(i=0;i<100;i++)
-      instructions_million();
-   
-   ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
+	fcntl(fd1, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+	fcntl(fd1, F_SETSIG, SIGIO);
+	fcntl(fd1, F_SETOWN,getpid());
 
-   if (count.total==0) {
-      if (!quiet) printf("No overflow events generated.\n");
-      test_fail(test_string);
-   }
+	ioctl(fd1, PERF_EVENT_IOC_RESET, 0);
 
-   munmap(our_mmap,mmap_pages*4096);
+	ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,0);
 
-   close(fd2);
-   close(fd1);
+	if (ret<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE "
+				"of group leader: %d %s\n",
+				errno,strerror(errno));
+		}
+		exit(1);
+	}
 
-   test_pass(test_string);
-   
-   return 0;
+	for(i=0;i<100;i++) {
+		instructions_million();
+	}
+
+	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
+
+	if (count.total==0) {
+		if (!quiet) {
+			printf("No overflow events generated.\n");
+		}
+		test_fail(test_string);
+	}
+
+	munmap(our_mmap,mmap_pages*4096);
+
+	close(fd2);
+	close(fd1);
+
+	test_pass(test_string);
+
+	return 0;
 }
