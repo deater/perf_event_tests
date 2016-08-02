@@ -1,5 +1,5 @@
 /*
-	Attempt to dump AMD IBS records.
+	Attempt to dump AMD IBS Fetch records.
 
 	Unlike Intel PEBS, the raw MSR results are dumped into a RAW_SAMPLE
 	and not split out into the vaious other SAMPLE types.

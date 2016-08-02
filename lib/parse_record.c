@@ -177,7 +177,43 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 
 
 
+static int dump_ibs_fetch(unsigned char *data, int size) {
 
+	unsigned long long *msrs;
+	unsigned int *leftover;
+
+	msrs=(unsigned long long *)(data+4);
+	leftover=(unsigned int *)(data);
+
+	printf("\t\tHeader: %x\n",leftover[0]);
+	printf("\t\tMSR IBS_FETCH_CONTROL %llx\n",msrs[0]);
+	printf("\t\t\tIBS_RAND_EN: %d\n",!!(msrs[0]&1ULL<<57));
+	printf("\t\t\tL2 iTLB Miss: %d\n",!!(msrs[0]&1ULL<<56));
+	printf("\t\t\tL1 iTLB Miss: %d\n",!!(msrs[0]&1ULL<<55));
+	printf("\t\t\tL1TLB page size: ");
+	switch( (msrs[0]>>53)&0x3) {
+		case 0:	printf("4kB\n"); break;
+		case 1:	printf("2MB\n"); break;
+		case 2: printf("1GB\n"); break;
+		default:	printf("Resreved\n"); break;
+	}
+
+	printf("\t\t\tFetch Physical Address Valid: %d\n",!!(msrs[0]&1ULL<<52));
+	printf("\t\t\ticache miss: %d\n",!!(msrs[0]&1ULL<<51));
+	printf("\t\t\tInstruction Fetch Complete: %d\n",!!(msrs[0]&1ULL<<50));
+	printf("\t\t\tInstruction Fetch Valid: %d\n",!!(msrs[0]&1ULL<<49));
+	printf("\t\t\tInstruction Fetch Enabled: %d\n",!!(msrs[0]&1ULL<<48));
+	printf("\t\t\tInstruction Fetch Latency: %lld\n",((msrs[0]>>32)&0xffff));
+	printf("\t\t\tInstruction Fetch Count: %lld\n",((msrs[0]>>16)&0xffff)<<4);
+	printf("\t\t\tInstruction Fetch Max Count: %lld\n",(msrs[0]&0xffff)<<4);
+
+	printf("\t\tMSR IBS_FETCH_LINEAR_ADDRESS %llx\n",msrs[1]);
+	printf("\t\tMSR IBS_FETCH_PHYSICAL_ADDRESS %llx\n",msrs[2]);
+	if (size>24) {
+		printf("\t\tMSR IBS_BRTARGET %llx\n",msrs[3]);
+	}
+	return 0;
+}
 
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
@@ -596,12 +632,21 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 				if (!quiet) printf("\tPERF_SAMPLE_RAW, Raw length: %d\n",size);
 				offset+=4;
 
-				if (!quiet) printf("\t\t");
-				for(i=0;i<size;i++) {
-					if (!quiet) printf("%d ",data[offset]);
-					offset+=1;
+				if (!quiet) {
+					if (raw_type==RAW_IBS_FETCH) {
+						dump_ibs_fetch(&data[offset],size);
+					}
+					else if (raw_type==RAW_IBS_OP) {
+					}
+					else {
+						printf("\t\t");
+						for(i=0;i<size;i++) {
+							printf("%d ",data[offset+i]);
+						}
+						printf("\n");
+					}
 				}
-				if (!quiet) printf("\n");
+				offset+=size;
 			}
 
 			if (sample_type & PERF_SAMPLE_BRANCH_STACK) {

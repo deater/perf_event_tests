@@ -6,11 +6,11 @@ LDFLAGS +=
 LIB = ../../lib
 
 PROGRAM_LIST = \
-	ibs
+	ibs_fetch
 
 all: $(PROGRAM_LIST)
 
-ibs: ibs.o $(LIB)/libhelper.a
+ibs_fetch: ibs_fetch.o $(LIB)/libhelper.a
 
 install: all
 	$(INSTALL) -d $(prefix)/tests/x86_amd
