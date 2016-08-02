@@ -175,9 +175,7 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 }
 
 
-
-
-static int dump_ibs_fetch(unsigned char *data, int size) {
+static int dump_raw_ibs_fetch(unsigned char *data, int size) {
 
 	unsigned long long *msrs;
 	unsigned int *leftover;
@@ -211,6 +209,106 @@ static int dump_ibs_fetch(unsigned char *data, int size) {
 	printf("\t\tMSR IBS_FETCH_PHYSICAL_ADDRESS %llx\n",msrs[2]);
 	if (size>24) {
 		printf("\t\tMSR IBS_BRTARGET %llx\n",msrs[3]);
+	}
+	return 0;
+}
+
+static int dump_raw_ibs_op(unsigned char *data, int size) {
+
+	unsigned long long *msrs;
+	unsigned int *leftover;
+
+	msrs=(unsigned long long *)(data+4);
+	leftover=(unsigned int *)(data);
+
+	printf("\t\tHeader: %x\n",leftover[0]);
+	printf("\t\tMSR IBS_EXECUTION_CONTROL %llx\n",msrs[0]);
+	printf("\t\t\tIbsOpCurCnt: %lld\n",((msrs[0]>>32)&0x3ffffff));
+	printf("\t\t\tIBS OpCntCtl: %d\n",!!(msrs[0]&1ULL<<19));
+	printf("\t\t\tIBS OpVal: %d\n",!!(msrs[0]&1ULL<<18));
+	printf("\t\t\tIBS OpEn: %d\n",!!(msrs[0]&1ULL<<17));
+	printf("\t\t\tIbsOpMaxCnt: %lld\n",((msrs[0]&0xffff)<<4) |
+				(msrs[0]&0x3f00000));
+
+	printf("\t\tMSR IBS_OP_LOGICAL_ADDRESS %llx\n",msrs[1]);
+
+	printf("\t\tMSR IBS_OP_DATA %llx\n",msrs[2]);
+	printf("\t\t\tRIP Invalid: %d\n",!!(msrs[2]&1ULL<<38));
+	printf("\t\t\tBranch Retired: %d\n",!!(msrs[2]&1ULL<<37));
+	printf("\t\t\tBranch Mispredicted: %d\n",!!(msrs[2]&1ULL<<36));
+	printf("\t\t\tBranch Taken: %d\n",!!(msrs[2]&1ULL<<35));
+	printf("\t\t\tReturn uop: %d\n",!!(msrs[2]&1ULL<<34));
+	printf("\t\t\tMispredicted Return uop: %d\n",!!(msrs[2]&1ULL<<33));
+	printf("\t\t\tTag to Retire Cycles: %lld\n",(msrs[2]>>16)&0xffff);
+	printf("\t\t\tCompletion to Retire Cycles: %lld\n",msrs[2]&0xffff);
+
+	printf("\t\tMSR IBS_OP_DATA2 (Northbridge) %llx\n",msrs[3]);
+	printf("\t\t\tCache Hit State: %c\n",(msrs[3]&1ULL<<5)?'O':'M');
+	printf("\t\t\tRequest destination node: %s\n",
+		(msrs[3]&1ULL<<4)?"Same":"Different");
+	printf("\t\t\tNorthbridge data source: ");
+	switch(msrs[3]&0x7) {
+		case 0:	printf("No valid status\n"); break;
+		case 1: printf("L3\n"); break;
+		case 2: printf("Cache from another compute unit\n"); break;
+		case 3: printf("DRAM\n"); break;
+		case 4: printf("Reserved remote cache\n"); break;
+		case 5: printf("Reserved\n"); break;
+		case 6: printf("Reserved\n"); break;
+		case 7: printf("Other: MMIO/config/PCI/APIC\n"); break;
+	}
+
+	printf("\t\tMSR IBS_OP_DATA3 (cache) %llx\n",msrs[4]);
+	printf("\t\t\tData Cache Miss Latency: %lld\n",
+		(msrs[4]>>32)&0xffff);
+	printf("\t\t\tL2TLB data hit in 1GB page: %d\n",
+		!!(msrs[4]&1ULL<<19));
+	printf("\t\t\tData cache physical addr valid: %d\n",
+		!!(msrs[4]&1ULL<<18));
+	printf("\t\t\tData cache linear addr valid: %d\n",
+		!!(msrs[4]&1ULL<<17));
+	printf("\t\t\tMAB hit: %d\n",
+		!!(msrs[4]&1ULL<<16));
+	printf("\t\t\tData cache locked operation: %d\n",
+		!!(msrs[4]&1ULL<<15));
+	printf("\t\t\tUncachable memory operation: %d\n",
+		!!(msrs[4]&1ULL<<14));
+	printf("\t\t\tWrite-combining memory operation: %d\n",
+		!!(msrs[4]&1ULL<<13));
+	printf("\t\t\tData forwarding store to load canceled: %d\n",
+		!!(msrs[4]&1ULL<<12));
+	printf("\t\t\tData forwarding store to load operation: %d\n",
+		!!(msrs[4]&1ULL<<11));
+	printf("\t\t\tBank conflict on load operation: %d\n",
+		!!(msrs[4]&1ULL<<9));
+	printf("\t\t\tMisaligned access: %d\n",
+		!!(msrs[4]&1ULL<<8));
+	printf("\t\t\tData cache miss: %d\n",
+		!!(msrs[4]&1ULL<<7));
+	printf("\t\t\tData cache L2TLB hit in 2M: %d\n",
+		!!(msrs[4]&1ULL<<6));
+	printf("\t\t\tData cache L2TLB hit in 1G: %d\n",
+		!!(msrs[4]&1ULL<<5));
+	printf("\t\t\tData cache L1TLB hit in 2M: %d\n",
+		!!(msrs[4]&1ULL<<4));
+	printf("\t\t\tData cache L2TLB miss: %d\n",
+		!!(msrs[4]&1ULL<<3));
+	printf("\t\t\tData cache L1TLB miss: %d\n",
+		!!(msrs[4]&1ULL<<2));
+	printf("\t\t\tOperation is a store: %d\n",
+		!!(msrs[4]&1ULL<<1));
+	printf("\t\t\tOperation is a load: %d\n",
+		!!(msrs[4]&1ULL<<0));
+
+	if (msrs[4]&1ULL<<17) {
+		printf("\t\tMSR IBS_DC_LINEAR_ADDRESS %llx\n",msrs[5]);
+	}
+	if (msrs[4]&1ULL<<18) {
+		printf("\t\tMSR IBS_DC_PHYSICAL_ADDRESS %llx\n",msrs[6]);
+	}
+
+	if (size>64) {
+		printf("\t\tMSR IBS_OP_DATA4 %llx\n",msrs[7]);
 	}
 	return 0;
 }
@@ -634,9 +732,10 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 
 				if (!quiet) {
 					if (raw_type==RAW_IBS_FETCH) {
-						dump_ibs_fetch(&data[offset],size);
+						dump_raw_ibs_fetch(&data[offset],size);
 					}
 					else if (raw_type==RAW_IBS_OP) {
+						dump_raw_ibs_op(&data[offset],size);
 					}
 					else {
 						printf("\t\t");

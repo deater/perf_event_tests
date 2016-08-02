@@ -1,5 +1,5 @@
 /*
-	Attempt to dump AMD IBS Fetch records.
+	Attempt to dump AMD IBS Execute (OP) records.
 
 	Unlike Intel PEBS, the raw MSR results are dumped into a RAW_SAMPLE
 	and not split out into the vaious other SAMPLE types.
@@ -62,7 +62,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 		NULL,	/*validate */
 		quiet,
 		NULL,	/* events read */
-		RAW_IBS_FETCH);	/* RAW type */
+		RAW_IBS_OP);	/* RAW type */
 
 	count_total++;
 
@@ -82,11 +82,11 @@ int main(int argc, char **argv) {
 	struct perf_event_attr pe;
 
 	struct sigaction sa;
-	char test_string[]="Testing AMD IBS fetch samples...";
+	char test_string[]="Testing AMD IBS samples...";
 
 	quiet=test_quiet();
 
-	if (!quiet) printf("This tests AMD IBS...\n");
+	if (!quiet) printf("This tests AMD IBS op...\n");
 
 	/* TODO: detect we have AMD CPU */
 
@@ -118,9 +118,9 @@ int main(int argc, char **argv) {
 	/* Use a proper event */
 	/* ./perf record -a -e ibs_fetch/rand_en=1/GH /bin/ls */
 
-	fff=fopen("/sys/devices/ibs_fetch/type","r");
+	fff=fopen("/sys/devices/ibs_op/type","r");
 	if (fff==NULL) {
-		fprintf(stderr,"Could not open ibs_fetch PMU\n");
+		fprintf(stderr,"Could not open ibs_op PMU\n");
 		exit(1);
 	}
 	fscanf(fff,"%d",&pe.type);
@@ -131,15 +131,17 @@ int main(int argc, char **argv) {
 	/************************************************/
 	/* Set up the event				*/
 	/************************************************/
-	/* See BKDG MSRC001_1030 IBS Fetch Control (IC_IBS_CTL) */
+	/* See MSRC001_1033 IBS Execution Control (SC_IBS_CTL) */
 	/* Writable fields */
-	/* 57 = IbsRandEn */
-	/* 48 = IbsFetchEn */
-	/* 31:16 = IbsFetchCnt (updated by hardware) */
-	/* 15:0  = IbsFetchMaxCnt.  Shifted left by 4 */
+	/* 58:32 = IbsOpCurCnt */
+	/* 26:20 = IbsOpMaxCnt */
+	/* 19    = IbsOpCntCtrl */
+	/* 18    = IbsOpVal (micro-op sample valid) */
+	/* 17    = IbsOpEn  (micro-op sampling enable) */
+	/* 15:0  = IbsOpMaxCnt.  Shifted left by 4 and then tack 26:20 to front */
 
-	/* ibs_fetch/rand_en=1 */
-	pe.config = 0x200000000000000ULL;
+	/* ibs_op/cnt_ctl=1/GH */
+	pe.config = 0x80000;
 
         pe.sample_period=SAMPLE_FREQUENCY;
         pe.sample_type=sample_type;
