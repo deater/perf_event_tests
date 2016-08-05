@@ -34,23 +34,23 @@
 #define MMAP_DATA_SIZE 8
 
 int sample_type=PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
-                  PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
-                  PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
-                  PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW |
-                  PERF_SAMPLE_BRANCH_STACK;
+		PERF_SAMPLE_ADDR | PERF_SAMPLE_READ | PERF_SAMPLE_CALLCHAIN |
+		PERF_SAMPLE_ID | PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD |
+		PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW |
+		PERF_SAMPLE_BRANCH_STACK;
 
 
 int read_format=
-                PERF_FORMAT_GROUP |
-                PERF_FORMAT_ID |
-                PERF_FORMAT_TOTAL_TIME_ENABLED |
-                PERF_FORMAT_TOTAL_TIME_RUNNING;
+		PERF_FORMAT_GROUP |
+		PERF_FORMAT_ID |
+		PERF_FORMAT_TOTAL_TIME_ENABLED |
+		PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 
 int quiet=0;
 
 static struct signal_counts {
-  int in,out,msg,err,pri,hup,unknown,total;
+	int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
 
 static int fd1,fd2;
@@ -60,29 +60,30 @@ void *our_mmap;
 long long prev_head=0;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
-  int ret;
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, quiet);
+	int ret;
 
-  prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-			   sample_type,read_format,0,NULL,quiet,NULL);
+	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, quiet);
 
-  switch(oh->si_code) {
-     case POLL_IN:  count.in++;  break;
-     case POLL_OUT: count.out++; break;
-     case POLL_MSG: count.msg++; break;
-     case POLL_ERR: count.err++; break;
-     case POLL_PRI: count.pri++; break;
-     case POLL_HUP: count.hup++; break;
-     default: count.unknown++; break;
-  }
+	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
+				sample_type,read_format,0,
+				NULL,quiet,NULL,RAW_NONE);
 
-  count.total++;
+	switch(oh->si_code) {
+		case POLL_IN:  count.in++;  break;
+		case POLL_OUT: count.out++; break;
+		case POLL_MSG: count.msg++; break;
+		case POLL_ERR: count.err++; break;
+		case POLL_PRI: count.pri++; break;
+		case POLL_HUP: count.hup++; break;
+		default: count.unknown++; break;
+	}
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
+	count.total++;
 
-  (void) ret;
-  
+	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH, 1);
+
+	(void) ret;
 }
 
 

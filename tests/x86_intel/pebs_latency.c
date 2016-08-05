@@ -145,18 +145,13 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
 
-long long perf_mmap_read( void *our_mmap, int mmap_size, long long prev_head,
-                    int sample_type, int read_format, long long reg_mask,
-                    struct validate_values *validate,
-                    int quiet, int *events_read );
-
-
 	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
 		sample_type,read_format,
 		0, /* reg_mask */
 		NULL, /*validate */
 		quiet,
-		NULL); /* events read */
+		NULL, /* events read */
+		RAW_NONE);
 
 	count_total++;
 

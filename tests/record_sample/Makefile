@@ -1,7 +1,7 @@
 include ../../Makefile.globals.inc
 
 CPPFLAGS += -I../../include
-CFLAGS += -Wall -O2
+CFLAGS += -Wall -O2 -g
 LDFLAGS +=
 LIB = ../../lib
 

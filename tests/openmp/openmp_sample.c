@@ -75,7 +75,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 						mmap_info[i].prev_head,
 						sample_type,0,
 						sample_regs_user,
-						NULL,quiet,NULL);
+						NULL,quiet,NULL, RAW_NONE);
 
 
 //        ret=ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);

@@ -36,16 +36,16 @@
 int sample_type=PERF_SAMPLE_BRANCH_STACK;
 
 int read_format=
-                PERF_FORMAT_GROUP |
-                PERF_FORMAT_ID |
-                PERF_FORMAT_TOTAL_TIME_ENABLED |
-                PERF_FORMAT_TOTAL_TIME_RUNNING;
+		PERF_FORMAT_GROUP |
+		PERF_FORMAT_ID |
+		PERF_FORMAT_TOTAL_TIME_ENABLED |
+		PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 
 struct validate_values validate;
 
 static struct signal_counts {
-  int in,out,msg,err,pri,hup,unknown,total;
+	int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
 
 static int fd1,fd2;
@@ -63,7 +63,8 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
 	prev_head=perf_mmap_read(our_mmap,MMAP_DATA_SIZE,prev_head,
-				sample_type,read_format,0,&validate,quiet,NULL);
+				sample_type,read_format,0,
+				&validate,quiet,NULL,RAW_NONE);
 
 	switch(oh->si_code) {
 		case POLL_IN:  count.in++;  break;
