@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>
+haswell
+BUG: unable to handle kernel 
+
+
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell 
+BUG: unable to handle kernel 
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc0
+
+<h3>Most recently Seen</h3>
+4.8-rc0
+
+<h3>Reproducible</h3>
+???
+
+<h3>Type</h3>
+crash
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+n/a
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.7.0+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1470429924
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1470429924
+
+Pid=17586, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mma
+p-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+[ 3436.786215] BUG: unable to handle kernel 
+[ 3497.425743] CPU: 2 PID: 17533 Comm: perf_fuzzer Tainted: G        W    L  4.7.0+ #185
+[ 3497.425743] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 3497.425743] task: ffff8800bf56a740 task.stack: ffff880036f00000
+[ 3497.425744] RIP: 0010:[<ffffffff811000ab>]  [<ffffffff811000ab>] smp_call_function_single+0xbb/0x110
+[ 3497.425744] RSP: 0018:ffff880036f03db0  EFLAGS: 00000202
+[ 3497.425745] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000830
+[ 3497.425745] RDX: 0000000000000003 RSI: 00000000000008fb RDI: 0000000000000830
+[ 3497.425745] RBP: ffff880036f03df0 R08: 0000000000000000 R09: 6ab0c5fb00000000
+[ 3497.425746] R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff8116a050
+[ 3497.425746] R13: ffff88011ea1c498 R14: ffff8800becf9000 R15: ffff88011ea1c4d8
+[ 3497.425747] FS:  00007f19d0ab4700(0000) GS:ffff88011ea80000(0000) knlGS:0000000000000000
+[ 3497.425747] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 3497.425747] CR2: 0000000004d43028 CR3: 0000000036f46000 CR4: 00000000001407e0
+[ 3497.425748] DR0: 000000000000b9f2 DR1: 0000000000000000 DR2: 0000000000400a00
+[ 3497.425748] DR3: 0000000000400a00 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[ 3497.425749] Stack:
+[ 3497.425749]  ffff8800bf56a740 0000000000000246 0000000000000000 ffffffff8116a050
+[ 3497.425749]  ffff880036f03e00 0000000000000003 0000000000000000 0000000000000000
+[ 3497.425750]  ffff880036f03e40 ffffffff81168d21 0000000000000000 ffffffff8116ee20
+[ 3497.425750] Call Trace:
+[ 3497.425750]  [<ffffffff8116a050>] ? perf_cgroup_attach+0x50/0x50
+[ 3497.425751]  [<ffffffff81168d21>] perf_install_in_context+0x171/0x180
+[ 3497.425751]  [<ffffffff8116ee20>] ? ctx_resched+0x90/0x90
+[ 3497.425752]  [<ffffffff81173e72>] SYSC_perf_event_open+0xa12/0xd90
+[ 3497.425752]  [<ffffffff811764d9>] SyS_perf_event_open+0x9/0x10
+[ 3497.425752]  [<ffffffff817221b6>] entry_SYSCALL_64_fastpath+0x1e/0xad
+[ 3497.425753] Code: 4c fe ff ff 48 83 c4 30 5b 41 5c 5d c3 48 8d 75 d0 48 89 d1 89 df 4c 89 e2 e8 32 fe ff ff 8b 55 e8 83 e2 01 74 0a f3 90 8b 55 e8 <83> e2 01 75 f6 48 83 c4 30 5b 41 5c 5d c3 8b 05 79 f3 7a 01 85
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
