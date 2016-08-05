@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
 	int fd,failures=0;
 	int quiet;
 	struct perf_event_attr attr;
+	int paranoid;
 
 	char test_string[]="Testing EACCES generation...";
 
@@ -36,6 +37,8 @@ int main(int argc, char **argv) {
 	/* FIXME: check paranoid value            */
 	/*        to avoid false failures         */
 	/******************************************/
+	paranoid=get_paranoid_setting();
+	if (!quiet) printf("Paranoid = %d\n",paranoid);
 
 	memset(&attr,0,sizeof(struct perf_event_attr));
 	attr.type=PERF_TYPE_HARDWARE;
@@ -48,6 +51,7 @@ int main(int argc, char **argv) {
 				0	/*0*/ );
 
 	if (fd<0) {
+
 		if (errno==EACCES) {
 			if (!quiet) {
 				printf("Properly triggered EACCES\n");
@@ -59,12 +63,15 @@ int main(int argc, char **argv) {
 			}
 			failures++;
 		}
+
 	}
 	else {
-		if (!quiet) {
-			printf("Unexpectedly opened properly.\n");
+		if (paranoid>0) {
+			if (!quiet) {
+				printf("Unexpectedly opened properly.\n");
+			}
+			failures++;
 		}
-		failures++;
 		close(fd);
 	}
 
