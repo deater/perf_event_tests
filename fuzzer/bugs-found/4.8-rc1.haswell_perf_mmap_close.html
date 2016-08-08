@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>
+haswell
+WARNING: CPU: 5 PID: 26043 at kernel/events/core.c:4893 perf_mmap_close+0x389/0x390
+
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell 
+WARNING: CPU: 5 PID: 26043 at kernel/events/core.c:4893 perf_mmap_close+0x389/0x390
+
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc1
+
+<h3>Most recently Seen</h3>
+4.8-rc1
+
+<h3>Reproducible</h3>
+???
+
+<h3>Type</h3>
+warning
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+n/a
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+WARNING: CPU: 5 PID: 26043 at kernel/events/core.c:4893 perf_mmap_close+0x389/0x390
+[ 1102.269074] Modules linked in: binfmt_misc intel_rapl iosf_mbi x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel snd_hda_codec_hdmi aes_x86_64 lrw gf128mul glue_helper snd_hda_codec_realtek snd_hda_codec_generic ablk_helper ppdev iTCO_wdt snd_hda_intel snd_hda_codec snd_hda_core cryptd evdev iTCO_vendor_support snd_hwdep snd_pcm snd_timer snd i915 drm_kms_helper parport_pc wmi parport psmouse tpm_tis tpm_tis_core pcspkr serio_raw sg button i2c_i801 soundcore lpc_ich drm mei_me mfd_core i2c_smbus tpm mei video battery i2c_algo_bit sr_mod sd_mod cdrom ahci libahci xhci_pci libata ehci_pci xhci_hcd ehci_hcd e1000e usbcore ptp crc32c_intel scsi_mod pps_core usb_common fan thermal
+[ 1102.367852] CPU: 5 PID: 26043 Comm: perf_fuzzer Not tainted 4.8.0-rc1+ #187
+[ 1102.377206] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 1102.387192]  0000000000000000 ffff880117b2bdd8 ffffffff81437641 0000000000000000
+[ 1102.397466]  0000000000000000 ffff880117b2be18 ffffffff81076bab 0000131d00000282
+[ 1102.407748]  ffff880118211c00 ffff8801173502d8 ffff880117350000 ffff880117d20458
+[ 1102.418074] Call Trace:
+[ 1102.421424]  [<ffffffff81437641>] dump_stack+0x63/0x82
+[ 1102.428393]  [<ffffffff81076bab>] __warn+0xcb/0xf0
+[ 1102.434873]  [<ffffffff81076c9d>] warn_slowpath_null+0x1d/0x20
+[ 1102.442797]  [<ffffffff81174ab9>] perf_mmap_close+0x389/0x390
+[ 1102.450557]  [<ffffffff81174955>] ? perf_mmap_close+0x225/0x390
+[ 1102.458569]  [<ffffffff8116cf90>] ? perf_iterate_ctx+0x160/0x160
+[ 1102.466720]  [<ffffffff811c0ca2>] remove_vma+0x32/0x70
+[ 1102.473658]  [<ffffffff811c2cc8>] do_munmap+0x2b8/0x460
+[ 1102.480721]  [<ffffffff811c2f33>] SyS_munmap+0x53/0x70
+[ 1102.487663]  [<ffffffff817221b6>] entry_SYSCALL_64_fastpath+0x1e/0xad
+[ 1102.496649] ---[ end trace 7ff7a520eaea4ee0 ]---
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

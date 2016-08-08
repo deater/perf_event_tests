@@ -24,10 +24,10 @@ perf_fuzzer
 4.8-rc0
 
 <h3>Most recently Seen</h3>
-4.8-rc0
+4.8-rc1
 
 <h3>Reproducible</h3>
-???
+sometimes
 
 <h3>Type</h3>
 crash
@@ -36,7 +36,10 @@ crash
 Haswell
 
 <h3>Linux-kernel Mailing List Report</h3>
-n/a
+8 August 2016: perf: hard fuzzer crash on 4.8-rc1<br><br>
+Apparently same bug as
+7 July 2016: <a href="http://marc.info/?l=linux-kernel&m=146962895010031&w=2">
+NULL ptr deref in perf/filter_match</a>
 
 <h3>Kernel Splat</h3>
 
@@ -108,6 +111,65 @@ Cannot open /sys/kernel/tracing/kprobe_events
 [ 3497.425752]  [<ffffffff811764d9>] SyS_perf_event_open+0x9/0x10
 [ 3497.425752]  [<ffffffff817221b6>] entry_SYSCALL_64_fastpath+0x1e/0xad
 [ 3497.425753] Code: 4c fe ff ff 48 83 c4 30 5b 41 5c 5d c3 48 8d 75 d0 48 89 d1 89 df 4c 89 e2 e8 32 fe ff ff 8b 55 e8 83 e2 01 74 0a f3 90 8b 55 e8 <83> e2 01 75 f6 48 83 c4 30 5b 41 5c 5d c3 8b 05 79 f3 7a 01 85
+</pre>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0-rc1 x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1470674755
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 3250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1470674755
+
+Pid=28268, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000
+        Open attempts: 106492  Successful: 904  Currently open: 41
+                EPERM : 16
+                ENOENT : 578
+                E2BIG : 9375
+                EBADF : 9109
+                EBUSY : 11
+                EINVAL : 86387
+                EOPNOTSUPP : 112
+                Trinity Type (Normal 276/26818)(Sampling 39/26245)(Global 542/26
+462)(Random 47/26967)
+                Type (Hardware 214/14948)(software 320/14493)(tracepoint 47/1436
+9)(Cache 50/13337)(cpu 222/14408)(breakpoint 15/14020)(intel_bts 16/924)(msr 2/8
+92)(power 0/1017)(uncore_imc 0/883)(uncore_cbox_0 5/879)(uncore_cbox_1 4/963)(un
+core_cbox_2 0/945)(uncore_cbox_3 2/902)(uncore_arb 3/893)(cstate_core 2/866)(cst
+ate_pkg 2/998)(#17 0/5)(#18 0/13)(>19 0/10737)
+        Close:  863/863 Successful
+        Read:   807/901 Successful
+        Write:  0/915 Successful
+        Ioctl:  373/891 Successful: (ENABLE 85/85)(DISABLE 75/75)(REFRESH 6/98)(
+RESET 95/95)(PERIOD 8/70)(SET_OUTPUT 14/87)(SET_FILTER 0/70)(ID 81/81)(SET_BPF 0
+/69)(PAUSE_OUTPUT 9/79)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/82)
+        Mmap:   421/1034 Successful: (MMAP 421/1034)(TRASH 130/141)(READ 14/153)
+(UNMAP 420/1020)(AUX 1/113)(AUX_READ 0/0)
+        Prctl:  963/963 Successful
+        Fork:   475/475 Successful
+        Poll:   844/865 Successful
+        Access: 487/949 Successful
+        Overflows: 2  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[ 2018.709978] BUG: unable to handle kernel 
 </pre>
 </ol>
 
