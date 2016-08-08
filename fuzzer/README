@@ -8,6 +8,15 @@ to find flaws in the complex Linux perf_event system call interface.
 
 http://web.eece.maine.edu/~vweaver/projects/perf_events/fuzzer/
 
+NOTE TO HACKERS:
+
+	Please send me an e-mail if you use perf_fuzzer and find bugs!
+
+	It's a struggle trying to get publications/funding for this work,
+	which is one of the reasons why development has slowed.  
+	If you've used perf_fuzzer to get a CVE or bug bounty, please 
+	let me know so I can use the info in my reports to show how 
+	important fuzzing can be.
 
 HISTORY:
 
