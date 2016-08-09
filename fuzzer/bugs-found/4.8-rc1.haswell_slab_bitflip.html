@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>
+haswell
+slab corruption
+
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell 
+slab corruption
+
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc1
+
+<h3>Most recently Seen</h3>
+4.8-rc1
+
+<h3>Reproducible</h3>
+???
+
+<h3>Type</h3>
+slab corruption
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+9 August 2016:  Re: perf: WARNING: kernel/events/core.c:4893 perf_mmap_close
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>Could be because I was swapping DIMMs around while doing RAPL DRAM
+	validation.  However it could also be a decrement-after-free bug.
+<pre>
+[ 6501.254564] Slab corruption (Tainted: G        W      ): task_struct start=ffff8800c072e000, len=5760
+[ 6501.264971] 010: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  jkkkkkkkkkkkkkkk
+[ 6501.273650] Single bit error detected. Probably bad RAM.
+[ 6501.279889] Run memtest86+ or a similar memory test tool.
+</pre>
+<li>
+<pre>
+[19535.776930] Slab corruption (Tainted: G        W      ): task_struct start=ffff8800c720e2c0, len=5760
+[19535.787191] 010: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  jkkkkkkkkkkkkkkk
+[19535.795771] Single bit error detected. Probably bad RAM.
+[19535.801872] Run memtest86+ or a similar memory test tool.
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

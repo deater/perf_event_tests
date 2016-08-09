@@ -1,0 +1,149 @@
+<html>
+<head>
+<title>
+haswell
+NMI watchdog: Watchdog detected hard LOCKUP on cpu 6
+
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell 
+NMI watchdog: Watchdog detected hard LOCKUP on cpu 6
+
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc1
+
+<h3>Most recently Seen</h3>
+4.8-rc1
+
+<h3>Reproducible</h3>
+???
+
+<h3>Type</h3>
+BUG
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+9 August 2016:  perf: fuzzer: spinlock hang
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[22998.622974] NMI watchdog: Watchdog detected hard LOCKUP on cpu 6
+[23004.168126] NMI watchdog: Watchdog detected hard LOCKUP on cpu 0
+INFO: rcu_sched detected stalls on CPUs/tasks:
+[23006.009968]  1-...: (8 GPs behind) idle=e5f/140000000000000/0 softirq=4016990/4016991 fqs=2581 
+[23006.020522]  6-...: (1 GPs behind) idle=df9/140000000000000/0 softirq=1796836/1796837 fqs=2581 
+[23006.031143]  (detected by 3, t=5253 jiffies, g=2086304, c=2086303, q=73)
+[23006.039653] Task dump for CPU 1:
+[23006.044440] perf_fuzzer     R  running task        0 17053  15328 0x00000000
+[23006.053339]  0000000000000000 0000000000000000 00007ffe0fe00550 0000000000003be0
+[23006.062646]  00007ffe0fdfe1b0 0000000000000000 0000000000000246 00007faefdbf59d0
+[23006.071971]  00007faefdbf5700 0000000000000000 0000000000000000 00007faefd700f9a
+[23006.081214] Call Trace:
+[23006.085016] Task dump for CPU 6:
+[23006.089700] perf_fuzzer     R  running task        0 15328   4637 0x00000008
+[23006.098468]  ffffffff00000000 0000000000000000 ffff880116df7e20 ffffffff81444e8f
+[23006.107583]  ffff880116df7e50 ffffffff810c757c ffff880114d19008 ffff8800c0451000
+[23006.116788]  ffffffff81168d40 ffff8800d0474a20 ffff880116df7e70 ffffffff81721970
+[23006.126021] Call Trace:
+[23006.129750]  [<ffffffff81444e8f>] ? __delay+0xf/0x20
+[23006.136097]  [<ffffffff810c757c>] ? do_raw_spin_lock+0x8c/0x150
+[23006.143504]  [<ffffffff81168d40>] ? event_function_call+0x150/0x150
+[23006.151317]  [<ffffffff81721970>] ? _raw_spin_lock_irq+0x40/0x50
+[23006.158795]  [<ffffffff81168d5d>] ? _perf_event_disable+0x1d/0x60
+[23006.166382]  [<ffffffff81168d5d>] ? _perf_event_disable+0x1d/0x60
+[23006.173983]  [<ffffffff81168924>] ? perf_event_for_each_child+0x54/0xa0
+[23006.182130]  [<ffffffff81171687>] ? perf_event_task_disable+0x57/0xb0
+[23006.190083]  [<ffffffff8108c152>] ? SyS_prctl+0x2a2/0x470
+[23006.196886]  [<ffffffff81003016>] ? lockdep_sys_exit_thunk+0x16/0x30
+[23006.204705]  [<ffffffff817221b6>] ? entry_SYSCALL_64_fastpath+0x1e/0xad
+[23092.185879] CPU: 1 PID: 17053 Comm: perf_fuzzer Tainted: G      D W       4.8.0-rc1+ #187
+[23092.195738] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[23092.204825] task: ffff880036f0e140 task.stack: ffff8800c06b8000
+[23092.212285] RIP: 0010:[<ffffffff8105f166>]  [<ffffffff8105f166>] native_write_msr+0x6/0x30
+[23092.222248] RSP: 0018:ffff8800c06bbdf8  EFLAGS: 00000002
+[23092.229104] RAX: 000000000000000f RBX: ffff88011ea4a440 RCX: 000000000000038f
+[23092.237966] RDX: 0000000000000007 RSI: 000000000000000f RDI: 000000000000038f
+[23092.246888] RBP: ffff8800c06bbe10 R08: 0000000000000001 R09: 0000000000000000
+[23092.255733] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+[23092.264604] R13: ffff88011ea4a440 R14: ffff88011ea4a674 R15: 0000000000000005
+[23092.273381] FS:  00007faefdbf5700(0000) GS:ffff88011ea40000(0000) knlGS:0000000000000000
+[23092.283222] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[23092.290489] CR2: 00000000006194a8 CR3: 00000000366b9000 CR4: 00000000001407e0
+[23092.299259] DR0: 0000000000000000 DR1: 0000222222222222 DR2: 0000000000000000
+[23092.307939] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[23092.316516] Stack:
+[23092.319753]  ffffffff8100abbd ffff8800c70bc000 ffff88011ea4a788 ffff8800c06bbe20
+[23092.328642]  ffffffff8100ac30 ffff8800c06bbe68 ffffffff81006f21 0000000436f0e140
+[23092.337627]  0000000114d19000 ffff880036f0f110 ffff880114d19000 ffff880119474300
+[23092.346521] Call Trace:
+[23092.350068]  [<ffffffff8100abbd>] ? __intel_pmu_enable_all+0x4d/0xb0
+[23092.357856]  [<ffffffff8100ac30>] intel_pmu_enable_all+0x10/0x20
+[23092.365198]  [<ffffffff81006f21>] x86_pmu_enable+0x271/0x300
+[23092.372181]  [<ffffffff8116b517>] perf_pmu_enable.part.90+0x7/0x10
+[23092.379678]  [<ffffffff811710d9>] __perf_event_task_sched_in+0x1e9/0x1f0
+[23092.387805]  [<ffffffff8109dae7>] finish_task_switch+0x177/0x220
+[23092.395115]  [<ffffffff810a2fef>] schedule_tail+0xf/0x60
+[23092.401697]  [<ffffffff817223cc>] ret_from_fork+0xc/0x40
+[23092.754415] CPU: 6 PID: 15328 Comm: perf_fuzzer Tainted: G      D W       4.8.0-rc1+ #187
+[23092.764225] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[23092.773298] task: ffff8800ba7ce4c0 task.stack: ffff880116df4000
+[23092.780823] RIP: 0010:[<ffffffff814477f0>]  [<ffffffff814477f0>] __bitmap_andnot+0x0/0x70
+[23092.790721] RSP: 0018:ffff880116df7d80  EFLAGS: 00000002
+[23092.797620] RAX: 0000000000000c00 RBX: 00000000000000fb RCX: 0000000000000200
+[23092.806422] RDX: ffff88011ea0d8c0 RSI: ffff88011eb8d880 RDI: ffff88011eb8d880
+[23092.815212] RBP: ffff880116df7dd8 R08: 0000000000000000 R09: 00000000000000fd
+[23092.824006] R10: ffff8800ba7ce4c0 R11: 0000000000000001 R12: ffff88011eb8d880
+[23092.832729] R13: ffff88011ea0d8c0 R14: 0000000000080000 R15: 000000000000d900
+[23092.841435] FS:  00007faefdbf5700(0000) GS:ffff88011eb80000(0000) knlGS:0000000000000000
+[23092.851132] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[23092.858233] CR2: 00007faefdbab430 CR3: 0000000116259000 CR4: 00000000001407e0
+[23092.866946] DR0: 0000000000000000 DR1: 0000000000000059 DR2: 0000000000000000
+[23092.875497] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[23092.884117] Stack:
+[23092.887230]  ffffffff81057c4e 0000000000000096 000000020000001f 000000000000d8c0
+[23092.896127]  0000000000000006 0000000000000006 ffffffff81054240 00000000ca4959ce
+[23092.904948]  0000000000000001 00000000ca4959ce 000000000000001f ffff880116df7de8
+[23092.913770] Call Trace:
+[23092.917309]  [<ffffffff81057c4e>] ? __x2apic_send_IPI_mask+0x14e/0x170
+[23092.925219]  [<ffffffff81054240>] ? irq_force_complete_move+0x140/0x140
+[23092.933251]  [<ffffffff81057ce3>] x2apic_send_IPI_mask+0x13/0x20
+[23092.940642]  [<ffffffff8105425b>] nmi_raise_cpu_backtrace+0x1b/0x20
+[23092.948267]  [<ffffffff8143bec5>] nmi_trigger_all_cpu_backtrace+0x135/0x150
+[23092.956696]  [<ffffffff810542b9>] arch_trigger_all_cpu_backtrace+0x19/0x20
+[23092.964974]  [<ffffffff810c759a>] do_raw_spin_lock+0xaa/0x150
+[23092.972046]  [<ffffffff81168d40>] ? event_function_call+0x150/0x150
+[23092.979692]  [<ffffffff81721970>] _raw_spin_lock_irq+0x40/0x50
+[23092.986732]  [<ffffffff81168d5d>] ? _perf_event_disable+0x1d/0x60
+[23092.994288]  [<ffffffff81168d5d>] _perf_event_disable+0x1d/0x60
+[23093.001609]  [<ffffffff81168924>] perf_event_for_each_child+0x54/0xa0
+[23093.009412]  [<ffffffff81171687>] perf_event_task_disable+0x57/0xb0
+[23093.017017]  [<ffffffff8108c152>] SyS_prctl+0x2a2/0x470
+[23093.023620]  [<ffffffff81003016>] ? lockdep_sys_exit_thunk+0x16/0x30
+[23093.031401]  [<ffffffff817221b6>] entry_SYSCALL_64_fastpath+0x1e/0xad
+[23095.251662] BUG: spinlock lockup suspected on CPU#0, swapper/0/0
+[23095.259162]  lock: 0xffff88011ea58c00, .magic: dead4ead, .owner: swapper/1/0, .owner_cpu: 1
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
