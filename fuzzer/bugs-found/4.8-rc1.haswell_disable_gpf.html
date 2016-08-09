@@ -1,0 +1,188 @@
+<html>
+<head>
+<title>
+haswell
+general protection fault: 0000 [#1] SMP
+
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell 
+general protection fault: 0000 [#1] SMP
+
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc1
+
+<h3>Most recently Seen</h3>
+4.8-rc1
+
+<h3>Reproducible</h3>
+???
+
+<h3>Type</h3>
+GPF
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+9 August 2016:  perf: fuzzer general protection fault
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+you can see in RAX that it read
+in some slab poisoning.  Not sure if it is related to the other issues.
+
+It looks like it is coming through _perf_event_disable() via ioctl().
+
+addr2line says this is kernel/events/core.c:4363
+which is WARN_ON_ONCE(event->ctx->parent_ctx); in perf_event_for_each_child()
+
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0-rc1+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1470706085
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1470706085
+
+Pid=11949, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 40000
+        Open attempts: 104884  Successful: 915  Currently open: 130
+                EPERM : 16
+                ENOENT : 600
+                E2BIG : 9364
+                EBADF : 8086
+                EBUSY : 4
+                EINVAL : 85780
+                EOPNOTSUPP : 119
+                Trinity Type (Normal 325/26063)(Sampling 32/26076)(Global 500/26298)(Random 58/26447)
+                Type (Hardware 214/14562)(software 353/14232)(tracepoint 49/14063)(Cache 58/13381)(cpu 197/14087)(breakpoint 14/13875)(intel_bts 15/881)(msr 7/847)(power 0/1000)(uncore_imc 0/870)(uncore_cbox_0 3/900)(uncore_cbox_1 0/932)(uncore_cbox_2 1/854)(uncore_cbox_3 0/863)(uncore_arb 1/892)(cstate_core 2/922)(cstate_pkg 1/996)(#17 0/12)(#18 0/4)(>19 0/10711)
+        Close:  936/936 Successful
+        Read:   766/866 Successful
+        Write:  0/929 Successful
+        Ioctl:  361/901 Successful: (ENABLE 61/61)(DISABLE 97/97)(REFRESH 4/79)(RESET 75/75)(PERIOD 9/75)(SET_OUTPUT 12/91)(SET_FILTER 1/78)(ID 99/99)(SET_BPF 0/74)(PAUSE_OUTPUT 3/81)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/91)
+        Mmap:   439/1072 Successful: (MMAP 439/1072)(TRASH 146/153)(READ 2/130)(UNMAP 443/1095)(AUX 0/112)(AUX_READ 1/1)
+        Prctl:  976/976 Successful
+        Fork:   445/445 Successful
+        Poll:   894/901 Successful
+        Access: 428/882 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 10000
+        Open attempts: 110299  Successful: 917  Currently open: 57
+                EPERM : 12
+                ENOENT : 588
+                E2BIG : 9773
+                EBADF : 9400
+                EBUSY : 4
+                EINVAL : 89500
+                EOPNOTSUPP : 105
+                Trinity Type (Normal 317/27650)(Sampling 38/27579)(Global 522/27378)(Random 40/27692)
+                Type (Hardware 192/15501)(software 343/14973)(tracepoint 43/15013)(Cache 49/13798)(cpu 224/14636)(breakpoint 22/14561)(intel_bts 22/883)(msr 9/881)(power 0/1030)(uncore_imc 0/945)(uncore_cbox_0 3/886)(uncore_cbox_1 2/945)(uncore_cbox_2 2/959)(uncore_cbox_3 4/981)(uncore_arb 0/962)(cstate_core 0/906)(cstate_pkg 2/1089)(#17 0/12)(#18 0/9)(>19 0/11329)
+        Close:  860/860 Successful
+        Read:   831/909 Successful
+        Write:  0/919 Successful
+        Ioctl:  321/860 Successful: (ENABLE 62/62)(DISABLE 68/68)(REFRESH 6/78)(RESET 71/71)(PERIOD 8/93)(SET_OUTPUT 9/83)(SET_FILTER 0/81)(ID 88/88)(SET_BPF 0/84)(PAUSE_OUTPUT 9/68)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/84)
+        Mmap:   444/1072 Successful: (MMAP 444/1072)(TRASH 126/167)(READ 52/203)(UNMAP 439/983)(AUX 0/125)(AUX_READ 1/8)
+        Prctl:  859/859 Successful
+        Fork:   470/470 Successful
+        Poll:   870/928 Successful
+        Access: 471/926 Successful
+        Overflows: 48  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000
+        Open attempts: 100737  Successful: 866  Currently open: 13
+                EPERM : 7
+                ENOENT : 553
+                E2BIG : 8906
+                EBADF : 8239
+                EBUSY : 1
+                EINVAL : 82066
+                EOPNOTSUPP : 99
+                Trinity Type (Normal 296/24926)(Sampling 30/25241)(Global 506/25252)(Random 34/25318)
+                Type (Hardware 208/13883)(software 315/13770)(tracepoint 37/13460)(Cache 52/12679)(cpu 207/13491)(breakpoint 13/13442)(intel_bts 20/849)(msr 6/822)(power 1/902)(uncore_imc 0/843)(uncore_cbox_0 1/881)(uncore_cbox_1 1/896)(uncore_cbox_2 1/812)(uncore_cbox_3 1/854)(uncore_arb 2/844)(cstate_core 1/811)(cstate_pkg 0/940)(#17 0/10)(#18 0/13)(>19 0/10535)
+        Close:  910/910 Successful
+        Read:   802/887 Successful
+        Write:  0/931 Successful
+        Ioctl:  370/943 Successful: (ENABLE 88/88)(DISABLE 81/81)(REFRESH 9/79)(RESET 96/96)(PERIOD 6/96)(SET_OUTPUT 6/83)(SET_FILTER 0/95)(ID 75/75)(SET_BPF 0/75)(PAUSE_OUTPUT 9/89)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/86)
+        Mmap:   438/1025 Successful: (MMAP 438/1025)(TRASH 109/126)(READ 17/167)(UNMAP 443/1060)(AUX 0/102)(AUX_READ 1/2)
+        Prctl:  874/874 Successful
+        Fork:   476/476 Successful
+        Poll:   875/880 Successful
+        Access: 450/932 Successful
+        Overflows: 10  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[22684.639528] general protection fault: 0000 [#1] SMP
+[22684.645198] Modules linked in: fuse binfmt_misc intel_rapl iosf_mbi x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel snd_hda_codec_hdmi aes_x86_64 lrw gf128mul glue_helper snd_hda_codec_realtek snd_hda_codec_generic ablk_helper ppdev iTCO_wdt snd_hda_intel snd_hda_codec snd_hda_core cryptd evdev iTCO_vendor_support snd_hwdep snd_pcm snd_timer snd i915 drm_kms_helper parport_pc wmi parport psmouse tpm_tis tpm_tis_core pcspkr serio_raw sg button i2c_i801 soundcore lpc_ich drm mei_me mfd_core i2c_smbus tpm mei video battery i2c_algo_bit sr_mod sd_mod cdrom ahci libahci xhci_pci libata ehci_pci xhci_hcd ehci_hcd e1000e usbcore ptp crc32c_intel scsi_mod pps_core usb_common fan thermal
+[22684.722394] CPU: 0 PID: 11949 Comm: perf_fuzzer Tainted: G        W       4.8.0-rc1+ #187
+[22684.731769] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[22684.740236] task: ffff8800d046c080 task.stack: ffff880117ea0000
+[22684.747146] RIP: 0010:[<ffffffff811688e8>]  [<ffffffff811688e8>] perf_event_for_each_child+0x18/0xa0
+[22684.757481] RSP: 0018:ffff880117ea3e20  EFLAGS: 00010282
+[22684.763730] RAX: 6b6b6b6b6b6b6b6b RBX: 0000000000002401 RCX: ffff8800d046c7c0
+[22684.771948] RDX: 0000000000000001 RSI: ffffffff81168d40 RDI: ffff8800c7190000
+[22684.780158] RBP: ffff880117ea3e40 R08: 0000000000000000 R09: 0d871a7200000000
+[22684.788400] R10: 0000000000000000 R11: 0000000000000000 R12: ffff8800c7190000
+[22684.796607] R13: ffffffff81168d40 R14: ffffffff81168d40 R15: 0000000000000001
+[22684.804787] FS:  00007f760fc86700(0000) GS:ffff88011ea00000(0000) knlGS:0000000000000000
+[22684.814009] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[22684.820731] CR2: 00007f760fa77520 CR3: 00000001180d5000 CR4: 00000000001407f0
+[22684.828982] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000200
+[22684.837193] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
+[22684.845380] Stack:
+[22684.848139]  0000000000002401 ffff8800c7190020 ffff8801150e9000 ffffffff81168d40
+[22684.856722]  ffff880117ea3e90 ffffffff811744f0 ffffffff81231de4 ffff880117ea3ea0
+[22684.865336]  ffffffff81210bfd ffff880118993ae8 00000000000000bf ffff880115206e00
+[22684.873952] Call Trace:
+[22684.877191]  [<ffffffff81168d40>] ? event_function_call+0x150/0x150
+[22684.884600]  [<ffffffff811744f0>] perf_ioctl+0x300/0x500
+[22684.890952]  [<ffffffff81231de4>] ? mntput+0x24/0x40
+[22684.896893]  [<ffffffff81210bfd>] ? __fput+0x17d/0x1f0
+[22684.903070]  [<ffffffff812233f2>] do_vfs_ioctl+0x92/0x5a0
+[22684.909512]  [<ffffffff81210cae>] ? ____fput+0xe/0x10
+[22684.915594]  [<ffffffff81095a83>] ? task_work_run+0x83/0xa0
+[22684.922213]  [<ffffffff81223979>] SyS_ioctl+0x79/0x90
+[22684.928291]  [<ffffffff817221b6>] entry_SYSCALL_64_fastpath+0x1e/0xad
+[22684.935814] Code: 5e ff ff ff 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 55 48 89 e5 41 56 41 55 41 54 53 49 89 fc 48 8b 87 00 02 00 00 49 89 f5 <48> 83 b8 38 01 00 00 00 75 56 4d 8d b4 24 20 02 00 00 31 f6 4c 
+[22684.958601] RIP  [<ffffffff811688e8>] perf_event_for_each_child+0x18/0xa0
+[22684.966566]  RSP <ffff880117ea3e20>
+[22684.973616] ---[ end trace 7ff7a520eaea4ee3 ]---
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
