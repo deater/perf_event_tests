@@ -1,0 +1,130 @@
+<html>
+<head>
+<title>
+haswell
+WARNING: CPU: 1 PID: 20027 at kernel/events/ring_buffer.c:539 __rb_free_aux+0x111/0x120
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell 
+WARNING: CPU: 1 PID: 20027 at kernel/events/ring_buffer.c:539 __rb_free_aux+0x111/0x120
+
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc1
+
+<h3>Most recently Seen</h3>
+4.8-rc1
+
+<h3>Reproducible</h3>
+???
+
+<h3>Type</h3>
+warning
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+9 August 2016: Re: perf: WARNING: kernel/events/core.c:4893 perf_mmap_close
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0-rc1+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1470694177
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -t OCIRMQWPFpAi -s 50000 -r 1470694177
+
+Pid=21097, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        signal-handler-on-overflow 
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 20000
+        Open attempts: 101133  Successful: 854  Currently open: 30
+                EPERM : 21
+                ENOENT : 588
+                E2BIG : 8868
+                EBADF : 8442
+                EBUSY : 2
+                EINVAL : 82281
+                EOPNOTSUPP : 77
+                Trinity Type (Normal 290/25199)(Sampling 37/25333)(Global 496/25404)(Random 31/25197)
+                Type (Hardware 202/14174)(software 314/13503)(tracepoint 38/13521)(Cache 57/12646)(cpu 199/13673)(breakpoint 13/13611)(intel_bts 12/853)(msr 5/841)(power 1/958)(uncore_imc 1/859)(uncore_cbox_0 3/870)(uncore_cbox_1 4/831)(uncore_cbox_2 3/851)(uncore_cbox_3 0/834)(uncore_arb 2/838)(cstate_core 0/858)(cstate_pkg 0/944)(#17 0/6)(#18 0/10)(>19 0/10452)
+        Close:  878/878 Successful
+        Read:   815/906 Successful
+        Write:  0/870 Successful
+        Ioctl:  333/876 Successful: (ENABLE 68/68)(DISABLE 81/81)(REFRESH 3/76)(RESET 80/80)(PERIOD 4/78)(SET_OUTPUT 3/71)(SET_FILTER 0/93)(ID 85/85)(SET_BPF 0/81)(PAUSE_OUTPUT 9/89)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/74)
+        Mmap:   410/1014 Successful: (MMAP 410/1014)(TRASH 122/166)(READ 21/143)(UNMAP 415/1009)(AUX 2/96)(AUX_READ 0/14)
+        Prctl:  932/932 Successful
+        Fork:   460/460 Successful
+        Poll:   841/896 Successful
+        Access: 477/925 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 10000
+        Open attempts: 103854  Successful: 940  Currently open: 16
+                EPERM : 17
+                ENOENT : 605
+                E2BIG : 9211
+                EBADF : 8592
+                EBUSY : 3
+                EINVAL : 84389
+                EOPNOTSUPP : 97
+                Trinity Type (Normal 338/26010)(Sampling 25/25888)(Global 535/26071)(Random 42/25885)
+                Type (Hardware 220/14442)(software 346/13962)(tracepoint 41/13909)(Cache 46/13000)(cpu 240/13981)(breakpoint 13/13956)(intel_bts 16/829)(msr 4/905)(power 0/944)(uncore_imc 0/904)(uncore_cbox_0 4/895)(uncore_cbox_1 1/834)(uncore_cbox_2 3/915)(uncore_cbox_3 2/829)(uncore_arb 2/900)(cstate_core 1/892)(cstate_pkg 1/946)(#17 0/10)(#18 0/9)(>19 0/10792)
+        Close:  924/924 Successful
+        Read:   803/888 Successful
+        Write:  0/930 Successful
+        Ioctl:  358/910 Successful: (ENABLE 68/68)(DISABLE 75/75)(REFRESH 9/93)(RESET 87/87)(PERIOD 11/89)(SET_OUTPUT 11/75)(SET_FILTER 0/81)(ID 86/86)(SET_BPF 0/102)(PAUSE_OUTPUT 11/76)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/78)
+        Mmap:   429/1087 Successful: (MMAP 429/1087)(TRASH 111/145)(READ 22/168)(UNMAP 426/1078)(AUX 0/104)(AUX_READ 1/6)
+        Prctl:  906/906 Successful
+        Fork:   433/433 Successful
+        Poll:   947/960 Successful
+        Access: 437/859 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[10772.606425] ------------[ cut here ]------------
+[10772.611802] WARNING: CPU: 1 PID: 20027 at kernel/events/ring_buffer.c:539 __rb_free_aux+0x111/0x120
+[10772.621856] Modules linked in: fuse binfmt_misc intel_rapl iosf_mbi x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel snd_hda_codec_hdmi aes_x86_64 lrw gf128mul glue_helper snd_hda_codec_realtek snd_hda_codec_generic ablk_helper ppdev iTCO_wdt snd_hda_intel snd_hda_codec snd_hda_core cryptd evdev iTCO_vendor_support snd_hwdep snd_pcm snd_timer snd i915 drm_kms_helper parport_pc wmi parport psmouse tpm_tis tpm_tis_core pcspkr serio_raw sg button i2c_i801 soundcore lpc_ich drm mei_me mfd_core i2c_smbus tpm mei video battery i2c_algo_bit sr_mod sd_mod cdrom ahci libahci xhci_pci libata ehci_pci xhci_hcd ehci_hcd e1000e usbcore ptp crc32c_intel scsi_mod pps_core usb_common fan thermal
+[10772.699231] CPU: 1 PID: 20027 Comm: perf_fuzzer Tainted: G        W       4.8.0-rc1+ #187
+[10772.708539] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[10772.717011]  0000000000000000 ffff88011ea43cb0 ffffffff81437641 0000000000000000
+[10772.725555]  0000000000000000 ffff88011ea43cf0 ffffffff81076bab 0000021b1ea43d48
+[10772.734103]  ffff8800d0663800 ffff88011ea4b700 0000000000000000 ffff880036cf9800
+[10772.742694] Call Trace:
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
