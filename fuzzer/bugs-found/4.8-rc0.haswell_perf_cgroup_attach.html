@@ -172,6 +172,79 @@ RESET 95/95)(PERIOD 8/70)(SET_OUTPUT 14/87)(SET_FILTER 0/70)(ID 81/81)(SET_BPF 0
         SIGIOs due to RT signal queue full: 0
 [ 2018.709978] BUG: unable to handle kernel 
 </pre>
+<li>Core2, seems to be fixed by same patch
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0-rc1+ x86_64
+        Processor: Intel 6/23/10
+
+        Seeding random number generator with 1470763409
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 51000/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1470763409
+
+Pid=28759, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+[ 7548.712074] BUG: unable to handle kernel NULL pointer dereference at 0000000000000098
+[ 7548.716001] IP: [<ffffffff810f1c6a>] perf_event_switch_output+0x2e/0xe2
+[ 7548.716001] PGD 117c43067 PUD 118b65067 PMD 0 
+[ 7548.716001] Oops: 0000 [#1] SMP
+[ 7548.716001] Modules linked in: cpufreq_userspace cpufreq_powersave cpufreq_conservative f71882fg evdev psmouse coretemp serio_raw pcspkr mcs7830 usbnet video wmi acpi_cpufreq tpm_tis tpm_tis_core tpm button i2c_nforce2 processor sg ohci_pci ohci_hcd ehci_pci ehci_hcd sd_mod usbcore usb_common
+[ 7548.716001] CPU: 1 PID: 23915 Comm: kworker/1:0 Not tainted 4.8.0-rc1+ #207
+[ 7548.716001] Hardware name: AOpen   DE7000/nMCP7ALPx-DE R1.06 Oct.19.2012, BIOS 080015  10/19/2012
+[ 7548.716001] task: ffff880119a6ce80 task.stack: ffff8800377f0000
+[ 7548.716001] RIP: 0010:[<ffffffff810f1c6a>]  [<ffffffff810f1c6a>] perf_event_switch_output+0x2e/0xe2
+[ 7548.716001] RSP: 0018:ffff8800377f3b50  EFLAGS: 00010002
+[ 7548.716001] RAX: 0000000000000000 RBX: ffff8800377f3dc8 RCX: 0000000000000001
+[ 7548.716001] RDX: 0000000000000001 RSI: ffff8800377f3dc8 RDI: ffff88009f905000
+[ 7548.716001] RBP: ffff8800377f3d50 R08: 0000000000000000 R09: 0000000000000001
+[ 7548.716001] R10: 0000000000000001 R11: 0000000000000001 R12: ffff88009f905000
+[ 7548.716001] R13: ffff8800377f3dc8 R14: ffff88011fc92c68 R15: ffff880119a6ce80
+[ 7548.716001] FS:  0000000000000000(0000) GS:ffff88011fc80000(0000) knlGS:0000000000000000
+[ 7548.716001] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 7548.716001] CR2: 00000000000000b8 CR3: 0000000117da7000 CR4: 00000000000406e0
+[ 7548.716001] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 7548.716001] DR3: 0000000000400a20 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 7548.716001] Stack:
+[ 7548.716001]  ffff88011ac4df18 0000000000000000 0000000000000016 0000000000000016
+[ 7548.716001]  0000000000000016 0000000000000016 0000000000000400 ffff8800377f3be0
+[ 7548.716001]  ffffffff810716c4 0000000100000001 000000000000012d 000000000000005d
+[ 7548.716001] Call Trace:
+[ 7548.716001]  [<ffffffff810716c4>] ? update_cfs_rq_load_avg+0x2f7/0x313
+[ 7548.716001]  [<ffffffff81072d49>] ? enqueue_task_fair+0x3fe/0x41f
+[ 7548.716001]  [<ffffffff8106b1af>] ? resched_curr+0x5b/0x5e
+[ 7548.716001]  [<ffffffff8106b47d>] ? check_preempt_curr+0x4c/0x6f
+[ 7548.716001]  [<ffffffff8106600e>] ? __srcu_notifier_call_chain+0x5c/0x6a
+[ 7548.716001]  [<ffffffff81078937>] ? __wake_up+0x44/0x4b
+[ 7548.716001]  [<ffffffff810f1c3c>] ? perf_mux_hrtimer_handler+0x124/0x124
+[ 7548.716001]  [<ffffffff810ebed0>] perf_iterate_sb+0x65/0xc2
+[ 7548.716001]  [<ffffffff810eea56>] __perf_event_task_sched_out+0x65/0x2fd
+[ 7548.716001]  [<ffffffff810745bb>] ? pick_next_task_fair+0x1d1/0x337
+[ 7548.716001]  [<ffffffff81071924>] ? put_prev_task_fair+0x22/0x61
+[ 7548.716001]  [<ffffffff8157f633>] __schedule+0x276/0x4c6
+[ 7548.716001]  [<ffffffff81060b27>] ? cancel_delayed_work+0x6e/0x6e
+[ 7548.716001]  [<ffffffff8157f906>] schedule+0x83/0x91
+[ 7548.716001]  [<ffffffff81060d80>] worker_thread+0x259/0x2c8
+[ 7548.716001]  [<ffffffff81060b27>] ? cancel_delayed_work+0x6e/0x6e
+[ 7548.716001]  [<ffffffff81064e40>] kthread+0xae/0xb6
+[ 7548.716001]  [<ffffffff81581fbf>] ret_from_fork+0x1f/0x40
+[ 7548.716001]  [<ffffffff81064d92>] ? init_completion+0x24/0x24
+[ 7548.716001] Code: e5 41 55 41 54 49 89 fc 53 48 83 e4 c0 48 81 ec b0 01 00 00 f6 87 f3 00 00 00 04 0f 84 b3 00 00 00 48 8b 87 00 02 00 00 48 89 f3 <48> 83 b8 98 00 00 00 00 74 0f c7 46 10 0e 00 00 00 66 c7 46 16 
+[ 7548.716001] RIP  [<ffffffff810f1c6a>] perf_event_switch_output+0x2e/0xe2
+</pre>
 </ol>
 
 
@@ -180,3 +253,4 @@ RESET 95/95)(PERIOD 8/70)(SET_OUTPUT 14/87)(SET_FILTER 0/70)(ID 81/81)(SET_BPF 0
 
 </body>
 </html>
+
