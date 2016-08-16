@@ -1,0 +1,137 @@
+<html>
+<head>
+<title>
+haswell
+WARNING: CPU: 1 PID: 0 at kernel/events/core.c:254 event_function_local.constprop.106+0x4c/0x50
+
+
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+haswell
+WARNING: CPU: 1 PID: 0 at kernel/events/core.c:254 event_function_local.constprop.106+0x4c/0x50
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.8-rc1
+
+<h3>Most recently Seen</h3>
+4.8-rc1
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Type</h3>
+WARNING
+
+<h3>Found On</h3>
+Haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+12 August 2016:
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0-rc1+ x86_64
+        Processor: Intel 6/60/3
+
+        Seeding random number generator with 1470759960
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 250/s
+        /proc/sys/kernel/perf_event_paranoid currently: 0
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1470759960
+
+Pid=7823, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+        
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+        
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000
+        Open attempts: 104600  Successful: 885  Currently open: 0
+                EPERM : 12
+                ENOENT : 584
+                E2BIG : 9175
+                EBADF : 8746
+                EBUSY : 4
+                EINVAL : 85101
+                EOPNOTSUPP : 93
+                Trinity Type (Normal 277/26244)(Sampling 38/26161)(Global 519/26013)(Random 51/26182)
+                Type (Hardware 212/14666)(software 304/14062)(tracepoint 47/14010)(Cache 57/13243)(cpu 208/14034)(breakpoint 15/14124)(intel_bts 25/870)(msr 5/858)(power 0/913)(uncore_imc 1/865)(uncore_cbox_0 3/871)(uncore_cbox_1 2/903)(uncore_cbox_2 3/876)(uncore_cbox_3 0/852)(uncore_arb 1/822)(cstate_core 2/929)(cstate_pkg 0/930)(#17 0/14)(#18 0/8)(>19 0/10750)
+        Close:  885/885 Successful
+        Read:   801/867 Successful
+        Write:  0/922 Successful
+        Ioctl:  374/905 Successful: (ENABLE 75/75)(DISABLE 98/98)(REFRESH 9/92)(RESET 90/90)(PERIOD 10/78)(SET_OUTPUT 9/71)(SET_FILTER 0/80)(ID 81/81)(SET_BPF 0/73)(PAUSE_OUTPUT 2/79)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/88)
+        Mmap:   412/1047 Successful: (MMAP 412/1047)(TRASH 111/149)(READ 10/145)(UNMAP 412/1054)(AUX 0/103)(AUX_READ 1/3)
+        Prctl:  905/905 Successful
+        Fork:   464/464 Successful
+        Poll:   907/918 Successful
+        Access: 435/888 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[ 9057.548779] ------------[ cut here ]------------
+[ 9057.554215] WARNING: CPU: 6 PID: 0 at kernel/events/core.c:254 event_function_local.constprop.106+0x4c/0x50
+[ 9057.565130] Modules linked in: binfmt_misc intel_rapl iosf_mbi x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel snd_hda_codec_hdmi aes_x86_64 lrw snd_hda_codec_realtek snd_hda_codec_generic ppdev snd_hda_intel evdev gf128mul iTCO_wdt iTCO_vendor_support snd_hda_codec snd_hda_core snd_hwdep snd_pcm glue_helper snd_timer ablk_helper cryptd snd psmouse sg tpm_tis serio_raw tpm_tis_core pcspkr i915 drm_kms_helper drm tpm soundcore i2c_algo_bit parport_pc mei_me video button battery mei parport i2c_i801 wmi i2c_smbus lpc_ich mfd_core sr_mod cdrom sd_mod ahci libahci xhci_pci libata ehci_pci xhci_hcd ehci_hcd e1000e ptp usbcore crc32c_intel scsi_mod pps_core usb_common fan thermal
+[ 9057.642342] CPU: 6 PID: 0 Comm: swapper/6 Tainted: G        W       4.8.0-rc1+ #187
+[ 9057.651171] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[ 9057.659674]  0000000000000000 ffff88011eb83ca8 ffffffff81437641 0000000000000000
+[ 9057.668318]  0000000000000000 ffff88011eb83ce8 ffffffff81076bab 000000fe8116864d
+[ 9057.676846]  0000000000000002 0000000000014000 ffff880036fb0be8 ffff880036fb0800
+[ 9057.685490] Call Trace:
+[ 9057.688738]  <IRQ>  [<ffffffff81437641>] dump_stack+0x63/0x82
+[ 9057.695548]  [<ffffffff81076bab>] __warn+0xcb/0xf0
+[ 9057.701303]  [<ffffffff81076c9d>] warn_slowpath_null+0x1d/0x20
+[ 9057.708177]  [<ffffffff8116bbac>] event_function_local.constprop.106+0x4c/0x50
+[ 9057.716468]  [<ffffffff8116e3a0>] ? task_ctx_sched_out+0x50/0x50
+[ 9057.723527]  [<ffffffff81174c71>] perf_pending_event+0xd1/0xe0
+[ 9057.730385]  [<ffffffff8115dea8>] irq_work_run_list+0x48/0x70
+[ 9057.737130]  [<ffffffff8115dee8>] irq_work_run+0x18/0x40
+[ 9057.743415]  [<ffffffff81032cee>] smp_irq_work_interrupt+0x2e/0x40
+[ 9057.750630]  [<ffffffff81723a02>] irq_work_interrupt+0x82/0x90
+[ 9057.757505]  [<ffffffff81721b81>] ? _raw_spin_unlock_irqrestore+0x31/0x40
+[ 9057.765399]  [<ffffffff810bb9b2>] complete+0x42/0x50
+[ 9057.771285]  [<ffffffff810df8f0>] ? trace_raw_output_rcu_utilization+0x60/0x60
+[ 9057.779694]  [<ffffffff810df902>] wakeme_after_rcu+0x12/0x20
+[ 9057.786294]  [<ffffffff810e3aa5>] rcu_process_callbacks+0x2f5/0x6a0
+[ 9057.793599]  [<ffffffff810e3a3f>] ? rcu_process_callbacks+0x28f/0x6a0
+[ 9057.801073]  [<ffffffff81724c83>] __do_softirq+0x113/0x2c6
+[ 9057.807530]  [<ffffffff8107ca53>] irq_exit+0xa3/0xb0
+[ 9057.813499]  [<ffffffff81724a42>] smp_apic_timer_interrupt+0x42/0x50
+[ 9057.820942]  [<ffffffff81722da2>] apic_timer_interrupt+0x82/0x90
+[ 9057.827928]  <EOI>  [<ffffffff815ad21b>] ? cpuidle_enter_state+0x12b/0x2d0
+[ 9057.835929]  [<ffffffff815ad3f7>] cpuidle_enter+0x17/0x20
+[ 9057.842336]  [<ffffffff810bbada>] call_cpuidle+0x2a/0x50
+[ 9057.848630]  [<ffffffff810bbeaf>] cpu_startup_entry+0x28f/0x340
+[ 9057.855629]  [<ffffffff8104fda3>] start_secondary+0x133/0x140
+[ 9057.862376] ---[ end trace 8da07322bed774ef ]---
+
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
+
