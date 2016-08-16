@@ -57,6 +57,7 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 	int fd = info->si_fd;
 	int i;
 	int ret;
+	static int last_fd=0;
 
 
 	/* In some cases (syscall tracepoint) */
@@ -83,8 +84,11 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 	/* It can still be alive in the child and cause */
 	/* a signal to come in even though it is closed.*/
 	if (ret<0) {
-		printf("Signal from invalid fd %d %s\n",
-			fd,strerror(errno));
+		if (fd!=last_fd) {
+			printf("Signal from invalid fd %d %s\n",
+				fd,strerror(errno));
+			last_fd=fd;
+		}
 		already_handling=0;
 		return;
 //		orderly_shutdown();
