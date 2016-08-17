@@ -103,7 +103,7 @@ static unsigned long rdpmc(unsigned int counter)
 
 	isb();
 #else
-	#error "Perf_rc_mmap: rdpmc Unsupported"
+	#warning "Perf_rc_mmap: rdpmc Unsupported"
 #endif
 	return ret;
 }
