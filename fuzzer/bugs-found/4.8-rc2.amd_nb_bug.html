@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>
+amd_nb: BUG: unable to handle kernel paging request
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+amd_nb: BUG: unable to handle kernel paging request
+</h1>
+</center>
+
+<h3>Severity</h3>
+Bug/crashes fuzzer
+
+<h3>Found by</h3>
+perf_fuzzer: Vince Weaver
+4.8-rc2
+
+<h3>First Seen</h3>
+???
+
+<h3>Most recently Seen</h3>
+4.8-rc2
+
+<h3>Reproducible</h3>
+yes
+
+<h3>Found On</h3>
+a10
+
+<h3>Linux-kernel Mailing List Report</h3>
+18 August 2016: perf: fuzzer crashes immediately on AMD system
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>You can trigger this with just
+	perf stat -a -e amd_nb/config=0x37,config1=0x20/ /bin/ls
+<pre>
+[  101.970659] BUG: unable to handle kernel paging request at ffffffff8653d8a0
+[  101.977676] IP: [<ffffffff810e4cb1>] find_get_context.isra.75+0x28/0x20f
+[  101.984405] PGD 2807067 PUD 2808063 PMD 0 
+[  101.988563] Oops: 0000 [#1] SMP
+[  101.991711] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd grace fscache sunrpc nls_utf8 nls_cp437 vfat fat snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi kvm_amd kvm irqbypass ghash_clmulni_intel aesni_intel aes_x86_64 snd_hda_intel ablk_helper cryptd lrw snd_hda_codec hp_wmi ppdev evdev sparse_keymap efi_pstore gf128mul snd_hda_core efivars pl2303 glue_helper psmouse usbserial acpi_cpufreq pcspkr serio_raw tpm_infineon snd_hwdep snd_pcm radeon ttm drm_kms_helper drm i2c_algo_bit fb_sys_fops snd_timer fam15h_power syscopyarea tpm_tis parport_pc parport sysfillrect tpm_tis_core k10temp snd sp5100_tco tpm i2c_piix4 sysimgblt button processor i2c_core wmi soundcore sg sr_mod sd_mod cdrom ohci_pci tg3 ahci ptp xhci_pci pps_core libahci ohci_hcd ehci_pci xhci_hcd ehci_hcd
+[  102.064412]  crc32c_intel libphy libata usbcore scsi_mod usb_common
+[  102.069521] CPU: 0 PID: 2205 Comm: perf_fuzzer Not tainted 4.8.0-rc2+ #27
+[  102.076313] Hardware name: Hewlett-Packard HP Compaq Pro 6305 SFF/1850, BIOS K06 v02.57 08/16/2013
+[  102.085268] task: ffff880223ae5000 task.stack: ffff880224ea8000
+[  102.091188] RIP: 0010:[<ffffffff810e4cb1>]  [<ffffffff810e4cb1>] find_get_context.isra.75+0x28/0x20f
+[  102.100339] RSP: 0018:ffff880224eabe20  EFLAGS: 00010246
+[  102.105657] RAX: 000000002633e300 RBX: 0000000000000000 RCX: 000000002633e300
+[  102.112795] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff8180ea00
+[  102.119929] RBP: ffffffff8180ea00 R08: 0000000000000004 R09: 0000000000000000
+[  102.127063] R10: 0000000000000003 R11: 0000000000000246 R12: 000000002633e300
+[  102.134196] R13: 0000000000000000 R14: 0000000000000000 R15: ffffffff8180ea00
+[  102.141327] FS:  00007f743b391700(0000) GS:ffff88022ec00000(0000) knlGS:0000000000000000
+[  102.149416] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  102.155167] CR2: ffffffff8653d8a0 CR3: 00000002255b9000 CR4: 00000000000407f0
+[  102.162309] Stack:
+[  102.164323]  0000000000000000 00000000ffffffff ffff880223b9d800 ffff880224fdd000
+[  102.171804]  ffff880223b9d800 0000000000000000 0000000000000000 0000000000000000
+[  102.179284]  ffffffff8180ea00 ffffffff810e72be ffffffff00000002 ffff88022e0006c0
+[  102.186765] Call Trace:
+[  102.189216]  [<ffffffff810e72be>] ? SYSC_perf_event_open+0x525/0xa34
+[  102.195579]  [<ffffffff8145251f>] ? entry_SYSCALL_64_fastpath+0x17/0x93
+[  102.202203] Code: 41 5c c3 41 57 41 56 41 55 41 54 55 53 48 89 fd 48 89 f3 48 83 ec 18 48 85 f6 75 6c 83 3d 2f 2a 7f 00 00 41 89 cc 7f 1e 44 89 e0 <48> 0f a3 05 87 0f 7f 00 0f 92 c0 84 c0 75 26 48 c7 c0 ed ff ff 
+[  102.222256] RIP  [<ffffffff810e4cb1>] find_get_context.isra.75+0x28/0x20f
+[  102.229065]  RSP <ffff880224eabe20>
+[  102.232556] CR2: ffffffff8653d8a0
+[  102.235879] ---[ end trace fa649074c022bab1 ]---
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

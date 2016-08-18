@@ -10,10 +10,10 @@
 
 <h3>Current Status></h3>
 <ul>
-<li>ARM32 -- eventually crashes due to RCU error (4.1.7 on raspberry pi)
+<li>ARM32 -- chugs along for days on a pi2 (4.8-rc2)
 <li>x86/intel -- multiple warnings.
 	Have caused hard lockup (4.8-rc1 on haswell and core2)
-<li>x86/amd -- quickly crashes in IBS code (4.4-rc4)
+<li>x86/amd -- quickly crashes in amd_nb code (4.8-rc2)
 </ul>
 
 <hr>
@@ -22,8 +22,8 @@
 
 <h3>Current Crashes (reproducible):</h3>
 <ul>
-<li><a href="4.8-rc0.haswell_perf_cgroup_attach.html">
-	(crash) 4.8-rc0 perf_cgroup_attach</a>
+<li><a href="4.8-rc2.amd_nb_bug.html">
+	4.8-rc2 amd_nb BUG</a>
 <li><a href="4.4-rc4.amd_ibs_crash.html">
     4.4-rc4 AMD IBS crash</a>
 <li><a href="3.17-rc6.arm64_stall.html">
@@ -142,13 +142,16 @@
     3.14-rc kernel/event/core:5659 warning</a>
 </ul>
 
-
-
-
-
 <hr><hr>
 
 <h2>Fixed bugs:</h2>
+
+<h3>Fixed in 4.8</h3>
+	<ul>
+	<li><a href="4.8-rc0.haswell_perf_cgroup_attach.html">
+		(crash) 4.8-rc0 perf_cgroup_attach</a>
+		(0b8f1e2e26bfc6b9abe3f0f3faba2cb0eecb9fb9)
+	</ul>
 
 <h3>Fixed in 4.6</h3>
 	<ul>
