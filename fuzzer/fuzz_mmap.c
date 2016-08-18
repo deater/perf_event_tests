@@ -182,7 +182,10 @@ static int find_random_active_mmap(void) {
 
         for(i=0;i<MAX_MMAPS;i++) {
                 if (mmaps[i].active) {
-                        if (j==x) return i;
+                        if (j==x) {
+//				printf("J=%d X=%d I=%d %p\n",j,x,i,mmaps[i].addr);
+				return i;
+			}
                         j++;
                 }
         }
@@ -207,7 +210,7 @@ long long perf_mmap_aux_read(int which) {
 
 	if (!mmaps[parent_mmap].active) return 0;
 
-	if (!mmaps[parent_mmap].addr) return 0;
+	if (mmaps[parent_mmap].addr==MAP_FAILED) return 0;
 
 	if (mmaps[parent_mmap].size==0) return 0;
 
@@ -249,7 +252,7 @@ long long perf_mmap_read(int which) {
 
 	if (!mmaps[which].active) return 0;
 
-	if (!mmaps[which].addr) return 0;
+	if (mmaps[which].addr==MAP_FAILED) return 0;
 
 	if (mmaps[which].size==0) return 0;
 
@@ -296,6 +299,8 @@ void trash_random_mmap(void) {
 	/* Exit if no events */
 	if (i<0) return;
 
+//	printf("Found %d %p\n",i,mmaps[i].addr);
+
 	value=rand();
 
 	if (ignore_but_dont_skip.trash_mmap) return;
@@ -330,7 +335,7 @@ void trash_random_mmap(void) {
 		memset(mmaps[i].addr,value, 1);//getpagesize());
 	}
 	else {
-		printf("Memset at %p caused segfault!\n",mmaps[i].addr);
+		printf("Memset of %d at %p caused segfault!\n",i,mmaps[i].addr);
 	}
 
 	/* Disable the seigsegv handler */
@@ -367,7 +372,7 @@ int setup_mmap(int which) {
 
 	/* need locking? */
 //	mmaps[i].active=1;
-	mmaps[i].addr=NULL;
+	mmaps[i].addr=MAP_FAILED;
 	mmaps[i].prot=prot;
 	mmaps[i].flags=flags;
 	mmaps[i].size=size;
@@ -380,9 +385,15 @@ int setup_mmap(int which) {
 			prot, flags,
 			event_data[which].fd, 0);
 
+		/* If running as root, with MAP_FIXED, NULL is a valid addr */
+//		if (mmaps[i].addr==NULL) {
+//			printf("This can't happen???\n");
+//		}
+
 		if (mmaps[i].addr==MAP_FAILED) {
-			mmaps[i].addr=NULL;
-			mmaps[i].active=0;
+			mmaps[i].addr=MAP_FAILED;
+//			mmaps[i].active=0;
+//			printf("a%d.active=0\n",i);
 #if LOG_FAILURES
 			if (logging&TYPE_MMAP) {
 				if (trigger_failure_logging) {
@@ -416,6 +427,7 @@ int setup_mmap(int which) {
 	}
 
 	mmaps[i].active=1;
+//	printf("%d.active=1 %p\n",i,mmaps[i].addr);
 
 	/* Randomly try to set up an aux mmap too */
 	if (rand()%4==0) {
@@ -439,7 +451,7 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 	flags=mmap_random_flags();
 
 	/* need locking? */
-	mmaps[i].addr=NULL;
+	mmaps[i].addr=MAP_FAILED;
 
 	mmaps[i].prot=prot;
 	mmaps[i].flags=flags;
@@ -468,8 +480,9 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 			event_data[which_fd].fd, mmaps[which_mmap].size);
 
 		if (mmaps[i].addr==MAP_FAILED) {
-			mmaps[i].addr=NULL;
-			mmaps[i].active=0;
+			mmaps[i].addr=MAP_FAILED;
+//			mmaps[i].active=0;
+//			printf("b%d.active=0\n",i);
 #if LOG_FAILURES
 			if (logging&TYPE_MMAP) {
 				if (trigger_failure_logging) {
@@ -503,6 +516,7 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 	}
 
 	mmaps[i].active=1;
+//	printf("b%d.active=1 %p\n",i,mmaps[i].addr);
 
 	return 0;
 }
@@ -513,11 +527,12 @@ void unmap_mmap(int i,int from_sigio) {
 
 	stats.mmap_unmap_attempts++;
 
-	if (mmaps[i].addr==NULL) return;
+	if (mmaps[i].addr==MAP_FAILED) return;
 //	printf("Unmapping %p\n",mmaps[i].addr);
 
 	/* moved up to avoid a race with signal/read_mmap */
 	mmaps[i].active=0;
+//	printf("%d.active=0\n",i);
 
 	result=munmap(mmaps[i].addr,mmaps[i].size);
 	if ((!from_sigio) && (logging&TYPE_MMAP)) {
@@ -527,7 +542,7 @@ void unmap_mmap(int i,int from_sigio) {
 			mmaps[i].addr);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
-	mmaps[i].addr=0;
+	mmaps[i].addr=MAP_FAILED;
 
 	if (result==0) {
 		stats.mmap_unmap_successful++;
