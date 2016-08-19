@@ -1,4 +1,6 @@
+void perf_pretty_print_mmap_prot(int prot);
 void perf_pretty_print_flags(FILE *fff,long int flags);
+void perf_pretty_print_mmap_flags(int flags);
 //static void perf_pretty_print_type(int type);
 //static void perf_pretty_print_cache(long long config);
 //static void perf_pretty_print_config(long long type, long long config);

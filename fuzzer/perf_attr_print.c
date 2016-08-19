@@ -3,6 +3,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <unistd.h>
+#include <sys/mman.h>
 
 #include "hw_breakpoint.h"
 #include "perf_event.h"
@@ -10,8 +11,41 @@
 
 #include "perf_attr_print.h"
 
-/* forward declaration */
+/* forward declarations */
 void perf_pretty_print_tracepoint(FILE *fff, int id);
+
+void perf_pretty_print_mmap_prot(int prot) {
+
+	if (prot==PROT_NONE) {
+		printf("PROT_NONE");
+		return;
+	}
+	if (prot&PROT_READ) printf("PROT_READ ");
+	if (prot&PROT_WRITE) printf("PROT_WRITE ");
+	if (prot&PROT_EXEC) printf("PROT_EXEC ");
+}
+
+void perf_pretty_print_mmap_flags(int flags) {
+
+	if (flags&MAP_SHARED) printf("MAP_SHARED ");
+	if (flags&MAP_PRIVATE) printf("MAP_PRIVATE ");
+	if (flags&MAP_32BIT) printf("MAP_32BIT ");
+	if (flags&MAP_ANONYMOUS) printf("MAP_ANONYMOUS ");
+	if (flags&MAP_DENYWRITE) printf("MAP_DENYWRITE ");
+	if (flags&MAP_EXECUTABLE) printf("MAP_EXECUTABLE ");
+	if (flags&MAP_FILE) printf("MAP_FILE ");
+	if (flags&MAP_FIXED) printf("MAP_FIXED ");
+	if (flags&MAP_GROWSDOWN) printf("MAP_GROWSDOWN ");
+	if (flags&MAP_HUGETLB) printf("MAP_HUGETLB ");
+	if (flags&MAP_LOCKED) printf("MAP_LOCKED ");
+	if (flags&MAP_NONBLOCK) printf("MAP_NONBLOCK ");
+	if (flags&MAP_NORESERVE) printf("MAP_NORESERVE ");
+	if (flags&MAP_POPULATE) printf("MAP_POPULATE ");
+	if (flags&MAP_STACK) printf("MAP_STACK ");
+}
+
+
+
 
 void perf_pretty_print_flags(FILE *fff,long int flags) {
 

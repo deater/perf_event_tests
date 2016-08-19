@@ -17,6 +17,8 @@
 #include "fuzzer_logging.h"
 #include "fuzzer_stats.h"
 
+#include "perf_attr_print.h"
+
 #include "fuzz_mmap.h"
 
 /* MAP_32BIT only exists on x86_64 */
@@ -36,23 +38,10 @@ struct our_mmap_t {
 	long long head,aux_head;
 	int aux;
 	int parent_mmap;
+	int which_event;
 } mmaps[MAX_MMAPS];
 
 static int active_mmaps=0;
-
-#if 0
-static void mmap_print_prot(int prot) {
-
-	if (prot==PROT_NONE) {
-		printf("PROT_NONE");
-		return;
-	}
-	if (prot&PROT_READ) printf("PROT_READ ");
-	if (prot&PROT_WRITE) printf("PROT_WRITE ");
-	if (prot&PROT_EXEC) printf("PROT_EXEC ");
-
-}
-#endif
 
 static int mmap_random_prot(void) {
 
@@ -86,29 +75,6 @@ static int mmap_random_size(int notaux) {
 
 	return size;
 }
-
-
-#if 0
-static void mmap_print_flags(int flags) {
-
-	if (flags&MAP_SHARED) printf("MAP_SHARED ");
-	if (flags&MAP_PRIVATE) printf("MAP_PRIVATE ");
-	if (flags&MAP_32BIT) printf("MAP_32BIT ");
-	if (flags&MAP_ANONYMOUS) printf("MAP_ANONYMOUS ");
-	if (flags&MAP_DENYWRITE) printf("MAP_DENYWRITE ");
-	if (flags&MAP_EXECUTABLE) printf("MAP_EXECUTABLE ");
-	if (flags&MAP_FILE) printf("MAP_FILE ");
-	if (flags&MAP_FIXED) printf("MAP_FIXED ");
-	if (flags&MAP_GROWSDOWN) printf("MAP_GROWSDOWN ");
-	if (flags&MAP_HUGETLB) printf("MAP_HUGETLB ");
-	if (flags&MAP_LOCKED) printf("MAP_LOCKED ");
-	if (flags&MAP_NONBLOCK) printf("MAP_NONBLOCK ");
-	if (flags&MAP_NORESERVE) printf("MAP_NORESERVE ");
-	if (flags&MAP_POPULATE) printf("MAP_POPULATE ");
-	if (flags&MAP_STACK) printf("MAP_STACK ");
-
-}
-#endif
 
 static int mmap_random_flags(void) {
 
@@ -335,7 +301,19 @@ void trash_random_mmap(void) {
 		memset(mmaps[i].addr,value, 1);//getpagesize());
 	}
 	else {
-		printf("Memset of %d at %p caused segfault!\n",i,mmaps[i].addr);
+		printf("Memset of mmap#%d at %p caused segfault!\n",i,mmaps[i].addr);
+		perf_pretty_print_mmap_flags(mmaps[i].flags);
+		perf_pretty_print_mmap_prot(mmaps[i].prot);
+		printf("size %d fd %d\n",mmaps[i].size,mmaps[i].fd);
+		printf("event: cpu=%d pid=%d group_fd=%d flags=%ld ",
+			event_data[mmaps[i].which_event].cpu,
+			event_data[mmaps[i].which_event].pid,
+			event_data[mmaps[i].which_event].group_fd,
+			event_data[mmaps[i].which_event].flags
+			);
+		perf_pretty_print_attr(stdout,
+			&event_data[mmaps[i].which_event].attr,
+			mmaps[i].fd);
 	}
 
 	/* Disable the seigsegv handler */
@@ -392,8 +370,6 @@ int setup_mmap(int which) {
 
 		if (mmaps[i].addr==MAP_FAILED) {
 			mmaps[i].addr=MAP_FAILED;
-//			mmaps[i].active=0;
-//			printf("a%d.active=0\n",i);
 #if LOG_FAILURES
 			if (logging&TYPE_MMAP) {
 				if (trigger_failure_logging) {
@@ -413,6 +389,7 @@ int setup_mmap(int which) {
 			active_mmaps++;
 			event_data[which].mmap=i;
 			mmaps[i].fd=event_data[which].fd;
+			mmaps[i].which_event=which;
 
 			if (logging&TYPE_MMAP) {
 				sprintf(log_buffer,"M %d %d %p\n",
@@ -481,8 +458,6 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 
 		if (mmaps[i].addr==MAP_FAILED) {
 			mmaps[i].addr=MAP_FAILED;
-//			mmaps[i].active=0;
-//			printf("b%d.active=0\n",i);
 #if LOG_FAILURES
 			if (logging&TYPE_MMAP) {
 				if (trigger_failure_logging) {
