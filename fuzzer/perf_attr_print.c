@@ -29,7 +29,9 @@ void perf_pretty_print_mmap_flags(int flags) {
 
 	if (flags&MAP_SHARED) printf("MAP_SHARED ");
 	if (flags&MAP_PRIVATE) printf("MAP_PRIVATE ");
+#ifdef MAP_32BIT
 	if (flags&MAP_32BIT) printf("MAP_32BIT ");
+#endif
 	if (flags&MAP_ANONYMOUS) printf("MAP_ANONYMOUS ");
 	if (flags&MAP_DENYWRITE) printf("MAP_DENYWRITE ");
 	if (flags&MAP_EXECUTABLE) printf("MAP_EXECUTABLE ");
