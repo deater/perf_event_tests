@@ -404,7 +404,7 @@ int setup_mmap(int which) {
 	}
 
 	mmaps[i].active=1;
-//	printf("%d.active=1 %p\n",i,mmaps[i].addr);
+//	if (mmaps[i].addr==NULL) printf("%d.active=1 %p\n",i,mmaps[i].addr);
 
 	/* Randomly try to set up an aux mmap too */
 	if (rand()%4==0) {
@@ -491,7 +491,7 @@ int setup_mmap_aux(int which_fd, int which_mmap) {
 	}
 
 	mmaps[i].active=1;
-//	printf("b%d.active=1 %p\n",i,mmaps[i].addr);
+//	if (mmaps[i].addr==NULL) printf("b%d.active=1 %p\n",i,mmaps[i].addr);
 
 	return 0;
 }
@@ -507,7 +507,8 @@ void unmap_mmap(int i,int from_sigio) {
 
 	/* moved up to avoid a race with signal/read_mmap */
 	mmaps[i].active=0;
-//	printf("%d.active=0\n",i);
+//	if (mmaps[i].addr==NULL) printf("%d.active=0 sigio=%d (%p)\n",
+//		i,from_sigio,mmaps[i].addr);
 
 	result=munmap(mmaps[i].addr,mmaps[i].size);
 	if ((!from_sigio) && (logging&TYPE_MMAP)) {
@@ -539,11 +540,11 @@ void mmap_random_event(int type) {
 		case 1: /* aux random */
 			break;
 		case 2: /* munmap random */
-			which=find_random_active_event();
+			which=find_random_active_mmap();
 			unmap_mmap(which,0);
 			break;
 		case 3: /* mmap read */
-			which=find_random_active_event();
+			which=find_random_active_mmap();
 			perf_mmap_read(which);
 			break;
 		case 4: /* trash mmap */
