@@ -542,6 +542,7 @@ int main(int argc, char **argv) {
 
 	/* Set up to match trinity setup, vaguely */
 	page_size=getpagesize();
+	//printf("Page size=%d\n",page_size);
 	num_online_cpus = sysconf(_SC_NPROCESSORS_ONLN);
 
 	create_shm();

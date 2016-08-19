@@ -500,6 +500,10 @@ void unmap_mmap(int i,int from_sigio) {
 
 	stats.mmap_unmap_attempts++;
 
+	if (i<0) {
+		fprintf(stderr,"ERROR! Invalid mmap index %d\n",i);
+	}
+
 	if (mmaps[i].addr==MAP_FAILED) return;
 //	printf("Unmapping %p\n",mmaps[i].addr);
 
@@ -539,11 +543,11 @@ void mmap_random_event(int type) {
 			break;
 		case 2: /* munmap random */
 			which=find_random_active_mmap();
-			unmap_mmap(which,0);
+			if (which>=0) unmap_mmap(which,0);
 			break;
 		case 3: /* mmap read */
 			which=find_random_active_mmap();
-			perf_mmap_read(which);
+			if (which>=0) perf_mmap_read(which);
 			break;
 		case 4: /* trash mmap */
 			if (type & TYPE_TRASH_MMAP) {
