@@ -21,11 +21,6 @@
 
 #include "fuzz_mmap.h"
 
-/* MAP_32BIT only exists on x86_64 */
-#ifndef MAP_32BIT
-#define MAP_32BIT 0
-#endif
-
 #define MAX_MMAPS	1024
 
 struct our_mmap_t {
@@ -96,7 +91,10 @@ static int mmap_random_flags(void) {
 	/* are not really perf_event mmap buffers.		*/
 	/* if (rand()%2) flags|=MAP_ANONYMOUS;			*/
 
+/* MAP_32BIT only exists on x86_64 */
+#ifdef MAP_32BIT
 	if (rand()%2) flags|=MAP_32BIT;
+#endif
 	if (rand()%2) flags|=MAP_DENYWRITE;
 	if (rand()%2) flags|=MAP_EXECUTABLE;
 	if (rand()%2) flags|=MAP_FILE;

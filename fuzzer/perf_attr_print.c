@@ -38,12 +38,16 @@ void perf_pretty_print_mmap_flags(int flags) {
 	if (flags&MAP_FILE) printf("MAP_FILE ");
 	if (flags&MAP_FIXED) printf("MAP_FIXED ");
 	if (flags&MAP_GROWSDOWN) printf("MAP_GROWSDOWN ");
+#ifdef MAP_HUGETLB
 	if (flags&MAP_HUGETLB) printf("MAP_HUGETLB ");
+#endif
 	if (flags&MAP_LOCKED) printf("MAP_LOCKED ");
 	if (flags&MAP_NONBLOCK) printf("MAP_NONBLOCK ");
 	if (flags&MAP_NORESERVE) printf("MAP_NORESERVE ");
 	if (flags&MAP_POPULATE) printf("MAP_POPULATE ");
+#ifdef MAP_STACK
 	if (flags&MAP_STACK) printf("MAP_STACK ");
+#endif
 }
 
 
