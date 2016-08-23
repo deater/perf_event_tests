@@ -1,0 +1,73 @@
+<html>
+<head>
+<title>
+ WARNING: CPU: 1 PID: 9406 at kernel/events/core.c:3554 perf_event_read+0x173/0x180
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: CPU: 1 PID: 9406 at kernel/events/core.c:3554 perf_event_read+0x173/0x180
+</h1>
+</center>
+
+<h3>Severity</h3>
+Warning
+
+<h3>Found by</h3>
+syz-executor: Vegard Nossum 4.8-rc3<br>
+perf_fuzzer: Vince Weaver 4.8-rc3
+
+<h3>First Seen</h3>
+4.8-rc3, added with 71e7bc2bab
+
+<h3>Most recently Seen</h3>
+4.8-rc3
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+21 August 2016: Re: [tip:perf/core] perf/core: Check return value of the perf_event_read() IPI
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>You can potentially trigger with just
+	perf stat -a -I 10
+<pre>
+[  737.542476] WARNING: CPU: 1 PID: 9406 at kernel/events/core.c:3554 perf_event_read+0x173/0x180
+[  737.628175] CPU: 1 PID: 9406 Comm: perf_fuzzer Tainted: G        W       4.8.0-rc3+ #190
+[  737.637224] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  737.645585]  0000000000000000 ffff88011943bd30 ffffffff8143a3d1 0000000000000000
+[  737.654033]  0000000000000000 ffff88011943bd70 ffffffff81076c8b 00000de2161a8680
+[  737.662476]  ffff880117089800 0000000000000001 000000000000000a ffff880114ee5dc0
+[  737.670935] Call Trace:
+[  737.673978]  [<ffffffff8143a3d1>] dump_stack+0x63/0x82
+[  737.679913]  [<ffffffff81076c8b>] __warn+0xcb/0xf0
+[  737.685464]  [<ffffffff81076d7d>] warn_slowpath_null+0x1d/0x20
+[  737.692108]  [<ffffffff8116d643>] perf_event_read+0x173/0x180
+[  737.698673]  [<ffffffff81171b7f>] perf_read+0xcf/0x300
+[  737.704586]  [<ffffffff81065789>] ? __do_page_fault+0x1f9/0x4b0
+[  737.711333]  [<ffffffff8120fd18>] __vfs_read+0x28/0x110
+[  737.717358]  [<ffffffff813b3df0>] ? security_file_permission+0xa0/0xc0
+[  737.724770]  [<ffffffff812101ae>] ? rw_verify_area+0x4e/0xb0
+[  737.731233]  [<ffffffff812102a5>] vfs_read+0x95/0x140
+[  737.737062]  [<ffffffff812116b9>] SyS_read+0x49/0xa0
+[  737.742785]  [<ffffffff81727a36>] entry_SYSCALL_64_fastpath+0x1e/0xad
+[  737.750099] ---[ end trace e20d5745edd63baa ]---
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
