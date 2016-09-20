@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <fcntl.h>
+#include <stdint.h>
 
 #include "perf_event.h"
 
@@ -69,4 +71,64 @@ int rand_ioctl_arg(void) {
 
 	return value;
 
+}
+
+/* Pick an intelligently random refresh value */
+uint64_t rand_open_flags(void) {
+
+	uint64_t flags=0;
+	int which=0;
+
+	which=rand()%3;
+
+	/* Normal */
+	if (which==0) {
+		switch(rand()%3) {
+			case 0:	flags=O_RDONLY;
+				break;
+			case 1: flags=O_WRONLY;
+				break;
+			case 2: flags=O_RDWR;
+				break;
+		}
+	}
+
+	/* Obscure */
+	if (which==1) {
+		if (rand()%2) flags|=O_RDONLY;
+		if (rand()%2) flags|=O_WRONLY;
+		if (rand()%2) flags|=O_RDWR;
+		if (rand()%2) flags|=O_APPEND;
+		if (rand()%2) flags|=O_ASYNC;
+		if (rand()%2) flags|=O_CLOEXEC;
+		if (rand()%2) flags|=O_CREAT;
+#ifdef O_DIRECT
+		if (rand()%2) flags|=O_DIRECT;
+#endif
+		if (rand()%2) flags|=O_DIRECTORY;
+		if (rand()%2) flags|=O_DSYNC;
+		if (rand()%2) flags|=O_EXCL;
+#ifdef O_LARGEFILE
+		if (rand()%2) flags|=O_LARGEFILE;
+#endif
+#ifdef O_NOATIME
+		if (rand()%2) flags|=O_NOATIME;
+#endif
+		if (rand()%2) flags|=O_NOCTTY;
+		if (rand()%2) flags|=O_NOFOLLOW;
+		if (rand()%2) flags|=O_NONBLOCK;
+#ifdef O_PATH
+		if (rand()%2) flags|=O_PATH;
+#endif
+		if (rand()%2) flags|=O_SYNC;
+#ifdef O_TMPFILE
+		if (rand()%2) flags|=O_TMPFILE;
+#endif
+		if (rand()%2) flags|=O_TRUNC;
+	}
+
+	if (which==2) {
+		flags=((uint64_t)rand()<<32)|rand();
+	}
+	return flags;
 }
