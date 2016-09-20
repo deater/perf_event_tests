@@ -19,6 +19,11 @@
 
 static char buffer[BUFFER_SIZE];
 
+#define MAX_FILES 5
+
+static int open_fds[MAX_FILES];
+static int open_files=0;
+
 #define MAX_FILENAMES	5
 
 static char *filenames[MAX_FILENAMES]={
@@ -69,7 +74,7 @@ static int setup_random_write_value(void) {
 void access_random_file(void) {
 
 	int which_file;
-	int fd;
+	int fd,new_fd;
 	int result;
 	int read_size,write_size;
 	int which;
@@ -131,9 +136,42 @@ void access_random_file(void) {
 		}
 	} else if (which==2) {
 		/* Leave open a certain number */
+		if (open_files<MAX_FILES) {
+			new_fd=open(filenames[which_file],rand_open_flags());
+			if (new_fd>=0) {
+				for(which_file=0;which_file<TYPE_ACCESS;
+					which_file++) {
+					if (open_fds[which_file]==0) break;
+				}
+				if (which_file==TYPE_ACCESS) {
+					fprintf(stderr,"WHICH FILE TOO BIG!\n");
+				}
+				open_fds[which_file]=new_fd;
+				open_files++;
+				stats.access_successful++;
+				if (logging&TYPE_ACCESS) {
+					sprintf(log_buffer,"A 2 %d\n",
+						which_file);
+					write(log_fd,log_buffer,strlen(log_buffer));
+				}
+			}
+		}
 
 	} else {
 		/* close a random open */
+		which_file=rand()%MAX_FILES;
+		if (open_fds[which_file]) {
+			close(open_fds[which_file]);
+			open_fds[which_file]=0;
+			open_files--;
+			stats.access_successful++;
+			if (logging&TYPE_ACCESS) {
+				sprintf(log_buffer,"A 3 %d\n",
+					which_file);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+		}
 	}
 
 
