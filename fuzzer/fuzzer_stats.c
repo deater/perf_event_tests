@@ -56,6 +56,9 @@ static void print_errno_name(FILE *fff, int e) {
 				break;
 		case EAGAIN:	fprintf(fff,"EAGAIN");
 				break;
+		case EOVERFLOW:	fprintf(fff,"EOVERFLOW");
+				break;
+
 		default:	fprintf(fff,"UNKNOWN %d",e);
 				break;
 	}
