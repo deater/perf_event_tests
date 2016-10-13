@@ -1,0 +1,164 @@
+<html>
+<head>
+<title>
+BAD LUCK: lost 60330898 message(s) from NMI context!
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BAD LUCK: lost 60330898 message(s) from NMI context!
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+4.9-rc0
+
+<h3>Most recently Seen</h3>
+4.9-rc0
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+Pentium 4
+
+<h3>Linux-kernel</h3>
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0+ x86_64
+        Processor: Intel 15/6/5
+
+        Seeding random number generator with 1476389698
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 40750/s
+        /proc/sys/kernel/perf_event_paranoid currently: 2
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1476389698
+
+Pid=12076, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+[  469.072004] BAD LUCK: lost 60330898 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6633 message(s) from NMI context!
+[  469.072008] INFO: rcu_sched detected stalls on CPUs/tasks:
+[  469.072008] BAD LUCK: lost 12456 message(s) from NMI context!
+[  469.072008]  0-...: (0 ticks this GP) idle=157/140000000000000/2 softirq=64220/64220 fqs=0 
+[  469.072008] BAD LUCK: lost 15198 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6438 message(s) from NMI context!
+[  469.072008]  (detected by 1, t=15002 jiffies, g=42643, c=42642, q=635)
+[  469.072008] BAD LUCK: lost 13486 message(s) from NMI context!
+[  469.072008] Task dump for CPU 0:
+[  469.072008] BAD LUCK: lost 11048 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6621 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6633 message(s) from NMI context!
+[  469.072008] perf_fuzzer     R  running task        0 12076    455 0x10000000
+[  469.072008] BAD LUCK: lost 14367 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6612 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6516 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6399 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6312 message(s) from NMI context!
+[  469.072008]  ffffffff8106e957 ffffc90001f67ea8 0000000000000000 ffffc90001f68000
+[  469.072008] BAD LUCK: lost 14016 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6297 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6162 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6102 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6051 message(s) from NMI context!
+[  469.072008]  00007ffdbe975800 ffffc90001f67f58 00007ffdbe9757f8 ffff88003a9d8c00
+[  469.072008] BAD LUCK: lost 13638 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6156 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6096 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6069 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5946 message(s) from NMI context!
+[  469.072008]  ffff88003a9d8c00 0000000000000015 0000000000002401 0000000000000000
+[  469.072008] BAD LUCK: lost 13467 message(s) from NMI context!
+[  469.072008] Call Trace:
+[  469.072008] BAD LUCK: lost 9174 message(s) from NMI context!
+[  469.072008]  [<ffffffff8106e957>] ? recalc_sigpending+0x17/0x50
+[  469.072008] BAD LUCK: lost 12327 message(s) from NMI context!
+[  469.072008]  [<ffffffff811cc909>] ? SyS_ioctl+0x79/0x90
+[  469.072008] BAD LUCK: lost 11637 message(s) from NMI context!
+[  469.072008]  [<ffffffff81002519>] ? exit_to_usermode_loop+0x69/0xa0
+[  469.072008] BAD LUCK: lost 12690 message(s) from NMI context!
+[  469.072008]  [<ffffffff81002a99>] ? do_syscall_64+0x59/0x160
+[  469.072008] BAD LUCK: lost 12120 message(s) from NMI context!
+[  469.072008]  [<ffffffff815bcc8a>] ? entry_SYSCALL64_slow_path+0x25/0x25
+[  469.072008] BAD LUCK: lost 12963 message(s) from NMI context!
+[  469.072008] rcu_sched kthread starved for 15002 jiffies! g42643 c42642 f0x0 RCU_GP_WAIT_FQS(3) ->state=0x1
+[  469.072008] BAD LUCK: lost 15774 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6132 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6048 message(s) from NMI context!
+[  469.072008] rcu_sched       S ffffffff815b80fd     0     7      2 0x10000000
+[  469.072008] BAD LUCK: lost 13293 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6119 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5992 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5982 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5958 message(s) from NMI context!
+[  469.072008]  ffff88003db4f1c0 ffff88003be42000 ffff88003db4ecc0 ffff88003f417140
+[  469.072008] BAD LUCK: lost 13512 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 6075 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5979 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5940 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5928 message(s) from NMI context!
+[  469.072008]  ffff8800369480c0 ffffc900001cbd88 ffffffff815b80fd 0000000000000246
+[  469.072008] BAD LUCK: lost 13407 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5979 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5925 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5919 message(s) from NMI context!
+[  469.072008] BAD LUCK: lost 5997 message(s) from NMI context!
+[  469.072008]  0000000000000000 ffff88003db4ecc0 ffffc900001cbdd0 ffff88003f40efc0
+[  469.072008] BAD LUCK: lost 13389 message(s) from NMI context!
+[  469.072008] Call Trace:
+[  469.072008] BAD LUCK: lost 9120 message(s) from NMI context!
+[  469.072008]  [<ffffffff815b80fd>] ? __schedule+0x1ad/0x660
+[  469.072008] BAD LUCK: lost 11868 message(s) from NMI context!
+[  469.072008]  [<ffffffff815b85e6>] schedule+0x36/0x80
+[  469.072008] BAD LUCK: lost 11367 message(s) from NMI context!
+[  469.072008]  [<ffffffff815bb76a>] schedule_timeout+0x1fa/0x3f0
+[  469.072008] BAD LUCK: lost 12186 message(s) from NMI context!
+[  469.072008]  [<ffffffff810bef90>] ? rcu_report_qs_rnp+0x140/0x180
+[  469.072008] BAD LUCK: lost 12531 message(s) from NMI context!
+[  469.072008]  [<ffffffff810c5dc0>] ? __next_timer_interrupt+0xe0/0xe0
+[  469.072008] BAD LUCK: lost 12696 message(s) from NMI context!
+[  469.072008]  [<ffffffff8109fd01>] ? prepare_to_swait+0x61/0x90
+[  469.072008] BAD LUCK: lost 12348 message(s) from NMI context!
+[  469.072008]  [<ffffffff810c1b45>] rcu_gp_kthread+0x3c5/0x7d0
+[  469.072008] BAD LUCK: lost 12192 message(s) from NMI context!
+[  469.072008]  [<ffffffff810c1780>] ? force_qs_rnp+0x180/0x180
+[  469.072008] BAD LUCK: lost 12237 message(s) from NMI context!
+[  469.072008]  [<ffffffff8108094c>] kthread+0xdc/0x100
+[  469.072008] BAD LUCK: lost 11538 message(s) from NMI context!
+[  469.072008]  [<ffffffff81080870>] ? kthread_park+0x60/0x60
+[  469.072008] BAD LUCK: lost 12078 message(s) from NMI context!
+[  469.072008]  [<ffffffff815bce32>] ret_from_fork+0x22/0x30
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

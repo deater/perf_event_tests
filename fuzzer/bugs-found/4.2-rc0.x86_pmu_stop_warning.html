@@ -20,9 +20,10 @@ Warning
 
 <h3>First Seen</h3>
 possibly related to much older bugs seen
+4.2-rc0
 
 <h3>Most recently Seen</h3>
-4.2-rc0
+4.9-rc0 (pentium 4)
 
 <h3>Reproducible</h3>
 maybe.  It's warn_on_once.
@@ -47,11 +48,125 @@ Maps to
 
 which is
 	WARN_ON_ONCE(hwc->state & PERF_HES_STOPPED);
-
 </pre>
 
 <h3>Kernel Splat</h3>
 <ol>
+<li>
+<pre>
+*** perf_fuzzer 0.31-pre *** by Vince Weaver
+
+        Linux version 4.8.0+ x86_64
+        Processor: Intel 15/6/5
+
+        Seeding random number generator with 1476389472
+        /proc/sys/kernel/perf_event_max_sample_rate currently: 40750/s
+        /proc/sys/kernel/perf_event_paranoid currently: 2
+        Logging perf_event_open() failures: no
+        Running fsync after every syscall: no
+        To reproduce, try: ./perf_fuzzer -s 30000 -r 1476389472
+
+Pid=4571, sleeping 1s
+==================================================
+Fuzzing the following syscalls:
+        mmap perf_event_open close read write ioctl fork prctl poll 
+*NOT* Fuzzing the following syscalls:
+
+Also attempting the following:
+        signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and
+-sys-files trashing-the-mmap-page 
+*NOT* attempting the following:
+
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000
+        Open attempts: 651420  Successful: 866  Currently open: 11
+                EPERM : 13
+                ENOENT : 987
+                E2BIG : 56855
+                EBADF : 15447
+                EACCES : 75838
+                EINVAL : 501398
+                UNKNOWN 75 : 3
+                EOPNOTSUPP : 13
+                Trinity Type (Normal 705/162563)(Sampling 71/162513)(Global 0/16
+3238)(Random 90/163106)
+                Type (Hardware 253/90984)(software 402/99081)(tracepoint 68/9850
+6)(Cache 11/81689)(cpu 98/98185)(breakpoint 34/97589)(msr 0/16351)(#7 0/34)(#8 0
+/629)(#9 0/74)(#10 0/58)(#11 0/35)(#12 0/42)(#13 0/32)(#14 0/43)(#15 0/29)(#16 0
+/707)(#17 0/67)(#18 0/52)(>19 0/67233)
+        Close:  855/855 Successful
+        Read:   717/811 Successful
+        Write:  0/767 Successful
+        Ioctl:  364/831 Successful: (ENABLE 71/71)(DISABLE 92/92)(REFRESH 4/81)(
+RESET 81/81)(PERIOD 15/78)(SET_OUTPUT 11/83)(SET_FILTER 0/59)(ID 81/81)(SET_BPF 
+0/70)(PAUSE_OUTPUT 9/71)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/64)
+        Mmap:   380/1019 Successful: (MMAP 380/1019)(TRASH 68/142)(READ 68/71)(U
+NMAP 380/930)(AUX 0/104)(AUX_READ 0/0)
+        Prctl:  945/945 Successful
+        Fork:   448/448 Successful
+        Poll:   852/908 Successful
+        Access: 119/856 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Signal from invalid fd 12 Bad file descriptor
+Iteration 20000
+        Open attempts: 698698  Successful: 946  Currently open: 7
+                EPERM : 16
+                ENOENT : 1142
+                E2BIG : 61273
+                EBADF : 15926
+                EACCES : 81249
+                EINVAL : 538116
+                ENOSPC : 6
+                UNKNOWN 75 : 9
+                EOPNOTSUPP : 15
+                Trinity Type (Normal 757/174643)(Sampling 71/174728)(Global 0/17
+4732)(Random 118/174595)
+                Type (Hardware 245/97606)(software 437/106013)(tracepoint 82/105
+570)(Cache 8/87391)(cpu 128/105489)(breakpoint 46/104950)(msr 0/17615)(#7 0/45)(
+#8 0/693)(#9 0/75)(#10 0/53)(#11 0/59)(#12 0/54)(#13 0/43)(#14 0/41)(#15 0/38)(#
+16 0/749)(#17 0/62)(#18 0/63)(>19 0/72089)
+        Close:  950/950 Successful
+        Read:   740/857 Successful
+        Write:  0/882 Successful
+        Ioctl:  340/901 Successful: (ENABLE 75/75)(DISABLE 83/83)(REFRESH 15/87)
+(RESET 73/73)(PERIOD 19/102)(SET_OUTPUT 9/78)(SET_FILTER 1/85)(ID 58/58)(SET_BPF
+ 0/97)(PAUSE_OUTPUT 7/82)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/81)
+        Mmap:   425/1088 Successful: (MMAP 425/1088)(TRASH 72/136)(READ 156/421)
+(UNMAP 424/1031)(AUX 0/111)(AUX_READ 11/142)
+        Prctl:  908/908 Successful
+        Fork:   460/460 Successful
+        Poll:   901/914 Successful
+        Access: 104/875 Successful
+        Overflows: 495  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[  211.663271] ------------[ cut here ]------------
+[  211.664008] WARNING: CPU: 0 PID: 5778 at arch/x86/events/core.c:1336 x86_pmu_stop+0xb9/0xd0
+[  211.664008] CPU: 0 PID: 5778 Comm: perf_fuzzer Tainted: G        W       4.8.0+ #5
+[  211.664008] Hardware name: LENOVO 88088NU/LENOVO, BIOS 2JKT37AUS 07/12/2007
+[  211.664008]  ffff88003f403dd8 ffffffff81334768 0000000000000000 0000000000000000
+[  211.664008]  ffff88003f403e18 ffffffff810620e1 000005380000000a ffff88003f40a480
+[  211.664008]  ffff88003a8cb000 0000000000000004 ffff88003f41e864 0000000000cbf5ad
+[  211.664008] Call Trace:
+[  211.664008]  <IRQ> [  211.664008]  [<ffffffff81334768>] dump_stack+0x4d/0x65
+[  211.664008]  [<ffffffff810620e1>] __warn+0xd1/0xf0
+[  211.664008]  [<ffffffff810621cd>] warn_slowpath_null+0x1d/0x20
+[  211.664008]  [<ffffffff81004e29>] x86_pmu_stop+0xb9/0xd0
+[  211.664008]  [<ffffffff81004e94>] x86_pmu_del+0x54/0x140
+[  211.664008]  [<ffffffff81137e16>] event_sched_out.isra.99+0xd6/0x320
+[  211.664008]  [<ffffffff811381c2>] group_sched_out+0x52/0xd0
+[  211.664008]  [<ffffffff811382ff>] __perf_event_disable+0xbf/0xf0
+[  211.664008]  [<ffffffff811319cb>] event_function+0x9b/0x160
+[  211.664008]  [<ffffffff81133190>] ? perf_cgroup_attach+0x50/0x50
+[  211.664008]  [<ffffffff811331cb>] remote_function+0x3b/0x50
+[  211.664008]  [<ffffffff810dbb86>] flush_smp_call_function_queue+0x76/0x160
+[  211.664008]  [<ffffffff810dc5e3>] generic_smp_call_function_single_interrupt+0x13/0x60
+[  211.664008]  [<ffffffff8103e702>] smp_trace_call_function_single_interrupt+0x32/0xe0
+[  211.664008]  [<ffffffff815be93f>] trace_call_function_single_interrupt+0x7f/0x90
+[  211.664008]  <EOI> [  211.664008] ---[ end trace 7698eb74ca460958 ]---
+</pre>
+
 <li>
 <pre>
 *** perf_fuzzer 0.31-pre *** by Vince Weaver
