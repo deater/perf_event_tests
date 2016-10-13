@@ -24,12 +24,13 @@ static char buffer[BUFFER_SIZE];
 static int open_fds[MAX_FILES];
 static int open_files=0;
 
-#define MAX_FILENAMES	5
+#define MAX_FILENAMES	6
 
 static char *filenames[MAX_FILENAMES]={
 	"/proc/sys/kernel/perf_cpu_time_max_percent",
 	"/proc/sys/kernel/perf_event_paranoid",
 	"/proc/sys/kernel/perf_event_max_sample_rate",
+	"/proc/sys/kernel/perf_event_max_stack",
 	"/proc/sys/kernel/perf_event_mlock_kb",
 	"/proc/sys/kernel/nmi_watchdog"
 };
