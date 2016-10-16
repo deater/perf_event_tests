@@ -388,26 +388,52 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 		if (!quiet) {
 			switch(event->type) {
 				case PERF_RECORD_MMAP:
-					printf("PERF_RECORD_MMAP"); break;
+					printf("PERF_RECORD_MMAP");
+					break;
 				case PERF_RECORD_LOST:
-					printf("PERF_RECORD_LOST"); break;
+					printf("PERF_RECORD_LOST");
+					break;
 				case PERF_RECORD_COMM:
-					printf("PERF_RECORD_COMM"); break;
+					printf("PERF_RECORD_COMM");
+					break;
 				case PERF_RECORD_EXIT:
-					printf("PERF_RECORD_EXIT"); break;
+					printf("PERF_RECORD_EXIT");
+					break;
 				case PERF_RECORD_THROTTLE:
-					printf("PERF_RECORD_THROTTLE"); break;
+					printf("PERF_RECORD_THROTTLE");
+					break;
 				case PERF_RECORD_UNTHROTTLE:
-					printf("PERF_RECORD_UNTHROTTLE"); break;
+					printf("PERF_RECORD_UNTHROTTLE");
+					break;
 				case PERF_RECORD_FORK:
-					printf("PERF_RECORD_FORK"); break;
+					printf("PERF_RECORD_FORK");
+					break;
 				case PERF_RECORD_READ:
-					printf("PERF_RECORD_READ"); break;
+					printf("PERF_RECORD_READ");
+					break;
 				case PERF_RECORD_SAMPLE:
-					printf("PERF_RECORD_SAMPLE [%x]",sample_type); break;
+					printf("PERF_RECORD_SAMPLE [%x]",sample_type);
+					break;
 				case PERF_RECORD_MMAP2:
-					printf("PERF_RECORD_MMAP2"); break;
-				default: printf("UNKNOWN %d",event->type); break;
+					printf("PERF_RECORD_MMAP2");
+					break;
+				case PERF_RECORD_AUX:
+					printf("PERF_RECORD_AUX");
+					break;
+				case PERF_RECORD_ITRACE_START:
+					printf("PERF_RECORD_ITRACE_START");
+					break;
+				case PERF_RECORD_LOST_SAMPLES:
+					printf("PERF_RECORD_LOST_SAMPLES");
+					break;
+				case PERF_RECORD_SWITCH:
+					printf("PERF_RECORD_SWITCH");
+					break;
+				case PERF_RECORD_SWITCH_CPU_WIDE:
+					printf("PERF_RECORD_SWITCH_CPU_WIDE");
+					break;
+				default: printf("UNKNOWN %d",event->type);
+					break;
 			}
 
 			printf(", MISC=%d (",event->misc);
@@ -962,7 +988,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 						printf("Level 2 TLB ");
 					if (src & (PERF_MEM_TLB_WK<<PERF_MEM_TLB_SHIFT))
 						printf("Hardware walker ");
-					if (src & (PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
+					if (src & ((long long)PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
 						printf("OS fault handler ");
 				}
 
