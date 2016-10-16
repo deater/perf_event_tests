@@ -1030,11 +1030,20 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			offset+=8;
 
 			memcpy(&flags,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tFLAGS: %llx\n",flags);
+			if (!quiet) {
+				printf("\tFLAGS: %llx ",flags);
+				if (flags & PERF_AUX_FLAG_TRUNCATED) {
+					printf("FLAG_TRUNCATED ");
+				}
+				if (flags & PERF_AUX_FLAG_OVERWRITE) {
+					printf("FLAG_OVERWRITE ");
+				}
+				printf("\n");
+			}
 			offset+=8;
 
 			memcpy(&sample_id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tSAMPLD_ID: %lld\n",sample_id);
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
 			offset+=8;
 
 			}
