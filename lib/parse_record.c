@@ -1016,7 +1016,91 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 			break;
 
-			default: if (!quiet) printf("\tUnknown type %d\n",event->type);
+		/* AUX */
+		case PERF_RECORD_AUX: {
+			long long aux_offset,aux_size,flags;
+			long long sample_id;
+
+			memcpy(&aux_offset,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tAUX_OFFSET: %lld\n",aux_offset);
+			offset+=8;
+
+			memcpy(&aux_size,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tAUX_SIZE: %lld\n",aux_size);
+			offset+=8;
+
+			memcpy(&flags,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tFLAGS: %llx\n",flags);
+			offset+=8;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLD_ID: %lld\n",sample_id);
+			offset+=8;
+
+			}
+			break;
+
+		/* itrace start */
+		case PERF_RECORD_ITRACE_START: {
+			int pid,tid;
+
+			memcpy(&pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPID: %d\n",pid);
+			offset+=4;
+
+			memcpy(&tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tTID: %d\n",tid);
+			offset+=4;
+			}
+			break;
+
+		/* lost samples PEBS */
+		case PERF_RECORD_LOST_SAMPLES: {
+			long long lost,sample_id;
+
+			memcpy(&lost,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tLOST: %lld\n",lost);
+			offset+=8;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+			}
+			break;
+
+		/* context switch */
+		case PERF_RECORD_SWITCH: {
+			long long sample_id;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+			}
+			break;
+
+		/* context switch cpu-wide*/
+		case PERF_RECORD_SWITCH_CPU_WIDE: {
+			int prev_pid,prev_tid;
+			long long sample_id;
+
+			memcpy(&prev_pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPREV_PID: %d\n",prev_pid);
+			offset+=4;
+
+			memcpy(&prev_tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPREV_TID: %d\n",prev_tid);
+			offset+=4;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+			}
+			break;
+
+
+		default:
+			if (!quiet) printf("\tUnknown type %d\n",event->type);
+
 		}
 		if (events_read) (*events_read)++;
 	}
