@@ -1,5 +1,5 @@
 /* perf_fuzzer */
-/* by Vince Weaver */
+/* by Vince Weaver <vincent.weaver _at_ maine.edu>*/
 /* fuzzes the perf_event system call */
 /* Some code shared with the trinity fuzzer */
 
@@ -248,7 +248,7 @@ static void usage(char *name,int help) {
 		printf("%s [-h] [-v] [-l filename] [-s num] [-r num] [-t OCIRMFQPpAoi]\n\n",name);
 		printf("\t-h\tdisplay help\n");
 		printf("\t-v\tdisplay version\n");
-		printf("\t-l logfile\tlog to file filename (- for stdout)\n");
+		printf("\t-l logfile\tlog to file logfile (- for stdout)\n");
 		printf("\t-r num\tseed random number generator with num\n");
 		printf("\t-s num\tstop after num system calls\n");
 		printf("\t-t type of calls to execute (default is all)\n");
@@ -273,96 +273,64 @@ int main(int argc, char **argv) {
 	struct utsname uname_info;
 	char cpuinfo[BUFSIZ];
 	int seed_specified=0;
+	int c,j;
 
 	/* Parse command line parameters */
+	while ((c=getopt(argc, argv,"hvl:r:s:t:"))!=-1) {
+		switch(c) {
+			case 'h':	/* help */
+				usage(argv[0],1);
+				exit(0);
+				break;
+			case 'v':	/* version */
+				usage(argv[0],0);
+				exit(0);
+				break;
+			case 'l':	/* log */
+				logging=TYPE_ALL;
+				logfile_name=strdup(optarg);
+				printf("Logfile %s %p\n",logfile_name,optarg);
+				break;
+			case 'r':	/* seed */
+				seed=atoi(optarg);
+				seed_specified=1;
+				printf("Using user-specified random seed of %d\n",seed);
+				break;
+			case 's':	/* stop */
+				stop_after=atoi(optarg);
+				printf("Stopping after %d\n",stop_after);
+				break;
 
-	if (argc>1) {
-		i=1;
-		while(1) {
-			if (i>=argc) break;
+			case 't':	/* type */
+				type=0;
 
-			if(argv[i][0]=='-') {
-				switch(argv[i][1]) {
-				/* help */
-				case 'h':	usage(argv[0],1);
-						exit(0);
-						break;
-				/* version */
-				case 'v':	usage(argv[0],0);
-						exit(0);
-						break;
-				/* log */
-                                case 'l':       logging=TYPE_ALL;
-						i++;
-						if (i<argc) {
-							logfile_name=strdup(argv[i]);
-						}
-						else {
-							logfile_name=strdup("out.log");
-						}
-						i++;
-						break;
-				/* seed */
-				case 'r':	if (i+1<argc) {
-							seed=atoi(argv[i+1]);
-						}
-						seed_specified=1;
-						printf("Using user-specified random seed of %d\n",seed);
-						i+=2;
-						break;
-				/* stop */
-				case 's':	if (i+1<argc) {
-							stop_after=atoi(argv[i+1]);
-						}
-						printf("Stopping after %d\n",stop_after);
-						i+=2;
-						break;
-				/* type */
-				case 't':	{
-						int j;
-
-						type=0;
-
-						for(j=0;j<strlen(argv[i+1]);j++) {
-						switch(argv[i+1][j]) {
-						case 'O': type|=TYPE_OPEN; break;
-						case 'C': type|=TYPE_CLOSE; break;
-						case 'I': type|=TYPE_IOCTL; break;
-						case 'R': type|=TYPE_READ; break;
-						case 'M': type|=TYPE_MMAP; break;
-						case 'F': type|=TYPE_FORK; break;
-						case 'Q': type|=TYPE_TRASH_MMAP; break;
-						case 'W': type|=TYPE_WRITE; break;
-						case 'P': type|=TYPE_PRCTL; break;
-						case 'p': type|=TYPE_POLL; break;
-						case 'A': type|=TYPE_ACCESS; break;
-						case 'o': type|=TYPE_OVERFLOW; break;
-						case 'i': type|=TYPE_MILLION; break;
-						default: printf("Unknown type %c\n",
-							argv[i+1][j]);
-						}
-						}
-						}
-						i+=2;
-						break;
-				default:	fprintf(stderr,"Unknown parameter %s\n",argv[1]);
-						usage(argv[0],1);
-						exit(1);
-						break;
+				for(j=0;j<strlen(optarg);j++) {
+					switch(optarg[j]) {
+					case 'O': type|=TYPE_OPEN; break;
+					case 'C': type|=TYPE_CLOSE; break;
+					case 'I': type|=TYPE_IOCTL; break;
+					case 'R': type|=TYPE_READ; break;
+					case 'M': type|=TYPE_MMAP; break;
+					case 'F': type|=TYPE_FORK; break;
+					case 'Q': type|=TYPE_TRASH_MMAP; break;
+					case 'W': type|=TYPE_WRITE; break;
+					case 'P': type|=TYPE_PRCTL; break;
+					case 'p': type|=TYPE_POLL; break;
+					case 'A': type|=TYPE_ACCESS; break;
+					case 'o': type|=TYPE_OVERFLOW; break;
+					case 'i': type|=TYPE_MILLION; break;
+					default: printf("Unknown type %c\n",
+							optarg[j]);
+					}
 				}
-
-			}
-			else {
-				fprintf(stderr,"Unknown parameter %s\n",argv[1]);
+				break;
+			default:
+				fprintf(stderr,"Unknown parameter %c\n",c);
 				usage(argv[0],1);
 				exit(1);
-			}
-
+				break;
 		}
 
-	} else {
-		/* Use defaults */
-		logging=0;
 	}
 
 	/* TODO: Make these configurable */
