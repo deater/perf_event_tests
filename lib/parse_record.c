@@ -388,26 +388,52 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 		if (!quiet) {
 			switch(event->type) {
 				case PERF_RECORD_MMAP:
-					printf("PERF_RECORD_MMAP"); break;
+					printf("PERF_RECORD_MMAP");
+					break;
 				case PERF_RECORD_LOST:
-					printf("PERF_RECORD_LOST"); break;
+					printf("PERF_RECORD_LOST");
+					break;
 				case PERF_RECORD_COMM:
-					printf("PERF_RECORD_COMM"); break;
+					printf("PERF_RECORD_COMM");
+					break;
 				case PERF_RECORD_EXIT:
-					printf("PERF_RECORD_EXIT"); break;
+					printf("PERF_RECORD_EXIT");
+					break;
 				case PERF_RECORD_THROTTLE:
-					printf("PERF_RECORD_THROTTLE"); break;
+					printf("PERF_RECORD_THROTTLE");
+					break;
 				case PERF_RECORD_UNTHROTTLE:
-					printf("PERF_RECORD_UNTHROTTLE"); break;
+					printf("PERF_RECORD_UNTHROTTLE");
+					break;
 				case PERF_RECORD_FORK:
-					printf("PERF_RECORD_FORK"); break;
+					printf("PERF_RECORD_FORK");
+					break;
 				case PERF_RECORD_READ:
-					printf("PERF_RECORD_READ"); break;
+					printf("PERF_RECORD_READ");
+					break;
 				case PERF_RECORD_SAMPLE:
-					printf("PERF_RECORD_SAMPLE [%x]",sample_type); break;
+					printf("PERF_RECORD_SAMPLE [%x]",sample_type);
+					break;
 				case PERF_RECORD_MMAP2:
-					printf("PERF_RECORD_MMAP2"); break;
-				default: printf("UNKNOWN %d",event->type); break;
+					printf("PERF_RECORD_MMAP2");
+					break;
+				case PERF_RECORD_AUX:
+					printf("PERF_RECORD_AUX");
+					break;
+				case PERF_RECORD_ITRACE_START:
+					printf("PERF_RECORD_ITRACE_START");
+					break;
+				case PERF_RECORD_LOST_SAMPLES:
+					printf("PERF_RECORD_LOST_SAMPLES");
+					break;
+				case PERF_RECORD_SWITCH:
+					printf("PERF_RECORD_SWITCH");
+					break;
+				case PERF_RECORD_SWITCH_CPU_WIDE:
+					printf("PERF_RECORD_SWITCH_CPU_WIDE");
+					break;
+				default: printf("UNKNOWN %d",event->type);
+					break;
 			}
 
 			printf(", MISC=%d (",event->misc);
@@ -962,7 +988,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 						printf("Level 2 TLB ");
 					if (src & (PERF_MEM_TLB_WK<<PERF_MEM_TLB_SHIFT))
 						printf("Hardware walker ");
-					if (src & (PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
+					if (src & ((long long)PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
 						printf("OS fault handler ");
 				}
 
@@ -990,7 +1016,100 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 			}
 			break;
 
-			default: if (!quiet) printf("\tUnknown type %d\n",event->type);
+		/* AUX */
+		case PERF_RECORD_AUX: {
+			long long aux_offset,aux_size,flags;
+			long long sample_id;
+
+			memcpy(&aux_offset,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tAUX_OFFSET: %lld\n",aux_offset);
+			offset+=8;
+
+			memcpy(&aux_size,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tAUX_SIZE: %lld\n",aux_size);
+			offset+=8;
+
+			memcpy(&flags,&data[offset],sizeof(long long));
+			if (!quiet) {
+				printf("\tFLAGS: %llx ",flags);
+				if (flags & PERF_AUX_FLAG_TRUNCATED) {
+					printf("FLAG_TRUNCATED ");
+				}
+				if (flags & PERF_AUX_FLAG_OVERWRITE) {
+					printf("FLAG_OVERWRITE ");
+				}
+				printf("\n");
+			}
+			offset+=8;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+
+			}
+			break;
+
+		/* itrace start */
+		case PERF_RECORD_ITRACE_START: {
+			int pid,tid;
+
+			memcpy(&pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPID: %d\n",pid);
+			offset+=4;
+
+			memcpy(&tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tTID: %d\n",tid);
+			offset+=4;
+			}
+			break;
+
+		/* lost samples PEBS */
+		case PERF_RECORD_LOST_SAMPLES: {
+			long long lost,sample_id;
+
+			memcpy(&lost,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tLOST: %lld\n",lost);
+			offset+=8;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+			}
+			break;
+
+		/* context switch */
+		case PERF_RECORD_SWITCH: {
+			long long sample_id;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+			}
+			break;
+
+		/* context switch cpu-wide*/
+		case PERF_RECORD_SWITCH_CPU_WIDE: {
+			int prev_pid,prev_tid;
+			long long sample_id;
+
+			memcpy(&prev_pid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPREV_PID: %d\n",prev_pid);
+			offset+=4;
+
+			memcpy(&prev_tid,&data[offset],sizeof(int));
+			if (!quiet) printf("\tPREV_TID: %d\n",prev_tid);
+			offset+=4;
+
+			memcpy(&sample_id,&data[offset],sizeof(long long));
+			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			offset+=8;
+			}
+			break;
+
+
+		default:
+			if (!quiet) printf("\tUnknown type %d\n",event->type);
+
 		}
 		if (events_read) (*events_read)++;
 	}
