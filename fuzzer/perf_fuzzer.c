@@ -239,6 +239,24 @@ static int get_paranoid_value(void) {
 
 }
 
+static int get_kernel_watchdog_value(void) {
+
+	FILE *fff;
+	int watchdog;
+
+	fff=fopen("/proc/sys/kernel/nmi_watchdog","r");
+	if (fff==NULL) {
+		return -1;
+	}
+
+	fscanf(fff,"%d",&watchdog);
+
+	fclose(fff);
+
+	return watchdog;
+
+}
+
 
 static void usage(char *name,int help) {
 
@@ -268,14 +286,17 @@ int main(int argc, char **argv) {
 	int i;
 	char *logfile_name=NULL;
 	unsigned int seed=0;
-	int sample_rate,paranoid;
+	int sample_rate,paranoid,kernel_watchdog;
 	FILE *fff;
 	struct utsname uname_info;
 	char cpuinfo[BUFSIZ];
 	int seed_specified=0;
-	int c,j;
+	int c,j,missing=0;
 
+	/*********************************/
 	/* Parse command line parameters */
+	/*********************************/
+
 	while ((c=getopt(argc, argv,"hvl:r:s:t:"))!=-1) {
 		switch(c) {
 			case 'h':	/* help */
@@ -289,7 +310,6 @@ int main(int argc, char **argv) {
 			case 'l':	/* log */
 				logging=TYPE_ALL;
 				logfile_name=strdup(optarg);
-				printf("Logfile %s %p\n",logfile_name,optarg);
 				break;
 			case 'r':	/* seed */
 				seed=atoi(optarg);
@@ -298,7 +318,6 @@ int main(int argc, char **argv) {
 				break;
 			case 's':	/* stop */
 				stop_after=atoi(optarg);
-				printf("Stopping after %d\n",stop_after);
 				break;
 
 			case 't':	/* type */
@@ -325,7 +344,6 @@ int main(int argc, char **argv) {
 				}
 				break;
 			default:
-				fprintf(stderr,"Unknown parameter %c\n",c);
 				usage(argv[0],1);
 				exit(1);
 				break;
@@ -333,9 +351,9 @@ int main(int argc, char **argv) {
 
 	}
 
-	/* TODO: Make these configurable */
-	printf("Watchdog enabled with timeout %ds\n",WATCHDOG_TIMEOUT);
-	printf("Will auto-exit if signal storm detected\n");
+	/****************/
+	/* Open logfile */
+	/****************/
 
 	if (logging) {
 
@@ -353,50 +371,61 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	/****************/
+	/* Print banner */
+	/****************/
+
 	printf("\n*** perf_fuzzer %s *** by Vince Weaver\n\n",VERSION);
+
+	/*****************/
+	/* Print OS info */
+	/*****************/
 
 	uname(&uname_info);
 
 	printf("\t%s version %s %s\n",
 		uname_info.sysname,uname_info.release,uname_info.machine);
 
+	/*****************/
+	/* Print cpuinfo */
+	/*****************/
+
 	get_cpuinfo(cpuinfo);
 	printf("\tProcessor: %s\n",cpuinfo);
 
-	/* Poor Seeding */
-	/* should read /dev/urandom instead */
+	/*****************/
+	/* Print options */
+	/*****************/
+
+	if (stop_after)	printf("\tStopping after %d\n",stop_after);
+	/* TODO: Make these configurable */
+	printf("\tWatchdog enabled with timeout %ds\n",WATCHDOG_TIMEOUT);
+	printf("\tWill auto-exit if signal storm detected\n");
+
+	/**********************/
+	/* Print logging info */
+	/**********************/
+	if (logging) {
+		printf("\tLogging to file: %s\n",logfile_name);
+		printf("\tLogging perf_event_open() failures: %s\n",
+			LOG_FAILURES?"yes":"no");
+		printf("\tRunning fsync after every syscall: %s\n",
+			FSYNC_EVERY?"yes":"no");
+	}
+
+	/************************************/
+	/* Seed the random number generator */
+	/************************************/
+
+	/* should read /dev/urandom instead? */
 	if (!seed) {
 		seed=time(NULL);
+		printf("\tSeeding RNG from time %d\n",seed);
+	}
+	else {
+		printf("\tSeeding RNG with supplied seed %d\n",seed);
 	}
 	srand(seed);
-	printf("\tSeeding random number generator with %d\n",seed);
-
-	/* setup watchdog timer */
-	/* FIXME: make optional */
-        struct sigaction watchdog;
-
-        memset(&watchdog, 0, sizeof(struct sigaction));
-        watchdog.sa_sigaction = alarm_handler;
-        watchdog.sa_flags = SA_SIGINFO | SA_RESTART;
-
-        if (sigaction( SIGALRM, &watchdog, NULL) < 0) {
-                printf("Error setting up alarm handler\n");
-        }
-
-        alarm(WATCHDOG_TIMEOUT);
-
-
-	/* Clear errnos count */
-	for(i=0;i<MAX_ERRNOS;i++) {
-		stats.open_errno_count[i]=0;
-		stats.fork_errno_count[i]=0;
-	}
-
-	/* Clear type counts */
-	for(i=0;i<MAX_OPEN_TYPE;i++) {
-		stats.open_type_success[i]=0;
-		stats.open_type_fail[i]=0;
-	}
 
 	/* Write seed to disk so we can find it later */
 	fff=fopen("last.seed","w");
@@ -410,6 +439,39 @@ int main(int argc, char **argv) {
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
+	/************************/
+	/* setup watchdog timer */
+	/************************/
+
+	/* FIXME: make optional */
+        struct sigaction watchdog;
+
+        memset(&watchdog, 0, sizeof(struct sigaction));
+        watchdog.sa_sigaction = alarm_handler;
+        watchdog.sa_flags = SA_SIGINFO | SA_RESTART;
+
+        if (sigaction( SIGALRM, &watchdog, NULL) < 0) {
+                printf("Error setting up alarm handler\n");
+        }
+
+        alarm(WATCHDOG_TIMEOUT);
+
+	/******************************/
+	/* Initialize data structures */
+	/******************************/
+
+	/* Clear errnos count */
+	for(i=0;i<MAX_ERRNOS;i++) {
+		stats.open_errno_count[i]=0;
+		stats.fork_errno_count[i]=0;
+	}
+
+	/* Clear type counts */
+	for(i=0;i<MAX_OPEN_TYPE;i++) {
+		stats.open_type_success[i]=0;
+		stats.open_type_fail[i]=0;
+	}
+
 	/* Save our pid so we can re-map on replay */
 	if (logging) {
 		sprintf(log_buffer,"G %d\n",getpid());
@@ -419,25 +481,30 @@ int main(int argc, char **argv) {
 	/* Save the content of /proc/sys/kernel/perf_event_max_sample_rate */
 	/* If it has been changed, a replay might not be perfect */
 	sample_rate=get_sample_rate();
-	printf("\t/proc/sys/kernel/perf_event_max_sample_rate currently: %d/s\n",
-		sample_rate);
 	if (logging) {
 		sprintf(log_buffer,"r %d\n",sample_rate);
 		write(log_fd,log_buffer,strlen(log_buffer));
 	}
 
+	/* Check kernel watchdog */
+	kernel_watchdog=get_kernel_watchdog_value();
+
 	/* Check paranoid setting */
 	paranoid=get_paranoid_value();
-	printf("\t/proc/sys/kernel/perf_event_paranoid currently: %d\n",
+
+	/*******************************/
+	/* Print reproduce information */
+	/*******************************/
+
+	printf("\n\tTo reproduce, try:\n");
+	printf("\t\techo %d > /proc/sys/kernel/nmi_watchdog\n",
+		kernel_watchdog);
+	printf("\t\techo %d > /proc/sys/kernel/perf_event_paranoid\n",
 		paranoid);
+	printf("\t\techo %d > /proc/sys/kernel/perf_event_max_sample_rate\n",
+		sample_rate);
 
-	printf("\tLogging perf_event_open() failures: %s\n",
-		LOG_FAILURES?"yes":"no");
-	printf("\tRunning fsync after every syscall: %s\n",
-		FSYNC_EVERY?"yes":"no");
-
-	/* Print command line */
-	printf("\tTo reproduce, try: ");
+	printf("\t\t");
 	for(i=0;i<argc;i++) {
 		printf("%s ",argv[i]);
 	}
@@ -446,70 +513,76 @@ int main(int argc, char **argv) {
 
 	printf("\n\n");
 
-	if (attempt_determinism) {
-		type&=~TYPE_OVERFLOW;
-	}
-
-	printf("Pid=%d, sleeping 1s\n",getpid());
-	sleep(1);
 
 
 	/* Print what we are actually fuzzing */
 	/* Sometimes I comment out code and forget */
 
-	printf("==================================================\n");
+	missing=0;
 
-	printf("Fuzzing the following syscalls:\n\t");
-	if (type&TYPE_MMAP) printf("mmap ");
-	if (type&TYPE_OPEN) printf("perf_event_open ");
-	if (type&TYPE_CLOSE) printf("close ");
-	if (type&TYPE_READ) printf("read ");
-	if (type&TYPE_WRITE) printf("write ");
-	if (type&TYPE_IOCTL) printf("ioctl ");
-	if (type&TYPE_FORK) printf("fork ");
-	if (type&TYPE_PRCTL) printf("prctl ");
-	if (type&TYPE_POLL) printf("poll ");
+	printf("\tFuzzing the following syscalls: ");
+	if (type&TYPE_MMAP)  printf("mmap "); else missing++;
+	if (type&TYPE_OPEN)  printf("perf_event_open "); else missing++;
+	if (type&TYPE_CLOSE) printf("close "); else missing++;
+	if (type&TYPE_READ)  printf("read "); else missing++;
+	if (type&TYPE_WRITE) printf("write "); else missing++;
+	if (type&TYPE_IOCTL) printf("ioctl "); else missing++;
+	if (type&TYPE_FORK)  printf("fork "); else missing++;
+	if (type&TYPE_PRCTL) printf("prctl "); else missing++;
+	if (type&TYPE_POLL)  printf("poll "); else missing++;
 	printf("\n");
 
-	printf("*NOT* Fuzzing the following syscalls:\n\t");
-	if (!(type&TYPE_MMAP)) printf("mmap ");
-	if (!(type&TYPE_OPEN)) printf("perf_event_open ");
-	if (!(type&TYPE_CLOSE)) printf("close ");
-	if (!(type&TYPE_READ)) printf("read ");
-	if (!(type&TYPE_WRITE)) printf("write ");
-	if (!(type&TYPE_IOCTL)) printf("ioctl ");
-	if (!(type&TYPE_FORK)) printf("fork ");
-	if (!(type&TYPE_PRCTL)) printf("prctl ");
-	if (!(type&TYPE_POLL)) printf("poll ");
-	printf("\n");
-
-	printf("Also attempting the following:\n\t");
-	if (type&TYPE_OVERFLOW) printf("signal-handler-on-overflow ");
-	if (type&TYPE_MILLION) printf("busy-instruction-loop ");
-	if (type&TYPE_ACCESS) printf("accessing-perf-proc-and-sys-files ");
-	if (type&TYPE_TRASH_MMAP) printf("trashing-the-mmap-page ");
-	printf("\n");
-
-	printf("*NOT* attempting the following:\n\t");
-	if (!(type&TYPE_OVERFLOW)) printf("signal-handler-on-overflow ");
-	if (!(type&TYPE_MILLION)) printf("busy-instruction-loop ");
-	if (!(type&TYPE_ACCESS)) printf("accessing-perf-proc-and-sys-files ");
-	if (!(type&TYPE_TRASH_MMAP)) printf("trashing-the-mmap-page ");
-	printf("\n");
-
-	if (attempt_determinism) {
-		printf("\nAttempting more deterministic results by:\n\t");
-		printf("waitpid-after-killing-child ");
-		printf("disabling-overflow-signal-handler ");
+	if (missing) {
+		printf("\t*NOT* Fuzzing the following syscalls: ");
+		if (!(type&TYPE_MMAP)) printf("mmap ");
+		if (!(type&TYPE_OPEN)) printf("perf_event_open ");
+		if (!(type&TYPE_CLOSE)) printf("close ");
+		if (!(type&TYPE_READ)) printf("read ");
+		if (!(type&TYPE_WRITE)) printf("write ");
+		if (!(type&TYPE_IOCTL)) printf("ioctl ");
+		if (!(type&TYPE_FORK)) printf("fork ");
+		if (!(type&TYPE_PRCTL)) printf("prctl ");
+		if (!(type&TYPE_POLL)) printf("poll ");
 		printf("\n");
 	}
 
+	missing=0;
 
-	printf("==================================================\n");
+	printf("\tAlso attempting the following: ");
+	if (type&TYPE_OVERFLOW) printf("signal-handler-on-overflow "); else missing++;
+	if (type&TYPE_MILLION) printf("busy-instruction-loop "); else missing++;
+	if (type&TYPE_ACCESS) printf("accessing-perf-proc-and-sys-files "); else missing++;
+	if (type&TYPE_TRASH_MMAP) printf("trashing-the-mmap-page "); else missing++;
+	printf("\n");
+
+	if (missing) {
+		printf("\t*NOT* attempting the following: ");
+		if (!(type&TYPE_OVERFLOW)) printf("signal-handler-on-overflow ");
+		if (!(type&TYPE_MILLION)) printf("busy-instruction-loop ");
+		if (!(type&TYPE_ACCESS)) printf("accessing-perf-proc-and-sys-files ");
+		if (!(type&TYPE_TRASH_MMAP)) printf("trashing-the-mmap-page ");
+		printf("\n");
+	}
+
+	if (attempt_determinism) {
+		printf("\n\tAttempting more deterministic results by:\n\t");
+		printf("waitpid-after-killing-child ");
+		printf("disabling-overflow-signal-handler ");
+		printf("\n");
+
+		/* Disable overflows if trying for determinism */
+		if (attempt_determinism) {
+			type&=~TYPE_OVERFLOW;
+		}
+	}
+
+//	printf("==================================================\n");
 
 
-
+	/******************************************/
 	/* Set up to match trinity setup, vaguely */
+	/******************************************/
+
 	page_size=getpagesize();
 	//printf("Page size=%d\n",page_size);
 	num_online_cpus = sysconf(_SC_NPROCESSORS_ONLN);
@@ -533,7 +606,10 @@ int main(int argc, char **argv) {
 	}
 
 
+	/************************/
 	/* Set up SIGIO handler */
+	/************************/
+
 	/* In theory we shouldn't get SIGIO as we set up SIGRT for overflow */
 	/* But if the RT queue overflows we will get a SIGIO */
 	memset(&sigio, 0, sizeof(struct sigaction));
@@ -555,12 +631,35 @@ int main(int argc, char **argv) {
      	}
 
 
-	/* Initialize */
+	/* Initialize Event Structure */
 	for(i=0;i<NUM_EVENTS;i++) {
 		event_data[i].active=0;
 		event_data[i].fd=0;
 		event_data[i].read_size=rand();
 	}
+
+	/* Sleep to make it easier to ftrace/ptrace */
+	printf("\n\tPid=%d, sleeping 1s\n\n",getpid());
+	sleep(1);
+
+	/* Print start time */
+
+	time_t timer;
+	char buffer[26];
+	struct tm* tm_info;
+
+	time(&timer);
+	tm_info = localtime(&timer);
+
+	strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+	printf("==================================================\n");
+	printf("Starting fuzzing at %s\n",buffer);
+	printf("==================================================\n");
+
+
+	/****************/
+	/* MAIN LOOP	*/
+	/****************/
 
 	while(1) {
 
