@@ -64,13 +64,14 @@ static void print_errno_name(FILE *fff, int e) {
 	}
 }
 
-void dump_summary(FILE *fff, int print_values) {
+void dump_summary(FILE *fff, int print_values, double rate) {
 
 	int i;
 
 	if (print_values) {
 
-	fprintf(fff,"Iteration %lld\n",stats.total_iterations);
+	fprintf(fff,"Iteration %lld (%lf ops/s)\n",
+		stats.total_iterations,rate);
 	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Currently open: %lld\n",
 	       stats.open_attempts,stats.open_successful,stats.current_open);
 	for(i=0;i<MAX_ERRNOS;i++) {

@@ -36,5 +36,5 @@ struct fuzzer_stats_t {
 
 extern struct fuzzer_stats_t stats;
 
-void dump_summary(FILE *fff, int print_values);
+void dump_summary(FILE *fff, int print_values, double rate);
 void stats_set_pmu_name(int which, char *name);

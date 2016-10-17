@@ -48,7 +48,7 @@
 
 #include "pmus.h"
 
-
+#define STATUS_UPDATE_INTERVAL 10000
 
 /* Globals from Trinity */
 int page_size;
@@ -292,6 +292,12 @@ int main(int argc, char **argv) {
 	char cpuinfo[BUFSIZ];
 	int seed_specified=0;
 	int c,j,missing=0;
+	time_t timer;
+	char buffer[26];
+	struct tm* tm_info;
+	struct timeval current_time;
+	long long interval_start=0;
+	double rate;
 
 	/*********************************/
 	/* Parse command line parameters */
@@ -576,9 +582,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-//	printf("==================================================\n");
-
-
 	/******************************************/
 	/* Set up to match trinity setup, vaguely */
 	/******************************************/
@@ -644,10 +647,6 @@ int main(int argc, char **argv) {
 
 	/* Print start time */
 
-	time_t timer;
-	char buffer[26];
-	struct tm* tm_info;
-
 	time(&timer);
 	tm_info = localtime(&timer);
 
@@ -656,6 +655,9 @@ int main(int argc, char **argv) {
 	printf("Starting fuzzing at %s\n",buffer);
 	printf("==================================================\n");
 
+
+	gettimeofday(&current_time,NULL);
+	interval_start=current_time.tv_sec;
 
 	/****************/
 	/* MAIN LOOP	*/
@@ -730,7 +732,19 @@ int main(int argc, char **argv) {
 		watchdog_counter++;
 
 		if ((stop_after) && (stats.total_iterations>=stop_after)) {
-			dump_summary(stderr,1);
+			long long end_count;
+
+			end_count=stats.total_iterations%
+                                        STATUS_UPDATE_INTERVAL;
+			if ((end_count==0) && (stats.total_iterations>0)) {
+				end_count=STATUS_UPDATE_INTERVAL;
+			}
+
+			gettimeofday(&current_time,NULL);
+			rate=((double)(end_count))/
+				(current_time.tv_sec-interval_start);
+
+			dump_summary(stderr,1,rate);
 
 			/* Kill child, doesn't happen automatically? */
 			if (already_forked) {
@@ -744,13 +758,20 @@ int main(int argc, char **argv) {
 		/* Print status update every 10000 iterations      */
 		/* Don't print if logging to stdout as it clutters */
 		/* up the trace file.				   */
-		if (stats.total_iterations%10000==0) {
+		if (stats.total_iterations%STATUS_UPDATE_INTERVAL==0) {
+
+			gettimeofday(&current_time,NULL);
+			rate=((double)STATUS_UPDATE_INTERVAL)/
+				(current_time.tv_sec-interval_start);
+
 			if (log_fd!=1) {
-				dump_summary(stderr,1);
+				dump_summary(stderr,1,rate);
 			}
 			else {
-				dump_summary(stderr,0);
+				dump_summary(stderr,0,rate);
 			}
+
+			interval_start=current_time.tv_sec;
 		}
 //		fsync(log_fd);
 	}
