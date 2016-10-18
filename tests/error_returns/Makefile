@@ -15,6 +15,7 @@ PROGRAM_LIST = \
 	enoent \
 	enospc \
 	eopnotsupp \
+	eoverflow \
 	eperm \
 	esrch \
 	non-existent
@@ -38,6 +39,8 @@ enoent: enoent.o $(LIB)/libhelper.a
 enospc: enospc.o $(LIB)/libhelper.a
 
 eopnotsupp: eopnotsupp.o $(LIB)/libhelper.a
+
+eoverflow: eoverflow.o $(LIB)/libhelper.a
 
 eperm: eperm.o $(LIB)/libhelper.a
 
