@@ -19,6 +19,8 @@
 #define __NR_bpf		361
 #elif defined(__arm__) || defined(__aarch64__)
 #define __NR_bpf		386
+#elif defined(__sparc__)
+#define __NR_bpf		349
 #endif
 
 #endif
