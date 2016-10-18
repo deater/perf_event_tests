@@ -191,9 +191,9 @@ Linux interface
 #include "instructions_testcode.h"
 #include "parse_record.h"
 
+#if defined(__x86_64__) || defined(__i386__) ||defined(__arm__)
 #include "asm/perf_regs.h"
-
-
+#endif
 
 #define SAMPLE_FREQUENCY 100000
 
