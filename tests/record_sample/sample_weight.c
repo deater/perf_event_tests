@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
 			test_fail(test_string);
 		}
 	}
-	our_mmap=mmap(NULL, mmap_pages*4096,
+	our_mmap=mmap(NULL, mmap_pages*getpagesize(),
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
 	fcntl(fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
 		if (!quiet) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
-	munmap(our_mmap,mmap_pages*4096);
+	munmap(our_mmap,mmap_pages*getpagesize());
 
 	close(fd);
 

@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	our_mmap=mmap(NULL, mmap_pages*4096,
+	our_mmap=mmap(NULL, mmap_pages*getpagesize(),
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	if (our_mmap==MAP_FAILED) {
 		fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
 
 		/* Anonymous read/write, *should* count */
 		if (!quiet) printf("\t+ anon read/write, *should* count.\n");
-		mmap1=mmap(NULL, 4096,
+		mmap1=mmap(NULL, getpagesize(),
 			PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
 		if (mmap1==MAP_FAILED) {
 			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
 
 		/* perf_event read/write, *should* count */
 		if (!quiet) printf("\t+ perf read/write, *should* count.\n");
-		mmap2=mmap(NULL, mmap_pages*4096,
+		mmap2=mmap(NULL, mmap_pages*getpagesize(),
 			PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 		if (mmap2==MAP_FAILED) {
 			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
 
 		/* Anonymous read/write/exec, should not count */
 		if (!quiet) printf("\t+ anon read/write/exec, should not count.\n");
-		mmap3=mmap(NULL, 4096,
+		mmap3=mmap(NULL, getpagesize(),
 			PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
 		if (mmap3==MAP_FAILED) {
 			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
@@ -207,7 +207,7 @@ int main(int argc, char **argv) {
 
 		/* perf_event read/write/exec, should not count */
 		if (!quiet) printf("\t+ perf read/write/exec should not count.\n");
-		mmap4=mmap(NULL, mmap_pages*4096,
+		mmap4=mmap(NULL, mmap_pages*getpagesize(),
 			PROT_EXEC|PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 		if (mmap4==MAP_FAILED) {
 			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
                 global_sample_type,0,global_sample_regs_user,
                 NULL,quiet,&events_read,RAW_NONE);
 
-	munmap(our_mmap,mmap_pages*4096);
+	munmap(our_mmap,mmap_pages*getpagesize());
 
 	close(fd);
 

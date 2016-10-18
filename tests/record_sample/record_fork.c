@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	our_mmap=mmap(NULL, mmap_pages*4096,
+	our_mmap=mmap(NULL, mmap_pages*getpagesize(),
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	if (our_mmap==MAP_FAILED) {
 		fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
                 global_sample_type,0,global_sample_regs_user,
                 NULL,quiet,&events_read,RAW_NONE);
 
-	munmap(our_mmap,mmap_pages*4096);
+	munmap(our_mmap,mmap_pages*getpagesize());
 
 	close(fd);
 

@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 	global_sample_type=pe.sample_type;
 
 	/* What size should be set? */
-	pe.sample_stack_user=4096;
+	pe.sample_stack_user=getpagesize();
 
         pe.read_format=0;
         pe.disabled=1;
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 			test_fail(test_string);
 		}
 	}
-	our_mmap=mmap(NULL, mmap_pages*4096,
+	our_mmap=mmap(NULL, mmap_pages*getpagesize(),
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
 	fcntl(fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 		if (!quiet) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
-	munmap(our_mmap,mmap_pages*4096);
+	munmap(our_mmap,mmap_pages*getpagesize());
 
 	close(fd);
 
