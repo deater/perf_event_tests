@@ -454,10 +454,23 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 					printf("Unknown %d!\n",event->misc); break;
 			}
 
-			/* Both have the same value */
+			/* All three have the same value */
 			if (event->misc & PERF_RECORD_MISC_MMAP_DATA) {
-				printf(",PERF_RECORD_MISC_MMAP_DATA or PERF_RECORD_MISC_COMM_EXEC ");
+				if (event->type==PERF_RECORD_MMAP) {
+					printf(",PERF_RECORD_MISC_MMAP_DATA ");
+				}
+				else if (event->type==PERF_RECORD_COMM) {
+					printf(",PERF_RECORD_MISC_COMM_EXEC ");
+				}
+				else if ((event->type==PERF_RECORD_SWITCH) ||
+					(event->type==PERF_RECORD_SWITCH_CPU_WIDE)) {
+					printf(",PERF_RECORD_MISC_SWITCH_OUT ");
+				}
+				else {
+					printf("UNKNOWN ALIAS!!! ");
+				}
 			}
+
 
 			if (event->misc & PERF_RECORD_MISC_EXACT_IP) {
 				printf(",PERF_RECORD_MISC_EXACT_IP ");
