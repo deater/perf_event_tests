@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef __arch64__
+#define PAGE_OFFSET (8 * 1024)
 #define KERNEL_ADDR	0xfffff80000000000
 #define MODULE_ADDR     0xffffffffa0000000L	// FIXME: Placeholder
 #define TASK_SIZE ~0UL
