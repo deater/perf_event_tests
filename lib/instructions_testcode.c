@@ -50,7 +50,7 @@ int instructions_million(void) {
 		"	or	%%l0,%%lo(333333),%%l0\n"
 		"test_loop:\n"
 		"	deccc	%%l0		! decrement count\n"
-		"	tbnz	test_loop	! repeat until zero\n"
+		"	bnz	test_loop	! repeat until zero\n"
 		"	nop			! branch delay slot\n"
 		: /* no output registers */
 		: /* no inputs */
