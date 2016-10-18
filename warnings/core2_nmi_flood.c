@@ -30,8 +30,15 @@
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
 #include <poll.h>
+
+#ifdef __sparc__
+#define HW_BREAKPOINT_EMPTY 0
+#define HW_BREAKPOINT_W	1
+#else
 #include <linux/hw_breakpoint.h>
-#include <linux/perf_event.h>
+#endif
+
+#include "perf_event.h"
 
 int fd[1024];
 struct perf_event_attr pe[1024];

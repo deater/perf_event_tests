@@ -17,8 +17,11 @@
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
 #include <poll.h>
-#include <linux/hw_breakpoint.h>
-#include <linux/perf_event.h>
+//#include <linux/hw_breakpoint.h>
+
+#define HW_BREAKPOINT_EMPTY 0
+
+#include "perf_event.h"
 
 
 int fd[1024];

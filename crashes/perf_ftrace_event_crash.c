@@ -59,8 +59,9 @@ fun times.
 #include <poll.h>
 #include <errno.h>
 
-#include <linux/hw_breakpoint.h>
-#include <linux/perf_event.h>
+//#include <linux/hw_breakpoint.h>
+
+#include "perf_event.h"
 
 int fd[1024];
 struct perf_event_attr pe[1024];

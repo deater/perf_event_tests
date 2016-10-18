@@ -97,8 +97,16 @@
 #include <sys/prctl.h>
 #include <sys/wait.h>
 #include <poll.h>
+
+#ifdef __sparc__
+#define HW_BREAKPOINT_EMPTY	0
+#define HW_BREAKPOINT_R	1
+#define HW_BREAKPOINT_W 2
+#else
 #include <linux/hw_breakpoint.h>
-#include <linux/perf_event.h>
+#endif
+
+#include "perf_event.h"
 
 int fd[1024];
 struct perf_event_attr pe[1024];
