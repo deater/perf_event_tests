@@ -30,9 +30,6 @@
 #include "matrix_multiply.h"
 #include "parse_record.h"
 
-#include "asm/perf_regs.h"
-
-
 
 #define SAMPLE_FREQUENCY 100000
 

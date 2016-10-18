@@ -40,10 +40,6 @@
 #include "instructions_testcode.h"
 #include "parse_record.h"
 
-#include "asm/perf_regs.h"
-
-
-
 #define SAMPLE_FREQUENCY 100000
 
 #define MMAP_DATA_SIZE 8
