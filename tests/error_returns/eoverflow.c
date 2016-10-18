@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
 	/* curr_stack=huge  */
 	/********************/
 
-	curr_stack=65536;
+	curr_stack=65535;
 
 	if (!quiet) {
 		printf("Trying with stack=%d max_stack=%d\n",
@@ -211,7 +211,49 @@ int main(int argc, char **argv) {
 		failures++;
 	}
 
+	/********************/
+	/* curr_stack>16bit */
+	/********************/
+
+	/* Overflow, it's only a 16-bit field */
+	curr_stack=65536;
+
+	if (!quiet) {
+		printf("Trying with stack=%d max_stack=%d\n",
+			curr_stack,max_stack);
+	}
+
+	memset(&attr,0,sizeof(struct perf_event_attr));
+	attr.type=PERF_TYPE_SOFTWARE;
+	attr.size=sizeof(struct perf_event_attr);
+	attr.config=PERF_COUNT_SW_CONTEXT_SWITCHES;
+	attr.sample_period=100000;
+	attr.sample_type=PERF_SAMPLE_CALLCHAIN;
+	attr.sample_max_stack=curr_stack;
+
+	attr.disabled=1;
+	attr.pinned=1;
+	attr.exclude_kernel=1;
+	attr.exclude_hv=1;
+	attr.wakeup_events=1;
+
+	fd=perf_event_open(&attr,
+				0, /* current thread */
+				-1, /* any cpu */
+				-1, /* New Group Leader */
+				0 /*0*/ );
+
+	if (fd<0) {
+		if (!quiet) printf("\tfailed %s\n",
+			strerror(errno));
+		failures++;
+	}
+	else {
+		if (!quiet) printf("\tpass due to wraparound!\n");
+	}
+
 	if (failures) test_fail(test_string);
+
 
 	test_pass(test_string);
 
