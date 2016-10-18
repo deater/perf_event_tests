@@ -29,7 +29,9 @@
 
 #include "parse_record.h"
 
+#if defined(__x86_64__) || defined(__i386__) ||defined(__arm__)
 #include <asm/perf_regs.h>
+#endif
 
 /* Urgh who designed this interface */
 static int handle_struct_read_format(unsigned char *sample,
