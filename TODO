@@ -1,3 +1,7 @@
++ Test the new cycles field in LBR entries on Sandybridge
++ Test for new CONTEXT_SWITCH records
++ In sampling, be sure to handle the various sample_header values
+
 + Test for PERF_FLAG_FD_CLOEXEC
 
 + Fix up the test for PERF_IOC_PERIOD and if it takes place right away.
