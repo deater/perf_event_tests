@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>
+BUG: Bad page state in process kworker/0:2 
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG: Bad page state in process kworker/0:2 
+</h1>
+</center>
+
+<h3>Found by</h3>
+perf_fuzzer
+
+<h3>First Seen</h3>
+3.2
+
+<h3>Most recently Seen</h3>
+3.2
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+Sparc64 Ultrasparc
+
+<h3>Linux-kernel</h3>
+
+
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+       Linux version 3.2.0-4-sparc64 sparc64
+       Processor: sparc64 UNKNOWN
+
+       Stopping after 30000
+       Watchdog enabled with timeout 60s
+       Will auto-exit if signal storm detected
+       Seeding RNG from time 1476817175
+
+       To reproduce, try:
+               echo 1 > /proc/sys/kernel/nmi_watchdog
+               echo 1 > /proc/sys/kernel/perf_event_paranoid
+               echo 100000 > /proc/sys/kernel/perf_event_max_sample_rate
+               ./perf_fuzzer -s 30000 -r 1476817175
+
+
+[ 4993.526227] BUG: Bad page state in process kworker/0:2  pfn:0db6e
+[ 4993.526385] page:000001000036db80 count:0 mapcount:0 mapping:fffff8001e8b74b8 index:0x0
+[ 4993.526517] page flags: 0x4(referenced)
+[ 4993.526615] Modules linked in: ext2 loop snd_sun_cs4231 snd_pcm snd_page_alloc snd_timer snd evdev flash soundcore ext3 mbcache jbd sg sr_mod sd_mod cdrom crc_t10dif sym53c8xx scsi_transport_spi scsi_mod sunhme [last unloaded: scsi_wait_scan]
+[ 4993.527301] Call Trace:
+[ 4993.527380]  [00000000004c7a90] free_pages_prepare+0xc8/0x10c
+[ 4993.527489]  [00000000004c91a0] free_hot_cold_page+0x18/0x190
+[ 4993.527603]  [00000000004e9af4] __vunmap+0x98/0xe8
+[ 4993.527709]  [00000000004c1a30] rb_free_work+0x4c/0x5c
+[ 4993.527822]  [00000000004718a4] process_one_work+0x264/0x3e0
+[ 4993.527929]  [0000000000472468] worker_thread+0x1c4/0x2d4
+[ 4993.528036]  [0000000000475b28] kthread+0x5c/0x70
+[ 4993.528135]  [000000000042a7c0] kernel_thread+0x30/0x48
+[ 4993.528235]  [0000000000475dbc] kthreadd+0xbc/0xf8
+[ 4993.528320] Disabling lock debugging due to kernel taint
+[ 4994.838159] BUG: Bad page state in process kworker/0:2  pfn:0f270
+[ 4994.838296] page:00000100003c9c00 count:0 mapcount:0 mapping:fffff8001e8b74b8 index:0x0
+</pre>
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
