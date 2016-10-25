@@ -1,3 +1,19 @@
+Need libelf-dev and libdwarf-dev installed before perf will compile
+with BPF support.  Otherwise you get obnoxious
+	BPF support is not compiled
+message
+
+/home/vince/research/linux-kernel/linux-2.6/tools/perf/perf 
+record -a -e bpf-output/no-inherit/ 
+-e ./test_bpf_output.c/maps:channel:event=evt/ ls /
+
+run as root
+
+still get
+	Failed to load program for unknown reason
+
+
+
 Generating BPF files is a pain.
 
 They are architecture specific and have to be re-built each time

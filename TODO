@@ -89,3 +89,25 @@ should too.
 
 + test guest exclude support
   attr.exclude_{guest,host}
+
+
+
+commit a4f144ebbdf6f7807c477bce8e136047ed27321f
+Author: David Carrillo-Cisneros <davidcc@google.com>
+Date:   Wed Jun 1 12:33:05 2016 -0700
+
+    perf/core: Fix crash due to account/unaccount_sb_event() inconsistency
+    
+    unaccount_pmu_sb_event() did not check for attributes in event->attr
+    before calling detach_sb_event(), while account_pmu_event() did.
+    
+    This caused NULL pointer reference in cgroup events that did not
+    have any of the attributes checked by account_pmu_event().
+    
+    To trigger the bug just wait for a cgroup event to terminate, e.g.:
+    
+      $ mkdir /dev/cgroup/devices/test
+      $ perf stat -e cycles -a -G test sleep 0
+    
+    ... see crash ...
+

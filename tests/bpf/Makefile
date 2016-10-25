@@ -1,4 +1,5 @@
-CC = clang-3.7
+CC = clang
+#CC = clang-3.7
 #CFLAGS = -O2 -emit-llvm
 CFLAGS = -Wno-unused-value -Wno-pointer-sign -O2 -target bpf
 
