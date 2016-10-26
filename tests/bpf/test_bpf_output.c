@@ -1,7 +1,16 @@
 /************************ BEGIN **************************/
-#include </home/vince/research/linux-kernel/linux-2.6/include/uapi/linux/bpf.h>
 
+#ifndef __KERNEL__
+#include <linux/version.h>
+#include "bpf.h"
+#define __NR_CPUS__ 8
 typedef int u32;
+#else
+#include "/home/vince/research/linux-kernel/linux-git/include/uapi/linux/bpf.h"
+#endif
+
+
+
 typedef unsigned long long u64;
 
 struct bpf_map_def {

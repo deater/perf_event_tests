@@ -1,3 +1,7 @@
+Needed 4.9-rc kernel, plus debugfs mounted
+sudo /home/vince/research/linux-kernel/linux-git/tools/perf/perf record -v -v -v -a -e bpf-output/no-inherit,name=evt/ -e ./test_bpf_output.c/map:channel.event=evt/ ls /
+
+
 Need libelf-dev and libdwarf-dev installed before perf will compile
 with BPF support.  Otherwise you get obnoxious
 	BPF support is not compiled
