@@ -1,0 +1,151 @@
+<html>
+<head>
+<title>
+WARNING: CPU: 0 PID: 21338 at arch/x86/mm/fault.c:435 vmalloc_fault+0x58/0x1f0
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+WARNING: CPU: 0 PID: 21338 at arch/x86/mm/fault.c:435 vmalloc_fault+0x58/0x1f0
+</h1>
+</center>
+
+<h3>Severity</h3>
+Bug/crashes
+
+<h3>Found by</h3>
+perf_fuzzer: Vince Weaver
+
+<h3>First Seen</h3>
+4.9-rc1
+
+<h3>Most recently Seen</h3>
+4.9-rc1
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+a10
+
+<h3>Linux-kernel Mailing List Report</h3>
+24 Oct 2016 -- perf: perf_fuzzer triggers vmalloc_fault (then crashes)
+
+<h3>Introduced by</h3>
+7c7900f89770
+
+<h3>Fixed by</h3>
+7fbe6ac02485504b964b283aca62b36b4313ca79
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+[ 8098.085662] BAD LUCK: lost 42 message(s) from NMI context!
+[ 8098.085663] ------------[ cut here ]------------
+[ 8098.085664] WARNING: CPU: 0 PID: 21338 at arch/x86/mm/fault.c:435 vmalloc_fault+0x58/0x1f0
+[ 8098.085668] CPU: 0 PID: 21338 Comm: perf_fuzzer Not tainted 4.8.0+ #37
+[ 8098.085668] Hardware name: Hewlett-Packard HP Compaq Pro 6305 SFF/1850, BIOS K06 v02.57 08/16/2013
+[ 8098.085669]  0000000000000000^Ac ffffffff81263c2f^Ac 0000000000000000^Ac 0000000000000000^Ac
+[ 8098.085669]  ffffffff810499c4^Ac ffffc90008500000^Ac ffff88022ec05a48^Ac ffffc90008500000^Ac
+[ 8098.085670]  ffff88022ec05ef8^Ac ffff8802265d2080^Ac 0000000000000001^Ac ffffffff8103b4de^Ac
+[ 8098.085670] Call Trace:
+[ 8098.085670]  <NMI>  [<ffffffff81263c2f>] ? dump_stack+0x46/0x59
+[ 8098.085670]  [<ffffffff810499c4>] ? __warn+0xd5/0xee
+[ 8098.085671]  [<ffffffff8103b4de>] ? vmalloc_fault+0x58/0x1f0
+[ 8098.085671]  [<ffffffff8103c193>] ? __do_page_fault+0x6d/0x48e
+[ 8098.085671]  [<ffffffff810eaf5b>] ? perf_log_throttle+0xa4/0xf4
+[ 8098.085672]  [<ffffffff8145df72>] ? trace_page_fault+0x22/0x30
+[ 8098.085672]  [<ffffffff8103918d>] ? __unwind_start+0x28/0x42
+[ 8098.085672]  [<ffffffff81004721>] ? perf_callchain_kernel+0x75/0xac
+[ 8098.085672]  [<ffffffff810efb0a>] ? get_perf_callchain+0x13a/0x1f0
+[ 8098.085673]  [<ffffffff810efc2a>] ? perf_callchain+0x6a/0x6c
+[ 8098.085673]  [<ffffffff810ecf5d>] ? perf_prepare_sample+0x71/0x2eb
+[ 8098.085673]  [<ffffffff810ed1f1>] ? perf_event_output_forward+0x1a/0x54
+[ 8098.085674]  [<ffffffff810313bc>] ? __default_send_IPI_shortcut+0x10/0x2d
+[ 8098.085674]  [<ffffffff810eb247>] ? __perf_event_overflow+0xfb/0x167
+[ 8098.085674]  [<ffffffff81004247>] ? x86_pmu_handle_irq+0x113/0x150
+[ 8098.085675]  [<ffffffff81003116>] ? native_read_msr+0x6/0x34
+[ 8098.085675]  [<ffffffff81002dee>] ? perf_event_nmi_handler+0x22/0x39
+[ 8098.085675]  [<ffffffff81006621>] ? perf_ibs_nmi_handler+0x4a/0x51
+[ 8098.085676]  [<ffffffff81002dee>] ? perf_event_nmi_handler+0x22/0x39
+[ 8098.085676]  [<ffffffff81018493>] ? nmi_handle+0x4d/0xf0
+[ 8098.085676]  [<ffffffff810065d7>] ? perf_ibs_handle_irq+0x3d1/0x3d1
+[ 8098.085676]  [<ffffffff810186dd>] ? default_do_nmi+0x3c/0xd5
+[ 8098.085677]  [<ffffffff81018808>] ? do_nmi+0x92/0x102
+[ 8098.085677]  [<ffffffff8145e2a7>] ? end_repeat_nmi+0x1a/0x1e
+[ 8098.085677]  [<ffffffff8145c2d5>] ? entry_SYSCALL_64_after_swapgs+0x12/0x4a
+[ 8098.085678]  [<ffffffff8145c2d5>] ? entry_SYSCALL_64_after_swapgs+0x12/0x4a
+[ 8098.085678]  [<ffffffff8145c2d5>] ? entry_SYSCALL_64_after_swapgs+0x12/0x4a
+[ 8098.085678]  <EOE> ^A4---[ end trace 632723104d47d31a ]---
+[ 8098.085679] BUG: stack guard page was hit at ffffc90008500000 (stack is ffffc900084fc000..ffffc900084fffff)
+[ 8098.085679] kernel stack overflow (page fault): 0000 [#1] SMP
+[ 8098.085683] CPU: 0 PID: 21338 Comm: perf_fuzzer Tainted: G        W       4.8.0+ #37
+[ 8098.085683] Hardware name: Hewlett-Packard HP Compaq Pro 6305 SFF/1850, BIOS K06 v02.57 08/16/2013
+[ 8098.085684] task: ffff8802265d2080 task.stack: ffffc900084fc000
+[ 8098.085684] RIP: 0010:[<ffffffff8103918d>] ^Ac [<ffffffff8103918d>] __unwind_start+0x28/0x42
+[ 8098.085684] RSP: 0018:ffff88022ec05af0  EFLAGS: 00010006
+[ 8098.085685] RAX: 00000000ffffffea RBX: ffff88022ec05b08 RCX: ffffc90008500000
+[ 8098.085685] RDX: ffff88022ec00000 RSI: 0000000000001000 RDI: 000000000000c4d0
+[ 8098.085685] RBP: ffffc90008500000 R08: ffff88022ec08000 R09: 0000000000000000
+[ 8098.085686] R10: 0000000000000002 R11: 0000000000000206 R12: ffff88022ec05b70
+[ 8098.085686] R13: ffff88022ec05ef8 R14: 0000000000000000 R15: 0000000000000001
+[ 8098.085687] FS:  00007f06e791c700(0000) GS:ffff88022ec00000(0000) knlGS:0000000000000000
+[ 8098.085687] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 8098.085687] CR2: ffffc90008500000 CR3: 0000000223c25000 CR4: 00000000000407f0
+[ 8098.085688] DR0: 0000000000000000 DR1: 0000000000005fc8 DR2: 0000000000005fc8
+[ 8098.085688] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[ 8098.085688] Stack:
+[ 8098.085688]  ffff88022ec05ef8^Ac ffff88022ec05b58^Ac ffffffff81004721^Ac 0000000000000000^Ac
+[ 8098.085689]  0000000000000000^Ac 0000000000000000^Ac 0000000000000000^Ac 0000000000000000^Ac
+[ 8098.085689]  ffff8802265d2080^Ac 0000000000000000^Ac ffffc90008500000^Ac 0000000000012fb0^Ac
+[ 8098.085689] Call Trace:
+[ 8098.085690]  <NMI> ^Ad [<ffffffff81004721>] ? perf_callchain_kernel+0x75/0xac
+[ 8098.085690]  [<ffffffff8126da5e>] ? vsnprintf+0x380/0x3b4
+[ 8098.085690]  [<ffffffff8126db7e>] ? sprintf+0x42/0x4a
+[ 8098.085691]  [<ffffffff810a8982>] ? __sprint_symbol+0x9d/0xd1
+[ 8098.085691]  [<ffffffff8126be12>] ? symbol_string+0x51/0x5d
+[ 8098.085691]  [<ffffffff810a8982>] ? __sprint_symbol+0x9d/0xd1
+[ 8098.085692]  [<ffffffff8126be12>] ? symbol_string+0x51/0x5d
+[ 8098.085692]  [<ffffffff8126d3ea>] ? pointer+0x85/0x379
+[ 8098.085692]  [<ffffffff8126d75e>] ? vsnprintf+0x80/0x3b4
+[ 8098.085692]  [<ffffffff810dbe53>] ? irq_work_queue+0xa/0x66
+[ 8098.085693]  [<ffffffff81084db5>] ? vprintk_nmi+0x88/0x97
+[ 8098.085693]  [<ffffffff81084db5>] ? vprintk_nmi+0x88/0x97
+[ 8098.085693]  [<ffffffff810f19b1>] ? printk+0x43/0x4b
+[ 8098.085694]  [<ffffffff810a4919>] ? __module_text_address+0x9/0x4f
+[ 8098.085694]  [<ffffffff810a8346>] ? is_module_text_address+0x5/0xc
+[ 8098.085694]  [<ffffffff81017eed>] ? show_trace_log_lvl+0x108/0x195
+[ 8098.085694]  [<ffffffff8103bae3>] ? no_context+0x102/0x36c
+[ 8098.085695]  [<ffffffff8103bae3>] ? no_context+0x102/0x36c
+[ 8098.085695]  [<ffffffff8101784a>] ? show_stack_log_lvl+0x15b/0x172
+[ 8098.085695]  [<ffffffff810178c5>] ? show_regs+0x64/0x136
+[ 8098.085696]  [<ffffffff81017dad>] ? __die+0x8c/0xc4
+[ 8098.085696]  [<ffffffff8101802b>] ? die+0x3d/0x56
+[ 8098.085696]  [<ffffffff810163ed>] ? handle_stack_overflow+0x47/0x51
+[ 8098.085697]  [<ffffffff8103bae3>] ? no_context+0x102/0x36c
+[ 8098.085697]  <EOE> ^AdCode: ^A1BUG: unable to handle kernel ^AcNULL pointer dereference^Ac at 0000000000000008
+[ 8098.085697] IP:^Ac [<0000000000000008>] 0x8
+[ 8098.085698] PGD 2231d5067 PUD 225162067 PMD 0 
+[ 8098.085698] Oops: 0010 [#2] SMP
+[ 8098.085702] 
+[ 8098.957250] ---[ end trace 632723104d47d31b ]---
+[ 8098.957250] Kernel panic - not syncing: Fatal exception in interrupt
+[ 8098.957301] Kernel Offset: disabled
+[ 8098.973814] ---[ end Kernel panic - not syncing: Fatal exception in interrupt
+[ 8098.981719] ------------[ cut here ]------------
+[ 8098.981720] WARNING: CPU: 0 PID: 21338 at arch/x86/kernel/smp.c:127 update_process_times+0x3b/0x45
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
