@@ -12,7 +12,11 @@
 <ul>
 <li>ARM32 -- chugs along for days on a pi2 (4.8-rc2)
 <li>x86/intel -- multiple warnings.
-	Have caused hard lockup (4.8-rc1 on haswell and core2)
+	<ul>
+	<li>pentium4 -- 4.9-rc1 crashes more or less immediately
+	<li>core2 -- 4.9-rc1 crashes paranoid 1 and lower
+	<li>skylake -- 4.9-rc1 will crash in a day or so
+	</ul>
 <li>x86/amd -- quickly crashes in amd_nb code (4.8-rc2)
 <li>sparc -- newest kernel I can run is 3.2, but locks up
 	more or less immediately
@@ -58,7 +62,7 @@
 	(bug) 4.8-rc1 spinlock bug</a>
 <li><a href="3.19-next.perf_mmap_gpf.html">
 	(crash) 3.19-next perf_event_mmap() gpf</a>
-<li><s href="3.2-sparc.bad_page.html">
+<li><a href="3.2-sparc.bad_page.html">
 	(crash) 3.2-sparc.bad_page </a>
 </ul>
 
