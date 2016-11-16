@@ -15,6 +15,7 @@
 	<ul>
 	<li>pentium4 -- 4.9-rc1 crashes more or less immediately
 	<li>core2 -- 4.9-rc1 crashes paranoid 1 and lower
+	<li>haswell -- 4.9-5c5 will crash in a day or so
 	<li>skylake -- 4.9-rc1 will crash in a day or so
 	</ul>
 <li>x86/amd -- quickly crashes in amd_nb code (4.8-rc2)
@@ -68,7 +69,8 @@
 
 <h3>Current Warnings (reproducible):</h3>
 <ul>
-
+<li><a href="4.9-rc5.kasan_unwind.html">
+	(warning) 4.9-rc5 KASAN stack-out-of-bounds in unwind_next_frame</a>
 <li><a href="4.8-rc1.haswell_event_function_local.html">
 	(warning) 4.8-rc1 event function local warning</a>
 <li><a href="3.15-rc1.irq_loop_warning.html">

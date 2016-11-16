@@ -1,0 +1,247 @@
+<html>
+<head>
+<title>
+BUG: KASAN: stack-out-of-bounds in unwind_get_return_address
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG: KASAN: stack-out-of-bounds in unwind_get_return_address
+</h1>
+</center>
+
+<h3>Severity</h3>
+Message
+
+<h3>Found by</h3>
+perf_fuzzer: Vince Weaver
+
+<h3>First Seen</h3>
+4.9-rc5
+
+<h3>Most recently Seen</h3>
+4.9-rc5
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+15 November 2016 -- perf: fuzzer KASAN unwind_get_return_address
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed by</h3>
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+        Linux version 4.9.0-rc5+ x86_64
+        Processor: Intel 6/60/3
+
+        Stopping after 30000
+        Watchdog enabled with timeout 60s
+        Will auto-exit if signal storm detected
+        Seeding RNG from time 1479231320
+
+        To reproduce, try:
+                echo 1 > /proc/sys/kernel/nmi_watchdog
+                echo 0 > /proc/sys/kernel/perf_event_paranoid
+                echo 4000 > /proc/sys/kernel/perf_event_max_sample_rate
+                ./perf_fuzzer -s 30000 -r 1479231320
+
+        Fuzzing the following syscalls: mmap perf_event_open close read write io
+ctl fork prctl poll 
+        Also attempting the following: signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+
+        Pid=16254, sleeping 1s
+==================================================
+Starting fuzzing at 2016-11-15 12:35:21
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000 (2000.000000 ops/s)
+        Open attempts: 115360  Successful: 918  Currently open: 19
+                EPERM : 18
+                ENOENT : 651
+                E2BIG : 10103
+                EBADF : 9875
+                EBUSY : 8
+                EINVAL : 93676
+                EOPNOTSUPP : 111
+                Trinity Type (Normal 299/29017)(Sampling 28/28694)(Global 550/28767)(Random 41/28882)
+                Type (Hardware 229/16155)(software 316/15581)(tracepoint 56/15360)(Cache 47/14276)(cpu 211/15512)(breakpoint 14/15482)(intel_bts 19/945)(msr 4/994)(power 1/1068)(uncore_imc 0/979)(uncore_cbox_0 5/1003)(uncore_cbox_1 4/998)(uncore_cbox_2 4/963)(uncore_cbox_3 3/943)(uncore_arb 3/977)(cstate_core 0/967)(cstate_pkg 2/1108)(#17 0/17)(#18 0/9)(>19 0/12023)
+        Close:  899/899 Successful
+        Read:   801/864 Successful
+        Write:  0/918 Successful
+        Ioctl:  354/875 Successful: (ENABLE 79/79)(DISABLE 72/72)(REFRESH 9/93)(RESET 79/79)(PERIOD 12/84)(SET_OUTPUT 20/84)(SET_FILTER 1/85)(ID 71/71)(SET_BPF 0/72)(PAUSE_OUTPUT 11/76)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/80)
+        Mmap:   447/1051 Successful: (MMAP 447/1051)(TRASH 83/132)(READ 81/86)(UNMAP 445/999)(AUX 0/116)(AUX_READ 0/0)
+        Prctl:  934/934 Successful
+        Fork:   435/435 Successful
+        Poll:   839/888 Successful
+        Access: 92/888 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000 (2500.000000 ops/s)
+        Open attempts: 98489  Successful: 882  Currently open: 24
+                EPERM : 7
+                ENOENT : 510
+                E2BIG : 8503
+                EBADF : 8294
+                EBUSY : 3
+                EINVAL : 80203
+                EOPNOTSUPP : 87
+                Trinity Type (Normal 311/24587)(Sampling 32/24734)(Global 501/24614)(Random 38/24554)
+                Type (Hardware 212/13917)(software 332/13287)(tracepoint 38/13201)(Cache 59/12297)(cpu 182/13035)(breakpoint 16/13359)(intel_bts 18/820)(msr 12/825)(power 1/860)(uncore_imc 0/826)(uncore_cbox_0 4/816)(uncore_cbox_1 1/786)(uncore_cbox_2 4/827)(uncore_cbox_3 1/830)(uncore_arb 0/796)(cstate_core 1/847)(cstate_pkg 1/946)(#17 0/8)(#18 0/5)(>19 0/10201)
+        Close:  877/877 Successful
+        Read:   781/872 Successful
+        Write:  0/845 Successful
+        Ioctl:  373/905 Successful: (ENABLE 90/90)(DISABLE 93/93)(REFRESH 5/86)(RESET 86/86)(PERIOD 7/76)(SET_OUTPUT 4/75)(SET_FILTER 0/84)(ID 82/82)(SET_BPF 0/90)(PAUSE_OUTPUT 6/64)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/79)
+        Mmap:   441/1052 Successful: (MMAP 441/1052)(TRASH 107/166)(READ 89/92)(UNMAP 439/970)(AUX 0/126)(AUX_READ 0/0)
+        Prctl:  908/908 Successful
+        Fork:   430/430 Successful
+        Poll:   810/881 Successful
+        Access: 116/937 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[  202.034495] BAD LUCK: lost 371 message(s) from NMI context!
+[  202.034496] ==================================================================
+[  202.048327] BUG: KASAN: stack-out-of-bounds in unwind_get_return_address+0x35/0x80 at addr ffff8800cff0bd90
+[  202.058826] Read of size 8 by task perf_fuzzer/16254
+[  202.064186] page:ffffea00033fc2c0 count:1 mapcount:0 mapping:          (null) index:0x0^Ac
+[  202.073068] flags: 0x1ffff8000000400(reserved)
+[  202.077885] page dumped because: kasan: bad access detected
+[  202.083880] CPU: 4 PID: 16254 Comm: perf_fuzzer Not tainted 4.9.0-rc5+ #5
+[  202.091204] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  202.099181]  ffff8800cff0b1d8^Ac ffffffff816bb796^Ac ffff8800cff0b270^Ac ffff8800cff0bd90^Ac
+[  202.107896]  ffff8800cff0b260^Ac ffffffff812fbe95^Ac 00007ffc9d1ab480^Ac 0000000000000000^Ac
+[  202.116638]  ffffffff8125117d^Ac 0000000000000092^Ac 0000000000000000^Ac ffff8800cff0b7c0^Ac
+[  202.125339] Call Trace:
+[  202.127994]  <NMI>  [<ffffffff816bb796>] dump_stack+0x63/0x8d
+[  202.134184]  [<ffffffff812fbe95>] kasan_report_error+0x495/0x4c0
+[  202.140680]  [<ffffffff8125117d>] ? perf_output_begin+0x28d/0x4c0
+[  202.147228]  [<ffffffff812fc319>] kasan_report+0x39/0x40
+[  202.152987]  [<ffffffff81095ce5>] ? unwind_get_return_address+0x35/0x80
+[  202.160094]  [<ffffffff812fa8fe>] __asan_load8+0x5e/0x70
+[  202.165859]  [<ffffffff81095ce5>] unwind_get_return_address+0x35/0x80
+[  202.172817]  [<ffffffff8100b08d>] perf_callchain_kernel+0x22d/0x270
+[  202.179590]  [<ffffffff812fa7c4>] ? __asan_load4+0x24/0x80
+[  202.185548]  [<ffffffff8100ae60>] ? arch_perf_update_userpage+0x130/0x130
+[  202.192849]  [<ffffffff81252aaa>] get_perf_callchain+0x24a/0x3e0
+[  202.199339]  [<ffffffff81252860>] ? put_callchain_buffers+0x50/0x50
+[  202.206092]  [<ffffffff81095b17>] ? perf_get_regs_user+0x327/0x380
+[  202.212751]  [<ffffffff81135fd0>] ? lock_release+0x30/0x540
+[  202.218803]  [<ffffffff81252d05>] perf_callchain+0xc5/0xe0
+[  202.224767]  [<ffffffff812fa7c4>] ? __asan_load4+0x24/0x80
+[  202.230696]  [<ffffffff8124dbf9>] perf_prepare_sample+0x489/0x630
+[  202.237275]  [<ffffffff81135fd0>] ? lock_release+0x30/0x540
+[  202.243266]  [<ffffffff8124de9c>] ? perf_event_output_forward+0xfc/0x130
+[  202.250472]  [<ffffffff8124dda0>] ? perf_prepare_sample+0x630/0x630
+[  202.257251]  [<ffffffff8124e0ae>] perf_event_output+0xae/0x130
+[  202.263564]  [<ffffffff8124e000>] ? perf_event_output_backward+0x130/0x130
+[  202.270964]  [<ffffffff8124e000>] ? perf_event_output_backward+0x130/0x130
+[  202.278373]  [<ffffffff81247cc2>] ? perf_event_update_userpage+0x212/0x2b0
+[  202.285772]  [<ffffffff81247ab0>] ? perf_event_task_disable+0xc0/0xc0
+[  202.292744]  [<ffffffff812fac4f>] ? __asan_loadN+0xf/0x20
+[  202.298581]  [<ffffffff8101757d>] ? setup_pebs_sample_data+0x68d/0x830
+[  202.305622]  [<ffffffff81017a91>] __intel_pmu_pebs_event+0x221/0x3a0
+[  202.312469]  [<ffffffff81135e4d>] ? lock_acquire+0x3d/0x190
+[  202.318523]  [<ffffffff81017870>] ? pebs_update_state+0x150/0x150
+[  202.325060]  [<ffffffff8104c6ec>] ? get_stack_info+0x3c/0x150
+[  202.331259]  [<ffffffff810106b7>] ? __intel_pmu_enable_all+0x77/0xf0
+[  202.338128]  [<ffffffff812fa7c4>] ? __asan_load4+0x24/0x80
+[  202.344059]  [<ffffffff81018b50>] ? intel_pmu_disable_bts+0x60/0x60
+[  202.350823]  [<ffffffff812fa7c4>] ? __asan_load4+0x24/0x80
+[  202.356740]  [<ffffffff81252d05>] ? perf_callchain+0xc5/0xe0
+[  202.362855]  [<ffffffff81135fd0>] ? lock_release+0x30/0x540
+[  202.368855]  [<ffffffff8124dc31>] ? perf_prepare_sample+0x4c1/0x630
+[  202.375619]  [<ffffffff8124de84>] ? perf_event_output_forward+0xe4/0x130
+[  202.382849]  [<ffffffff81017ffc>] intel_pmu_drain_pebs_nhm+0x3ec/0x530
+[  202.389899]  [<ffffffff81017c10>] ? __intel_pmu_pebs_event+0x3a0/0x3a0
+[  202.396959]  [<ffffffff81247caa>] ? perf_event_update_userpage+0x1fa/0x2b0
+[  202.406800]  [<ffffffff81247cc2>] ? perf_event_update_userpage+0x212/0x2b0
+[  202.416486]  [<ffffffff81247ab0>] ? perf_event_task_disable+0xc0/0xc0
+[  202.425720]  [<ffffffff8101a832>] ? intel_pmu_lbr_read+0x32/0x790
+[  202.434566]  [<ffffffff8123ba26>] ? __perf_event_overflow+0x116/0x280
+[  202.443735]  [<ffffffff810144d8>] ? intel_bts_interrupt+0x88/0x1b0
+[  202.452538]  [<ffffffff81012c7e>] intel_pmu_handle_irq+0x3ae/0x690
+[  202.461407]  [<ffffffff810128d0>] ? intel_pmu_save_and_restart+0x80/0x80
+[  202.470877]  [<ffffffff81135fd0>] ? lock_release+0x30/0x540
+[  202.479131]  [<ffffffff81088eeb>] ? native_apic_msr_write+0x2b/0x30
+[  202.488181]  [<ffffffff8108899c>] ? x2apic_send_IPI_self+0x3c/0x50
+[  202.497066]  [<ffffffff81055d72>] ? native_sched_clock+0x62/0x140
+[  202.505919]  [<ffffffff810081fd>] perf_event_nmi_handler+0x2d/0x50
+[  202.514832]  [<ffffffff8104da91>] nmi_handle+0xb1/0x1d0
+[  202.522697]  [<ffffffff8104d9e5>] ? nmi_handle+0x5/0x1d0
+[  202.530610]  [<ffffffff8104e185>] default_do_nmi+0xe5/0x140
+[  202.538765]  [<ffffffff8104e332>] do_nmi+0x152/0x1b0
+[  202.546254]  [<ffffffff81b8f171>] end_repeat_nmi+0x1a/0x1e
+[  202.554257]  [<ffffffff810106b7>] ? __intel_pmu_enable_all+0x77/0xf0
+[  202.563167]  [<ffffffff812475eb>] ? perf_event_task_tick+0x48b/0x5f0
+[  202.572060]  [<ffffffff812475eb>] ? perf_event_task_tick+0x48b/0x5f0
+[  202.580864]  [<ffffffff812475eb>] ? perf_event_task_tick+0x48b/0x5f0
+[  202.589703]  <EOE>  <IRQ>  [<ffffffff81101571>] scheduler_tick+0xb1/0x150
+[  202.598985]  [<ffffffff8116e7e7>] update_process_times+0x47/0x60
+[  202.607433]  [<ffffffff81185e53>] tick_sched_handle.isra.14+0x33/0x80
+[  202.616314]  [<ffffffff811869cb>] tick_sched_timer+0x4b/0x90
+[  202.624322]  [<ffffffff8116fbfe>] __hrtimer_run_queues+0x21e/0x540
+[  202.632864]  [<ffffffff81186980>] ? tick_sched_do_timer+0x50/0x50
+[  202.641337]  [<ffffffff8116f9e0>] ? retrigger_next_event+0xa0/0xa0
+[  202.649947]  [<ffffffff8117b8f6>] ? ktime_get_update_offsets_now+0xe6/0x190
+[  202.659411]  [<ffffffff811707f0>] ? hrtimer_interrupt+0xb0/0x220
+[  202.667864]  [<ffffffff8117082f>] hrtimer_interrupt+0xef/0x220
+[  202.676069]  [<ffffffff8123b020>] ? perf_cgroup_attach+0xb0/0xb0
+[  202.684444]  [<ffffffff8107ec2f>] local_apic_timer_interrupt+0x4f/0x80
+[  202.693422]  [<ffffffff81b903d7>] smp_apic_timer_interrupt+0x57/0x70
+[  202.702203]  [<ffffffff81b8f6a2>] apic_timer_interrupt+0x82/0x90
+[  202.710591]  <EOI>  [<ffffffff8123b020>] ? perf_cgroup_attach+0xb0/0xb0
+[  202.719609]  [<ffffffff8118dc3a>] ? smp_call_function_single+0x14a/0x1b0
+[  202.728811]  [<ffffffff8118dc30>] ? smp_call_function_single+0x140/0x1b0
+[  202.738039]  [<ffffffff8118daf0>] ? generic_exec_single+0x170/0x170
+[  202.746727]  [<ffffffff8123b020>] ? perf_cgroup_attach+0xb0/0xb0
+[  202.755181]  [<ffffffff81238e48>] event_function_call+0x268/0x270
+[  202.763687]  [<ffffffff812426d0>] ? task_ctx_sched_out+0x60/0x60
+[  202.772057]  [<ffffffff81238be0>] ? task_function_call+0xc0/0xc0
+[  202.780404]  [<ffffffff812426d0>] ? task_ctx_sched_out+0x60/0x60
+[  202.788768]  [<ffffffff81238e79>] ? _perf_event_disable+0x29/0x70
+[  202.797258]  [<ffffffff812383d0>] ? update_group_times+0x50/0x50
+[  202.805667]  [<ffffffff81238e97>] ? _perf_event_disable+0x47/0x70
+[  202.814188]  [<ffffffff8113a4d7>] ? do_raw_spin_unlock+0x97/0x130
+[  202.822733]  [<ffffffff81238e50>] ? event_function_call+0x270/0x270
+[  202.831462]  [<ffffffff81238ea8>] _perf_event_disable+0x58/0x70
+[  202.839778]  [<ffffffff812386a3>] perf_event_for_each_child+0x53/0xd0
+[  202.848576]  [<ffffffff81247a51>] perf_event_task_disable+0x61/0xc0
+[  202.857303]  [<ffffffff810daee2>] SyS_prctl+0x3f2/0x690
+[  202.864853]  [<ffffffff810daaf0>] ? SyS_umask+0x40/0x40
+[  202.872375]  [<ffffffff81136c6a>] ? lockdep_sys_exit+0x1a/0xa0
+[  202.880517]  [<ffffffff81004016>] ? lockdep_sys_exit_thunk+0x16/0x30
+[  202.889310]  [<ffffffff81b8dabb>] entry_SYSCALL_64_fastpath+0x1e/0xb2
+[  202.898177] Memory state around the buggy address:
+[  202.905288]  ffff8800cff0bc80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  202.915044]  ffff8800cff0bd00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  202.924697] >ffff8800cff0bd80: f3 f3 f3 f3 f3 f3 f3 f3 00 00 00 00 00 00 00 00
+[  202.934420]                          ^
+[  202.940352]  ffff8800cff0be00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  202.950141]  ffff8800cff0be80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  202.959835] ==================================================================
+[  202.969617] Disabling lock debugging due to kernel taint
+[  202.977335] ==================================================================
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
