@@ -1,0 +1,190 @@
+<html>
+<head>
+<title>
+BUG: KASAN: slab-out-of-bounds in snb_uncore_imc_event_del
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG: KASAN: slab-out-of-bounds in snb_uncore_imc_event_del
+</h1>
+</center>
+
+<h3>Severity</h3>
+Message
+
+<h3>Found by</h3>
+perf_fuzzer: Vince Weaver
+
+<h3>First Seen</h3>
+4.9-rc5
+
+<h3>Most recently Seen</h3>
+4.9-rc5
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+14 November 2016 -- perf: fuzzer KASAN slab-out-of-bounds in snb_uncore_imc_event_del
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed by</h3>
+perf/x86/uncore: Fix crash by removing bogus event_list[] handling for SNB client uncore IMC
+<br>
+Commit-ID:  c499336cea8bbe15554c6fcea2138658c5395bfe
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+        Linux version 4.9.0-rc5 x86_64
+        Processor: Intel 6/60/3
+
+        Stopping after 30000
+        Watchdog enabled with timeout 60s
+        Will auto-exit if signal storm detected
+        Seeding RNG from time 1479159561
+
+        To reproduce, try:
+                echo 1 > /proc/sys/kernel/nmi_watchdog
+                echo 0 > /proc/sys/kernel/perf_event_paranoid
+                echo 50750 > /proc/sys/kernel/perf_event_max_sample_rate
+                ./perf_fuzzer -s 30000 -r 1479159561
+
+        Fuzzing the following syscalls: mmap perf_event_open close read write io
+ctl fork prctl poll 
+        Also attempting the following: signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+
+        Pid=6618, sleeping 1s
+==================================================
+Starting fuzzing at 2016-11-14 16:39:22
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000 (2500.000000 ops/s)
+        Open attempts: 111685  Successful: 944  Currently open: 33
+                EPERM : 13
+                ENOENT : 638
+                E2BIG : 9871
+                EBADF : 9349
+                EBUSY : 5
+                EINVAL : 90754
+                EOVERFLOW : 1
+                EOPNOTSUPP : 110
+                Trinity Type (Normal 313/28010)(Sampling 39/27935)(Global 547/27811)(Random 45/27929)
+                Type (Hardware 245/15616)(software 356/14905)(tracepoint 38/15073)(Cache 57/14178)(cpu 212/14993)(breakpoint 11/14696)(intel_bts 11/949)(msr 5/895)(power 0/1031)(uncore_imc 0/912)(uncore_cbox_0 3/934)(uncore_cbox_1 0/962)(uncore_cbox_2 2/922)(uncore_cbox_3 0/924)(uncore_arb 3/980)(cstate_core 1/956)(cstate_pkg 0/1052)(#17 0/19)(#18 0/13)(>19 0/11675)
+        Close:  911/911 Successful
+        Read:   775/863 Successful
+        Write:  0/938 Successful
+        Ioctl:  352/854 Successful: (ENABLE 78/78)(DISABLE 85/85)(REFRESH 6/76)(RESET 87/87)(PERIOD 5/71)(SET_OUTPUT 4/65)(SET_FILTER 0/83)(ID 85/85)(SET_BPF 0/78)(PAUSE_OUTPUT 2/68)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/78)
+        Mmap:   490/1093 Successful: (MMAP 490/1093)(TRASH 91/150)(READ 105/118)(UNMAP 489/1038)(AUX 0/106)(AUX_READ 0/0)
+        Prctl:  861/861 Successful
+        Fork:   463/463 Successful
+        Poll:   932/943 Successful
+        Access: 150/929 Successful
+        Overflows: 14  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Throttling event 4 fd 7, last_refresh=0, period=17885, type=1 throttles 0
+[  205.740194] ==================================================================
+[  205.748005] BUG: KASAN: slab-out-of-bounds in snb_uncore_imc_event_del+0x6c/0xa0 at addr ffff8800caa43768
+[  205.758324] Read of size 8 by task perf_fuzzer/6618
+[  205.763589] CPU: 0 PID: 6618 Comm: perf_fuzzer Not tainted 4.9.0-rc5 #4
+[  205.770721] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[  205.778689]  ffff8800c3c479b8 ffffffff816bb796 ffff88011ec00600 ffff8800caa43580
+[  205.786759]  ffff8800c3c479e0 ffffffff812fb961 ffff8800c3c47a78 ffff8800caa43580
+[  205.794850]  ffff8800caa43580 ffff8800c3c47a68 ffffffff812fbbd8 ffff8800c3c47a28
+[  205.802911] Call Trace:
+[  205.805559]  [<ffffffff816bb796>] dump_stack+0x63/0x8d
+[  205.811135]  [<ffffffff812fb961>] kasan_object_err+0x21/0x70
+[  205.817267]  [<ffffffff812fbbd8>] kasan_report_error+0x1d8/0x4c0
+[  205.823752]  [<ffffffff81133275>] ? __lock_is_held+0x75/0xc0
+[  205.829868]  [<ffffffff81025b12>] ? snb_uncore_imc_read_counter+0x42/0x50
+[  205.837198]  [<ffffffff810222e2>] ? uncore_perf_event_update+0xe2/0x160
+[  205.844337]  [<ffffffff812fc319>] kasan_report+0x39/0x40
+[  205.850085]  [<ffffffff81025e3c>] ? snb_uncore_imc_event_del+0x6c/0xa0
+[  205.857114]  [<ffffffff812fa8fe>] __asan_load8+0x5e/0x70
+[  205.862874]  [<ffffffff81025e3c>] snb_uncore_imc_event_del+0x6c/0xa0
+[  205.869727]  [<ffffffff81241bd2>] event_sched_out.isra.89+0x192/0x690
+[  205.876664]  [<ffffffff81242167>] group_sched_out+0x97/0x170
+[  205.882760]  [<ffffffff81242810>] __perf_event_disable+0x140/0x1b0
+[  205.889395]  [<ffffffff812384e7>] event_function+0x117/0x1f0
+[  205.895503]  [<ffffffff812426d0>] ? task_ctx_sched_out+0x60/0x60
+[  205.901959]  [<ffffffff812383d0>] ? update_group_times+0x50/0x50
+[  205.908425]  [<ffffffff8123b020>] ? perf_cgroup_attach+0xb0/0xb0
+[  205.914937]  [<ffffffff8123b096>] remote_function+0x76/0xa0
+[  205.920955]  [<ffffffff8118da7c>] generic_exec_single+0xfc/0x170
+[  205.927434]  [<ffffffff8123b020>] ? perf_cgroup_attach+0xb0/0xb0
+[  205.933883]  [<ffffffff8118dc30>] smp_call_function_single+0x140/0x1b0
+[  205.940967]  [<ffffffff8118daf0>] ? generic_exec_single+0x170/0x170
+[  205.947776]  [<ffffffff81238e48>] event_function_call+0x268/0x270
+[  205.954336]  [<ffffffff812426d0>] ? task_ctx_sched_out+0x60/0x60
+[  205.960806]  [<ffffffff81238be0>] ? task_function_call+0xc0/0xc0
+[  205.967276]  [<ffffffff812426d0>] ? task_ctx_sched_out+0x60/0x60
+[  205.973740]  [<ffffffff81238e79>] ? _perf_event_disable+0x29/0x70
+[  205.980300]  [<ffffffff812383d0>] ? update_group_times+0x50/0x50
+[  205.986750]  [<ffffffff81238e97>] ? _perf_event_disable+0x47/0x70
+[  205.993338]  [<ffffffff8113a4d7>] ? do_raw_spin_unlock+0x97/0x130
+[  205.999906]  [<ffffffff81238e50>] ? event_function_call+0x270/0x270
+[  206.006674]  [<ffffffff81238ea8>] _perf_event_disable+0x58/0x70
+[  206.013069]  [<ffffffff812386a3>] perf_event_for_each_child+0x53/0xd0
+[  206.019990]  [<ffffffff81247a51>] perf_event_task_disable+0x61/0xc0
+[  206.026759]  [<ffffffff810daee2>] SyS_prctl+0x3f2/0x690
+[  206.032409]  [<ffffffff810daaf0>] ? SyS_umask+0x40/0x40
+[  206.038059]  [<ffffffff81b8dabb>] entry_SYSCALL_64_fastpath+0x1e/0xb2
+[  206.045007] Object at ffff8800caa43580, in cache kmalloc-512 size: 512
+[  206.052015] Allocated:
+[  206.054565] PID = 1
+[  206.056842]  [  206.058367] [<ffffffff8105fcdb>] save_stack_trace+0x1b/0x20
+[  206.064410]  [  206.065933] [<ffffffff812facc6>] save_stack+0x46/0xd0
+[  206.071416]  [  206.072953] [<ffffffff812faf3d>] kasan_kmalloc+0xad/0xe0
+[  206.078683]  [  206.080214] [<ffffffff812f7e3a>] __kmalloc_node+0x4a/0x60
+[  206.086061]  [  206.087590] [<ffffffff81020799>] uncore_alloc_box+0x39/0x150
+[  206.093685]  [  206.095208] [<ffffffff81020b8f>] uncore_pci_probe+0xff/0x4f0
+[  206.101357]  [  206.102879] [<ffffffff8172bc7a>] local_pci_probe+0x7a/0xd0
+[  206.108816]  [  206.110347] [<ffffffff8172df6e>] pci_device_probe+0x19e/0x1f0
+[  206.116553]  [  206.118073] [<ffffffff818a9a1d>] driver_probe_device+0x25d/0x400
+[  206.124566]  [  206.126087] [<ffffffff818a9c9c>] __driver_attach+0xdc/0xe0
+[  206.132021]  [  206.133534] [<ffffffff818a653b>] bus_for_each_dev+0xeb/0x150
+[  206.139654]  [  206.141184] [<ffffffff818a8f2b>] driver_attach+0x2b/0x30
+[  206.146948]  [  206.148493] [<ffffffff818a8900>] bus_add_driver+0x2b0/0x330
+[  206.154519]  [  206.156042] [<ffffffff818aa9f3>] driver_register+0xd3/0x190
+[  206.164160]  [  206.165688] [<ffffffff8172b2b4>] __pci_register_driver+0xb4/0xc0
+[  206.174265]  [  206.175783] [<ffffffff8261553b>] intel_uncore_init+0x2f3/0x388
+[  206.184162]  [  206.185672] [<ffffffff81002258>] do_one_initcall+0xa8/0x210
+[  206.193721]  [  206.195261] [<ffffffff8260e4c2>] kernel_init_freeable+0x27c/0x312
+[  206.203821]  [  206.205349] [<ffffffff81b80b13>] kernel_init+0x13/0x120
+[  206.212889]  [  206.214439] [<ffffffff81b8dd35>] ret_from_fork+0x25/0x30
+[  206.222067] Freed:
+[  206.226172] PID = 0
+[  206.230341] (stack is not available)
+[  206.236044] Memory state around the buggy address:
+[  206.243157]  ffff8800caa43600: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  206.252788]  ffff8800caa43680: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  206.262437] >ffff8800caa43700: 00 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc
+[  206.272071]                                                           ^
+[  206.281005]  ffff8800caa43780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  206.290640]  ffff8800caa43800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  206.300302] ==================================================================
+[  206.309972] Disabling lock debugging due to kernel taint
+[  206.322211] ==================================================================
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
