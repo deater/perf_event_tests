@@ -1,7 +1,6 @@
 <html>
 <head>
 <title>
-haswell
 WARNING: CPU: 1 PID: 20027 at kernel/events/ring_buffer.c:539 __rb_free_aux+0x111/0x120
 </title>
 </head>
@@ -10,7 +9,6 @@ WARNING: CPU: 1 PID: 20027 at kernel/events/ring_buffer.c:539 __rb_free_aux+0x11
 
 <center>
 <h1>
-haswell 
 WARNING: CPU: 1 PID: 20027 at kernel/events/ring_buffer.c:539 __rb_free_aux+0x111/0x120
 
 </h1>
@@ -23,7 +21,7 @@ perf_fuzzer
 4.8-rc1
 
 <h3>Most recently Seen</h3>
-4.8-rc1
+4.9-rc5
 
 <h3>Reproducible</h3>
 ???
@@ -32,14 +30,143 @@ perf_fuzzer
 warning
 
 <h3>Found On</h3>
-Haswell
+Haswell, Skylake
 
 <h3>Linux-kernel Mailing List Report</h3>
 9 August 2016: Re: perf: WARNING: kernel/events/core.c:4893 perf_mmap_close
+November 2016: Re: perf: perf_fuzzer WARNING: ring_buffer.c:546 __rb_free_aux
 
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+static void __rb_free_aux(struct ring_buffer *rb)
+{
+        int pg;
+
+        /*
+         * Should never happen, the last reference should be dropped from
+         * perf_mmap_close() path, which first stops aux transactions (which
+         * in turn are the atomic holders of aux_refcount) and then does the
+         * last rb_free_aux().
+         */
+        WARN_ON_ONCE(in_atomic());
+
+
+
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+        Linux version 4.9.0-rc5+ x86_64
+        Processor: Intel 6/94/3
+
+        Stopping after 30000
+        Watchdog enabled with timeout 60s
+        Will auto-exit if signal storm detected
+        Seeding RNG from time 1479387077
+
+        To reproduce, try:
+                echo 1 > /proc/sys/kernel/nmi_watchdog
+                echo 0 > /proc/sys/kernel/perf_event_paranoid
+                echo 250 > /proc/sys/kernel/perf_event_max_sample_rate
+                ./perf_fuzzer -s 30000 -r 1479387077
+
+        Fuzzing the following syscalls: mmap perf_event_open close read write ioctl fork prctl poll 
+        Also attempting the following: signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+
+        Pid=32648, sleeping 1s
+
+==================================================
+Starting fuzzing at 2016-11-17 07:51:18
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000 (2000.000000 ops/s)
+        Open attempts: 107208  Successful: 896  Currently open: 2
+                EPERM : 17
+                ENOENT : 572
+                E2BIG : 9497
+                EBADF : 9100
+                EBUSY : 9
+                EINVAL : 87022
+                EOPNOTSUPP : 95
+                Trinity Type (Normal 292/27035)(Sampling 33/26659)(Global 535/26800)(Random 36/26714)
+                Type (Hardware 206/15076)(software 326/14565)(tracepoint 64/14359)(Cache 51/13340)(cpu 206/14215)(breakpoint 11/14235)(intel_bts 10/838)(intel_pt 3/910)(msr 5/929)(power 1/852)(uncore_imc 1/863)(uncore_cbox_0 1/826)(uncore_cbox_1 0/822)(uncore_cbox_2 2/882)(uncore_cbox_3 2/829)(uncore_arb 2/825)(cstate_core 1/1035)(cstate_pkg 4/881)(#18 0/10)(>19 0/10916)
+        Close:  894/894 Successful
+        Read:   827/895 Successful
+        Write:  0/890 Successful
+        Ioctl:  364/863 Successful: (ENABLE 89/89)(DISABLE 71/71)(REFRESH 8/72)(RESET 77/77)(PERIOD 9/70)(SET_OUTPUT 8/69)(SET_FILTER 0/78)(ID 91/91)(SET_BPF 0/89)(PAUSE_OUTPUT 11/85)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/72)
+        Mmap:   453/1040 Successful: (MMAP 453/1040)(TRASH 84/147)(READ 89/90)(UNMAP 453/989)(AUX 0/116)(AUX_READ 0/0)
+        Prctl:  928/928 Successful
+        Fork:   449/449 Successful
+        Poll:   898/916 Successful
+        Access: 116/929 Successful
+        Overflows: 0  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+Iteration 20000 (1666.666667 ops/s)
+        Open attempts: 105675  Successful: 893  Currently open: 8
+                EPERM : 13
+                ENOENT : 587
+                E2BIG : 9282
+                EBADF : 8755
+                EBUSY : 11
+                EINVAL : 86022
+                EOVERFLOW : 1
+                EOPNOTSUPP : 111
+                Trinity Type (Normal 281/26401)(Sampling 37/26741)(Global 535/26128)(Random 40/26405)
+                Type (Hardware 181/14630)(software 360/14325)(tracepoint 65/14059)(Cache 51/13492)(cpu 190/14161)(breakpoint 12/13940)(intel_bts 10/826)(intel_pt 3/829)(msr 9/885)(power 0/802)(uncore_imc 0/827)(uncore_cbox_0 3/813)(uncore_cbox_1 1/867)(uncore_cbox_2 0/782)(uncore_cbox_3 2/822)(uncore_arb 1/877)(cstate_core 2/1006)(cstate_pkg 3/831)(#18 0/9)(>19 0/10892)
+        Close:  887/887 Successful
+        Read:   727/825 Successful
+        Write:  0/820 Successful
+        Ioctl:  345/869 Successful: (ENABLE 74/74)(DISABLE 66/66)(REFRESH 10/79)(RESET 77/77)(PERIOD 11/75)(SET_OUTPUT 8/85)(SET_FILTER 0/78)(ID 92/92)(SET_BPF 0/85)(PAUSE_OUTPUT 7/86)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/72)
+        Mmap:   433/1061 Successful: (MMAP 433/1061)(TRASH 94/157)(READ 87/96)(UNMAP 433/980)(AUX 0/87)(AUX_READ 0/0)
+        Prctl:  930/930 Successful
+        Fork:   461/461 Successful
+        Poll:   910/939 Successful
+        Access: 106/898 Successful
+        Overflows: 5  Recursive: 0
+        SIGIOs due to RT signal queue full: 0
+[150064.587195] ------------[ cut here ]------------
+[150064.594626] WARNING: CPU: 0 PID: 0 at kernel/events/ring_buffer.c:546 __rb_free_aux+0x1cb/0x1d0
+[150064.709271] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W    L  4.9.0-rc5+ #11
+[150064.719631] Hardware name: LENOVO 10FY0017US/SKYBAY, BIOS FWKT53A   06/06/2016
+[150064.729680]  ffff8801f5a07ce0 ffffffffa9ebe748 0000000000000000 0000000000000000
+[150064.740027]  ffff8801f5a07d28 ffffffffa9ab6ee7 ffffffffaa812540 00000222de0dca00
+[150064.750380]  ffff8801e50ed340 ffff8801f5a14740 ffff8801e50ed340 0000000000000000
+[150064.760683] Call Trace:
+[150064.765834]  <IRQ> [150064.767909]  [<ffffffffa9ebe748>] dump_stack+0x63/0x8b
+[150064.775798]  [<ffffffffa9ab6ee7>] __warn+0x117/0x140
+[150064.783473]  [<ffffffffa9ab701d>] warn_slowpath_null+0x1d/0x20
+[150064.792064]  [<ffffffffa9c31c6b>] __rb_free_aux+0x1cb/0x1d0
+[150064.800362]  [<ffffffffa9c331b8>] rb_free_aux+0x18/0x20
+[150064.808266]  [<ffffffffa9c3367a>] perf_aux_output_end+0x19a/0x220
+[150064.817015]  [<ffffffffa9a136d4>] bts_event_stop+0x104/0x1d0
+[150064.825268]  [<ffffffffa9a137b3>] bts_event_del+0x13/0x20
+[150064.833160]  [<ffffffffa9c26794>] event_sched_out.isra.91+0x1c4/0x5d0
+[150064.842060]  [<ffffffffa9a0725c>] ? x86_pmu_disable+0x6c/0x80
+[150064.850208]  [<ffffffffa9c26d9e>] group_sched_out+0x6e/0x110
+[150064.858221]  [<ffffffffa9c26f80>] __perf_event_disable+0x140/0x1b0
+[150064.866696]  [<ffffffffa9c1c79f>] event_function+0x10f/0x1e0
+[150064.874605]  [<ffffffffa9c26e40>] ? group_sched_out+0x110/0x110
+[150064.882767]  [<ffffffffa9c1c690>] ? cpu_clock_event_read+0x10/0x10
+[150064.891144]  [<ffffffffa9c1e880>] ? perf_cgroup_attach+0x70/0x70
+[150064.899332]  [<ffffffffa9c1e8f6>] remote_function+0x76/0xa0
+[150064.907068]  [<ffffffffa9b78973>] flush_smp_call_function_queue+0xb3/0x1d0
+[150064.916149]  [<ffffffffa9b79773>] generic_smp_call_function_single_interrupt+0x13/0x60
+[150064.926282]  [<ffffffffa9a748b0>] smp_call_function_single_interrupt+0x40/0x50
+[150064.935716]  [<ffffffffaa346f92>] call_function_single_interrupt+0x82/0x90
+[150064.944835]  <EOI> [150064.946918]  [<ffffffffa9b213ea>] ? sched_idle_set_state+0x2a/0x40
+[150064.955373]  [<ffffffffaa1348a8>] ? cpuidle_enter_state+0x158/0x320
+[150064.963900]  [<ffffffffaa134ac7>] cpuidle_enter+0x17/0x20
+[150064.971550]  [<ffffffffa9b2138d>] call_cpuidle+0x4d/0x80
+[150064.979131]  [<ffffffffa9b21687>] cpu_startup_entry+0x1b7/0x290
+[150064.987287]  [<ffffffffaa33aca7>] rest_init+0x87/0x90
+[150064.994610]  [<ffffffffaa9613ad>] start_kernel+0x59c/0x5bf
+[150065.002351]  [<ffffffffaa960120>] ? early_idt_handler_array+0x120/0x120
+[150065.011260]  [<ffffffffaa9604b2>] x86_64_start_reservations+0x24/0x26
+[150065.019993]  [<ffffffffaa960600>] x86_64_start_kernel+0x14c/0x16f
+[150065.028338] ---[ end trace 806838d55bf2c099 ]---
+</pre>
+
 <li>
 <pre>
 *** perf_fuzzer 0.31-pre *** by Vince Weaver
