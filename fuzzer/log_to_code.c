@@ -255,12 +255,14 @@ static void poll_event(char *line) {
 
 }
 
-#define MAX_FILENAMES 4
+#define MAX_FILENAMES 6
 char *filenames[MAX_FILENAMES]={
         "/proc/sys/kernel/perf_cpu_time_max_percent",
         "/proc/sys/kernel/perf_event_paranoid",
         "/proc/sys/kernel/perf_event_max_sample_rate",
+        "/proc/sys/kernel/perf_event_max_stack",
         "/proc/sys/kernel/perf_event_mlock_kb",
+        "/proc/sys/kernel/nmi_watchdog"
 };
 
 static void access_event(char *line) {
@@ -269,6 +271,11 @@ static void access_event(char *line) {
 	int which,result,type;
 
 	sscanf(line,"%*c %d %d %lld %d",&type,&which,&size,&result);
+
+	if (which>=MAX_FILENAMES) {
+		fprintf(stderr,"access_event out of bounds!\n");
+		exit(1);
+	}
 
 	/* read */
 	if (type==0) {
@@ -282,7 +289,7 @@ static void access_event(char *line) {
 	else {
 		printf("\tfff=fopen(\"%s\",\"w\");\n",filenames[which]);
 		printf("\t\tif (fff!=NULL) {\n");
-		printf("\t\tresult=fprintf(fff,\"%%lld\n\",%lld);\n",size);
+		printf("\t\tresult=fprintf(fff,\"%%lld\",%lldULL);\n",size);
 		printf("\t\tfclose(fff);\n");
 		printf("\t}\n");
         }
