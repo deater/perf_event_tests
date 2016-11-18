@@ -169,7 +169,7 @@ static void ioctl_event(char *line) {
 			printf(");\n");
 			break;
 		case PERF_EVENT_IOC_PERIOD:
-			printf("\tperiod=%lld\n",arg2);
+			printf("\tperiod=%lld;\n",arg2);
 			printf("\tioctl(fd[%d],PERF_EVENT_IOC_PERIOD,&period);\n",
 				fd);
 			break;
@@ -362,7 +362,7 @@ int main(int argc, char **argv) {
 	}
 
 	printf("/* log_to_code output from %s */\n",argv[1]);
-	printf("/* by Vince Weaver <vincent.weaver _at_ maine.edu */\n\n");
+	printf("/* by Vince Weaver <vincent.weaver _at_ maine.edu> */\n\n");
 
 	printf("#define _GNU_SOURCE 1\n");
 	printf("#include <stdio.h>\n");
@@ -445,6 +445,7 @@ int main(int argc, char **argv) {
 		line_num++;
 
 		printf("/* %lld */\n",line_num);
+		//printf("printf(\"Line: %lld\\n\");\n",line_num);
 
 		switch(line[0]) {
 			case 'A':
