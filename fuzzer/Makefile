@@ -37,6 +37,7 @@ log_to_code: log_to_code.o \
 		../lib/libhelper.a
 
 perf_fuzzer: perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
+		filter_tracepoint.o \
 		fuzz_access.o fuzz_close.o fuzz_fork.o fuzz_ioctl.o \
 		fuzz_million.o fuzz_mmap.o fuzz_open.o fuzz_overflow.o \
 		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_write.o \
@@ -45,6 +46,7 @@ perf_fuzzer: perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 		trinity_files/trinity_lib.a
 
 perf_fuzzer.x32: perf_fuzzer.xo perf_attr_print.xo get_cpuinfo.xo \
+		filter_tracepoint.xo \
 		fuzz_access.xo fuzz_close.xo fuzz_fork.xo fuzz_ioctl.xo \
 		fuzz_million.xo fuzz_mmap.xo fuzz_open.xo fuzz_overflow.xo \
 		fuzz_poll.xo fuzz_prctl.xo fuzz_read.xo fuzz_write.xo \
