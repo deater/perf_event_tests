@@ -18,6 +18,7 @@
 #include "fuzzer_random.h"
 #include "fuzzer_stats.h"
 
+#include "filter_address.h"
 #include "filter_tracepoint.h"
 
 #include "bpf.h"
@@ -75,11 +76,26 @@ static int fill_filter(int which) {
 				0 /* TRY_VALID */);
 			break;
 
+		case 3:
+		case 4:
+			make_address_filter(which,filter,
+				MAX_FILTER_SIZE,
+				rand()%20, /* MAX WHITESPACE */
+				0 /* TRY_VALID */);
+			break;
+
+		case 10 ... 20:
+			make_address_filter(which,filter,
+				MAX_FILTER_SIZE,
+				1, /* MAX WHITESPACE */
+				1  /* TRY_VALID */);
+			break;
+
 		default: make_tracepoint_filter(which,
 				filter, MAX_FILTER_SIZE,
-				4 /* MAX LEVELS */,
-				1 /* MAX WHITESPACE */,
-				1 /* TRY_VALID */);
+				4, /* MAX LEVELS */
+				1, /* MAX WHITESPACE */
+				1  /* TRY_VALID */);
 			break;
 	}
 	return 0;
