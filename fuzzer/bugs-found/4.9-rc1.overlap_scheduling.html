@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>
+overlap scheduling
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+overlap scheduling
+</h1>
+</center>
+
+<h3>Severity</h3>
+Message
+
+<h3>Found by</h3>
+perf_fuzzer: Jiri Olsa
+
+<h3>First Seen</h3>
+4.9-rc1
+
+<h3>Most recently Seen</h3>
+4.9-rc1
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+?
+
+<h3>Linux-kernel Mailing List Report</h3>
+1 November 2016 -- [PATCH] perf/x86: Fix overlap counter scheduling bug
+
+
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed by</h3>
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+   # perf stat -e 'uncore_cbox_0/event=0x1f/,uncore_cbox_0/event=0x1f/,uncore_cbox_0/event=0x1f/' -a
+
+
+  WARNING: CPU: 0 PID: 0 at arch/x86/events/core.c:718 perf_assign_events+0x2ae/0x2c0
+  Call Trace:
+   <IRQ>
+   dump_stack+0x68/0x93
+   __warn+0xcb/0xf0
+   warn_slowpath_null+0x1d/0x20
+   perf_assign_events+0x2ae/0x2c0
+   uncore_assign_events+0x1a7/0x250 [intel_uncore]
+   uncore_pmu_event_add+0x7a/0x3c0 [intel_uncore]
+   event_sched_in.isra.104+0xf6/0x2e0
+   group_sched_in+0x6e/0x190
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>
+uncore contraint lockdep
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+uncore constraint lockdep
+</h1>
+</center>
+
+<h3>Severity</h3>
+Message
+
+<h3>Found by</h3>
+perf_fuzzer: Jiri Olsa
+
+<h3>First Seen</h3>
+4.9-rc1
+
+<h3>Most recently Seen</h3>
+4.9-rc1
+
+<h3>Reproducible</h3>
+?
+
+<h3>Found On</h3>
+?
+
+<h3>Linux-kernel Mailing List Report</h3>
+17 November 2016 -- [PATCH] perf/x86/uncore: Allow single pmu/box within events group
+
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed by</h3>
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+  # perf stat -vv -e '{uncore_cbox_0/config=0x0334/,uncore_qpi_0/event=1/}'
+-a sleep 1
+
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 12 PID: 3727 Comm: perf_fuzzer Tainted: G        W       4.9.0-rc1+ #10
+Hardware name: IBM System x3650 M4 : -[7915E2G]-/00Y7683, BIOS
+-[VVE124AUS-1.30]- 11/21/2012
+ ffffc90002ca3ae0 ffffffff81399565 0000000000000000 0000000000000000
+ ffffc90002ca3b50 ffffffff810d0a3a 0000000000000006 ffff880276285eb8
+ ffffc90002ca3bc8 ffff8802711a8b98 ffff8802711a8000 ffff8802711a8b98
+Call Trace:
+ [<ffffffff81399565>] dump_stack+0x68/0x93
+ [<ffffffff810d0a3a>] register_lock_class+0x50a/0x510
+ [<ffffffff810d2d78>] __lock_acquire+0x88/0x12a0
+ [<ffffffff811a2cfc>] ? ___perf_sw_event+0x16c/0x280
+ [<ffffffff810f091d>] ? debug_lockdep_rcu_enabled+0x1d/0x20
+ [<ffffffff810d43b9>] lock_acquire+0xe9/0x1d0
+ [<ffffffffa0186679>] ? uncore_get_constraint+0x59/0x100 [intel_uncore]
+ [<ffffffff817075e3>] _raw_spin_lock_irqsave+0x43/0x60
+ [<ffffffffa0186679>] ? uncore_get_constraint+0x59/0x100 [intel_uncore]
+ [<ffffffffa0186679>] uncore_get_constraint+0x59/0x100 [intel_uncore]
+ [<ffffffffa01853fd>] uncore_assign_events+0x6d/0x250 [intel_uncore]
+ [<ffffffffa0185df7>] uncore_pmu_event_init+0x187/0x220 [intel_uncore]
+ [<ffffffff81197443>] perf_try_init_event+0x43/0x90
+ [<ffffffff8119b65e>] perf_event_alloc+0x55e/0xc50
+ [<ffffffff8119b568>] ? perf_event_alloc+0x468/0xc50
+ [<ffffffff8119f7db>] SYSC_perf_event_open+0x40b/0xf90
+ [<ffffffff811a2f69>] SyS_perf_event_open+0x9/0x10
+ [<ffffffff81002eb6>] do_syscall_64+0x66/0x1d0
+ [<ffffffff81707f24>] entry_SYSCALL64_slow_path+0x25/0x25
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
