@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>
+BUG: KASAN: global-out-of-bounds in match_token
+</title>
+</head>
+
+<body>
+
+<center>
+<h1>
+BUG: KASAN: global-out-of-bounds in match_token
+</h1>
+</center>
+
+<h3>Severity</h3>
+Message
+
+<h3>Found by</h3>
+perf_fuzzer: Vince Weaver
+
+<h3>First Seen</h3>
+4.9-rc5
+
+<h3>Most recently Seen</h3>
+4.9-rc5
+
+<h3>Reproducible</h3>
+easily, with 2-syscall C program
+
+<h3>Found On</h3>
+skylake
+
+<h3>Linux-kernel Mailing List Report</h3>
+17 November 2016 -- perf: fuzzer KASAN: global-out-of-bounds in match_token
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed by</h3>
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+        Linux version 4.9.0-rc5+ x86_64
+        Processor: Intel 6/94/3
+
+        Stopping after 30000
+        Watchdog enabled with timeout 60s
+        Will auto-exit if signal storm detected
+        Seeding RNG from time 1479415011
+
+        To reproduce, try:
+                echo 1 > /proc/sys/kernel/nmi_watchdog
+                echo 0 > /proc/sys/kernel/perf_event_paranoid
+                echo 1500 > /proc/sys/kernel/perf_event_max_sample_rate
+                ./perf_fuzzer -s 30000 -r 1479415011
+
+        Fuzzing the following syscalls: mmap perf_event_open close read write ioctl fork prctl poll 
+        Also attempting the following: signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+
+        Pid=29150, sleeping 1s
+
+==================================================
+Starting fuzzing at 2016-11-17 15:36:52
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+[ 2953.187674] ==================================================================
+[ 2953.195539] BUG: KASAN: global-out-of-bounds in match_token+0x268/0x310 at addr ffffffffb14ad058
+[ 2953.204933] Read of size 8 by task perf_fuzzer/29150
+[ 2953.210081] Address belongs to variable if_tokens+0x78/0xa0
+[ 2953.215965] Memory state around the buggy address:
+[ 2953.220922]  ffffffffb14acf00: fa fa fa fa 06 fa fa fa fa fa fa fa 06 fa fa fa
+[ 2953.228239]  ffffffffb14acf80: fa fa fa fa 03 fa fa fa fa fa fa fa 00 00 00 00
+[ 2953.235611] >ffffffffb14ad000: 00 00 00 00 00 00 00 00 00 00 fa fa fa fa fa fa
+[ 2953.242967]                                                     ^
+[ 2953.249152]  ffffffffb14ad080: 00 00 00 00 00 00 00 00 00 00 00 00 00 fa fa fa
+[ 2953.256512]  ffffffffb14ad100: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 00 00
+[ 2953.263859] ==================================================================
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>

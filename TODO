@@ -111,3 +111,15 @@ Date:   Wed Jun 1 12:33:05 2016 -0700
     
     ... see crash ...
 
+
+
+
+Date: Wed, 14 Sep 2016 22:38:45 -0700
+From: Stephane Eranian 
+Subject: slow perf ioctl()
+
+Here is another thing I've run into lately having to do with
+ioctl(fd, PERF_IOC_REFRESH, 1) on self-monitoring thread.
+The ioctl() takes seconds to execute. I have not yet had the time
+to track down why.  Any of your tests exhibiting this problem?
+
