@@ -3,16 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
-//#include <signal.h>
 #include <errno.h>
-
-//#include "perf_event.h"
-
-//#include "perf_fuzzer.h"
-//#include "fuzzer_determinism.h"
-//#include "fuzzer_logging.h"
-//#include "fuzzer_random.h"
-//#include "fuzzer_stats.h"
 
 #include "filter_address.h"
 
@@ -43,9 +34,9 @@ static void print_whitespace(int max_amount) {
 
 	int i,amount;
 
-	amount=rand()%max_amount;
+	if (max_amount==0) max_amount=1;
 
-	if (amount==0) amount=1;
+	amount=rand()%max_amount;
 
 	for(i=0;i<amount;i++) {
 		switch(rand()%50) {
