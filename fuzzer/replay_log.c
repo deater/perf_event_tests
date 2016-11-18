@@ -34,6 +34,8 @@ static char *mmap_remap[FD_REMAP_SIZE];
 static int fd_overflows[FD_REMAP_SIZE];
 static int fd_throttles[FD_REMAP_SIZE];
 
+static int debug=0;
+
 static int original_pid=-1;
 
 	int page_size;
@@ -178,8 +180,6 @@ static void open_event(char *line) {
 	int mmap_data,sample_id_all,exclude_host,exclude_guest;
 	int exclude_callchain_user,exclude_callchain_kernel;
 	int mmap2,comm_exec;
-
-
 	sscanf(line,
 		"%*c %d %d %d %d %lx "
 		"%x %x "
@@ -248,10 +248,13 @@ static void open_event(char *line) {
 		remapped_group_fd=fd_remap[group_fd];
 	}
 
+
 	fd=perf_event_open(pe,pid,cpu,remapped_group_fd,flags);
 	if (fd<0) {
+
 		fprintf(stderr,"Line %lld Error opening %s : %s\n",
 			line_num,line,strerror(errno));
+
                 perf_pretty_print_event(stderr,orig_fd,original_pid,
 				pe, pid, cpu,
 				remapped_group_fd,flags);
@@ -394,12 +397,14 @@ static void read_event(char *line) {
 	}
 }
 
-#define MAX_FILENAMES 4
+#define MAX_FILENAMES 6
 char *filenames[MAX_FILENAMES]={
-	"/proc/sys/kernel/perf_cpu_time_max_percent",
-	"/proc/sys/kernel/perf_event_paranoid",
-	"/proc/sys/kernel/perf_event_max_sample_rate",
-	"/proc/sys/kernel/perf_event_mlock_kb",
+        "/proc/sys/kernel/perf_cpu_time_max_percent",
+        "/proc/sys/kernel/perf_event_paranoid",
+        "/proc/sys/kernel/perf_event_max_sample_rate",
+        "/proc/sys/kernel/perf_event_max_stack",
+        "/proc/sys/kernel/perf_event_mlock_kb",
+        "/proc/sys/kernel/nmi_watchdog"
 };
 
 static void access_event(char *line) {
@@ -410,6 +415,11 @@ static void access_event(char *line) {
 	FILE *fff;
 
 	sscanf(line,"%*c %d %d %lld %d",&type,&which,&size,&result);
+
+	if (which>MAX_FILENAMES) {
+		fprintf(stderr,"Error access_event too big\n");
+		exit(0);
+	}
 
 	/* read */
 	if (type==0) {
@@ -631,11 +641,13 @@ void print_usage(char *exec_name) {
 		exec_name);
 }
 
+static char line[BUFSIZ];
+
+
 int main(int argc, char **argv) {
 
 	FILE *logfile,*fff;
 	char *logfile_name=NULL;
-	char line[BUFSIZ];
 	char *result;
 	long long total_syscalls=0,replay_syscalls=0;
 
@@ -787,6 +799,8 @@ int main(int argc, char **argv) {
 		if (result==NULL) break;
 
 		line_num++;
+
+		if (debug) printf("%lld %s",line_num,line);
 
 		/* don't want to skip the random seed, etc */
 		if ((line_num>2) && (line_num<skip_lines)) continue;
