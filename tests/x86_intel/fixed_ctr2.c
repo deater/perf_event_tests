@@ -3,16 +3,15 @@
 /* Support added in Linux 3.3 */
 /* Note: bugs where count not same as same counter in general purpose counter */
 
-/* You cannot specify that you want the fixed counter, Linux */
-/* schedules it if available.				     */
-
 /* by Vince Weaver, vincent.weaver@maine.edu          */
 
 /* event 0x13c can be interpreted as:				*/
 /* - unhalted_reference_cycles (when in fixed counter 2)	*/
 /* - cpu_clk_unhalted:ref_p (when in a generic counters)	*/
 
+/* Unlike the other fixed counters, */
 /* Linux introduced a pseudo event to handle this */
+/*	PERF_COUNT_HW_REF_CPU_CYCLES		*/
 /* That only can be scheduled in fixed counter 2 */
 
 static char test_string[]="Testing fixed counter 2 event...";
@@ -48,9 +47,8 @@ int main(int argc, char **argv) {
 
 	if (!quiet) {
 		printf("This test checks the intel fixed counter 2\n");
-		printf("This is a best effort, Linux does not let you\n");
-		printf("specify which counter events are scheduled in.\n");
-		printf("Anyway, all the values should match.\n\n");
+		printf("Unlike the other fixed counters, Linux\n");
+		printf("allows you to specify this one.\n\n");
 	}
 
 	if (detect_vendor()!=VENDOR_INTEL) test_skip(test_string);
@@ -73,7 +71,7 @@ int main(int argc, char **argv) {
 		pe.pinned=(i==0);
 		fd[i]=perf_event_open(&pe,0,-1,i==0?-1:fd[0],0);
 		if (fd[i]<0) {
-			fprintf(stderr,"Error opening event %d %s\n",i,strerror(errno));
+//			fprintf(stderr,"Error opening event %d %s\n",i,strerror(errno));
 			break;
 		}
 	}
