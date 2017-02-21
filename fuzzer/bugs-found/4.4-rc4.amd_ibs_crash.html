@@ -23,7 +23,8 @@ perf_fuzzer: Vince Weaver
 ???
 
 <h3>Most recently Seen</h3>
-4.4-rc4
+4.4-rc4<br>
+4.9-rc6 (no crash though)
 
 <h3>Reproducible</h3>
 yes
@@ -41,6 +42,189 @@ perf: fuzzer triggered trouble on AMD, maybe ibs related</a>
 <h3>Kernel Splat</h3>
 
 <ol>
+<li>
+<pre>
+No crash?
+
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+        Linux version 4.9.0-rc5+ x86_64
+        Processor: AMD 21/19/1
+
+        Stopping after 30000
+        Watchdog enabled with timeout 60s
+        Will auto-exit if signal storm detected
+        Seeding RNG from time 1479467663
+
+        To reproduce, try:
+                echo 1 > /proc/sys/kernel/nmi_watchdog
+                echo 0 > /proc/sys/kernel/perf_event_paranoid
+                echo 25750 > /proc/sys/kernel/perf_event_max_sample_rate
+                ./perf_fuzzer -s 30000 -r 1479467663
+
+        Fuzzing the following syscalls: mmap perf_event_open close read write ioctl fork prctl poll 
+        Also attempting the following: signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+
+        Pid=24863, sleeping 1s
+==================================================
+Starting fuzzing at 2016-11-18 06:14:24
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 0
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 1
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 2
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 3
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 4
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 5
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 6
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 7
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 8
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 9
+Throttling event 17 fd 21, last_refresh=0, period=0, type=8 throttles 10
+Stuck in a signal storm w/o forward progress; Max throttle count hit, giving up
+Signal from invalid fd 21 Bad file descriptor
+Throttling event 24 fd 27, last_refresh=0, period=32, type=1 throttles 0
+Throttling event 34 fd 38, last_refresh=0, period=0, type=7 throttles 0
+Throttling event 34 fd 38, last_refresh=0, period=0, type=7 throttles 1
+Throttling event 34 fd 38, last_refresh=0, period=0, type=7 throttles 2
+SIGIO due to RT queue overflow
+SIGIO due to RT queue overflow
+Signal from invalid fd 38 Bad file descriptor
+Iteration 10000 (303.030303 ops/s)
+        Open attempts: 131824  Successful: 903  Currently open: 2
+                EPERM : 7
+                ENOENT : 726
+                E2BIG : 11561
+                EBADF : 11186
+                EINVAL : 106533
+                EOVERFLOW : 1
+                EOPNOTSUPP : 907
+                Trinity Type (Normal 221/32847)(Sampling 24/32898)(Global 637/33139)(Random 21/32940)
+                Type (Hardware 188/18590)(software 380/18723)(tracepoint 59/18525)(Cache 39/16471)(cpu 204/18578)(breakpoint 13/18849)(amd_nb 5/2043)(ibs_fetch 3/1968)(ibs_op 3/2198)(msr 9/2024)(#10 0/15)(#11 0/9)(#12 0/13)(#13 0/11)(#14 0/9)(#15 0/9)(#16 0/130)(#17 0/14)(#18 0/12)(>19 0/13633)
+        Close:  901/902 Successful
+        Read:   795/878 Successful
+        Write:  0/876 Successful
+        Ioctl:  318/835 Successful: (ENABLE 71/71)(DISABLE 76/76)(REFRESH 2/72)(RESET 77/78)(PERIOD 6/81)(SET_OUTPUT 13/82)(SET_FILTER 0/78)(ID 68/68)(SET_BPF 0/73)(PAUSE_OUTPUT 5/95)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/61)
+        Mmap:   438/1079 Successful: (MMAP 438/1079)(TRASH 70/148)(READ 110072/156202)(UNMAP 438/994)(AUX 0/125)(AUX_READ 0/0)
+        Prctl:  858/858 Successful
+        Fork:   451/451 Successful
+        Poll:   865/913 Successful
+        Access: 95/906 Successful
+        Overflows: 174349  Recursive: 0
+        SIGIOs due to RT signal queue full: 2
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 0
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 1
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 2
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 3
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 4
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 5
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 6
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 7
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 8
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 9
+Throttling event 9 fd 12, last_refresh=0, period=0, type=7 throttles 10
+Stuck in a signal storm w/o forward progress; Max throttle count hit, giving up
+Signal from invalid fd 12 Bad file descriptor
+SIGIO due to RT queue overflow
+SIGIO due to RT queue overflow
+Iteration 20000 (270.270270 ops/s)
+        Open attempts: 132808  Successful: 891  Currently open: 11
+                EPERM : 10
+                ENOENT : 690
+                E2BIG : 11629
+                EBADF : 11373
+                EINVAL : 107292
+                EOVERFLOW : 1
+                EOPNOTSUPP : 922
+                Trinity Type (Normal 203/33282)(Sampling 30/33126)(Global 630/33089)(Random 28/33311)
+                Type (Hardware 194/18701)(software 340/19083)(tracepoint 68/18984)(Cache 44/16522)(cpu 198/18851)(breakpoint 25/18415)(amd_nb 8/2118)(ibs_fetch 5/2026)(ibs_op 0/2240)(msr 9/2116)(#10 0/17)(#11 0/10)(#12 0/11)(#13 0/19)(#14 0/5)(#15 0/6)(#16 0/139)(#17 0/10)(#18 0/9)(>19 0/13526)
+        Close:  882/883 Successful
+        Read:   754/831 Successful
+        Write:  0/822 Successful
+        Ioctl:  326/811 Successful: (ENABLE 72/72)(DISABLE 75/75)(REFRESH 7/76)(RESET 78/78)(PERIOD 1/52)(SET_OUTPUT 5/64)(SET_FILTER 0/80)(ID 79/79)(SET_BPF 0/88)(PAUSE_OUTPUT 9/69)(#10 0/0)(#11 0/0)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/78)
+        Mmap:   397/1041 Successful: (MMAP 397/1041)(TRASH 71/137)(READ 110074/110082)(UNMAP 396/952)(AUX 0/109)(AUX_READ 0/0)
+        Prctl:  912/912 Successful
+        Fork:   461/461 Successful
+        Poll:   842/965 Successful
+        Access: 96/912 Successful
+        Overflows: 122077  Recursive: 0
+        SIGIOs due to RT signal queue full: 2
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 0
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 1
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 2
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 3
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 4
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 5
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 6
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 7
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 8
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 9
+Throttling event 10 fd 15, last_refresh=0, period=0, type=7 throttles 10
+Stuck in a signal storm w/o forward progress; Max throttle count hit, giving up
+Signal from invalid fd 15 Bad file descriptor
+SIGIO due to RT queue overflow
+SIGIO due to RT queue overflow
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 0
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 1
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 2
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 3
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 4
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 5
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 6
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 7
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 8
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 9
+Throttling event 2 fd 6, last_refresh=0, period=0, type=8 throttles 10
+Stuck in a signal storm w/o forward progress; Max throttle count hit, giving up
+Signal from invalid fd 6 Bad file descriptor
+[56285.317827] ------------[ cut here ]------------
+[56285.328331] WARNING: CPU: 0 PID: 0 at arch/x86/events/amd/ibs.c:409 perf_ibs_start+0xda/0x1cf
+[56285.343892] Modules linked in: nfsd auth_rpcgss oid_registry nfs_acl nfs lockd grace fscache sunrpc nls_utf8 nls_cp437 vfat fat edac_mce_amd edac_core kvm_amd kvm snd_hda_codec_realtek snd_hda_codec_generic radeon snd_hda_codec_hdmi irqbypass snd_hda_intel ghash_clmulni_intel snd_hda_codec ppdev hp_wmi sparse_keymap ttm drm_kms_helper aesni_intel evdev snd_hda_core drm aes_x86_64 pl2303 snd_hwdep ablk_helper usbserial snd_pcm cryptd lrw efi_pstore gf128mul glue_helper serio_raw efivars snd_timer parport_pc parport pcspkr k10temp sg tpm_infineon sp5100_tco i2c_algo_bit wmi fb_sys_fops syscopyarea sysfillrect sysimgblt snd i2c_piix4 soundcore i2c_core button acpi_cpufreq tpm_tis tpm_tis_core tpm processor ohci_pci sr_mod cdrom sd_mod ohci_hcd ehci_pci tg3 ahci ptp libahci pps_core libata xhci_pci ehci_hcd xhci_hcd crc32c_intel libphy psmouse usbcore scsi_mod usb_common
+[56285.482634] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.9.0-rc5+ #41
+[56285.497612] Hardware name: Hewlett-Packard HP Compaq Pro 6305 SFF/1850, BIOS K06 v02.57 08/16/2013
+[56285.482634] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.9.0-rc5+ #41
+[56285.497612] Hardware name: Hewlett-Packard HP Compaq Pro 6305 SFF/1850, BIOS K06 v02.57 08/16/2013
+[56285.515357]  ffff8801edc07cb0 ffffffff81429ccc 0000000000000000 0000000000000000
+[56285.531951]  ffff8801edc07cf0 ffffffff81079064 0000019900000009 ffff8801e7606900
+[56285.548309]  ffffe8ffffc0de98 ffffffff81c1a4e0 ffff8801e7606a48 ffffffff81c1a4e0
+[56285.564512] Call Trace:
+[56285.575249]  <IRQ> [56285.577244]  [<ffffffff81429ccc>] dump_stack+0x4d/0x63
+[56285.590488]  [<ffffffff81079064>] __warn+0xfa/0x115
+[56285.603490]  [<ffffffff810791e2>] warn_slowpath_null+0x18/0x1a
+[56285.617414]  [<ffffffff8100b1dd>] perf_ibs_start+0xda/0x1cf
+[56285.631040]  [<ffffffff8100b103>] ? perf_ibs_resume+0x25/0x25
+[56285.644802]  [<ffffffff81191b00>] ? perf_event_task_tick+0x155/0x2c3
+[56285.659128]  [<ffffffff81191b25>] perf_event_task_tick+0x17a/0x2c3
+[56285.673223]  [<ffffffff810b2ba7>] scheduler_tick+0x9e/0xcd
+[56285.686584]  [<ffffffff810f904f>] update_process_times+0x42/0x4f
+[56285.700434]  [<ffffffff8110bd7e>] tick_sched_handle+0x70/0x81
+[56285.714007]  [<ffffffff8110c65c>] tick_sched_timer+0x34/0x63
+[56285.727411]  [<ffffffff810f9fd7>] __hrtimer_run_queues+0x20e/0x3ad
+[56285.741333]  [<ffffffff81100f0b>] ? update_fast_timekeeper+0x40/0x47
+[56285.755409]  [<ffffffff8110c628>] ? tick_sched_do_timer+0x41/0x41
+[56285.769198]  [<ffffffff810f9dc9>] ? hrtimer_cancel+0x1b/0x1b
+[56285.782496]  [<ffffffff8110325d>] ? ktime_get_update_offsets_now+0x4c/0xde
+[56285.797077]  [<ffffffff810fa83e>] hrtimer_interrupt+0xa7/0x1a4
+[56285.810528]  [<ffffffff8105095e>] local_apic_timer_interrupt+0x63/0x6a
+[56285.824671]  [<ffffffff817ae4eb>] smp_apic_timer_interrupt+0x29/0x39
+[56285.838655]  [<ffffffff817ad82f>] apic_timer_interrupt+0x7f/0x90
+[56285.852226]  <EOI> [56285.854224]  [<ffffffff810c920d>] ? sched_idle_set_state+0x25/0x31
+[56285.868030]  [<ffffffff8160333a>] ? cpuidle_enter_state+0x147/0x1ba
+[56285.881988]  [<ffffffff816033fa>] cpuidle_enter+0x12/0x14
+[56285.894903]  [<ffffffff810c942d>] cpu_startup_entry+0x190/0x202
+[56285.908393]  [<ffffffff817a5f8b>] rest_init+0x82/0x85
+[56285.921069]  [<ffffffff81efe153>] start_kernel+0x48d/0x4b1
+[56285.934217]  [<ffffffff81efdcc6>] ? thread_stack_cache_init+0x6/0x6
+[56285.948081]  [<ffffffff8143bbcc>] ? cmdline_find_option_bool+0x92/0x106
+[56285.962230]  [<ffffffff81efd120>] ? early_idt_handler_array+0x120/0x120
+[56285.976304]  [<ffffffff81efd120>] ? early_idt_handler_array+0x120/0x120
+[56285.990301]  [<ffffffff81efd29a>] x86_64_start_reservations+0x2a/0x2c
+[56286.004100]  [<ffffffff81efd3df>] x86_64_start_kernel+0x143/0x152
+[56286.017492] ---[ end trace b597ef9238fc8c40 ]---
+
+
+</pre>
+
 <li>
 <pre>
 echo "0" > /proc/sys/kernel/perf_event_paranoid

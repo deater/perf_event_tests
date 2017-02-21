@@ -16,9 +16,9 @@
 	<li>pentium4 -- 4.9-rc1 crashes more or less immediately
 	<li>core2 -- 4.9-rc1 crashes paranoid 1 and lower
 	<li>haswell -- 4.9-5c5 will crash in a day or so
-	<li>skylake -- 4.9-rc1 will crash in a day or so
+	<li>skylake -- 4.9-rc6 will crash in a day or so
 	</ul>
-<li>x86/amd -- quickly crashes in amd_nb code (4.8-rc2)
+<li>x86/amd -- 4.9-rc7 -- chugs along for over a week?
 <li>sparc -- newest kernel I can run is 3.2, but locks up
 	more or less immediately
 </ul>
@@ -69,8 +69,6 @@
 
 <h3>Current Warnings (reproducible):</h3>
 <ul>
-<li><a href="4.9-rc5.kasan_token.html">
-	(warning) 4.9-rc5 KASAN global-out-of-bounds in match_token</a>
 <li><a href="4.9-rc5.kasan_unwind.html">
 	(warning) 4.9-rc5 KASAN stack-out-of-bounds in unwind_next_frame</a>
 <li><a href="4.9-rc1.overlap_scheduling.html">
@@ -168,11 +166,16 @@
 
 <h3>Fixed in 4.9</h3>
 	<ul>
+	<li><a href="4.9-rc5.kasan_token.html">
+		(warning) 4.9-rc5 KASAN global-out-of-bounds in match_token</a>
+		(e96271f3ed7e702fa36dd0605c0c5b5f065af816)
+	<li>powerpc: Don't call perf_event_disable() from atomic context
+		(trinity)
+		(5aab90ce1ec449912a2ebc4d45e0c85dac29e9dd)
 	<li><a href="4.9-rc5.kasan_imc_uncore.html">
 		(kasan) 4.9-rc5 BUG: KASAN: slab-out-of-bounds in snb_uncore_imc_event_del
 		(c499336cea8bbe15554c6fcea2138658c5395bfe)
 		</a>
-
 	<li><a href="4.9-rc1.vmalloc_fault.html">4.9-rc1 vmalloc
 		stack unwinder crash</a>
 		(7fbe6ac02485504b964b283aca62b36b4313ca79)
