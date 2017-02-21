@@ -20,6 +20,7 @@ PROGRAM_LIST =	\
 	sampled_notleader_refresh \
 	signal_after_exec \
 	sw_start_leader \
+	wrap \
 	wrong_size_enospc
 
 all: $(PROGRAM_LIST)
@@ -64,6 +65,9 @@ signal_after_exec: signal_after_exec.o \
 		$(LIB)/libhelper.a
 
 sw_start_leader: sw_start_leader.o \
+		$(LIB)/libhelper.a
+
+wrap:	wrap.o \
 		$(LIB)/libhelper.a
 
 wrong_size_enospc: wrong_size_enospc.o \
