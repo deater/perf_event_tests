@@ -1,5 +1,5 @@
 /* This file attempts to validate rdpmc counter access  */
-/* This feature reas introduced with Linux 3.4          */
+/* This feature was introduced with Linux 3.4           */
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
 
@@ -40,8 +40,8 @@ int main(int argc, char **argv) {
 
 	int fd[MAX_EVENTS],ret1,ret2;
 
-	unsigned long long stamp[MAX_EVENTS],stamp2[MAX_EVENTS];
-	unsigned long long now[MAX_EVENTS],now2[MAX_EVENTS];
+	unsigned long long values[MAX_EVENTS],enabled[MAX_EVENTS],running[MAX_EVENTS];
+	unsigned long long values2[MAX_EVENTS],enabled2[MAX_EVENTS],running2[MAX_EVENTS];
 
 	int count=2;
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 	/* TEST START/WORK/READ/STOP */
 	/*****************************/
 
-	/* open */
+	/* Open event  */
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
 	pe.type=PERF_TYPE_HARDWARE;
@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
 			test_fail(test_string);
 		}
 
+		/* mmap() event */
 		addr[i]=mmap(NULL,page_size, PROT_READ, MAP_SHARED,fd[i],0);
 		if (addr[i] == (void *)(-1)) {
 			fprintf(stderr,"Error mmap()ing event %d!\n",i);
@@ -105,8 +106,7 @@ int main(int argc, char **argv) {
 
 	/* read */
 	for(i=0;i<count;i++) {
-		stamp[i] = mmap_read_self(addr[i], NULL, &stamp2[i]);
-		//now[i] = mmap_read_self(addr[i],NULL,&now2[i]);
+		values[i] = mmap_read_self(addr[i], &enabled[i], &running[i]);
 	}
 
 	/* stop */
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	if (stamp[0]<0) {
+	if (values[0]<0) {
 		if (!quiet) printf("rdpmc support not available.\n");
 		test_yellow_no(test_string);
 	}
@@ -133,8 +133,8 @@ int main(int argc, char **argv) {
 		printf("total start/read/stop latency: %lld cycles\n",
 			stop_after-start_before);
 		for(i=0;i<count;i++) {
-			printf("\tEvent %x -- count: %lld running: %lld\n",
-				i,stamp[i],stamp2[i]);
+			printf("\tEvent %x -- count: %lld enabled: %lld running: %lld\n",
+				i,values[i],enabled[i],running[i]);
 		}
 	}
 
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
 	ret1=ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
 
 	for(i=0;i<count;i++) {
-		stamp[i] = mmap_read_self(addr[i], NULL, &stamp2[i]);
+		values[i] = mmap_read_self(addr[i], &enabled[i], &running[i]);
 	}
 
 	result=instructions_million();
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
 
 	/* read */
 	for(i=0;i<count;i++) {
-		now[i] = mmap_read_self(addr[i],NULL,&now2[i]);
+		values2[i] = mmap_read_self(addr[i],&enabled2[i],&running2[i]);
 	}
 
 	/* stop */
@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	if (stamp[0]<0) {
+	if (values[0]<0) {
 		if (!quiet) printf("rdpmc support not available.\n");
 		test_yellow_no(test_string);
 	}
@@ -221,15 +221,18 @@ int main(int argc, char **argv) {
 		printf("total start/read/work/read/stop latency: %lld cycles\n",
 			stop_after-start_before);
 		for(i=0;i<count;i++) {
-			printf("\tEvent %x -- count: %lld running: %lld\n",
-				i,now[i]-stamp[i],now2[i]-stamp2[i]);
+			printf("\t* Event %x -- count: %lld enabled %lld running: %lld\n",
+				i,values[i],enabled[i],running[i]);
+			printf("\t! Event %x -- count: %lld enabled %lld running: %lld\n",
+				i,values2[i],enabled2[i],running2[i]);
 		}
 	}
 
 	if (!quiet) printf("\n");
-	error=display_error(now[0]-stamp[0],
-				now[0]-stamp[0],
-				now[0]-stamp[0],
+
+	error=display_error(values2[0]-values[0],
+				values2[0]-values[0],
+				values2[0]-values[0],
 				1000000ULL,quiet);
 
 	if ((error>1.0) || ( error<-1.0)) {
