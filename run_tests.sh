@@ -402,6 +402,12 @@ $TESTS_DIR/rdpmc/rdpmc_support
 echo "  + $TESTS_DIR/rdpmc/rdpmc_validation"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_validation
+echo "  + $TESTS_DIR/rdpmc/rdpmc_multiplexing"
+echo -n "    "
+$TESTS_DIR/rdpmc/rdpmc_multiplexing
+echo "  + $TESTS_DIR/rdpmc/rdpmc_reset"
+echo -n "    "
+$TESTS_DIR/rdpmc/rdpmc_reset
 
 echo
 echo "* Checking OpenMP support"
