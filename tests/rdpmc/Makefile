@@ -6,6 +6,7 @@ LDFLAGS +=
 LIB = ../../lib
 
 PROGRAM_LIST = \
+	rdpmc_group \
 	rdpmc_multiplexing \
 	rdpmc_reset \
 	rdpmc_support \
@@ -15,6 +16,7 @@ PROGRAM_LIST = \
 
 all: $(PROGRAM_LIST)
 
+rdpmc_group: rdpmc_group.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_multiplexing: rdpmc_multiplexing.o rdpmc_lib.o $(LIB)/libhelper.a
 
