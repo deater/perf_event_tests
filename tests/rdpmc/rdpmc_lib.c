@@ -95,7 +95,7 @@ inline unsigned long long mmap_read_self(void *addr,
 	uint32_t seq, time_mult, time_shift, index, width;
 	uint64_t count, enabled, running;
 	uint64_t cyc, time_offset;
-	int64_t pmc = 0;
+	int64_t pmc = 0,pmc_before=0;
 	uint64_t quot, rem;
 	uint64_t delta = 0;
 
@@ -144,7 +144,10 @@ inline unsigned long long mmap_read_self(void *addr,
 
 		/* count is the value of the counter the last time */
 		/* the kernel read it */
+		width = pc->pmc_width;
 		count = pc->offset;
+		count<<=(64-width);
+		count>>=(64-width);
 
 		/* Ugh, libpfm4 perf_event.h has cap_usr_rdpmc */
 		/* while actual perf_event.h has cap_user_rdpmc */
@@ -153,10 +156,11 @@ inline unsigned long long mmap_read_self(void *addr,
 		/* Otherwise return the older (out of date?) count value */
 		if (pc->cap_user_rdpmc && index) {
 			/* width can be used to sign-extend result */
-			width = pc->pmc_width;
+
 
 			/* Read counter value */
-			pmc = rdpmc(index-1);
+			pmc_before = rdpmc(index-1);
+			pmc=pmc_before;
 
 			/* sign extend result */
 			pmc<<=(64-width);
@@ -171,6 +175,9 @@ inline unsigned long long mmap_read_self(void *addr,
 		barrier();
 
 	} while (pc->lock != seq);
+
+//	printf("BLAH: pmc_raw=%lx pmc=%lx offset=%llx width=%d\n",
+//		pmc_before,pmc,pc->offset,width);
 
 	if (en) *en=enabled;
 	if (ru) *ru=running;
