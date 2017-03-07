@@ -7,6 +7,7 @@ LIB = ../../lib
 
 PROGRAM_LIST = \
 	rdpmc_multiplexing \
+	rdpmc_reset \
 	rdpmc_support \
 	rdpmc_validation \
 	rdpmc_comparision_readsyscall \
@@ -16,6 +17,8 @@ all: $(PROGRAM_LIST)
 
 
 rdpmc_multiplexing: rdpmc_multiplexing.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_reset: rdpmc_reset.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 
