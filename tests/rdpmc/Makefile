@@ -8,6 +8,8 @@ LIB = ../../lib
 PROGRAM_LIST = \
 	rdpmc_group \
 	rdpmc_multiplexing \
+	rdpmc_pthreads \
+	rdpmc_pthreads_group \
 	rdpmc_reset \
 	rdpmc_support \
 	rdpmc_validation \
@@ -19,6 +21,10 @@ all: $(PROGRAM_LIST)
 rdpmc_group: rdpmc_group.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_multiplexing: rdpmc_multiplexing.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_pthreads: rdpmc_pthreads.o rdpmc_lib.o $(LIB)/libhelper.a -lpthread
+
+rdpmc_pthreads_group: rdpmc_pthreads_group.o rdpmc_lib.o $(LIB)/libhelper.a -lpthread
 
 rdpmc_reset: rdpmc_reset.o rdpmc_lib.o $(LIB)/libhelper.a
 
