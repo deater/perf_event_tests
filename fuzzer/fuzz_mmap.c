@@ -515,7 +515,7 @@ void unmap_mmap(int i,int from_sigio) {
 	result=munmap(mmaps[i].addr,mmaps[i].size);
 	if ((!from_sigio) && (logging&TYPE_MMAP)) {
 		sprintf(log_buffer,"U %d %d %p\n",
-			event_data[i].fd,
+			mmaps[i].fd, //event_data[i].fd,
 			mmaps[i].size,
 			mmaps[i].addr);
 		write(log_fd,log_buffer,strlen(log_buffer));
