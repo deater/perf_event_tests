@@ -164,8 +164,26 @@
 
 <h2>Fixed bugs:</h2>
 
+<h3>Fixed in 4.11</h3>
+	<ul>
+
+	<li>perf/core: Fix the perf_cpu_time_max_percent check
+		1572e45a924f254d9570093abde46430c3172e3d
+		Found with perf_fuzzer by Tan Xiaojun
+	</ul>
+
 <h3>Fixed in 4.10</h3>
 	<ul>
+
+	<li>perf: Fix concurrent sys_perf_event_open() vs. 'move_group' race
+		321027c1fe77f892f4ea07846aeae08cefbbb290
+		CVE-2017-6001
+		While not explicitly said to be found with a fuzzer, it's
+		definitely the kind of bug a fuzzer makes easy to find.		
+		Didn't ask for confirmation as this is another one of those
+		mysterious hackers who doesn't believe in e-mail but is 
+		OK having a twitter account.
+
 	<li>perf/x86/intel: Account interrupts for PEBS errors
 		Found by Jiri Olsa
 		(475113d937adfd150eb82b5e2c5507125a68e7af)
