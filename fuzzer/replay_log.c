@@ -29,10 +29,14 @@ static unsigned long long line_num=0;
 
 #define FD_REMAP_SIZE 2048
 
-static int fd_remap[FD_REMAP_SIZE];
-static char *mmap_remap[FD_REMAP_SIZE];
+
 static int fd_overflows[FD_REMAP_SIZE];
 static int fd_throttles[FD_REMAP_SIZE];
+
+struct event_type {
+	int fd_remap;
+	char *mmap_remap;
+} event[FD_REMAP_SIZE];
 
 static int debug=0;
 
@@ -52,7 +56,7 @@ static void mmap_event(char *line) {
 
 	sscanf(line,"%*c %d %d %llx",&size,&fd,&address);
 
-	if (fd_remap[fd]==-1) {
+	if (event[fd].fd_remap==-1) {
 		fprintf(stderr,"Line %lld Skipping mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
@@ -60,19 +64,19 @@ static void mmap_event(char *line) {
 #ifdef FORCE_SAME_MMAP_ADDR
 	data=mmap((void *)(long)address, size,
 		PROT_READ|PROT_WRITE, MAP_SHARED,
-		fd_remap[fd], 0);
+		event[fd].fd_remap, 0);
 
 #else
 	data=mmap(NULL, size,
 		PROT_READ|PROT_WRITE, MAP_SHARED,
-		fd_remap[fd], 0);
+		event[fd].fd_remap, 0);
 #endif
 	if (data==MAP_FAILED) {
 		fprintf(stderr,"Line %lld: Error with mmap of size %d of %d/%d\n",
-			line_num,size,fd,fd_remap[fd]);
+			line_num,size,fd,event[fd].fd_remap);
 		error=1;
 	}
-	mmap_remap[fd_remap[fd]]=data;
+	event[event[fd].fd_remap].mmap_remap=data;
 
 //		fcntl(event_data[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
 //		fcntl(event_data[i].fd, F_SETSIG, SIGRTMIN+2);
@@ -86,19 +90,19 @@ static void trash_mmap_event(char *line) {
 
 	sscanf(line,"%*c %d %d %d",&value,&size,&fd);
 
-	if (fd_remap[fd]==-1) {
+	if (event[fd].fd_remap==-1) {
 		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
 
-	if (mmap_remap[fd_remap[fd]]==MAP_FAILED) {
+	if (event[event[fd].fd_remap].mmap_remap==MAP_FAILED) {
 		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
 
-	if (mmap_remap[fd_remap[fd]]==NULL) {
+	if (event[event[fd].fd_remap].mmap_remap==NULL) {
 		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
@@ -106,12 +110,11 @@ static void trash_mmap_event(char *line) {
 
 //	printf("Trashing %p with %x\n",mmap_remap[fd_remap[fd]],value);
 
-	memset(mmap_remap[fd_remap[fd]],value,size);
+	memset(event[event[fd].fd_remap].mmap_remap,value,size);
 
 }
 
 /* Urgh, we allow unmapping after closing now */
-void *last_mmap=NULL;
 
 static void munmap_event(char *line) {
 
@@ -120,14 +123,16 @@ static void munmap_event(char *line) {
 
 	sscanf(line,"%*c %d %d",&fd,&size);
 
-	if (fd_remap[fd]==-1) {
-//		fprintf(stderr,"Line: %lld Skipping munmap as fd %d is invalid\n",
-//			line_num,fd);
-		mmap_address=last_mmap;
+	if (event[fd].fd_remap==-1) {
+		fprintf(stderr,"Line: %lld Skipping munmap as fd %d is invalid\n",
+			line_num,fd);
+//		mmap_address=last_mmap;
+		return;
 	}
+
 	else {
-		mmap_address=mmap_remap[fd_remap[fd]];
-		mmap_remap[fd_remap[fd]]=MAP_FAILED;
+		mmap_address=event[event[fd].fd_remap].mmap_remap;
+		event[event[fd].fd_remap].mmap_remap=MAP_FAILED;
 	}
 
 	if (mmap_address==MAP_FAILED) {
@@ -245,7 +250,7 @@ static void open_event(char *line) {
 	if (group_fd==-1) {
 		remapped_group_fd=-1;
 	} else {
-		remapped_group_fd=fd_remap[group_fd];
+		remapped_group_fd=event[group_fd].fd_remap;
 	}
 
 
@@ -288,7 +293,7 @@ static void open_event(char *line) {
 		return;
 	}
 
-	fd_remap[orig_fd]=fd;
+	event[orig_fd].fd_remap=fd;
 
 	if (fd>FD_REMAP_SIZE) {
 		fprintf(stderr,"overflow fd out of range\n");
@@ -308,21 +313,19 @@ static void close_event(char *line) {
 
 	sscanf(line,"%*c %d",&fd);
 
-	if (fd_remap[fd]==-1) {
+	if (event[fd].fd_remap==-1) {
 		fprintf(stderr,"Line %lld Skipping close as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
 
-	last_mmap=mmap_remap[fd_remap[fd]];
-
-	result=close(fd_remap[fd]);
+	result=close(event[fd].fd_remap);
 	if (result<0) {
 		fprintf(stderr,"Line %lld Error closing %d/%d\n",
-			line_num,fd,fd_remap[fd]);
+			line_num,fd,event[fd].fd_remap);
 
 	}
-	fd_remap[fd]=-1;
+	event[fd].fd_remap=-1;
 
 }
 
@@ -341,27 +344,27 @@ static void ioctl_event(char *line) {
 	switch(arg) {
 		case PERF_EVENT_IOC_SET_OUTPUT:
 			if (arg2==-1) {
-				result=ioctl(fd_remap[fd],arg,arg2);
+				result=ioctl(event[fd].fd_remap,arg,arg2);
 			}
 			else {
-				result=ioctl(fd_remap[fd],arg,fd_remap[arg2]);
+				result=ioctl(event[fd].fd_remap,arg,event[arg2].fd_remap);
 			}
 			break;
 		case PERF_EVENT_IOC_ID:
-			result=ioctl(fd_remap[fd],arg,&id);
+			result=ioctl(event[fd].fd_remap,arg,&id);
 			break;
 		case PERF_EVENT_IOC_PERIOD:
 			period=arg2;
-			result=ioctl(fd_remap[fd],arg,&period);
+			result=ioctl(event[fd].fd_remap,arg,&period);
 			break;
 		default:
-			result=ioctl(fd_remap[fd],arg,arg2);
+			result=ioctl(event[fd].fd_remap,arg,arg2);
 			break;
 	}
 
 	if (result<0) {
 		fprintf(stderr,"Line %lld Error with ioctl %d %lld on %d/%d : %s\n",
-			line_num,arg,arg2,fd,fd_remap[fd],strerror(errno));
+			line_num,arg,arg2,fd,event[fd].fd_remap,strerror(errno));
 		error=1;
 		return;
 	}
@@ -387,11 +390,11 @@ static void read_event(char *line) {
 		return;
 	}
 
-	result=read(fd_remap[fd],data,read_size);
+	result=read(event[fd].fd_remap,data,read_size);
 
 	if (result<0) {
 		fprintf(stderr,"Line %lld Error reading %d bytes from %d/%d\n",
-			line_num,read_size,fd,fd_remap[fd]);
+			line_num,read_size,fd,event[fd].fd_remap);
 		error=1;
 		return;
 	}
@@ -562,7 +565,7 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 			write(1,string,strlen(string));
 
 			close(fd);
-			fd_remap[fd]=-1;
+			event[fd].fd_remap=-1;
 		}
 	}
 
@@ -595,9 +598,9 @@ static void setup_overflow(char *line) {
 		printf("Error setting up signal handler\n");
 	}
 
-	fcntl(fd_remap[overflow_fd], F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
-	fcntl(fd_remap[overflow_fd], F_SETSIG, SIGRTMIN+2);
-	fcntl(fd_remap[overflow_fd], F_SETOWN,getpid());
+	fcntl(event[overflow_fd].fd_remap, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
+	fcntl(event[overflow_fd].fd_remap, F_SETSIG, SIGRTMIN+2);
+	fcntl(event[overflow_fd].fd_remap, F_SETOWN,getpid());
 }
 
 
@@ -664,7 +667,10 @@ int main(int argc, char **argv) {
 
 	/* init */
 
-	for(i=0;i<FD_REMAP_SIZE;i++) fd_remap[i]=-1;
+	for(i=0;i<FD_REMAP_SIZE;i++) {
+		event[i].fd_remap=-1;
+		event[i].mmap_remap=(char *)-1;
+	}
 
 //	if (argc<2) {
 //		print_usage(argv[0]);
@@ -812,6 +818,7 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+
 			case 'C':
 				if (replay_which & REPLAY_CLOSE) {
 					close_event(line);
@@ -840,6 +847,8 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+
+
 			case 'O':
 				if (replay_which & REPLAY_OPEN) {
 					open_event(line);
@@ -870,6 +879,8 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+
+
 			case 'q':
 				fprintf(stderr,"Quitting early\n");
 				exit(1);
@@ -889,7 +900,6 @@ int main(int argc, char **argv) {
 					printf("\tFor proper replay you might want to (as root):\n\techo \"%d\" > /proc/sys/kernel/perf_event_max_sample_rate\n",old_sample_rate);
 				}
 				break;
-
 			case 'S':
 				if (replay_which & REPLAY_SEED) {
 					/* don't need to do anything */
@@ -902,9 +912,11 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
+
 			case '#':
 				/* skip */
 				break;
+
 			default:
 				fprintf(stderr,"Line %lld Unknown log type \'%c\'\n",
 					line_num,line[0]);
