@@ -36,6 +36,7 @@ static int fd_throttles[FD_REMAP_SIZE];
 struct event_type {
 	int fd_remap;
 	char *mmap_remap;
+	int size;
 } event[FD_REMAP_SIZE];
 
 static int debug=0;
@@ -50,33 +51,46 @@ static int original_pid=-1;
 
 static void mmap_event(char *line) {
 
-	int fd,size;
+	int fd,size,remapped_fd;
 	char *data;
 	unsigned long long address;
 
 	sscanf(line,"%*c %d %d %llx",&size,&fd,&address);
 
-	if (event[fd].fd_remap==-1) {
+	remapped_fd=event[fd].fd_remap;
+
+	if (remapped_fd==-1) {
 		fprintf(stderr,"Line %lld Skipping mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
+
+	/* Clear this out, in case we fail */
+	event[fd].mmap_remap=MAP_FAILED;
+	event[fd].size=0;
+
+
 #ifdef FORCE_SAME_MMAP_ADDR
 	data=mmap((void *)(long)address, size,
 		PROT_READ|PROT_WRITE, MAP_SHARED,
-		event[fd].fd_remap, 0);
+		remapped_fd, 0);
 
 #else
 	data=mmap(NULL, size,
 		PROT_READ|PROT_WRITE, MAP_SHARED,
-		event[fd].fd_remap, 0);
+		remapped_fd, 0);
 #endif
 	if (data==MAP_FAILED) {
 		fprintf(stderr,"Line %lld: Error with mmap of size %d of %d/%d\n",
-			line_num,size,fd,event[fd].fd_remap);
+			line_num,size,fd,remapped_fd);
 		error=1;
 	}
-	event[event[fd].fd_remap].mmap_remap=data;
+	else {
+		fprintf(stderr,"VMW MAP fd=%d addr=%p size=%d\n",fd,data,size);
+
+		event[fd].mmap_remap=data;
+		event[fd].size=size;
+	}
 
 //		fcntl(event_data[i].fd, F_SETFL, O_RDWR|O_NONBLOCK|O_ASYNC);
 //		fcntl(event_data[i].fd, F_SETSIG, SIGRTMIN+2);
@@ -96,13 +110,13 @@ static void trash_mmap_event(char *line) {
 		return;
 	}
 
-	if (event[event[fd].fd_remap].mmap_remap==MAP_FAILED) {
+	if (event[fd].mmap_remap==MAP_FAILED) {
 		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
 	}
 
-	if (event[event[fd].fd_remap].mmap_remap==NULL) {
+	if (event[fd].mmap_remap==NULL) {
 		fprintf(stderr,"Line %lld Skipping trash mmap as fd %d not valid\n",
 			line_num,fd);
 		return;
@@ -110,7 +124,7 @@ static void trash_mmap_event(char *line) {
 
 //	printf("Trashing %p with %x\n",mmap_remap[fd_remap[fd]],value);
 
-	memset(event[event[fd].fd_remap].mmap_remap,value,size);
+	memset(event[fd].mmap_remap,value,size);
 
 }
 
@@ -118,21 +132,31 @@ static void trash_mmap_event(char *line) {
 
 static void munmap_event(char *line) {
 
-	int fd,size,result;
+	int fd,size,result,remapped_fd;
 	void *mmap_address;
 
 	sscanf(line,"%*c %d %d",&fd,&size);
 
-	if (event[fd].fd_remap==-1) {
-		fprintf(stderr,"Line: %lld Skipping munmap as fd %d is invalid\n",
-			line_num,fd);
-//		mmap_address=last_mmap;
+	remapped_fd=event[fd].fd_remap;
+
+	/* Might have already been closed */
+	/* This should be OK as long as mmap value still good*/
+	if (remapped_fd==-1) {
+		if (event[fd].mmap_remap==MAP_FAILED) {
+			fprintf(stderr,"Line: %lld Skipping munmap as fd %d fd and mmap not valid\n",
+				line_num,fd);
+		}
 		return;
 	}
 
-	else {
-		mmap_address=event[event[fd].fd_remap].mmap_remap;
-		event[event[fd].fd_remap].mmap_remap=MAP_FAILED;
+	mmap_address=event[fd].mmap_remap;
+	/* Mark it as unmapped */
+	event[fd].mmap_remap=MAP_FAILED;
+
+	if (event[fd].size!=size) {
+		fprintf(stderr,"Line %lld size didn't match (%d!=%d)\n",
+			line_num,size,event[fd].size);
+		return;
 	}
 
 	if (mmap_address==MAP_FAILED) {
@@ -151,6 +175,7 @@ static void munmap_event(char *line) {
 		return;
 	}
 
+	fprintf(stderr,"VMW UNMAP %d %p %d\n",fd,mmap_address,size);
 
 }
 
@@ -293,7 +318,9 @@ static void open_event(char *line) {
 		return;
 	}
 
+	fprintf(stderr,"VMW OPEN %d (remapped %d)\n",orig_fd,fd);
 	event[orig_fd].fd_remap=fd;
+	event[orig_fd].mmap_remap=MAP_FAILED;
 
 	if (fd>FD_REMAP_SIZE) {
 		fprintf(stderr,"overflow fd out of range\n");
@@ -325,6 +352,7 @@ static void close_event(char *line) {
 			line_num,fd,event[fd].fd_remap);
 
 	}
+	fprintf(stderr,"VMW CLOSE %d (%d)\n",fd,event[fd].fd_remap);
 	event[fd].fd_remap=-1;
 
 }
@@ -669,7 +697,8 @@ int main(int argc, char **argv) {
 
 	for(i=0;i<FD_REMAP_SIZE;i++) {
 		event[i].fd_remap=-1;
-		event[i].mmap_remap=(char *)-1;
+		event[i].mmap_remap=MAP_FAILED;
+		event[i].size=0;
 	}
 
 //	if (argc<2) {
