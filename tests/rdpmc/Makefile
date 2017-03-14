@@ -6,6 +6,8 @@ LDFLAGS +=
 LIB = ../../lib
 
 PROGRAM_LIST = \
+	rdpmc_attach \
+	rdpmc_multiattach \
 	rdpmc_group \
 	rdpmc_multiplexing \
 	rdpmc_pthreads \
@@ -17,6 +19,10 @@ PROGRAM_LIST = \
 	rdpmc_comparision_mmap
 
 all: $(PROGRAM_LIST)
+
+rdpmc_attach: rdpmc_attach.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_multiattach: rdpmc_multiattach.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_group: rdpmc_group.o rdpmc_lib.o $(LIB)/libhelper.a
 

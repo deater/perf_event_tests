@@ -38,7 +38,7 @@ static void *our_thread(void *arg) {
 	void *addr[MAX_EVENTS];
 	int fd[MAX_EVENTS],ret1;
 	int count=4;
-	int i,result;
+	int i,result=0;
 	long page_size=getpagesize();
 	unsigned long long values[MAX_EVENTS],enabled[MAX_EVENTS],running[MAX_EVENTS];
 
