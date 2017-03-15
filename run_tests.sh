@@ -417,6 +417,9 @@ $TESTS_DIR/rdpmc/rdpmc_attach
 echo "  + $TESTS_DIR/rdpmc/rdpmc_multiattach"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_multiattach
+echo "  + $TESTS_DIR/rdpmc/rdpmc_multiattach_papi"
+echo -n "    "
+$TESTS_DIR/rdpmc/rdpmc_multiattach_papi
 echo "  + $TESTS_DIR/rdpmc/rdpmc_pthreads"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_pthreads
