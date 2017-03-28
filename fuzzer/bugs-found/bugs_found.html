@@ -167,6 +167,9 @@
 <h3>Fixed in 4.11</h3>
 	<ul>
 
+	<li>perf/core: Fix use-after-free in perf_release()
+		e552a8389aa409e257b7dcba74f67f128f979ccc
+		Found with syzkaller by Dmitry Vyukov
 	<li>perf/core: Fix the perf_cpu_time_max_percent check
 		1572e45a924f254d9570093abde46430c3172e3d
 		Found with perf_fuzzer by Tan Xiaojun
@@ -579,6 +582,32 @@
 		Fixed in b3e62e350
 		<br><br>
 	</ul>
+<hr>
+
+List of perf_event related CVEs.  Ones listed as ??? are likely found by
+a fuzzer but the info provided does not make this clear.
+<ul>
+<li>CVE-2017-6001 (???)
+<li>CVE-2017-0403 Android (???)
+<li>CVE-2016-6786 Android (???)
+<li>CVE-2016-6787 Android (???)
+<li>CVE-2016-3843 Qualcomm (???)
+<li>CVE-2016-3768 Qualcomm (???)
+<li>CVE-2016-0843 Qualcomm (???)
+<li>CVE-2016-0819 Qualcomm (likely perf_fuzzer)
+<li>CVE-2016-0805 Qualcomm (likely perf_fuzzer)
+<li>CVE-2015-8955 (perf_fuzzer)
+<li>CVE-2015-8963 (???)
+<li>CVE-2013-2930 (perf_fuzzer)
+<li>CVE 2013-4254 (perf_fuzzer)
+<li>CVE-2013-2094 (trinity)
+<li>CVE 2011-2918
+<li>CVE-2011-4611
+<li>CVE-2011-2521
+<li>CVE-2010-4169
+<li>CVE-2009-3234
+</ul>
+
 <hr>
 
 <a href="index.html">Back to the perf_fuzzer page</a>
