@@ -15,6 +15,7 @@ PROGRAM_LIST = \
 	rdpmc_pthreads_group \
 	rdpmc_reset \
 	rdpmc_support \
+	rdpmc_sw_events \
 	rdpmc_validation \
 	rdpmc_comparision_readsyscall \
 	rdpmc_comparision_mmap
@@ -38,6 +39,8 @@ rdpmc_pthreads_group: rdpmc_pthreads_group.o rdpmc_lib.o $(LIB)/libhelper.a -lpt
 rdpmc_reset: rdpmc_reset.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_sw_events: rdpmc_sw_events.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_validation: rdpmc_validation.o rdpmc_lib.o $(LIB)/libhelper.a
 
