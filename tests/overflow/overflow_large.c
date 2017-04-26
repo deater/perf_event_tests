@@ -69,8 +69,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 }
 
 int main(int argc, char** argv) {
-
-	int ret,quiet;
+	int ret,quiet,silent;
 
 	struct perf_event_attr pe;
 
@@ -79,6 +78,7 @@ int main(int argc, char** argv) {
 	char test_string[]="Testing large sample_period...";
 
 	quiet=test_quiet();
+	silent = quiet;  /* true prints details of error */
 
 	if (!quiet) {
 		printf("This tests behavior of large sample_period.\n");
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 
 	fd1=perf_event_open(&pe,0,-1,-1,0);
 	if (fd1<0) {
-		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		if (!silent) fprintf(stderr,"Error opening leader %llx\n",pe.config);
 		test_fail(test_string);
 	}
 
@@ -141,11 +141,9 @@ int main(int argc, char** argv) {
 	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
 
 	if (ret<0) {
-		if (!quiet) {
-			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
-					"%d %s\n",errno,strerror(errno));
-			test_fail(test_string);
-		}
+		if (!silent) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE "
+				     "of group leader: %d %s\n",errno,strerror(errno));
+		test_fail(test_string);
 	}
 
 	instructions_million();
@@ -165,17 +163,17 @@ int main(int argc, char** argv) {
 	}
 
 	if (count.total==0) {
-		if (!quiet) printf("No overflow events generated.\n");
+		if (!silent) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
 
 	if (count.in!=0) {
-		if (!quiet) printf("Unexpected POLL_IN interrupt.\n");
+		if (!silent) printf("Unexpected POLL_IN interrupt.\n");
 		test_fail(test_string);
 	}
 
 	if (count.hup!=10) {
-		if (!quiet) printf("POLL_HUP value %d, expected %d.\n",
+		if (!silent) printf("POLL_HUP value %d, expected %d.\n",
 					count.hup,10);
 		test_fail(test_string);
 	}
@@ -211,7 +209,7 @@ int main(int argc, char** argv) {
 
 	fd1=perf_event_open(&pe,0,-1,-1,0);
 	if (fd1<0) {
-		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		if (!silent) fprintf(stderr,"Error opening leader %llx\n",pe.config);
 		test_fail(test_string);
 	}
 
@@ -227,11 +225,9 @@ int main(int argc, char** argv) {
 	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
 
 	if (ret<0) {
-		if (!quiet) {
-			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
-					"%d %s\n",errno,strerror(errno));
-			test_fail(test_string);
-		}
+		if (!silent) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of "
+				     "group leader: %d %s\n",errno,strerror(errno));
+		test_fail(test_string);
 	}
 
 	instructions_million();
@@ -251,7 +247,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (count.total!=0) {
-		if (!quiet) printf("Unexpected overflow events generated.\n");
+		if (!silent) printf("Unexpected overflow events generated.\n");
 		test_fail(test_string);
 	}
 
@@ -288,7 +284,7 @@ int main(int argc, char** argv) {
 
 	fd1=perf_event_open(&pe,0,-1,-1,0);
 	if (fd1<0) {
-		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		if (!silent) fprintf(stderr,"Error opening leader %llx\n",pe.config);
 		test_fail(test_string);
 	}
 
@@ -302,13 +298,10 @@ int main(int argc, char** argv) {
 	ioctl(fd1, PERF_EVENT_IOC_RESET, 0);
 
 	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
-
 	if (ret<0) {
-		if (!quiet) {
-			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
-					"%d %s\n",errno,strerror(errno));
-			test_fail(test_string);
-		}
+		if (!silent) fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE "
+				     "of group leader: %d %s\n",errno,strerror(errno));
+		test_fail(test_string);
 	}
 
 	instructions_million();
@@ -328,7 +321,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (count.total!=0) {
-		if (!quiet) printf("Unexpected overflow events generated.\n");
+		if (!silent) printf("Unexpected overflow events generated.\n");
 		test_fail(test_string);
 	}
 
@@ -365,16 +358,14 @@ int main(int argc, char** argv) {
 
 	fd1=perf_event_open(&pe,0,-1,-1,0);
 	if (fd1<0) {
-
 		if (errno==EINVAL) {
 			if (!quiet) {
 				fprintf(stderr,"Properly failed with too-large sample_period\n");
-				test_pass(test_string);
-				exit(0);
 			}
+			test_pass(test_string);
+			exit(0);
 		}
-
-		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		if (!silent) fprintf(stderr,"Error opening leader %llx\n",pe.config);
 		test_fail(test_string);
 	}
 
@@ -390,11 +381,11 @@ int main(int argc, char** argv) {
 	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
 
 	if (ret<0) {
-		if (!quiet) {
+		if (!silent) {
 			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE of group leader: "
 					"%d %s\n",errno,strerror(errno));
-			test_fail(test_string);
 		}
+		test_fail(test_string);
 	}
 
 	instructions_million();
@@ -415,7 +406,7 @@ int main(int argc, char** argv) {
 
 	if (count.total>20000) {
 		int version;
-		if (!quiet) printf("Stopping early, too many overflows encountered.\n");
+		if (!silent) printf("Stopping early, too many overflows encountered.\n");
 		/* This is expected before 3.15 */
 		version=get_kernel_version();
 		if (version<0x30f00) {
@@ -427,7 +418,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (count.total!=0) {
-		if (!quiet) printf("Unexpected overflow events generated.\n");
+		if (!silent) printf("Unexpected overflow events generated.\n");
 		test_fail(test_string);
 	}
 
