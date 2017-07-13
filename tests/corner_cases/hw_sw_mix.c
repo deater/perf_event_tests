@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
 	if (!quiet) {
 		printf("Testing mixes of HW and SW events if group leader is SW.\n");
-		printf("This is known to be broken through 3.9\n");
+		printf("This is known to be broken on all kernels(?)\n");
 	}
 
 	if (!quiet) printf("Testing with: ");
@@ -96,7 +96,11 @@ int main(int argc, char** argv) {
 
 		read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
 		if (read_result!=sizeof(long long)*READ_SIZE) {
-			if (!quiet) printf("Unexpected read size\n");
+			if (!quiet) printf("Unexpected read size e=%d\n",e);
+
+			/* Known to fail at SHSS */
+			if (e==2) test_known_kernel_bug(test_string);
+
 			test_fail(test_string);
 		}
 
