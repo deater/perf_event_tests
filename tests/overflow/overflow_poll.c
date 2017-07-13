@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
 		if (fds[0].revents&POLLHUP) count.hup++;
 
 		if (fds[0].revents&POLLERR) {
-			printf("Returned error!\n");
+			if (!quiet) printf("Returned error!\n");
 			break;
 		}
 
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
 		/* When the child exits	rather than an error	*/
 
 		if (fds[0].revents&POLLHUP) {
-			printf("Returned HUP!\n");
+			if (!quiet) printf("Returned HUP!\n");
 			break;
 		}
 
