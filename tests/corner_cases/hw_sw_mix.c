@@ -31,94 +31,98 @@
 
 int main(int argc, char** argv) {
 
-   int fd[EVENTS],ret,quiet;
-   int result;
-   int read_result;
-   long long count[READ_SIZE];
-   int i,e;
+	int fd[EVENTS],ret,quiet;
+	int result;
+	int read_result;
+	long long count[READ_SIZE];
+	int i,e;
 
-   struct perf_event_attr pe[EVENTS];
+	struct perf_event_attr pe[EVENTS];
 
-   char test_string[]="Testing mixes of HW and SW events...";
+	char test_string[]="Testing mixes of HW and SW events...";
 
-   quiet=test_quiet();
+	quiet=test_quiet();
 
-   if (!quiet) {
-      printf("Testing mixes of HW and SW events if group leader is SW.\n");
-      printf("This is known to be broken through 3.9\n");
-   }
+	if (!quiet) {
+		printf("Testing mixes of HW and SW events if group leader is SW.\n");
+		printf("This is known to be broken through 3.9\n");
+	}
 
-   if (!quiet) printf("Testing with: ");
-   for(e=0;e<(1<<EVENTS);e++) {
+	if (!quiet) printf("Testing with: ");
 
-      for(i=0;i<EVENTS;i++) {
-         memset(&pe[i],0,sizeof(struct perf_event_attr));
-         pe[i].size=sizeof(struct perf_event_attr);
+	for(e=0;e<(1<<EVENTS);e++) {
 
-         if (e&(1<<i)) {
-            pe[i].type=PERF_TYPE_HARDWARE;
-            pe[i].config=PERF_COUNT_HW_CPU_CYCLES;
-            if (!quiet) printf("H");
-         }
-         else {
-            pe[i].type=PERF_TYPE_SOFTWARE;
-            pe[i].config=PERF_COUNT_SW_TASK_CLOCK;
-            if (!quiet) printf("S");
-         }
+		for(i=0;i<EVENTS;i++) {
+			memset(&pe[i],0,sizeof(struct perf_event_attr));
+			pe[i].size=sizeof(struct perf_event_attr);
 
-         if (i==0) {
-            pe[i].disabled=1;
-         }
+			if (e&(1<<i)) {
+				pe[i].type=PERF_TYPE_HARDWARE;
+				pe[i].config=PERF_COUNT_HW_CPU_CYCLES;
+				if (!quiet) printf("H");
+			}
+			else {
+				pe[i].type=PERF_TYPE_SOFTWARE;
+				pe[i].config=PERF_COUNT_SW_TASK_CLOCK;
+				if (!quiet) printf("S");
+			}
 
-         pe[i].exclude_kernel=1;
-         pe[i].read_format=PERF_FORMAT_GROUP;
+			if (i==0) {
+				pe[i].disabled=1;
+			}
 
-         fd[i]=perf_event_open(&pe[i],0,-1,i==0?-1:fd[0],0);
-         if (fd[0]<0) {
-            fprintf(stderr,"Error opening\n");
-            test_fail(test_string);
-            exit(1);
-         }
-      }
-      if (!quiet) printf("\n");
+			pe[i].exclude_kernel=1;
+			pe[i].read_format=PERF_FORMAT_GROUP;
 
-      ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
-      ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
+			fd[i]=perf_event_open(&pe[i],0,-1,i==0?-1:fd[0],0);
+			if (fd[0]<0) {
+				fprintf(stderr,"Error opening\n");
+				test_fail(test_string);
+				exit(1);
+			}
+		}
 
-      result=instructions_million();
-      if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
+		if (!quiet) printf("\n");
 
-      ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
+		ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
+		ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
 
-      read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
-      if (read_result!=sizeof(long long)*READ_SIZE) {
-         if (!quiet) printf("Unexpected read size\n");
-         test_fail(test_string);
-      }
+		result=instructions_million();
+		if (result==CODE_UNIMPLEMENTED) {
+			test_skip(test_string);
+		}
 
-      if (!quiet) {
-         for(i=0;i<count[0];i++) {
-	    printf("\t%i Counted %lld\n",i,count[1+i]);
-         }
-      }
+		ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
 
-      for(i=0;i<EVENTS;i++) {
-         if (count[i]==0) {
-            if (!quiet) {
-               fprintf(stderr,"Counter %d did not start as expected\n",i);
-            }
-            test_fail(test_string);
-         }
-      }
+		read_result=read(fd[0],&count,sizeof(long long)*READ_SIZE);
+		if (read_result!=sizeof(long long)*READ_SIZE) {
+			if (!quiet) printf("Unexpected read size\n");
+			test_fail(test_string);
+		}
 
-      for(i=0;i<EVENTS;i++) {
-         close(fd[i]);
-      }
-   }
+		if (!quiet) {
+			for(i=0;i<count[0];i++) {
+				printf("\t%i Counted %lld\n",i,count[1+i]);
+			}
+		}
 
-   (void) ret;
+		for(i=0;i<EVENTS;i++) {
+			if (count[i]==0) {
+				if (!quiet) {
+					fprintf(stderr,"Counter %d did not start as expected\n",i);
+				}
+				test_fail(test_string);
+			}
+		}
 
-   test_pass(test_string);
+		for(i=0;i<EVENTS;i++) {
+			close(fd[i]);
+		}
+	}
 
-   return 0;
+	(void) ret;
+
+	test_pass(test_string);
+
+	return 0;
 }
