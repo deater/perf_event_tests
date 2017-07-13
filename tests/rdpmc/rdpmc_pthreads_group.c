@@ -3,9 +3,8 @@
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
 
-
-char test_string[]="Testing if rdpmc with pthreads works...";
-int quiet=0;
+static char test_string[]="Testing if rdpmc with pthreads works...";
+static int quiet=0;
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -124,8 +123,10 @@ static void *our_thread(void *arg) {
 	close(fd[0]);
 
 	/* Print results */
-	for(i=0;i<count;i++) {
-		printf("%d %d %lld\n",p->num,i,values[i]);
+	if (!quiet) {
+		for(i=0;i<count;i++) {
+			printf("%d %d %lld\n",p->num,i,values[i]);
+		}
 	}
 
 	return NULL;
