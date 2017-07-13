@@ -71,6 +71,7 @@ void * get_non_null_address(void)
 	return _get_address(FALSE);
 }
 
+#if VMW
 static bool is_arg_address(enum argtype argtype)
 {
 	if (argtype == ARG_ADDRESS)
@@ -80,7 +81,6 @@ static bool is_arg_address(enum argtype argtype)
 	return FALSE;
 }
 
-#if VMW
 unsigned long find_previous_arg_address(struct syscallrecord *rec, unsigned int argnum)
 {
 	struct syscallentry *entry;
