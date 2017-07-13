@@ -369,12 +369,14 @@ int main(int argc, char** argv) {
 		if (errno==EINVAL) {
 			if (!quiet) {
 				fprintf(stderr,"Properly failed with too-large sample_period\n");
-				test_pass(test_string);
-				exit(0);
 			}
+			test_pass(test_string);
+			exit(0);
 		}
 
-		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		if (!quiet) {
+			fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		}
 		test_fail(test_string);
 	}
 
