@@ -2,10 +2,6 @@
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
 
-
-char test_string[]="Testing if userspace rdpmc multiplexing works...";
-int quiet=0;
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -30,8 +26,6 @@ int main(int argc, char **argv) {
 	int i,result;
 	long page_size=getpagesize();
 
-
-
 	long long start_before,stop_after;
 
 	void *addr[MAX_EVENTS];
@@ -45,6 +39,9 @@ int main(int argc, char **argv) {
 	double error;
 
 	int count=10;
+
+	char test_string[]="Testing if userspace rdpmc multiplexing works...";
+	int quiet=0;
 
 	quiet=test_quiet();
 
@@ -88,7 +85,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-
 	/* start */
 	start_before=rdtsc();
 
@@ -100,7 +96,10 @@ int main(int argc, char **argv) {
 		result=instructions_million();
 	}
 
-	if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
+	if (result==CODE_UNIMPLEMENTED) {
+		if (!quiet) printf("Warning, no million\n");
+		test_skip(test_string);
+	}
 
 	/* read */
 	for(i=0;i<count;i++) {
@@ -129,17 +128,19 @@ int main(int argc, char **argv) {
 		test_yellow_no(test_string);
 	}
 
+	for(i=0;i<count;i++) {
+		/* PAPI algo for scaling */
+		adjusted[i] = (enabled[i] * 128LL) / running[i];
+		adjusted[i] = adjusted[i]*values[i];
+		adjusted[i] = adjusted[i] / 128LL;
+	}
+
 	if (!quiet) {
 		printf("total start/read/stop latency: %lld cycles\n",
 			stop_after-start_before);
 		for(i=0;i<count;i++) {
 			printf("\tEvent %x -- Raw count: %lld enabled: %lld running: %lld\n",
 				i,values[i],enabled[i],running[i]);
-
-			/* PAPI algo for scaling */
-			adjusted[i] = (enabled[i] * 128LL) / running[i];
-			adjusted[i] = adjusted[i]*values[i];
-			adjusted[i] = adjusted[i] / 128LL;
 
 			printf("\tScaled count: %lld (%.2lf%%, %lld/%lld)\n",
 				adjusted[i],
