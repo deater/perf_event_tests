@@ -109,6 +109,9 @@ int main(int argc, char** argv) {
 		for(i=0;i<10000;i++) {
 			result=instructions_million();
 		}
+		if (result==CODE_UNIMPLEMENTED) {
+			test_skip(test_string);
+		}
 
 		read_result=read(fd[0],&count,sizeof(long long)*(COUNTERS+1));
 		if (read_result!=sizeof(long long)*(COUNTERS+1)) {

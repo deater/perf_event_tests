@@ -86,12 +86,12 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
+	without=buffer[0];
+
 	if (!quiet) {
 		printf("With attr.exclude_hv=0\n");
-		printf("\tValue    [%d] : %lld\n",0,buffer[0]);
+		printf("\tValue    [%d] : %lld\n",0,without);
 	}
-
-	without=buffer[0];
 
 	close(fd1);
 
@@ -139,19 +139,20 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
+	with=buffer[0];
+
 	if (!quiet) {
 		printf("With attr.exclude_hv=1\n");
-		printf("\tValue    [%d] : %lld\n",0,buffer[0]);
+		printf("\tValue    [%d] : %lld\n",0,with);
 	}
 
 	close(fd1);
 
-	if (buffer[0]==0) {
+	if (with==0) {
 		if (!quiet) printf("\tError! Empty result\n");
 		errors++;
 	}
 
-	with=buffer[0];
 
 	/* There's not a really good way to test for this */
 	/* Values should be roughly close on most machines */

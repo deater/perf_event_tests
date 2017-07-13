@@ -5,7 +5,8 @@
 //#define SYSFS "/sys/kernel/debug/tracing/events/"
 //#define SYSFS "./fakesys/snb_ep/sys/bus/event_source/devices/"
 
-#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
+//#define _BSD_SOURCE
 
 #include <stdio.h>
 #include <sys/types.h>
