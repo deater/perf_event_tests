@@ -63,7 +63,6 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-
 	if (!quiet) {
 		printf("Testing fork behavior\n");
 		printf("Even though the child runs longer, the value\n");
@@ -75,6 +74,9 @@ int main(int argc, char** argv) {
 
 	/* Run a million */
 	result=instructions_million();
+	if (result==CODE_UNIMPLEMENTED) {
+		test_skip(test_string);
+	}
 
 	/* fork off a child */
 	pid = fork();
@@ -86,12 +88,12 @@ int main(int argc, char** argv) {
 
 	/* our child */
 	if ( pid == 0 ) {
-		printf("In child, running an extra million\n");
+		if (!quiet) printf("In child, running an extra million\n");
 		/* extra million */
 		result=instructions_million();
 	}
 	else {
-		printf("In parent\n");
+		if (!quiet) printf("In parent\n");
 
 		/* disable counting */
 		ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE,0);
