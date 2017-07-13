@@ -6,8 +6,8 @@
 
 int test_quiet(void) {
 
-  if (getenv("TESTS_QUIET")!=NULL) return 1;
-  return 0;
+	if (getenv("TESTS_QUIET")!=NULL) return 1;
+	return 0;
 }
 
 #define RED    "\033[1;31m"
@@ -43,14 +43,14 @@ void test_warn(char *string) {
 
 void test_needtest(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sNEED TESTCASE%s\n", 60, string, 
-	   YELLOW, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s NEED TESTCASE\n", 60, string);
-  }
-  exit(1);
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sNEED TESTCASE%s\n", 60, string,
+			YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s NEED TESTCASE\n", 60, string);
+	}
+	exit(1);
 }
 
 void test_caution(char *string) {
@@ -68,7 +68,8 @@ void test_caution(char *string) {
 void test_known_issue(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", 60, string, YELLOW, NORMAL );
+		fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", 60, string,
+			YELLOW, NORMAL );
 	}
 	else {
 		fprintf( stdout, "%-*s KNOWN ISSUE\n", 60, string);
@@ -90,144 +91,157 @@ void test_skip(char *string) {
 
 void test_fail(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sFAILED%s\n", 60, string,
-	   RED, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s FAILED\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sFAILED%s\n", 60, string,
+			RED, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s FAILED\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
+}
+
+void test_known_kernel_bug(char *string) {
+
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sWARNING KNOWN KERNEL BUG%s\n",
+			60, string, YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s WARNING KNOWN KERNEL BUG\n", 60, string);
+	}
+
+	exit(1);
 }
 
 void test_fail_kernel(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sFAILED (KERNEL TOO OLD)%s\n", 60, string,
-	   RED, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s FAILED (KERNEL TOO OLD)\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sFAILED (KERNEL TOO OLD)%s\n",
+			60, string, RED, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s FAILED (KERNEL TOO OLD)\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_kernel_fail(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sKERNEL FAILED%s\n", 60, string, 
-	   RED, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s KERNEL FAILED\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sKERNEL FAILED%s\n", 60, string,
+			RED, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s KERNEL FAILED\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_kernel_pass(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sKERNEL OK%s\n", 60, string, 
-	   GREEN, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s KERNEL OK\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sKERNEL OK%s\n", 60, string,
+			GREEN, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s KERNEL OK\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_unexplained(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sUNEXPLAINED%s\n", 60, string, 
-	   BLUE, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s UNEXPLAINED\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sUNEXPLAINED%s\n", 60, string,
+			BLUE, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s UNEXPLAINED\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_unimplemented(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sUNIMPLEMENTED%s\n", 60, string, 
-	   BLUE, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s UNIMPLEMENTED\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sUNIMPLEMENTED%s\n", 60, string,
+			BLUE, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s UNIMPLEMENTED\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_yellow_no(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sNO%s\n", 60, string, 
-	   YELLOW, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s NO\n", 60, string);
-  }
-  exit(1);
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sNO%s\n", 60, string,
+			YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s NO\n", 60, string);
+	}
+	exit(1);
 }
 
 void test_green_yes(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sYES%s\n", 60, string, 
-	   GREEN, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s YES\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sYES%s\n", 60, string,
+			GREEN, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s YES\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_yellow_yes(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sYES%s\n", 60, string, 
-	   YELLOW, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s YES\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sYES%s\n", 60, string,
+			YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s YES\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_yellow_old_behavior(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sOLD BEHAVIOR%s\n", 60, string, 
-	   YELLOW, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s OLD BEHAVIOR\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sOLD BEHAVIOR%s\n", 60, string,
+			YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s OLD BEHAVIOR\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 void test_green_new_behavior(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sNEW BEHAVIOR%s\n", 60, string, 
-	   GREEN, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s NEW BEHAVIOR\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sNEW BEHAVIOR%s\n", 60, string,
+			GREEN, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s NEW BEHAVIOR\n", 60, string);
+	}
 
-  exit(1);
+	exit(1);
 }
 
 
@@ -240,23 +254,24 @@ double display_error(long long average,
 		     long long expected,
                      int quiet) {
 
-   double error;
+	double error;
 
-   error=(((double)average-expected)/expected)*100.0;
+	error=(((double)average-expected)/expected)*100.0;
 
-   if (!quiet) {
-      printf("   Expected: %lld\n", expected);
-      printf("   High: %lld   Low:  %lld   Average:  %lld\n",
-          high,low,average);
+	if (!quiet) {
+		printf("   Expected: %lld\n", expected);
+		printf("   High: %lld   Low:  %lld   Average:  %lld\n",
+			high,low,average);
 
-      printf("   ( note, a small value above %lld may be expected due\n",
-	  expected);
-      printf("     to overhead and interrupt noise, among other reasons)\n");
+		printf("   ( note, a small value above %lld "
+			"may be expected due\n", expected);
+		printf("     to overhead and interrupt noise, "
+			"among other reasons)\n");
 
-      printf("   Average Error = %.2f%%\n",error);
-   }
+		printf("   Average Error = %.2f%%\n",error);
+	}
 
-   return error;
+	return error;
 
 }
 

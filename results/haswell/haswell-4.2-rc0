@@ -1,0 +1,293 @@
+
+**** RUNNING perf_event_tests ****
+Linux haswell 4.1.0+ #162 SMP Thu Jul 2 16:04:01 EDT 2015 x86_64 GNU/Linux
+
+* Checking infrastructure
+  + ./tests/utils/get_cache_info
+    Seeing if cache info is provided by the kernel...            PASSED
+ + ./tests/sysfs/events
+    Testing format of event files under /sys/...                 PASSED
+
+* Checking generalized events
+  + ./tests/generalized_events/branches
+    Testing "branches" generalized event...                      PASSED
+  + ./tests/generalized_events/branch-misses
+    Testing "branch-misses" generalized event...                 PASSED
+  + ./tests/generalized_events/cycles
+    Testing "cycles" generalized event...                        PASSED
+  + ./tests/generalized_events/instructions
+    Testing "instructions" generalized event...                  PASSED
+  + ./tests/generalized_events/l1-dcache-stores
+    Testing "L1-dcache-stores" generalized event...              PASSED
+  + ./tests/generalized_events/l1-dcache-loads
+    Testing "L1-dcache-loads" generalized event...               PASSED
+
+* Checking Intel x86 specific features
+  + ./tests/x86_intel/fixed_ctr0
+    Testing fixed counter 0 event...                             PASSED
+  + ./tests/x86_intel/fixed_ctr1
+    Testing fixed counter 1 event...                             FAILED
+  + ./tests/x86_intel/fixed_ctr2
+    Testing fixed counter 2 event...                             PASSED
+  + ./tests/x86_intel/offcore_response
+    Testing RAW access to offcore response counters...           PASSED
+  + ./tests/x86_intel/offcore_response_mask
+    Testing if setting invalid offcore bits is blocked...        PASSED
+  + ./tests/x86_intel/uncore_events
+    Testing uncore events...                                     FAILED
+
+* Checking breakpoint support
+  + ./tests/breakpoints/breakpoint_support
+    Testing hardware breakpoints (733203422)...                  PASSED
+
+* Checking basic perf_event functionality
+  + ./tests/attr_fields/disabled
+    Testing disabled bit...                                      PASSED
+  + ./tests/attr_fields/exclusive
+    Testing exclusive eventsets...                               PASSED
+  + ./tests/attr_fields/format_id_support
+    Testing for FORMAT_ID support...                             PASSED
+  + ./tests/attr_fields/inherit
+    Testing inherit...                                           PASSED
+  + ./tests/attr_fields/inherit_stat
+    Testing inherit_stat...                                      UNEXPLAINED
+  + ./tests/attr_fields/read_format_range_check
+    Testing attr->read_format invalid bits...                    PASSED
+  + ./tests/attr_fields/sample_type_range_check
+    Testing attr->sample_type invalid bits...                    PASSED
+  + ./tests/attr_fields/exclude_user
+    Testing exclude_user...                                      PASSED
+  + ./tests/attr_fields/exclude_kernel
+    Testing exclude_kernel...                                    PASSED
+  + ./tests/attr_fields/exclude_hv
+    Testing exclude_hv...                                        PASSED
+  + ./tests/attr_fields/exclude_guest
+    Testing exclude_guest...                                     PASSED
+  + ./tests/attr_fields/exclude_host
+    Testing exclude_host...                                      PASSED
+  + ./tests/flags/flags_range_check
+    Testing flags invalid bits...                                PASSED
+  + ./tests/flags/flags_cgroup
+    Testing PERF_FLAG_PID_CGROUP flag...                         PASSED
+  + ./tests/flags/flags_fd_no_group
+    Testing PERF_FLAG_FD_NO_GROUP flag...                        PASSED
+  + ./tests/flags/flags_fd_output
+    Testing PERF_FLAG_FD_OUTPUT flag...                          FAILED
+  + ./tests/socket/socket_pass
+    Testing passing fd over a socket...                          PASSED
+
+* Checking perf_event ioctl calls
+  + ./tests/ioctl/ioctl_flag_group
+    Testing PERF_IOC_FLAG_GROUP...                               PASSED
+  + ./tests/ioctl/ioctl_id
+    Testing ioctl(PERF_EVENT_IOC_ID)...                          PASSED
+  + ./tests/ioctl/ioctl_period
+    Testing ioctl(PERF_EVENT_IOC_PERIOD)...                      NEW BEHAVIOR
+  + ./tests/ioctl/ioctl_set_filter
+    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   FAILED
+  + ./tests/ioctl/ioctl_set_output
+    Testing PERF_EVENT_IOC_SET_OUTPUT ioctl...                   PASSED
+
+* Checking error returns
+  + ./tests/error_returns/e2big
+    Testing E2BIG errors...                                      PASSED
+  + ./tests/error_returns/eacces
+    Testing EACCES generation...                                 PASSED
+  + ./tests/error_returns/ebadf
+    Testing EBADF generation...                                  PASSED
+  + ./tests/error_returns/efault
+    Testing EFAULT generation...                                 PASSED
+  + ./tests/error_returns/einval
+    Testing EINVAL generation...                                 PASSED
+  + ./tests/error_returns/emfile
+    Testing if EMFILE can be triggered...                        PASSED
+  + ./tests/error_returns/enoent
+    Testing ENOENT generation...                                 PASSED
+  + ./tests/error_returns/enospc
+    Testing ENOSPC generation...                                 PASSED
+  + ./tests/error_returns/eopnotsupp
+    Testing EOPNOTSUPP generation...                             PASSED
+  + ./tests/error_returns/eperm
+    Testing EPERM generation...                                  PASSED
+  + ./tests/error_returns/esrch
+    Testing ESRCH generation...                                  PASSED
+  + ./tests/error_returns/non-existent
+    Testing if non-existent events fail...                       SKIPPED
+
+* Checking multithread functionality
+  + ./tests/multithread/fork_then_read
+    In child, running an extra million
+In parent
+Testing reads in forked children...                          PASSED
+
+* Checking overflow functionality
+  + ./tests/overflow/breakpoint_overflow
+    Testing hardware breakpoint overflow...                      UNEXPLAINED
+  + ./tests/overflow/simple_overflow_leader
+    Testing overflow on leaders...                               PASSED
+  + ./tests/overflow/simple_overflow_sibling
+    Testing overflows on sibling...                              PASSED
+  + ./tests/overflow/simultaneous_overflow
+    Testing multiple event overflow...                           PASSED
+  + ./tests/overflow/simultaneous_group_overflow
+    Testing multiple event overflow within group...              PASSED
+  + ./tests/overflow/simul_oneshot_group_overflow
+    Testing simultaneous one-shot group overflow...              PASSED
+  + ./tests/overflow/single_shot_overflow
+    Testing single shot overflow...                              PASSED
+  + ./tests/overflow/single_shot_w_enable
+    Testing enable vs refresh signal types...                    PASSED
+  + ./tests/overflow/wakeup_events_overflow
+    Testing wakeup events overflow...                            PASSED
+  + ./tests/overflow/overflow_requires_wakeup
+    Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
+  + ./tests/overflow/overflow_poll
+    Returned HUP!
+Testing catching overflow with poll()...                     FAILED
+  + ./tests/overflow/overflow_large
+    Testing large sample_period...                               FAILED
+
+* Checking tracepoint functionality
+  + ./tests/tracepoints/tracepoint_alias
+    Testing if tracepoint event ids alias...                     NEW BEHAVIOR
+
+* Checking mmap record sample functionality
+  + ./tests/record_sample/print_record_sample
+    Testing record sampling...                                   PASSED
+  + ./tests/record_sample/validate_record_sample
+    Validating sample record overflow...                         PASSED
+  + ./tests/record_sample/lost_record_sample
+    Checking behavior on mmap overflow...                        PASSED
+  + ./tests/record_sample/multiple_mmap_sizes
+    Checking behavior of various mmap sizes...                   PASSED
+  + ./tests/record_sample/sample_branch_stack
+    Testing PERF_SAMPLE_BRANCH_STACK...                          PASSED
+  + ./tests/record_sample/record_comm
+    Testing PERF_RECORD_COMM...                                  PASSED
+  + ./tests/record_sample/record_comm_exec
+    Testing PERF_RECORD_COMM_EXEC...                             PASSED
+  + ./tests/record_sample/record_fork
+    Testing PERF_RECORD_FORK...                                  PASSED
+  + ./tests/record_sample/record_mmap
+    Testing PERF_RECORD_MMAP...                                  PASSED
+  + ./tests/record_sample/record_mmap2
+    Testing PERF_RECORD_MMAP2...                                 PASSED
+  + ./tests/record_sample/record_mmap_data
+    Testing PERF_RECORD_MMAP with mmap_data...                   PASSED
+  + ./tests/record_sample/sample_data_src
+    Testing PERF_SAMPLE_DATA_SRC...                              PASSED
+  + ./tests/record_sample/sample_regs_intr
+    Testing PERF_SAMPLE_REGS_INTR...                             PASSED
+  + ./tests/record_sample/sample_regs_user
+    Testing PERF_SAMPLE_REGS_USER...                             PASSED
+  + ./tests/record_sample/sample_stack_user
+    Testing PERF_SAMPLE_STACK_USER...                            PASSED
+  + ./tests/record_sample/sample_weight
+    Testing PERF_SAMPLE_WEIGHT...                                PASSED
+  + ./tests/record_sample/overwrite_mmap
+    Checking trashing of mmap buffer...                          PASSED
+
+* Checking bugs that PAPI has to work around
+  + ./tests/bugs/sync_read_required
+    Testing if time running is correct without DISABLE...        PASSED
+  + ./tests/bugs/read_group_attached
+    Testing if FORMAT_GROUP works on attached processes...       PASSED
+  + ./tests/bugs/check_schedulability
+    Testing if events checked for schedulability at read...      PASSED
+  + ./tests/multiplexing/check_papi_multiplexing
+    Testing if schedulability checked with pinned=0...           PASSED
+  + ./tests/multiplexing/check_multiplexing
+    Testing if multiplexing works...                             PASSED
+
+* Checking other bugs
+  + ./tests/corner_cases/sw_start_leader
+    Testing start with sw event group leader...                  PASSED
+  + ./tests/corner_cases/hw_sw_mix
+    Testing mixes of HW and SW events...                         FAILED
+
+* Checking bugs that can silently produce wrong results
+  + ./tests/constraints/check_constraints
+    Testing if event constraints are enforced...                 SKIPPED
+  + ./tests/corner_cases/context_switch_user_kernel
+    Testing if context-switches are kernel only...               FAILED
+
+* Checking interfaces that have changed over the years
+  + ./tests/corner_cases/overflow_requires_mmap
+    Testing if overflow signals require ring buffer...           NEW BEHAVIOR
+  + ./tests/corner_cases/signal_after_exec
+    Testing if overflow signals survive exec...                  NEW BEHAVIOR
+  + ./tests/corner_cases/sampled_notleader_refresh
+    Testing if refresh of group leader enables siblings...       NEW BEHAVIOR
+
+* Checking for corner-cases in the ABI (not necessarily bugs)
+  + ./tests/corner_cases/multiple_active
+    Testing multiple simultaneous measurements...                PASSED
+  + ./tests/corner_cases/max_num_events
+    Testing max events that can be created...                    PASSED
+  + ./tests/corner_cases/max_multiplex
+    Testing limit of multiplexing...                             PASSED
+  + ./tests/corner_cases/reset_leader
+    Testing reset on group leader...                             PASSED
+  + ./tests/corner_cases/check_reset_mpx
+    Testing if reset clears multiplex fields...                  PASSED
+
+* Checking for fast RDPMC support
+  + ./tests/rdpmc/rdpmc_support
+    Testing if userspace rdpmc reads are supported...            NEW BEHAVIOR
+  + ./tests/rdpmc/rdpmc_validation
+    Testing if userspace rdpmc reads give expected results...    PASSED
+
+* Checking OpenMP support
+  + ./tests/openmp/openmp_test
+    	+ Running 10 million instructions in thread 4
+	+ Running 10 million instructions in thread 1
+	+ Running 10 million instructions in thread 7
+	+ Running 10 million instructions in thread 5
+	+ Running 10 million instructions in thread 3
+	+ Running 10 million instructions in thread 2
+	+ Running 10 million instructions in thread 6
+	Running with 8 threads
+	+ Running 10 million instructions in thread 0
+Testing OpenMP results...                                    PASSED
+  + ./tests/openmp/openmp_overflow
+    Overflow 0 in 18746
+Overflow 1 in 18746
+Overflow 2 in 18746
+Overflow 3 in 18746
+Overflow 4 in 18746
+Overflow 5 in 18746
+Overflow 6 in 18746
+Overflow 7 in 18746
+Overflow 8 in 18746
+Overflow 9 in 18746
+Overflow 0 in 18746
+Overflow 1 in 18746
+Overflow 2 in 18746
+Overflow 3 in 18746
+Overflow 4 in 18746
+Overflow 5 in 18746
+Overflow 6 in 18746
+Overflow 7 in 18746
+Overflow 8 in 18746
+Overflow 9 in 18746
+Testing OpenMP overflow results...                           FAILED
+  + ./tests/openmp/openmp_sample
+    ERROR! CPU0 overflow count low!
+ERROR! CPU1 overflow count low!
+ERROR! CPU2 overflow count low!
+ERROR! CPU3 overflow count low!
+ERROR! CPU4 overflow count low!
+ERROR! CPU5 overflow count low!
+ERROR! CPU6 overflow count low!
+Testing OpenMP sampling results...                           FAILED
+
+* Checking proposed interface updates (not in any released kernel)
+  + ./tests/corner_cases/ioctl_refresh_0
+    Testing if PERF_IOC_REFRESH with 0 works...                  USE CAUTION
+  + ./tests/corner_cases/wrong_size_enospc
+    Testing if ENOSPC returned for wrong-sized buffer...         OLD BEHAVIOR
+
+* Checking for major bugs that are unlikely to ever be fixed
+  + ./tests/bugs/nmi_watchdog_group_leader
+    Testing if we can determine maximum events despite NMI watchdog... FAILED
+
