@@ -20,10 +20,8 @@
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
-
-char test_string[BUFSIZ];
-int quiet=0;
-int fd;
+static int quiet=0;
+static int fd;
 
 int test_function(int a, int b, int quiet) __attribute__((noinline));
 
@@ -54,13 +52,11 @@ int main(int argc, char **argv) {
 
 	void *address;
 
+	char test_string[]="Testing hardware breakpoints...";
+
 	address=test_function;
 
 	quiet=test_quiet();
-
-	sprintf(test_string,"Testing hardware breakpoints (%d)...",
-					42);
-
 
 	if (!quiet) {
 		printf("This test checks that hardware breakpoints work.\n");
@@ -138,8 +134,7 @@ skip_execs:
 
 	/* Urgh, it's hard to force gcc 4.8+ to not optimize */
 	/* this all away.                                    */
-	sprintf(test_string,"Testing hardware breakpoints (%d)...",
-					sum);
+	if (!quiet) printf("Testing hardware breakpoints (%d)...",sum);
 
 	/*******************************/
 	/* Test write breakpoint       */
@@ -206,8 +201,8 @@ skip_writes:
 
 	/* Urgh, it's hard to force gcc 4.8+ to not optimize */
 	/* this all away.                                    */
-	sprintf(test_string,"Testing hardware breakpoints (%d)...",
-					test_variable);
+	if (!quiet) printf("Testing hardware breakpoints (%d)...",
+			test_variable);
 
 
 	/*******************************/
