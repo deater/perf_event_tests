@@ -199,7 +199,6 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-
 	/* Create group member */
 
 	memset(&pe2,0,sizeof(struct perf_event_attr));
@@ -212,14 +211,15 @@ int main(int argc, char** argv) {
 	pe2.sample_period=50000;
 	arch_adjust_domain(&pe2,quiet);
 
-	fd2=perf_event_open(&pe2,0,-1,fd1,PERF_FLAG_FD_NO_GROUP|
+	/* This has failed since Linux 2.6.35 */
+	fd2=perf_event_open(&pe2,0,-1,fd1,PERF_FLAG_FD_NO_GROUP |
 					PERF_FLAG_FD_OUTPUT);
 	if (fd2<0) {
 		if (!quiet) {
-			fprintf(stderr,"Unexpected error on perf_event_open() %s\n",strerror(errno));
+			fprintf(stderr,"Unexpected error creating member event %s\n",strerror(errno));
 
 		}
-		test_fail(test_string);
+		test_known_kernel_bug(test_string);
 	}
 
 
