@@ -1,5 +1,6 @@
 int test_quiet(void);
 void test_pass(char *string);
+void test_warn(char *string);
 void test_needtest(char *string);
 void test_caution(char *string);
 void test_known_issue(char *string);

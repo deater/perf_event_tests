@@ -20,13 +20,25 @@ int test_quiet(void) {
 
 void test_pass(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sPASSED%s\n", 60, string, 
-	   GREEN, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s PASSED\n", 60, string);
-  }
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sPASSED%s\n", 60, string,
+			GREEN, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s PASSED\n", 60, string);
+	}
+}
+
+void test_warn(char *string) {
+
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sWARNING%s\n", 60, string,
+			YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s WARNING\n", 60, string);
+	}
+	exit(1);
 }
 
 void test_needtest(char *string) {
@@ -43,38 +55,37 @@ void test_needtest(char *string) {
 
 void test_caution(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sUSE CAUTION%s\n", 60, string, 
-	   YELLOW, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s USE CAUTION\n", 60, string);
-  }
-  exit(1);
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sUSE CAUTION%s\n", 60, string,
+			YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s USE CAUTION\n", 60, string);
+	}
+	exit(1);
 }
 
 void test_known_issue(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", 60, string, 
-	   YELLOW, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s KNOWN ISSUE\n", 60, string);
-  }
-  exit(1);
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", 60, string, YELLOW, NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s KNOWN ISSUE\n", 60, string);
+	}
+	exit(1);
 }
 
 void test_skip(char *string) {
 
-  if (isatty(fileno(stdout))) {
-     fprintf( stdout, "%-*s %sSKIPPED%s\n", 60, string, 
-	   WHITE, NORMAL );
-  }
-  else {
-    fprintf( stdout, "%-*s SKIPPED\n", 60, string);
-  }
-  exit(1);
+	if (isatty(fileno(stdout))) {
+		fprintf( stdout, "%-*s %sSKIPPED%s\n", 60, string, WHITE,
+			NORMAL );
+	}
+	else {
+		fprintf( stdout, "%-*s SKIPPED\n", 60, string);
+	}
+	exit(1);
 }
 
 void test_fail(char *string) {
