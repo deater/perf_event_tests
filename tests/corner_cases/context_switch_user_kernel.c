@@ -21,7 +21,7 @@ char test_string[]="Testing if context-switches are kernel only...";
 
 int main(int argc, char **argv) {
 
-	int ret,quiet;
+	int ret,quiet,i;
 	struct perf_event_attr pe;
 	int fd;
 	long long user_count,kernel_count;
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 	/* user count */
 
 	if (!quiet) {
-		printf("First checking if context-switches recoded in user-only\n");
+		printf("First checking if context-switches reported when measuring in user-only\n");
 	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
@@ -54,7 +54,10 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	naive_matrix_multiply(quiet);
+	for(i=0;i<10;i++) {
+		naive_matrix_multiply(quiet);
+		usleep(100);
+	}
 
 	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 	if (ret<0) {
@@ -76,7 +79,7 @@ int main(int argc, char **argv) {
 	/* Kernel Count */
 
 	if (!quiet) {
-		printf("Now checking if context-switches reported as kernel-only\n");
+		printf("Now checking if context-switches reported when measuring kernel-only\n");
 	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
@@ -100,7 +103,10 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	naive_matrix_multiply(quiet);
+	for(i=0;i<10;i++) {
+		naive_matrix_multiply(quiet);
+		usleep(100);
+	}
 
 	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 	if (ret<0) {
