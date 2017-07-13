@@ -48,7 +48,9 @@ int main(int argc, char **argv) {
 
 	data[DATASIZE]=SENTINEL;
 
-	printf("data size=%ld\n",sizeof(data));
+	quiet=test_quiet();
+
+	if (!quiet) printf("data size=%ld\n",sizeof(data));
 
 	if (argc>1) {
 		max_limit=atoi(argv[1]);
@@ -56,8 +58,6 @@ int main(int argc, char **argv) {
 			printf("Improper max limit %d\n",max_limit);
 		}
 	}
-
-	quiet=test_quiet();
 
 	fd=calloc(max_limit,sizeof(int));
 	if (fd==NULL) {
@@ -139,8 +139,10 @@ int main(int argc, char **argv) {
 
 	ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
 
-	printf("Trying to read %ld bytes into data\n",
-		DATASIZE*sizeof(long long));
+	if (!quiet) {
+		printf("Trying to read %ld bytes into data\n",
+			DATASIZE*sizeof(long long));
+	}
 	result=read(fd[0],&data,29*1024);// DATASIZE*sizeof(long long));
 
 	if (data[DATASIZE]!=SENTINEL) {
