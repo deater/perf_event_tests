@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
 	int num_counters=0;
 	int errors=0,total_errors=0;
 	int watchdog_enabled;
+	int warn=0;
 
 	long long values[256];
 
@@ -50,10 +51,11 @@ int main(int argc, char **argv) {
 		printf("Anyway, all the values should match.\n\n");
 	}
 
-	if (watchdog_enabled) {
+	if ((!quiet) && (watchdog_enabled)) {
 		printf("The NMI watchdog is enabled.\n");
 		printf("This often grabs fixed counter 1,\n");
 		printf("hiding the issue.\n\n");
+		warn=1;
 	}
 
 	if (detect_vendor()!=VENDOR_INTEL) test_skip(test_string);
@@ -135,6 +137,8 @@ int main(int argc, char **argv) {
 	if (total_errors>0) {
 		test_fail(test_string);
 	}
+
+	if (warn) test_warn(test_string);
 
 	test_pass(test_string);
 
