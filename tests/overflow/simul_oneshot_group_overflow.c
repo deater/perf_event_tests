@@ -223,6 +223,8 @@ int main(int argc, char** argv) {
 		pe.sample_type=0;
 		pe.read_format=PERF_FORMAT_GROUP;
 		pe.disabled=(i==0)?1:0;
+		/* Note: pinning the group leader is what */
+		/* caused the bug in 4.11-rc1 */
 		pe.pinned=(i==0)?1:0;
 		pe.exclude_kernel=1;
 		pe.exclude_hv=1;
