@@ -1,0 +1,293 @@
+
+**** RUNNING perf_event_tests ****
+Linux haswell 4.11.0-1-amd64 #1 SMP Debian 4.11.6-1 (2017-06-19) x86_64 GNU/Linux
+
+* Testing /proc/sys/kernel/perf_event_paranoid setting
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/utils/check_paranoid
+    Checking /proc/sys/kernel/perf_event_paranoid setting...     PASSED
+
+* Checking infrastructure
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/utils/get_cache_info
+    Seeing if cache info is provided by the kernel...            PASSED
+ + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/sysfs/events
+    Testing format of event files under /sys/...                 PASSED
+
+* Checking generalized events
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/branches
+    Testing "branches" generalized event...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/branch-misses
+    Testing "branch-misses" generalized event...                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/cycles
+    Testing "cycles" generalized event...                        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/instructions
+    Testing "instructions" generalized event...                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/l1-dcache-stores
+    Testing "L1-dcache-stores" generalized event...              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/l1-dcache-loads
+    Testing "L1-dcache-loads" generalized event...               PASSED
+
+* Checking Intel x86 specific features
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr0
+    Testing fixed counter 0 event...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr1
+    Testing fixed counter 1 event...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr2
+    Testing fixed counter 2 event...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/offcore_response
+    Testing RAW access to offcore response counters...           PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/offcore_response_mask
+    Testing if setting invalid offcore bits is blocked...        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/uncore_events
+    Testing uncore events...                                     PASSED
+
+* Checking breakpoint support
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/breakpoints/breakpoint_support
+    Testing hardware breakpoints...                              PASSED
+
+* Checking basic perf_event functionality
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/disabled
+    Testing disabled bit...                                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/exclusive
+    Testing exclusive eventsets...                               PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/format_id_support
+    Testing for FORMAT_ID support...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/inherit
+    Testing inherit...                                           PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/inherit_stat
+    Testing inherit_stat...                                      UNEXPLAINED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/read_format_range_check
+    Testing attr->read_format invalid bits...                    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/sample_type_range_check
+    Testing attr->sample_type invalid bits...                    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/exclude_user
+    Testing exclude_user...                                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/exclude_kernel
+    Testing exclude_kernel...                                    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/exclude_hv
+    Testing exclude_hv...                                        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/exclude_guest
+    Testing exclude_guest...                                     PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/exclude_host
+    Testing exclude_host...                                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/flags/flags_range_check
+    Testing flags invalid bits...                                PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/flags/flags_cgroup
+    Testing PERF_FLAG_PID_CGROUP flag...                         PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/flags/flags_fd_no_group
+    Testing PERF_FLAG_FD_NO_GROUP flag...                        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/flags/flags_fd_output
+    Testing PERF_FLAG_FD_OUTPUT flag...                          WARNING KNOWN KERNEL BUG
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/socket/socket_pass
+    Testing passing fd over a socket...                          PASSED
+
+* Checking attr.size behavior
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/too_big
+    Testing attr > kernel supported size...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/too_little
+    Testing attr < kernel supported size...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/just_right
+    Testing attr is kernel supported size...                     PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/header_mismatch
+    Testing header vs kernel attr size...                        PASSED
+
+* Checking perf_event ioctl calls
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_flag_group
+    Testing PERF_IOC_FLAG_GROUP...                               PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_id
+    Testing ioctl(PERF_EVENT_IOC_ID)...                          PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_period
+    Testing ioctl(PERF_EVENT_IOC_PERIOD)...                      NEW BEHAVIOR
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_set_filter
+    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_set_output
+    Testing PERF_EVENT_IOC_SET_OUTPUT ioctl...                   PASSED
+
+* Checking error returns
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/e2big
+    Testing E2BIG errors...                                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eacces
+    Testing EACCES generation...                                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/ebadf
+    Testing EBADF generation...                                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/efault
+    Testing EFAULT generation...                                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/einval
+    Testing EINVAL generation...                                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/emfile
+    Testing if EMFILE can be triggered...                        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/enoent
+    Testing ENOENT generation...                                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/enospc
+    Testing ENOSPC generation...                                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eopnotsupp
+    Testing EOPNOTSUPP generation...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eoverflow
+    Testing EOVERFLOW generation...                              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eperm
+    Testing EPERM generation...                                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/esrch
+    Testing ESRCH generation...                                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/non-existent
+    Testing if non-existent events fail...                       SKIPPED
+
+* Checking multithread functionality
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/multithread/fork_then_read
+    Testing reads in forked children...                          PASSED
+
+* Checking overflow functionality
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/breakpoint_overflow
+    Testing hardware breakpoint overflow...                      UNEXPLAINED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/simple_overflow_leader
+    Testing overflow on leaders...                               PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/simple_overflow_sibling
+    Testing overflows on sibling...                              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/simultaneous_overflow
+    Testing multiple event overflow...                           FAILED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/simultaneous_group_overflow
+    Testing multiple event overflow within group...              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/simul_oneshot_group_overflow
+    Testing simultaneous one-shot group overflow...              FAILED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/single_shot_overflow
+    Testing single shot overflow...                              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/single_shot_w_enable
+    Testing enable vs refresh signal types...                    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/wakeup_events_overflow
+    Testing wakeup events overflow...                            PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_requires_wakeup
+    Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_poll
+    Testing catching overflow with poll()...                     PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_large
+    Testing large sample_period...                               PASSED
+
+* Checking tracepoint functionality
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/tracepoints/tracepoint_alias
+    Testing if tracepoint event ids alias...                     NEW BEHAVIOR
+
+* Checking mmap record sample functionality
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/print_record_sample
+    Testing record sampling...                                   PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/validate_record_sample
+    Validating sample record overflow...                         PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/lost_record_sample
+    Checking behavior on mmap overflow...                        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/multiple_mmap_sizes
+    Checking behavior of various mmap sizes...                   PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/sample_branch_stack
+    Testing PERF_SAMPLE_BRANCH_STACK...                          PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/record_comm
+    Testing PERF_RECORD_COMM...                                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/record_comm_exec
+    Testing PERF_RECORD_COMM_EXEC...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/record_fork
+    Testing PERF_RECORD_FORK...                                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/record_mmap
+    Testing PERF_RECORD_MMAP...                                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/record_mmap2
+    Testing PERF_RECORD_MMAP2...                                 PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/record_mmap_data
+    Testing PERF_RECORD_MMAP with mmap_data...                   PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/sample_data_src
+    Testing PERF_SAMPLE_DATA_SRC...                              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/sample_regs_intr
+    Testing PERF_SAMPLE_REGS_INTR...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/sample_regs_user
+    Testing PERF_SAMPLE_REGS_USER...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/sample_stack_user
+    Testing PERF_SAMPLE_STACK_USER...                            PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/sample_weight
+    Testing PERF_SAMPLE_WEIGHT...                                PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/record_sample/overwrite_mmap
+    Checking trashing of mmap buffer...                          PASSED
+
+* Checking bugs that PAPI has to work around
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/bugs/sync_read_required
+    Testing if time running is correct without DISABLE...        PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/bugs/read_group_attached
+    Testing if FORMAT_GROUP works on attached processes...       PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/bugs/check_schedulability
+    Testing if events checked for schedulability at read...      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/multiplexing/check_papi_multiplexing
+    Testing if schedulability checked with pinned=0...           PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/multiplexing/check_multiplexing
+    Testing if multiplexing works...                             PASSED
+
+* Checking other bugs
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/sw_start_leader
+    Testing start with sw event group leader...                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/hw_sw_mix
+    Testing mixes of HW and SW events...                         WARNING KNOWN KERNEL BUG
+
+* Checking bugs that can silently produce wrong results
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/constraints/check_constraints
+    Testing if event constraints are enforced...                 SKIPPED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/context_switch_user_kernel
+    Testing if context-switches are kernel only...               NEW BEHAVIOR
+
+* Checking interfaces that have changed over the years
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/overflow_requires_mmap
+    Testing if overflow signals require ring buffer...           NEW BEHAVIOR
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/signal_after_exec
+    Testing if overflow signals survive exec...                  NEW BEHAVIOR
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/sampled_notleader_refresh
+    Testing if refresh of group leader enables siblings...       NEW BEHAVIOR
+
+* Checking for corner-cases in the ABI (not necessarily bugs)
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/multiple_active
+    Testing multiple simultaneous measurements...                PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/max_num_events
+    Testing max events that can be created...                    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/max_multiplex
+    Testing limit of multiplexing...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/reset_leader
+    Testing reset on group leader...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/check_reset_mpx
+    Testing if reset clears multiplex fields...                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/huge_events_start
+    Testing start of max events...                               PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/huge_group_start
+    Testing start of max event group...                          PASSED
+
+* Checking for fast RDPMC support
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_support
+    Testing if userspace rdpmc reads are supported...            NEW BEHAVIOR
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_validation
+    Testing if userspace rdpmc reads give expected results...    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_multiplexing
+    Testing if userspace rdpmc multiplexing works...             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_reset
+    Testing if resetting while using rdpmc works...              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_group
+    Testing if rdpmc works with event groups...                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_attach
+    Testing if rdpmc attach works...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_multiattach
+    Testing if rdpmc multi-attach works...                       PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_multiattach_papi
+    Testing if rdpmc papi-multi-attach works...                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_pthreads
+    Testing if rdpmc with pthreads works...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_pthreads_group
+    Testing if rdpmc with pthreads works...                      PASSED
+
+* Checking OpenMP support
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_test
+    Testing OpenMP results...                                    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_overflow
+    Testing OpenMP overflow results...                           PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_sample
+    WARNING! CPU1 overflow count low!
+WARNING! CPU4 overflow count low!
+WARNING! CPU7 overflow count low!
+Testing OpenMP sampling results...                           FAILED
+
+* Checking proposed interface updates (not in any released kernel)
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/ioctl_refresh_0
+    Testing if PERF_IOC_REFRESH with 0 works...                  USE CAUTION
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/wrong_size_enospc
+    Testing if ENOSPC returned for wrong-sized buffer...         OLD BEHAVIOR
+
+* Checking for major bugs that are unlikely to ever be fixed
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/bugs/nmi_watchdog_group_leader
+    Testing if we can determine maximum events despite NMI watchdog... WARNING KNOWN KERNEL BUG
+
