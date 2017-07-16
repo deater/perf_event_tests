@@ -5,6 +5,10 @@
 
 /* A user was having a PAPI issue related to this */
 
+/* This test started failing in 4.12-rc4 */
+/* cc1582c231ea041fbc68861dfaf957eaf902b829 */
+/* The "security" fix that dropped user samples with kernel addresses */
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
