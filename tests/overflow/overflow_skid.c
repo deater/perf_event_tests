@@ -519,9 +519,7 @@ int main(int argc, char** argv) {
 
 	if (matches!=NUM_EVENTS) {
 		fprintf(stderr,"Wrong number of overflows!\n");
-		test_fail(test_string);
 	}
-
 
 	/* Finished, read MMAP */
 	perf_mmap_addr(our_mmap[0],MMAP_PAGES,prev_head,
@@ -537,6 +535,13 @@ int main(int argc, char** argv) {
 	if (ret!=0) {
 		if (!quiet) printf("Returned %d unfiltered kernel addresses\n",ret);
 		test_known_kernel_bug(test_string);
+	}
+
+	/* This is from the earlier failure, but for debugging want */
+	/* to print the address info */
+
+	if (matches!=NUM_EVENTS) {
+		test_fail(test_string);
 	}
 
 	test_pass(test_string);
