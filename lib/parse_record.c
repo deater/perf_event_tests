@@ -358,11 +358,13 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 	if (data==NULL) {
 		return -1;
 	}
+	//printf("Allocated %lld bytes at %p\n",bytesize,data);
 
 	prev_head_wrap=prev_head%bytesize;
 
-	//   printf("Copying %d bytes from %d to %d\n",
-	//	  bytesize-prev_head_wrap,prev_head_wrap,0);
+	//printf("Copying %lld bytes from (%p)+%lld to (%p)+%d\n",
+	//	  bytesize-prev_head_wrap,data_mmap,prev_head_wrap,data,0);
+
 	memcpy(data,(unsigned char*)data_mmap + prev_head_wrap,
 		bytesize-prev_head_wrap);
 

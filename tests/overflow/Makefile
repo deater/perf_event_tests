@@ -10,6 +10,7 @@ PROGRAM_LIST = \
 	overflow_large \
 	overflow_poll \
 	overflow_signal \
+	overflow_skid \
 	overflow_requires_wakeup \
 	simple_overflow_leader \
 	simple_overflow_leader_poll \
@@ -28,6 +29,8 @@ breakpoint_overflow: breakpoint_overflow.o $(LIB)/libhelper.a
 overflow_poll: overflow_poll.o $(LIB)/libhelper.a
 
 overflow_signal: overflow_signal.o $(LIB)/libhelper.a
+
+overflow_skid: overflow_skid.o $(LIB)/libhelper.a
 
 overflow_large: overflow_large.o $(LIB)/libhelper.a
 
