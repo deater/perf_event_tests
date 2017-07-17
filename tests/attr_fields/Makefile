@@ -17,14 +17,11 @@ PROGRAM_LIST = \
 	format_id_support \
 	inherit \
 	inherit_stat \
+	pinned \
 	read_format_range_check \
 	sample_type_range_check
 
 all: $(PROGRAM_LIST)
-
-inherit: inherit.o $(LIB)/libhelper.a
-
-inherit_stat: inherit_stat.o $(LIB)/libhelper.a
 
 disabled:disabled.o $(LIB)/libhelper.a
 
@@ -42,6 +39,11 @@ enable_on_exec: enable_on_exec.o $(LIB)/libhelper.a
 
 exclusive: exclusive.o $(LIB)/libhelper.a
 
+inherit: inherit.o $(LIB)/libhelper.a
+
+inherit_stat: inherit_stat.o $(LIB)/libhelper.a
+
+pinned:	pinned.o $(LIB)/libhelper.a
 
 format_id_support: format_id_support.o $(LIB)/libhelper.a
 

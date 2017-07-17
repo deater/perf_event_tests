@@ -97,6 +97,9 @@ $TESTS_DIR/attr_fields/inherit
 echo "  + $TESTS_DIR/attr_fields/inherit_stat"
 echo -n "    "
 $TESTS_DIR/attr_fields/inherit_stat
+echo "  + $TESTS_DIR/attr_fields/pinned"
+echo -n "    "
+$TESTS_DIR/attr_fields/pinned
 echo "  + $TESTS_DIR/attr_fields/read_format_range_check"
 echo -n "    "
 $TESTS_DIR/attr_fields/read_format_range_check
