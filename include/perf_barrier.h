@@ -66,3 +66,6 @@
 #error See the kernel source directory: tools/perf/perf.h file
 #endif
 
+//#if defined (__x86_64)
+//#define mb() 	asm volatile("mfence":::"memory")
+//#endif

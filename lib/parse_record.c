@@ -315,6 +315,7 @@ static int dump_raw_ibs_op(unsigned char *data, int size) {
 	return 0;
 }
 
+static int debug=0;
 
 long long perf_mmap_read( void *our_mmap, int mmap_size,
 			long long prev_head,
@@ -344,8 +345,10 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 
 	size=head-prev_head;
 
-	//printf("Head: %lld Prev_head=%lld\n",head,prev_head);
-	//printf("%d new bytes\n",size);
+	if (debug) {
+		printf("Head: %lld Prev_head=%lld\n",head,prev_head);
+		printf("%d new bytes\n",size);
+	}
 
 	bytesize=mmap_size*getpagesize();
 
@@ -358,18 +361,25 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 	if (data==NULL) {
 		return -1;
 	}
-	//printf("Allocated %lld bytes at %p\n",bytesize,data);
+
+	if (debug) {
+		printf("Allocated %lld bytes at %p\n",bytesize,data);
+	}
 
 	prev_head_wrap=prev_head%bytesize;
 
-	//printf("Copying %lld bytes from (%p)+%lld to (%p)+%d\n",
-	//	  bytesize-prev_head_wrap,data_mmap,prev_head_wrap,data,0);
+	if (debug) {
+		printf("Copying %lld bytes from (%p)+%lld to (%p)+%d\n",
+			  bytesize-prev_head_wrap,data_mmap,prev_head_wrap,data,0);
+	}
 
 	memcpy(data,(unsigned char*)data_mmap + prev_head_wrap,
 		bytesize-prev_head_wrap);
 
-	//printf("Copying %d bytes from %d to %d\n",
-	//	  prev_head_wrap,0,bytesize-prev_head_wrap);
+	if (debug) {
+		printf("Copying %lld bytes from %d to %lld\n",
+			prev_head_wrap,0,bytesize-prev_head_wrap);
+	}
 
 	memcpy(data+(bytesize-prev_head_wrap),(unsigned char *)data_mmap,
 		prev_head_wrap);
@@ -382,7 +392,7 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 
 	while(offset<size) {
 
-		//printf("Offset %d Size %d\n",offset,size);
+		if (debug) printf("Offset %lld Size %d\n",offset,size);
 		event = ( struct perf_event_header * ) & data[offset];
 
 		/********************/
@@ -1126,11 +1136,14 @@ long long perf_mmap_read( void *our_mmap, int mmap_size,
 
 		default:
 			if (!quiet) printf("\tUnknown type %d\n",event->type);
+			/* Probably best to just skip it all */
+			offset=size;
 
 		}
 		if (events_read) (*events_read)++;
 	}
 
+//	mb();
 	control_page->data_tail=head;
 
 	free(data);

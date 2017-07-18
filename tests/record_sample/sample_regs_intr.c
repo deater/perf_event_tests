@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 
 	if (!quiet) printf("This tests PERF_SAMPLE_REGS_INTR samples\n");
 
-	        memset(&sa, 0, sizeof(struct sigaction));
+	memset(&sa, 0, sizeof(struct sigaction));
         sa.sa_sigaction = our_handler;
         sa.sa_flags = SA_SIGINFO;
 
@@ -228,6 +228,18 @@ int main(int argc, char **argv) {
 		if (!quiet) printf("No overflow events generated.\n");
 		test_fail(test_string);
 	}
+
+	/* Just disabling does not turn off the signal handler */
+	/* Well it does, but before it can finish it calls the signal */
+	/* handler one last time which disables/refreshes */
+	/* Oddly we only see this issue on amdfam15h */
+
+	/* Disable signal handler */
+        sa.sa_handler = SIG_IGN;
+        if (sigaction( SIGIO, &sa, NULL) < 0) {
+                fprintf(stderr,"Error setting up signal handler\n");
+                exit(1);
+        }
 
 	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 
