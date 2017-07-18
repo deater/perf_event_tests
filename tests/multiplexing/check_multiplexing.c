@@ -26,19 +26,8 @@
 
 #define NUM_EVENTS 10
 
-int fd[NUM_EVENTS];
-long long events[NUM_EVENTS]={
-	PERF_COUNT_HW_CPU_CYCLES,
-	PERF_COUNT_HW_INSTRUCTIONS,
-	PERF_COUNT_HW_CPU_CYCLES,
-	PERF_COUNT_HW_INSTRUCTIONS,
-	PERF_COUNT_HW_CPU_CYCLES,
-	PERF_COUNT_HW_INSTRUCTIONS,
-	PERF_COUNT_HW_CPU_CYCLES,
-	PERF_COUNT_HW_INSTRUCTIONS,
-	PERF_COUNT_HW_CPU_CYCLES,
-	PERF_COUNT_HW_INSTRUCTIONS,
-};
+static int fd[NUM_EVENTS];
+static long long events[NUM_EVENTS];
 
 static long long base_results[NUM_EVENTS][3];
 static long long mpx_results[NUM_EVENTS][5];
@@ -63,7 +52,7 @@ static int test_routine(void) {
 
 int main(int argc, char** argv) {
 
-	int ret,quiet,i;
+	int ret,quiet,i,cycles_unstable=0;
 
 	struct perf_event_attr pe;
 
@@ -74,6 +63,24 @@ int main(int argc, char** argv) {
 	if (!quiet) {
 		printf("Before 2.6.34 the values returned when multiplexing\n");
 		printf("  were not reliable and could result in wrong results.\n");
+	}
+
+
+	/* Check if cycles event is unstable */
+	/* For some reason AMD FAM15h chips have unstable multiplexing */
+	/* With errors of up to 20% especially on cycles */
+	if (detect_vendor()==VENDOR_AMD) {
+		if (detect_processor()==PROCESSOR_AMD_FAM15H) {
+			if (!quiet) printf("Detected fam15h processor, using only instructions as mplexing is noisy\n");
+			cycles_unstable=1;
+		}
+	}
+
+	/* Set up the events to use */
+	for(i=0;i<NUM_EVENTS;i++) {
+		if (i%2==0) events[i]=PERF_COUNT_HW_INSTRUCTIONS;
+		else if (cycles_unstable) events[i]=PERF_COUNT_HW_INSTRUCTIONS;
+		else events[i]=PERF_COUNT_HW_CPU_CYCLES;
 	}
 
 	/*************************************************/
@@ -208,7 +215,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (!quiet) {
-		printf("Event\tTotalCount\tRawCount\tScale\tScaledCount\tError\n");
+		printf("Event\tKnownGood\tRawCount\tScaleX\tScaledCount\tError\n");
 		for(i=0;i<NUM_EVENTS;i++) {
 
 			printf("%d\t%lld\t%lld\t%.2f\t%lld\t%.2f%%\n",
