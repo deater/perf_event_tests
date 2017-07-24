@@ -3,6 +3,7 @@
 
 /* This test broken by commit 487f05e18aa4efacee6357480f293a5afe6593b5 */
 /* in Linux 4.11 */
+/* It was fixed by 3bda69c1c3993a2bddbae01397d12bfef6054011 in 4.13-rc2 */
 
 /* Test to see if we can sample on two events at once */
 /* within the same group in oneshot fashion.          */
