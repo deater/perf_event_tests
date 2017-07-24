@@ -8,6 +8,8 @@
 /* This test started failing in 4.12-rc4 */
 /* cc1582c231ea041fbc68861dfaf957eaf902b829 */
 /* The "security" fix that dropped user samples with kernel addresses */
+/* It was finally reverted in 6a8a75f3235724c5941a33e287b2f98966ad14c5 */
+/* in 4.13-rc2 */
 
 #define _GNU_SOURCE 1
 
