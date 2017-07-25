@@ -9,6 +9,7 @@ PROGRAM_LIST = \
 	rdpmc_attach \
 	rdpmc_multiattach \
 	rdpmc_multiattach_papi \
+	rdpmc_attach_multi_enable \
 	rdpmc_group \
 	rdpmc_multiplexing \
 	rdpmc_pthreads \
@@ -27,6 +28,8 @@ rdpmc_attach: rdpmc_attach.o rdpmc_lib.o $(LIB)/libhelper.a
 rdpmc_multiattach: rdpmc_multiattach.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_multiattach_papi: rdpmc_multiattach_papi.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_attach_multi_enable: rdpmc_attach_multi_enable.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_group: rdpmc_group.o rdpmc_lib.o $(LIB)/libhelper.a
 

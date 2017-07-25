@@ -432,6 +432,9 @@ $TESTS_DIR/rdpmc/rdpmc_pthreads
 echo "  + $TESTS_DIR/rdpmc/rdpmc_pthreads_group"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_pthreads_group
+echo "  + $TESTS_DIR/rdpmc/rdpmc_attach_multi_enable"
+echo -n "    "
+$TESTS_DIR/rdpmc/rdpmc_attach_multi_enable
 
 echo
 echo "* Checking OpenMP support"
