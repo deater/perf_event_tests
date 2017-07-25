@@ -360,14 +360,16 @@ int main(int argc, char **argv) {
 			printf("\t* RDPMC 1 Event %x -- count: %lld enabled %llx running: %llx\n",
 				i,values[i],enabled[i],running[i]);
 		}
+	}
 
-		for(i=0;i<count;i++) {
-			if (enabled[i]!=running[i]) {
-				printf("enabled doesn't match running!\n");
-				test_fail(test_string);
-			}
+	for(i=0;i<count;i++) {
+		if (enabled[i]!=running[i]) {
+			if (!quiet) printf("enabled doesn't match running!\n");
+			test_fail(test_string);
 		}
+	}
 
+	if (!quiet) {
 		for(i=0;i<count;i++) {
 			printf("\t* RDPMC 2 Event %x -- count: %lld enabled %llx running: %llx\n",
 				i,values2[i],enabled2[i],running2[i]);
