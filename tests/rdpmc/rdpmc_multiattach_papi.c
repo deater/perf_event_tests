@@ -113,8 +113,6 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-
-
 	/* fork a second child */
 	pid2 = fork();
 	if ( pid2 < 0 ) {
@@ -139,6 +137,10 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
+
+	if (!quiet) {
+		printf("* We have opened two children: %d, %d\n\n",pid,pid2);
+	}
 
 
 	/*****************************/
@@ -180,8 +182,9 @@ int main(int argc, char **argv) {
 		}
 	}
 
-
-
+	if (!quiet) {
+		printf("+ We've attached two events to %d\n",pid);
+	}
 
 	/* Open event, pid2  */
 	memset(&pe,0,sizeof(struct perf_event_attr));
@@ -209,12 +212,6 @@ int main(int argc, char **argv) {
 			fprintf(stderr,"Error opening event %d\n",i);
 			test_fail(test_string);
 		}
-		ret1=ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
-		ret1=ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
-		ret1=ioctl(fd[0], PERF_EVENT_IOC_RESET,0);
-//		ret1=read(fd[0],values,sizeof(long long));
-	}
-	for(i=0;i<count;i++) {
 
 		/* mmap() event */
 		addr2[i]=mmap(NULL,page_size,
@@ -225,6 +222,15 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (!quiet) {
+		printf("+ We've attached two events to %d\n",pid2);
+	}
+
+	for(i=0;i<2;i++) {
+		ret1=ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
+		ret1=ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
+		ret1=ioctl(fd[0], PERF_EVENT_IOC_RESET,0);
+	}
 
 	/* start */
 	start_before=rdtsc();
