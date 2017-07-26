@@ -438,6 +438,9 @@ $TESTS_DIR/rdpmc/rdpmc_attach_multi_enable
 echo "  + $TESTS_DIR/rdpmc/rdpmc_exec"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_exec
+echo "  + $TESTS_DIR/rdpmc/rdpmc_exec_papi"
+echo -n "    "
+$TESTS_DIR/rdpmc/rdpmc_exec_papi
 
 echo
 echo "* Checking OpenMP support"
