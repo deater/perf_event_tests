@@ -19,22 +19,23 @@
 
 #define NUM_RUNS 100000
 
-
+#define NUM_EVENTS 2
 
 long long results[NUM_RUNS];
 
 int main(int argc, char **argv) {
 
-	int fd;
+	int fd[NUM_EVENTS];
 
 	struct perf_event_attr pe;
 
 	int i;
 	int result;
-	long long counts[1],prev=0;
+	long long counts[NUM_EVENTS],prev=0;
 
 	long long total=0,average,max=0,min=0x7ffffffffffffffULL;
 
+	/* Setup Leader */
 	memset(&pe,0,sizeof(struct perf_event_attr));
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
@@ -43,29 +44,54 @@ int main(int argc, char **argv) {
 	pe.exclude_kernel=1;
 	pe.exclude_hv=1;
 
-	fd=perf_event_open(&pe,0,-1,-1,0);
-	if (fd<0) {
+	fd[0]=perf_event_open(&pe,0,-1,-1,0);
+	if (fd[0]<0) {
      		fprintf(stderr,"Error opening leader %llx %s\n",pe.config,strerror(errno));
 		exit(1);
 	}
 
-	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	/* Setup other event */
+	memset(&pe,0,sizeof(struct perf_event_attr));
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_CPU_CYCLES;
+	pe.disabled=0;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
+
+	fd[1]=perf_event_open(&pe,0,-1,fd[0],0);
+	if (fd[1]<0) {
+     		fprintf(stderr,"Error opening leader %llx %s\n",pe.config,strerror(errno));
+		exit(1);
+	}
+
+
+	/* Start leader */
+
+	ioctl(fd[0], PERF_EVENT_IOC_RESET, 0);
+	ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
 
 	for(i=0;i<NUM_RUNS;i++) {
 
 		result=instructions_million();
 
-		result=read(fd,&counts,sizeof(long long));
+		result=read(fd[0],&counts,sizeof(long long));
 
-		results[i]=counts[0]-prev;
-		prev=counts[0];
+		insn_results[i]=counts[0]-prev_insn;
+		prev_insn=counts[0];
+
+		cycle_results[i]=counts[1]-prev_cycles;
+		prev_cycles=counts[1];
 
  	}
 
-	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	for(i=0;i<NUM_EVENTS;i++) {
+		ioctl(fd[i], PERF_EVENT_IOC_DISABLE,0);
+	}
 
-	close(fd);
+	for(i=0;i<NUM_EVENTS;i++) {
+		close(fd[i]);
+	}
 
 	for(i=0;i<NUM_RUNS;i++) {
 		total+=results[i];

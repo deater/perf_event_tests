@@ -55,6 +55,8 @@ Linux haswell 4.9.0-2-amd64 #1 SMP Debian 4.9.18-1 (2017-03-30) x86_64 GNU/Linux
     Testing inherit...                                           PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/inherit_stat
     Testing inherit_stat...                                      UNEXPLAINED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/pinned
+    Testing pinned...                                            PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/read_format_range_check
     Testing attr->read_format invalid bits...                    PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/sample_type_range_check
@@ -159,6 +161,8 @@ Linux haswell 4.9.0-2-amd64 #1 SMP Debian 4.9.18-1 (2017-03-30) x86_64 GNU/Linux
     Testing catching overflow with poll()...                     PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_large
     Testing large sample_period...                               PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_skid
+    Testing if we can skid into kernel...                        WARNING KNOWN KERNEL BUG
 
 * Checking tracepoint functionality
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/tracepoints/tracepoint_alias
@@ -276,10 +280,7 @@ Linux haswell 4.9.0-2-amd64 #1 SMP Debian 4.9.18-1 (2017-03-30) x86_64 GNU/Linux
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_overflow
     Testing OpenMP overflow results...                           PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_sample
-    WARNING! CPU1 overflow count low!
-WARNING! CPU2 overflow count low!
-WARNING! CPU5 overflow count low!
-Testing OpenMP sampling results...                           FAILED
+    Testing OpenMP sampling results...                           FAILED
 
 * Checking proposed interface updates (not in any released kernel)
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/ioctl_refresh_0

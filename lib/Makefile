@@ -1,7 +1,7 @@
 include ../Makefile.globals.inc
 
 CPPFLAGS += -I../include
-CFLAGS += -Wall -O2
+CFLAGS += -Wall -O2 -g
 CFLAGS_X32 = -mx32
 
 LIBNAME = libhelper.a
