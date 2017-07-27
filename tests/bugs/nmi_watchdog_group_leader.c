@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 	struct perf_event_attr pe;
 
 	int quiet,nmi_enabled;
-	char test_string[]="Testing if we can determine maximum events despite NMI watchdog...";
+	char test_string[]="Testing if NMI watchdog interferes with event scheduling...";
 
 	quiet=test_quiet();
 
