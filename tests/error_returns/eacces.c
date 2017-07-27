@@ -37,8 +37,13 @@ int main(int argc, char **argv) {
 	/* FIXME: check paranoid value            */
 	/*        to avoid false failures         */
 	/******************************************/
+
+	if (!quiet) {
+		printf("+ Trying to attach to CPU with \"any thread\" set\n");
+	}
+
 	paranoid=get_paranoid_setting();
-	if (!quiet) printf("Paranoid = %d\n",paranoid);
+	if (!quiet) printf("\tParanoid = %d\n",paranoid);
 
 	memset(&attr,0,sizeof(struct perf_event_attr));
 	attr.type=PERF_TYPE_HARDWARE;
@@ -54,12 +59,12 @@ int main(int argc, char **argv) {
 
 		if (errno==EACCES) {
 			if (!quiet) {
-				printf("Properly triggered EACCES\n");
+				printf("\tProperly triggered EACCES\n");
 			}
 		}
 		else {
 			if (!quiet) {
-				printf("Unexpectedly got: %s\n",strerror(errno));
+				printf("\tUnexpectedly got: %s\n",strerror(errno));
 			}
 			failures++;
 		}
@@ -68,9 +73,14 @@ int main(int argc, char **argv) {
 	else {
 		if (paranoid>0) {
 			if (!quiet) {
-				printf("Unexpectedly opened properly.\n");
+				printf("\tUnexpectedly opened properly.\n");
 			}
 			failures++;
+		}
+		else {
+			if (!quiet) {
+				printf("\tWas able to open because paranoid<=0\n");
+			}
 		}
 		close(fd);
 	}
@@ -78,6 +88,11 @@ int main(int argc, char **argv) {
 	/**********************************************/
 	/* Check attaching to thread that's not ours  */
 	/**********************************************/
+
+	if (!quiet) {
+		printf("+ Trying to attach to PID1\n");
+		printf("\tparanoid=%d uid=%d\n",paranoid,getuid());
+	}
 
 	memset(&attr,0,sizeof(struct perf_event_attr));
 	attr.type=PERF_TYPE_HARDWARE;
@@ -92,21 +107,28 @@ int main(int argc, char **argv) {
 	if (fd<0) {
 		if (errno==EACCES) {
 			if (!quiet) {
-				printf("Properly triggered EACCES\n");
+				printf("\tProperly triggered EACCES\n");
 			}
 		}
 		else {
 			if (!quiet) {
-				printf("Unexpectedly got: %s\n",strerror(errno));
+				printf("\tUnexpectedly got: %s\n",strerror(errno));
 			}
 			failures++;
 		}
 	}
 	else {
-		if (!quiet) {
-			printf("Unexpectedly opened properly.\n");
+		if (getuid()==0) {
+			if (!quiet) {
+				printf("\tWas able to open as you are running as root\n");
+			}
 		}
-		failures++;
+		else {
+			if (!quiet) {
+				printf("\tUnexpectedly opened properly.\n");
+			}
+			failures++;
+		}
 		close(fd);
 	}
 
