@@ -6,9 +6,15 @@
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
 
+/* This bug still exists as of 4.13-rc2 (though it has been reported) */
+/* The problem is if you attach to a process in PERF_EVENT_STATE_INACTIVE */
+/* and then enable/disable the event (while the process is not running) */
+/* the event->tstamp_enabled is updated but event->tstamp_stopped */
+/* is not. These are subtracted, and then enabled field goes negative.*/
 
-char test_string[]="Testing if minimized rdpmc papi-multi-attach works...";
-int quiet=0;
+
+static char test_string[]="Testing if minimized rdpmc papi-multi-attach works...";
+static int quiet=0;
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -211,7 +217,12 @@ int main(int argc, char **argv) {
 
 	if (enabled!=running) {
 		if (!quiet) printf("enabled doesn't match running!\n");
-		test_fail(test_string);
+		if (check_linux_version_newer(4,14,0)) {
+			test_fail(test_string);
+		}
+		else {
+			test_known_kernel_bug(test_string);
+		}
 	}
 
 	test_pass(test_string);
