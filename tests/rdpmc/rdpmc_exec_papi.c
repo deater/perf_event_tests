@@ -45,7 +45,12 @@ int main(int argc, char **argv) {
 
 	getcwd(current_dir,BUFSIZ);
 
-	snprintf(exe_path,BUFSIZ,"%s/%s",current_dir,argv[0]);
+	if (argv[0][0]=='/') {
+		snprintf(exe_path,BUFSIZ,"%s",argv[0]);
+	}
+	else {
+		snprintf(exe_path,BUFSIZ,"%s/%s",current_dir,argv[0]);
+	}
 
 	quiet=test_quiet();
 
