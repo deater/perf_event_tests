@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+#include <sys/utsname.h>
 
 #include "test_utils.h"
 
@@ -313,3 +315,34 @@ int check_paranoid_setting(int desired, int quiet) {
 
 }
 
+int check_linux_version_newer(int major, int minor, int subminor) {
+
+	int newer=0;
+	int check_version,current_version;
+	struct utsname uname_buffer;
+	char *ptr;
+	int current_major=0,current_minor=0,current_sub=0;
+
+	/* Get the kernel info */
+	uname(&uname_buffer);
+
+	ptr=strtok(uname_buffer.release,".");
+	if (ptr!=NULL) current_major=atoi(ptr);
+
+	ptr=strtok(NULL,".");
+	if (ptr!=NULL) current_minor=atoi(ptr);
+
+	ptr=strtok(NULL,".");
+	if (ptr!=NULL) current_sub=atoi(ptr);
+
+
+	check_version = ( ((major&0xff)<<24) | ((minor&0xff)<<16) |
+			((subminor&0xff) << 8));
+
+	current_version = ( ((current_major&0xff)<<24) | ((current_minor&0xff)<<16) |
+			((current_sub&0xff) << 8));
+
+	if (current_version>=check_version) newer=1;
+
+	return newer;
+}

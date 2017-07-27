@@ -21,7 +21,7 @@ void test_green_new_behavior(char *string);
 int check_paranoid_setting(int desired, int quiet);
 int get_paranoid_setting(void);
 
-
+int check_linux_version_newer(int major, int minor, int subminor);
 
 double display_error(long long average,
 		     long long high,
