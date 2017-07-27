@@ -3,12 +3,9 @@
 /* For "security" reasons this was made difficult under Linux */
 
 /* Chasing down a Linux bug showed by the PAPI tests */
+/* It exists still in 4.13-rc2 */
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
-
-
-static char test_string[]="Testing if we can rdpmc in execed process (PAPI) ...";
-static int quiet=0;
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,6 +25,26 @@ static int quiet=0;
 
 #include <signal.h>
 
+static char test_string[]="Testing if we can rdpmc in execed process (PAPI) ...";
+static int quiet=0;
+
+
+static void segv_handler(int sig, siginfo_t *si, void *unused) {
+	if (!quiet) printf("Got SIGSEGV\n");
+
+	if (check_linux_version_newer(4,14,0)) {
+		test_fail(test_string);
+	}
+	else {
+		test_known_kernel_bug(test_string);
+	}
+}
+
+
+
+
+
+
 
 int main(int argc, char **argv) {
 
@@ -41,6 +58,20 @@ int main(int argc, char **argv) {
 
 	unsigned long long values,enabled,running;
 
+	struct sigaction sa;
+
+	quiet=test_quiet();
+
+	/* Setup SIGSEGV handler */
+	/* as failure case when rdpmc() is denied is a GPF/segfault */
+	sa.sa_flags = SA_SIGINFO;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_sigaction = segv_handler;
+	if (sigaction(SIGSEGV, &sa, NULL) == -1) {
+		if (!quiet) printf("Failure setting up SEGV handler\n");
+		test_fail(test_string);
+	}
+
 	if (argc>1) in_child=1;
 
 	getcwd(current_dir,BUFSIZ);
@@ -51,8 +82,6 @@ int main(int argc, char **argv) {
 	else {
 		snprintf(exe_path,BUFSIZ,"%s/%s",current_dir,argv[0]);
 	}
-
-	quiet=test_quiet();
 
 	if (!quiet) {
 		if (!in_child) {
