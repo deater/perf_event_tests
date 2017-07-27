@@ -256,11 +256,11 @@ int main (int argc, char **argv) {
 
 
 	if (errors) {
-		test_fail(test_string);
+		test_unexplained(test_string);
 	}
 
 	if (warnings) {
-		test_warn(test_string);
+		test_unexplained(test_string);
 	}
 
 	test_pass(test_string);
