@@ -19,26 +19,27 @@ int test_quiet(void) {
 #define WHITE  "\033[1m"
 #define NORMAL "\033[0m"
 
+#define ERROR_COLUMN	58
 
 void test_pass(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sPASSED%s\n", 60, string,
+		fprintf( stdout, "%-*s %sPASSED%s\n", ERROR_COLUMN, string,
 			GREEN, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s PASSED\n", 60, string);
+		fprintf( stdout, "%-*s PASSED\n", ERROR_COLUMN, string);
 	}
 }
 
 void test_warn(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sWARNING%s\n", 60, string,
+		fprintf( stdout, "%-*s %sWARNING%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s WARNING\n", 60, string);
+		fprintf( stdout, "%-*s WARNING\n", ERROR_COLUMN, string);
 	}
 	exit(1);
 }
@@ -46,11 +47,11 @@ void test_warn(char *string) {
 void test_needtest(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sNEED TESTCASE%s\n", 60, string,
+		fprintf( stdout, "%-*s %sNEED TESTCASE%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s NEED TESTCASE\n", 60, string);
+		fprintf( stdout, "%-*s NEED TESTCASE\n", ERROR_COLUMN, string);
 	}
 	exit(1);
 }
@@ -58,11 +59,11 @@ void test_needtest(char *string) {
 void test_caution(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sUSE CAUTION%s\n", 60, string,
+		fprintf( stdout, "%-*s %sUSE CAUTION%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s USE CAUTION\n", 60, string);
+		fprintf( stdout, "%-*s USE CAUTION\n", ERROR_COLUMN, string);
 	}
 	exit(1);
 }
@@ -70,11 +71,11 @@ void test_caution(char *string) {
 void test_known_issue(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", 60, string,
+		fprintf( stdout, "%-*s %sKNOWN ISSUE%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s KNOWN ISSUE\n", 60, string);
+		fprintf( stdout, "%-*s KNOWN ISSUE\n", ERROR_COLUMN, string);
 	}
 	exit(1);
 }
@@ -82,11 +83,11 @@ void test_known_issue(char *string) {
 void test_skip(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sSKIPPED%s\n", 60, string, WHITE,
+		fprintf( stdout, "%-*s %sSKIPPED%s\n", ERROR_COLUMN, string, WHITE,
 			NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s SKIPPED\n", 60, string);
+		fprintf( stdout, "%-*s SKIPPED\n", ERROR_COLUMN, string);
 	}
 	exit(1);
 }
@@ -94,11 +95,11 @@ void test_skip(char *string) {
 void test_fail(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sFAILED%s\n", 60, string,
+		fprintf( stdout, "%-*s %sFAILED%s\n", ERROR_COLUMN, string,
 			RED, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s FAILED\n", 60, string);
+		fprintf( stdout, "%-*s FAILED\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -108,10 +109,10 @@ void test_known_kernel_bug(char *string) {
 
 	if (isatty(fileno(stdout))) {
 		fprintf( stdout, "%-*s %sKNOWN KERNEL BUG%s\n",
-			60, string, RED, NORMAL );
+			ERROR_COLUMN, string, RED, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s KNOWN KERNEL BUG\n", 60, string);
+		fprintf( stdout, "%-*s KNOWN KERNEL BUG\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -121,10 +122,10 @@ void test_fail_kernel(char *string) {
 
 	if (isatty(fileno(stdout))) {
 		fprintf( stdout, "%-*s %sFAILED (KERNEL TOO OLD)%s\n",
-			60, string, RED, NORMAL );
+			ERROR_COLUMN, string, RED, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s FAILED (KERNEL TOO OLD)\n", 60, string);
+		fprintf( stdout, "%-*s FAILED (KERNEL TOO OLD)\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -133,11 +134,11 @@ void test_fail_kernel(char *string) {
 void test_kernel_fail(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sKERNEL FAILED%s\n", 60, string,
+		fprintf( stdout, "%-*s %sKERNEL FAILED%s\n", ERROR_COLUMN, string,
 			RED, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s KERNEL FAILED\n", 60, string);
+		fprintf( stdout, "%-*s KERNEL FAILED\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -146,11 +147,11 @@ void test_kernel_fail(char *string) {
 void test_kernel_pass(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sKERNEL OK%s\n", 60, string,
+		fprintf( stdout, "%-*s %sKERNEL OK%s\n", ERROR_COLUMN, string,
 			GREEN, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s KERNEL OK\n", 60, string);
+		fprintf( stdout, "%-*s KERNEL OK\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -159,11 +160,11 @@ void test_kernel_pass(char *string) {
 void test_unexplained(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sUNEXPLAINED%s\n", 60, string,
+		fprintf( stdout, "%-*s %sUNEXPLAINED%s\n", ERROR_COLUMN, string,
 			BLUE, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s UNEXPLAINED\n", 60, string);
+		fprintf( stdout, "%-*s UNEXPLAINED\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -172,11 +173,11 @@ void test_unexplained(char *string) {
 void test_unimplemented(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sUNIMPLEMENTED%s\n", 60, string,
+		fprintf( stdout, "%-*s %sUNIMPLEMENTED%s\n", ERROR_COLUMN, string,
 			BLUE, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s UNIMPLEMENTED\n", 60, string);
+		fprintf( stdout, "%-*s UNIMPLEMENTED\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -185,11 +186,11 @@ void test_unimplemented(char *string) {
 void test_yellow_no(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sNO%s\n", 60, string,
+		fprintf( stdout, "%-*s %sNO%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s NO\n", 60, string);
+		fprintf( stdout, "%-*s NO\n", ERROR_COLUMN, string);
 	}
 	exit(1);
 }
@@ -197,11 +198,11 @@ void test_yellow_no(char *string) {
 void test_green_yes(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sYES%s\n", 60, string,
+		fprintf( stdout, "%-*s %sYES%s\n", ERROR_COLUMN, string,
 			GREEN, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s YES\n", 60, string);
+		fprintf( stdout, "%-*s YES\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -210,11 +211,11 @@ void test_green_yes(char *string) {
 void test_yellow_yes(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sYES%s\n", 60, string,
+		fprintf( stdout, "%-*s %sYES%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s YES\n", 60, string);
+		fprintf( stdout, "%-*s YES\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -223,11 +224,11 @@ void test_yellow_yes(char *string) {
 void test_yellow_old_behavior(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sOLD BEHAVIOR%s\n", 60, string,
+		fprintf( stdout, "%-*s %sOLD BEHAVIOR%s\n", ERROR_COLUMN, string,
 			YELLOW, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s OLD BEHAVIOR\n", 60, string);
+		fprintf( stdout, "%-*s OLD BEHAVIOR\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
@@ -236,11 +237,11 @@ void test_yellow_old_behavior(char *string) {
 void test_green_new_behavior(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sNEW BEHAVIOR%s\n", 60, string,
+		fprintf( stdout, "%-*s %sNEW BEHAVIOR%s\n", ERROR_COLUMN, string,
 			GREEN, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s NEW BEHAVIOR\n", 60, string);
+		fprintf( stdout, "%-*s NEW BEHAVIOR\n", ERROR_COLUMN, string);
 	}
 
 	exit(1);
