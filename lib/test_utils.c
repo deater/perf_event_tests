@@ -105,11 +105,11 @@ void test_fail(char *string) {
 void test_known_kernel_bug(char *string) {
 
 	if (isatty(fileno(stdout))) {
-		fprintf( stdout, "%-*s %sWARNING KNOWN KERNEL BUG%s\n",
-			60, string, YELLOW, NORMAL );
+		fprintf( stdout, "%-*s %sKNOWN KERNEL BUG%s\n",
+			60, string, RED, NORMAL );
 	}
 	else {
-		fprintf( stdout, "%-*s WARNING KNOWN KERNEL BUG\n", 60, string);
+		fprintf( stdout, "%-*s KNOWN KERNEL BUG\n", 60, string);
 	}
 
 	exit(1);
