@@ -7,6 +7,9 @@
 /* events share one single mmap buffer (too much cross-CPU mem traffic) */
 /* So instead you need to create one mmap buffer per CPU		*/
 
+/* Note, the samples are not distributed evenly */
+/* Still need to track down why */
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -49,7 +52,7 @@ struct mmap_info_t {
 	long long prev_head;
 } mmap_info[MAX_CPUS];
 
-int fds[MAX_CPUS];
+static int fds[MAX_CPUS];
 
 static int num_cpus=0;
 
@@ -96,7 +99,7 @@ int main (int argc, char **argv) {
 	int nthreads, tid, result;
 	struct perf_event_attr pe;
 	struct sigaction sa;
-	int i, errors=0;
+	int i, errors=0,warnings=0;
 	int total=0;
 
 	quiet=test_quiet();
@@ -236,26 +239,31 @@ int main (int argc, char **argv) {
 
 	for(i=0;i<num_cpus;i++) {
 		if (mmap_info[i].count < 9 ) {
-			printf("WARNING! CPU%d overflow count low!\n",i);
-//			errors++;
+			if (!quiet) printf("WARNING! CPU%d overflow count low!\n",i);
+			warnings++;
 		}
 		total+=mmap_info[i].count;
 	}
+
 	if (!quiet) {
 		printf("Total overflows: %d\n",total);
 	}
+
 	if (total<90) {
 		if (!quiet) printf("Unexpected low number of overflows!\n");
 		errors++;
 	}
 
 
-	if (errors==0) {
-		test_pass(test_string);
-	}
-	else {
+	if (errors) {
 		test_fail(test_string);
 	}
+
+	if (warnings) {
+		test_warn(test_string);
+	}
+
+	test_pass(test_string);
 
 
 	return 0;
