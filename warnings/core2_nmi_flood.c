@@ -394,7 +394,7 @@ int main(int argc, char **argv) {
 				0, /* current thread */
 				-1, /* all cpus */
 				-1, /* New Group Leader */
-				0xffff880c00000000ULL /*ffff880c00000000*/ );
+				(long)0xffff880c00000000ULL /*ffff880c00000000*/ );
 
 
 /* 18 */

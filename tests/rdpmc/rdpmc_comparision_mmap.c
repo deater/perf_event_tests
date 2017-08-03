@@ -87,7 +87,8 @@ static int counter_init(unsigned int counter, unsigned long sample)
 
 static unsigned long rdpmc(unsigned int counter)
 {
-	unsigned long int ret;
+	unsigned long int ret=0;
+
 #if defined(__i386__) || defined(__x86_64__)
 	unsigned int low, high;
 

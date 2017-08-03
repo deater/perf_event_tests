@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 
 	quiet=test_quiet();
 
-	if (!quiet) printf("data size=%ld\n",sizeof(data));
+	if (!quiet) printf("data size=%zd\n",sizeof(data));
 
 	if (argc>1) {
 		max_limit=atoi(argv[1]);
@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 	ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
 
 	if (!quiet) {
-		printf("Trying to read %ld bytes into data\n",
+		printf("Trying to read %zd bytes into data\n",
 			DATASIZE*sizeof(long long));
 	}
 	result=read(fd[0],&data,29*1024);// DATASIZE*sizeof(long long));

@@ -194,7 +194,7 @@ int main(int argc, char** argv) {
 	/* which is 5 in our case     */
 	if (result!=(5)*sizeof(long long)) {
 		if (!quiet) {
-			fprintf(stderr,"Unexpected read result %d (should be %ld)\n",
+			fprintf(stderr,"Unexpected read result %d (should be %zd)\n",
 					result,5*sizeof(long long));
 		}
 		test_fail(test_string);

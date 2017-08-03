@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	pe[20].wakeup_events=0;
 	pe[20].bp_type=HW_BREAKPOINT_EMPTY;
 
-	fd[20]=perf_event_open(&pe[20],0,0,-1,0x20000000000000ULL /*20000000000000*/ );
+	fd[20]=perf_event_open(&pe[20],0,0,-1,(long)0x20000000000000ULL /*20000000000000*/ );
 
 
 	memset(&pe[23],0,sizeof(struct perf_event_attr));

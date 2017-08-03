@@ -34,6 +34,8 @@ int main(int argc, char** argv) {
 
 	int fd1,quiet;
 
+	long flags;
+
 	struct perf_event_attr pe;
 
 	char test_string[]="Testing flags invalid bits...";
@@ -80,13 +82,19 @@ int main(int argc, char** argv) {
 	}
 
 
-	/* test 1, 0x800000000 */
+	/* test 1, was 0x800000000 */
+	/* caused warnings on 32-bit systems */
+	/* Hopefully high bit being set is equivelent? */
 
-	fd1=perf_event_open(&pe,0,-1,-1,0x8000000000ULL);
+	flags = 1UL<<((sizeof(long)*8)-1);
+
+	if (!quiet) printf("Using %lx\n",flags);
+
+	fd1=perf_event_open(&pe,0,-1,-1,flags);
 	if (fd1<0) {
 		if (errno==EINVAL) {
 			if (!quiet) {
-				printf("Correctly failed opening leader with flags %llx\n",0x8000000000ULL);
+				printf("Correctly failed opening leader with flags %lx\n",flags);
 			}
 		}
 		else {
@@ -106,13 +114,13 @@ int main(int argc, char** argv) {
 		if (version<0x30f00) {
 
 			if (!quiet) {
-				fprintf(stderr,"Unexpectedly opened properly with flags %llx\n",0x8000000000ULL);
+				fprintf(stderr,"Unexpectedly opened properly with flags %lx\n",flags);
 				fprintf(stderr,"This was not fixed until Linux 3.15\n");
 			}
 			test_fail_kernel(test_string);
 		} else {
 			if (!quiet) {
-				fprintf(stderr,"Unexpectedly opened properly with flags %llx\n",0x8000000000ULL);
+				fprintf(stderr,"Unexpectedly opened properly with flags %lx\n",flags);
 			}
 			test_fail(test_string);
 		}

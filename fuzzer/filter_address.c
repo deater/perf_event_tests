@@ -61,18 +61,20 @@ static void print_whitespace(int max_amount) {
 	}
 }
 
-static long get_kernel_address(void) {
+static unsigned long long get_kernel_address(void) {
 
-	long val;
+	unsigned long long val;
 
-	switch(rand()%5) {
-		case 0:	val=((long)rand()<<32)|rand();
+	switch(rand()%6) {
+		case 0:	val=((long long)rand()<<32)|rand();
 			break;
 		case 1:
 		case 2:
 		case 3:
 			val=0xffffffff00000000ULL | rand();
 			break;
+		case 4:
+			val=0xc0000000ULL | rand();
 
 		default:
 			val=0;
@@ -80,12 +82,12 @@ static long get_kernel_address(void) {
 	return val;
 }
 
-static long get_size(void) {
+static unsigned long long get_size(void) {
 
-	long val;
+	unsigned long long val;
 
 	switch(rand()%5) {
-		case 0:	val=((long)rand()<<32)|rand();
+		case 0:	val=((long long)rand()<<32)|rand();
 			break;
 		case 1: val=rand();
 			break;
@@ -139,28 +141,28 @@ int make_address_filter(
 	else {
 		/* kernel address or range*/
 		switch(rand()%10) {
-			case 0: sprintf(temp,"%lu",get_kernel_address());
+			case 0: sprintf(temp,"%llu",get_kernel_address());
 				break;
-			case 1: sprintf(temp,"%ld",get_kernel_address());
+			case 1: sprintf(temp,"%lld",get_kernel_address());
 				break;
-			case 2: sprintf(temp,"%lx",get_kernel_address());
+			case 2: sprintf(temp,"%llx",get_kernel_address());
 				break;
-			case 3: sprintf(temp,"%lo",get_kernel_address());
+			case 3: sprintf(temp,"%llo",get_kernel_address());
 				break;
-			default: sprintf(temp,"0x%lx",get_kernel_address());
+			default: sprintf(temp,"0x%llx",get_kernel_address());
 				break;
 		}
 		strcat(filter,temp);
 		//print_whitespace(max_whitespace);
 		if (rand()%2) {
 			switch(rand()%5) {
-				case 0: sprintf(temp,"/%lx",get_size());
+				case 0: sprintf(temp,"/%llx",get_size());
 					break;
-				case 1: sprintf(temp,"/%ld",get_size());
+				case 1: sprintf(temp,"/%lld",get_size());
 					break;
-				case 2: sprintf(temp,"/0x%lx",get_size());
+				case 2: sprintf(temp,"/0x%llx",get_size());
 					break;
-				default: sprintf(temp,"/%lu",get_size());
+				default: sprintf(temp,"/%llu",get_size());
 					break;
 			}
 			strcat(filter,temp);
