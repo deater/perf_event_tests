@@ -17,6 +17,7 @@ int fd;
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "test_utils.h"
@@ -25,182 +26,194 @@ int fd;
 
 
 int main(int argc, char **argv) {
-   
-   int num_runs=100,i,read_result,result;
-   int num_random_branches=500000;
-   long long high=0,low=0,average=0,expected=1500000;
-   struct perf_event_attr pe;
-   
-   long long count,total=0;
-     
-   quiet=test_quiet();
 
-   if (!quiet) {
-      printf("\nPart 1\n");   
+	int num_runs=100,i,read_result,result;
+	int num_random_branches=500000;
+	long long high=0,low=0,average=0,expected=1500000;
+	struct perf_event_attr pe;
 
-      printf("Testing a loop with %lld branches (%d times):\n",
-          expected,num_runs);
-      printf("\tOn a simple loop like this, miss rate should be very small.\n");
-   }
+	long long count,total=0;
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
-   
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_BRANCH_MISSES;
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	quiet=test_quiet();
 
-   arch_adjust_domain(&pe,quiet);
+	if (!quiet) {
+		printf("\nPart 1\n");
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
-   }
+		printf("Testing a loop with %lld branches (%d times):\n",
+			expected,num_runs);
+		printf("\tOn a simple loop like this, miss rate "
+			"should be very small.\n");
+	}
 
-   for(i=0;i<num_runs;i++) {
-      ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-      ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
- 
-      result=branches_testcode();
-      
-      ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-      read_result=read(fd,&count,sizeof(long long));
-      
-      if (result==CODE_UNIMPLEMENTED) {
-	 if (!quiet) printf("\tNo test code for this architecture\n");
-	 test_skip(test_string);
-      }
-      
-      if (read_result!=sizeof(long long)) {
-	if (!quiet) printf("Error extra data in read %d\n",read_result);
-	 test_fail(test_string);         
-      }
-      
-      if (count>high) high=count;
-      if ((low==0) || (count<low)) low=count;
-      total+=count;
-   }
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   average=(total/num_runs);
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_BRANCH_MISSES;
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   if (!quiet) printf("\tAverage number of branch misses: %lld\n",average);
+	arch_adjust_domain(&pe,quiet);
 
-   if (average>1000) {
-     if (!quiet) printf("Branch miss rate too high\n");
-     test_fail(test_string);
-   }
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		test_fail(test_string);
+	}
 
-   close(fd);
+	for(i=0;i<num_runs;i++) {
+		ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+		ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-   /*******************/
+		result=branches_testcode();
 
-   if (!quiet) {
-     printf("\nPart 2\n");
-   }
+		ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+		read_result=read(fd,&count,sizeof(long long));
 
-   high=0; low=0; total=0;
+		if (result==CODE_UNIMPLEMENTED) {
+			if (!quiet) {
+				printf("\tNo test code for this architecture\n");
+			}
+			test_skip(test_string);
+		}
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
-   
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+		if (read_result!=sizeof(long long)) {
+			if (!quiet) {
+				printf("Error extra data in read %d\n",
+					read_result);
+			}
+			test_fail(test_string);
+		}
 
-   arch_adjust_domain(&pe,quiet);
+		if (count>high) high=count;
+		if ((low==0) || (count<low)) low=count;
+		total+=count;
+	}
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-     if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
-     test_fail(test_string);
-   }
+	average=(total/num_runs);
 
-   for(i=0;i<num_runs;i++) {
+	if (!quiet) printf("\tAverage number of branch misses: %lld\n",average);
 
-      ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-      ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+	if (average>1000) {
+		if (!quiet) printf("Branch miss rate too high\n");
+		test_fail(test_string);
+	}
 
-     result=random_branches_testcode(num_random_branches,1);
+	close(fd);
 
-      ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-      read_result=read(fd,&count,sizeof(long long));
+	/*******************/
 
-     if (count>high) high=count;
-     if ((low==0) || (count<low)) low=count;
-     total+=count;
-   }
+	if (!quiet) {
+		printf("\nPart 2\n");
+	}
 
-   average=total/num_runs;
+	high=0; low=0; total=0;
 
-   expected=average;
-   if (!quiet) {
-     printf("\nTesting a function that branches based on a random number\n");
-     printf("   The loop has %lld branches.\n",expected);
-     printf("   %d are random branches; %d of those were taken\n",num_random_branches,result);
-   }
-   close(fd);
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   high=0; low=0; total=0;
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_BRANCH_INSTRUCTIONS;
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
 
-   memset(&pe,0,sizeof(struct perf_event_attr));
-   
-   pe.type=PERF_TYPE_HARDWARE;
-   pe.size=sizeof(struct perf_event_attr);
-   pe.config=PERF_COUNT_HW_BRANCH_MISSES;
-   pe.disabled=1;
-   pe.exclude_kernel=1;
-   pe.exclude_hv=1;
+	arch_adjust_domain(&pe,quiet);
 
-   arch_adjust_domain(&pe,quiet);
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		}
+		test_fail(test_string);
+	}
 
-   fd=perf_event_open(&pe,0,-1,-1,0);
-   if (fd<0) {
-      if (!quiet) fprintf(stderr,"Error opening leader %llx\n",pe.config);
-      test_fail(test_string);
-   }
+	for(i=0;i<num_runs;i++) {
 
-   for(i=0;i<num_runs;i++) {
+		ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+		ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-      ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-      ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+		result=random_branches_testcode(num_random_branches,1);
 
-      result=random_branches_testcode(num_random_branches,1);
+		ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+		read_result=read(fd,&count,sizeof(long long));
 
-      ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-      read_result=read(fd,&count,sizeof(long long));
+		if (count>high) high=count;
+		if ((low==0) || (count<low)) low=count;
+		total+=count;
+	}
 
-     if (count>high) high=count;
-     if ((low==0) || (count<low)) low=count;
-     total+=count;
-   }
+	average=total/num_runs;
 
-   average=total/num_runs;
+	expected=average;
+	if (!quiet) {
+		printf("\nTesting a function that branches based on a random number\n");
+		printf("   The loop has %lld branches.\n",expected);
+		printf("   %d are random branches; %d of those were taken\n",num_random_branches,result);
+	}
+	close(fd);
 
-   if (!quiet) {
 
-     printf("\nOut of %lld branches, %lld were mispredicted\n",expected,average);
-     printf("Assuming a good random number generator and no freaky luck\n");
-     printf("The mispredicts should be roughly between %d and %d\n",
-	    num_random_branches/4,(num_random_branches/4)*3);
-   }
 
-   if ( average < (num_random_branches/4)) {
-     if (!quiet) printf("Mispredicts too low\n");
-     test_fail(test_string);
-   }
+	high=0; low=0; total=0;
 
-   if (average > (num_random_branches/4)*3) { 
-     if (!quiet) printf("Mispredicts too high\n");
-     test_fail(test_string);
-   }
-   if (!quiet) printf("\n");
+	memset(&pe,0,sizeof(struct perf_event_attr));
 
-   test_pass( test_string );
-   
-   return 0;
+	pe.type=PERF_TYPE_HARDWARE;
+	pe.size=sizeof(struct perf_event_attr);
+	pe.config=PERF_COUNT_HW_BRANCH_MISSES;
+	pe.disabled=1;
+	pe.exclude_kernel=1;
+	pe.exclude_hv=1;
+
+	arch_adjust_domain(&pe,quiet);
+
+	fd=perf_event_open(&pe,0,-1,-1,0);
+	if (fd<0) {
+		if (!quiet) {
+			fprintf(stderr,"Error opening leader %llx\n",pe.config);
+		}
+		test_fail(test_string);
+	}
+
+	for(i=0;i<num_runs;i++) {
+
+		ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+		ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+
+		result=random_branches_testcode(num_random_branches,1);
+
+		ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+		read_result=read(fd,&count,sizeof(long long));
+
+		if (count>high) high=count;
+		if ((low==0) || (count<low)) low=count;
+		total+=count;
+	}
+
+	average=total/num_runs;
+
+	if (!quiet) {
+		printf("\nOut of %lld branches, %lld were mispredicted\n",expected,average);
+		printf("Assuming a good random number generator and no freaky luck\n");
+		printf("The mispredicts should be roughly between %d and %d\n",
+		num_random_branches/4,(num_random_branches/4)*3);
+	}
+
+	if ( average < (num_random_branches/4)) {
+		if (!quiet) printf("Mispredicts too low\n");
+		test_fail(test_string);
+	}
+
+	if (average > (num_random_branches/4)*3) {
+		if (!quiet) printf("Mispredicts too high\n");
+		test_fail(test_string);
+	}
+
+	if (!quiet) printf("\n");
+
+	test_pass( test_string );
+
+	return 0;
 }
