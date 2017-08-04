@@ -32,9 +32,13 @@ int main(int argc, char **argv) {
 	long long high=0,low=0,average=0,expected=1500000;
 	struct perf_event_attr pe;
 
+	int no_branch_event=0;
+
 	long long count,total=0;
 
 	quiet=test_quiet();
+
+	/* Part 1 */
 
 	if (!quiet) {
 		printf("\nPart 1\n");
@@ -102,7 +106,8 @@ int main(int argc, char **argv) {
 
 	close(fd);
 
-	/*******************/
+	/**********/
+	/* Part 2 */
 
 	if (!quiet) {
 		printf("\nPart 2\n");
@@ -124,10 +129,13 @@ int main(int argc, char **argv) {
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
 		if (!quiet) {
-			fprintf(stderr,"Error opening leader %llx\n",pe.config);
+			fprintf(stderr,"Error opening branch_instructions event\n");
 		}
-		test_fail(test_string);
+		no_branch_event=1;
+		//test_fail(test_string);
 	}
+
+	if (!no_branch_event) {
 
 	for(i=0;i<num_runs;i++) {
 
@@ -154,7 +162,7 @@ int main(int argc, char **argv) {
 	}
 	close(fd);
 
-
+	}
 
 	high=0; low=0; total=0;
 
