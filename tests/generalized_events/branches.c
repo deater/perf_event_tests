@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "perf_event.h"
 #include "test_utils.h"
@@ -64,6 +65,10 @@ int main(int argc, char **argv) {
 
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
+		if (errno==ENOENT) {
+			if (!quiet) printf("branches event not found\n");
+			test_skip(test_string);
+		}
 		if (!quiet) {
 			fprintf(stderr,"Error opening leader %llx\n",pe.config);
 		}
