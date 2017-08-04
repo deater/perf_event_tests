@@ -54,6 +54,30 @@ int branches_testcode(void) {
 	);
 
 	return 0;
+
+#elif defined(__aarch64__)
+	asm(	"\teor x3,x3,x3\n"
+		"\tldr x3,=500000\n"
+	    	"test_loop:\n"
+		"\tB test_jmp\n"
+		"\tnop\n"
+		"test_jmp:\n"
+		"\teor x2,x2,x2\n"
+		"\tcmp x2,#1\n"
+		"\tbge test_jmp2\n"
+		"\tnop\n"
+		"\tadd x2,x2,#1\n"
+		"test_jmp2:\n"
+		"\tsub x3,x3,#1\n"
+		"\tcmp x3,#1\n"
+		"\tbgt test_loop\n"
+		: /* no output registers */
+		: /* no inputs		 */
+		: "cc", "x2", "x3" /* clobbered */
+	);
+
+	return 0;
+
 #elif defined(__powerpc__)
 	/* Not really optimized */
 
