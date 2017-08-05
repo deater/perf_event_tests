@@ -60,6 +60,14 @@ int main(int argc, char** argv) {
 		printf("Testing PERF_EVENT_IOC_SET_FILTER ioctl.\n");
 	}
 
+	/****************************************************/
+	/* Check if /sys/kernel/debug/tracing/events exists */
+	/****************************************************/
+//	result=access("/sys/kernel/debug/tracing/events",F_OK);
+
+	/* Actually this is pointless, as it gives EACCESS */
+	/* as a normal user even if the file exists */
+
 	/************************************/
 	/* Creating a tracepoint event      */
 	/************************************/
@@ -120,6 +128,7 @@ int main(int argc, char** argv) {
 		if (!quiet) {
 			printf("Could not find any trace event to filter\n");
 		}
+		test_skip(test_string);
 		errors++;
 	}
 
