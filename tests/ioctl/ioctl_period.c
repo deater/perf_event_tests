@@ -206,6 +206,10 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	/* FIXME: also check for case where we reset
+		overflow on running counter?
+	*/
+
 	if (validation_errors) {
 		test_fail(test_string);
 	}
@@ -213,13 +217,8 @@ int main(int argc, char** argv) {
 	if (old_behavior) {
 		test_yellow_old_behavior(test_string);
 	}
-	else {
-		test_green_new_behavior(test_string);
-	}
 
-	/* FIXME: also check for case where we reset
-		overflow on running counter?
-	*/
+	test_pass(test_string);
 
 	return 0;
 }
