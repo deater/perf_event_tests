@@ -17,21 +17,28 @@
 #include "perf_event.h"
 #include "perf_helpers.h"
 #include "test_utils.h"
+#include "instructions_testcode.h"
 
-int fd;
+#define REPEATS	10
+#define NUM_THREADS	8
 
+static void *thread_work(void *blah) {
 
-void *thread_work(void *blah) {
+	int i;
+
+	for(i=0;i<REPEATS;i++) {
+		instructions_million();
+	}
 
 	return NULL;
 }
 
 
-char test_string[]="Testing inherit...";
+static char test_string[]="Testing inherit...";
 
 int main(int argc, char** argv) {
 
-	int j;
+	int i,j,ret;
 	int quiet;
 	pthread_t our_thread[8];
 	int read_result;
@@ -39,11 +46,13 @@ int main(int argc, char** argv) {
 
 	struct perf_event_attr pe;
 
+	int fd;
+
 	quiet=test_quiet();
 
 	if (!quiet) {
 		printf("This test checks inherit functionality.\n");
-		printf("Starting and stopping 8 threads\n");
+		printf("Starting and stopping %d threads\n",NUM_THREADS);
 	}
 
 	/*************************/
@@ -63,28 +72,42 @@ int main(int argc, char** argv) {
 
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
-		fprintf(stderr,"Error opening first: %s\n",strerror(errno));
+		if (!quiet) {
+			printf("Error opening first: %s\n",strerror(errno));
+		}
 		test_fail(test_string);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
-
-	for(j=0;j<8;j++) {
+	for(j=0;j<NUM_THREADS;j++) {
 		pthread_create(&our_thread[j],NULL,thread_work,0);
 	}
 
-	for(j=0;j<8;j++) {
+	/* Some work in the master thread */
+	for(i=0;i<REPEATS;i++) {
+		ret=instructions_million();
+	}
+
+	for(j=0;j<NUM_THREADS;j++) {
 		pthread_join(our_thread[j],NULL);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 
+	if (ret==CODE_UNIMPLEMENTED) {
+		if (!quiet) printf("No instructions testcase\n");
+		test_skip(test_string);
+	}
+
+
 	read_result=read(fd,&inherit_count,sizeof(long long));
 
 	if (read_result!=sizeof(long long)) {
-		fprintf(stderr,"\tImproper return from read: %d\n",read_result);
+		if (!quiet) {
+			printf("\tImproper return from read: %d\n",read_result);
+		}
 		test_fail(test_string);
 	}
 
@@ -107,19 +130,25 @@ int main(int argc, char** argv) {
 
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
-		fprintf(stderr,"Error opening second: %s\n",
-			strerror(errno));
+		if (!quiet) {
+			printf("Error opening second: %s\n", strerror(errno));
+		}
 		test_fail(test_string);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
-	for(j=0;j<8;j++) {
+	for(j=0;j<NUM_THREADS;j++) {
 		pthread_create(&our_thread[j],NULL,thread_work,0);
 	}
 
-	for(j=0;j<8;j++) {
+	/* Some work in the master thread */
+	for(i=0;i<REPEATS;i++) {
+		ret=instructions_million();
+	}
+
+	for(j=0;j<NUM_THREADS;j++) {
 		pthread_join(our_thread[j],NULL);
 	}
 
@@ -128,7 +157,9 @@ int main(int argc, char** argv) {
 	read_result=read(fd,&count,sizeof(long long));
 
 	if (read_result!=sizeof(long long)) {
-		fprintf(stderr,"\tImproper return from read: %d\n",read_result);
+		if (!quiet) {
+			printf("\tImproper return from read: %d\n",read_result);
+		}
 		test_fail(test_string);
 	}
 
@@ -142,8 +173,11 @@ int main(int argc, char** argv) {
 			count);
 	}
 
-	if ((inherit_count < 6*count) || (inherit_count > 9*count)) {
-		fprintf(stderr,"\tInherit count unexpected.\n");
+	if ((inherit_count < (NUM_THREADS-1)*count) ||
+		(inherit_count > (NUM_THREADS+1)*count)) {
+		if (!quiet) {
+			printf("\tInherit count unexpected.\n");
+		}
 		test_fail(test_string);
 	}
 
