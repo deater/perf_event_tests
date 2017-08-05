@@ -19,7 +19,7 @@
 
 int main(int argc, char **argv) {
 
-	int fd;
+	int fd,arch;
 	int quiet,errors=0;
 	struct perf_event_attr attr;
 
@@ -41,21 +41,71 @@ int main(int argc, char **argv) {
 	attr.type=PERF_TYPE_BREAKPOINT;
 	attr.bp_type=HW_BREAKPOINT_X;
 
-	/* FIXME: these are going to be different on different archs? */
-	if (sizeof(long)==8) {
-		attr.bp_addr=(unsigned long long)0xffffffff8148c9d5;
-	}
-	else {
-		attr.bp_addr=(unsigned long)0xc148c9d5;
+	/* If exclude_kernel=1 then we get EINVAL */
+	attr.exclude_kernel=0;
 
+	/* FIXME: these are going to be different on different archs? */
+
+	arch=detect_architecture();
+
+	if ((arch==ARCH_X86) || (arch==ARCH_X86_64)) {
+		if (!quiet) {
+			printf("+ Trying x86 values\n");
+		}
+		if (sizeof(long)==8) {
+			attr.bp_addr=(unsigned long long)0xffffffff8148c9d5;
+		}
+		else {
+			attr.bp_addr=(unsigned long)0xc148c9d5;
+
+		}
 	}
+	else if (arch==ARCH_ARM64) {
+		if (!quiet) {
+			printf("+ Trying ARM64 values\n");
+		}
+		if (sizeof(long)==8) {
+			attr.bp_addr=(unsigned long long)0xffffffc00015d4b8;
+		}
+		else {
+			attr.bp_addr=(unsigned long)0xc148c9d5;
+
+		}
+	} else {
+		if (!quiet) {
+			printf("+ Unknown arch\n");
+		}
+		if (sizeof(long)==8) {
+			attr.bp_addr=(unsigned long long)0xffffffc00015d4b8;
+		}
+		else {
+			attr.bp_addr=(unsigned long)0xc148c9d5;
+
+		}
+	}
+
 	attr.bp_len=sizeof(long);
 
-	fd=perf_event_open(&attr,
+	if (!quiet) {
+		printf("\tTrying to set breakpoint at 0x%llx\n",attr.bp_addr);
+	}
+
+	if (arch==ARCH_ARM64) {
+		/* ARM64 returns EINVAL if you try a per-task */
+		/* kernel breakpoint */
+		fd=perf_event_open(&attr,
+				-1, /* any thread */
+				0, /* cpu 0 */
+				-1, /* New Group Leader */
+				0 /*0*/ );
+	}
+	else {
+		fd=perf_event_open(&attr,
 				0, /* current thread */
 				-1, /* any cpu */
 				-1, /* New Group Leader */
 				0 /*0*/ );
+	}
 
 	if (fd<0) {
 		if (errno==EPERM) {
