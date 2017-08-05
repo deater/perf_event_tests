@@ -15,7 +15,14 @@ int get_latency_store_event(unsigned long long *config,
 			unsigned long long *config1,
 			int *precise_ip,
 			char *name);
+int detect_architecture(void);
 
+#define ARCH_UNKNOWN    -1
+#define ARCH_X86        1
+#define ARCH_X86_64     2
+#define ARCH_POWER      3
+#define ARCH_ARM        4
+#define ARCH_ARM64      5
 
 #define VENDOR_UNKNOWN -1
 #define VENDOR_INTEL    1

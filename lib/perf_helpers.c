@@ -656,3 +656,19 @@ int get_latency_store_event(unsigned long long *config,
 	return processor_notfound;
 
 }
+
+int detect_architecture(void) {
+#if defined(__i386__)
+	return ARCH_X86;
+#elif defined(__x86_64__)
+	return ARCH_X86_64;
+#elif defined __powerpc__
+	return ARCH_POWER;
+#elif defined __arm__
+	return ARCH_ARM;
+#elif defined __aarch64__
+	return ARCH_ARM64
+#elif
+	return ARCH_UNKNOWN;
+#endif
+}
