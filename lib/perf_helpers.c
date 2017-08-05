@@ -667,8 +667,8 @@ int detect_architecture(void) {
 #elif defined __arm__
 	return ARCH_ARM;
 #elif defined __aarch64__
-	return ARCH_ARM64
-#elif
+	return ARCH_ARM64;
+#else
 	return ARCH_UNKNOWN;
 #endif
 }
