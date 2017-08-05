@@ -94,11 +94,11 @@ int main(int argc, char **argv) {
 				printf("\tProperly triggered EBADF\n");
 			}
 		}
-		else {
+		else if (errno==EINVAL) {
 			if (!quiet) {
-				printf("\tUnexpectedly got: %s\n",strerror(errno));
+				printf("\tGot EINVAL, probably because "
+					"CONF_CGROUP_PERF not set.\n");
 			}
-			failures++;
 		}
 	}
 	else {
