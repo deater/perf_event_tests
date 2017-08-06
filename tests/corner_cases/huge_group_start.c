@@ -13,7 +13,9 @@
   While annoying, I am not aware of any easy to exploit security implications
 	of this bug, but I am always impressed with how clever people can be */
 
-/* Vince Weaver -- vincent.weaver _at_ maine.edu */
+/* Vince Weaver -- <vincent.weaver@maine.edu> */
+
+/* This was fixed in a723968c0ed36db676478c3d26078f13484fe01c (Linux 4.3) */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -147,9 +149,17 @@ int main(int argc, char **argv) {
 
 	if (data[DATASIZE]!=SENTINEL) {
 		if (!quiet) {
-			printf("Error!  Known kernel bug!  Kernel writes past end of buffer!\n");
+			printf("Error! Kernel writes past end of buffer!\n");
+
 		}
-		test_fail(test_string);
+
+		/* This was fixed in Linux 4.3 */
+		if (check_linux_version_newer(4,3,0)) {
+			test_fail(test_string);
+		}
+		else {
+			test_known_kernel_bug(test_string);
+		}
 	}
 
 	if (!quiet) {
