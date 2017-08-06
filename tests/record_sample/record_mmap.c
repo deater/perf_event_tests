@@ -1,8 +1,9 @@
 /* record_mmap.c  */
-/* by Vince Weaver   vincent.weaver _at_ maine.edu */
+/* by Vince Weaver   <vincent.weaver@maine.edu> */
 
 /* An attempt to figure out the PERF_RECORD_MMAP code */
 
+/* Events are triggered when the program allocates memory with mmap() */
 /* By default only PROT_EXEC (executable mmap allocations) are reported */
 
 /* You also need to have one of .mmap, .comm, or .task enabled */
@@ -67,6 +68,105 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 }
 
 
+static int generate_mmaps(int quiet, int perf_fd, int *expected) {
+
+	char *mmap1,*mmap2,*mmap3,*mmap4,*mmap5,*mmap6;
+       	size_t pagesize = sysconf(_SC_PAGESIZE);
+	int mmap_fails=0;
+	int mmap_pages=1+MMAP_DATA_SIZE;
+	int fd2;
+
+	*expected=0;
+
+	/* Anonymous read/write, should not count */
+	if (!quiet) printf("\t+ anon read/write, should not be counted.\n");
+	mmap1=mmap(NULL, pagesize,
+			PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
+	if (mmap1==MAP_FAILED) {
+		if (!quiet) {
+			printf("\t\tError! mmap1() failed %s!\n",strerror(errno));
+		}
+		mmap_fails++;
+	}
+
+	/* perf_event read/write, should not count */
+	if (!quiet) printf("\t+ perf read/write, should not be counted.\n");
+	mmap2=mmap(NULL, mmap_pages*pagesize,
+			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
+
+	mmap2=mmap(NULL, mmap_pages*pagesize,
+			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
+	if (mmap2==MAP_FAILED) {
+		if (!quiet) {
+			printf("\t\tError! mmap2() failed %s!\n",strerror(errno));
+		}
+		mmap_fails++;
+	}
+
+	/* perf_event read/write, should not count */
+	if (!quiet) printf("\t+ zero read/write, should not be counted.\n");
+
+	fd2=open("/dev/zero",O_RDWR);
+	mmap3=mmap(NULL, mmap_pages*pagesize,
+			PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
+	if (mmap3==MAP_FAILED) {
+		if (!quiet) {
+			printf("\t\tError! mmap3() failed %s!\n",strerror(errno));
+		}
+		mmap_fails++;
+	}
+
+
+
+	/* Anonymous read/write/exec, *should* count */
+	if (!quiet) printf("\t+ anon read/write/exec, *should* be counted.\n");
+	mmap4=mmap(NULL, pagesize,
+			PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
+	if (mmap4==MAP_FAILED) {
+		if (!quiet) {
+			printf("\t\tError! mmap4() failed %s!\n",strerror(errno));
+		}
+		mmap_fails++;
+	}
+	else {
+		(*expected)++;
+	}
+
+	/* perf_event read/write/exec, *should* count */
+	if (!quiet) printf("\t+ perf read/write/exec, *should* be counted.\n");
+	mmap5=mmap(NULL, mmap_pages*pagesize,
+		PROT_EXEC|PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
+	if (mmap5==MAP_FAILED) {
+		if (!quiet) {
+			printf("\t\tError! mmap5() failed %s!\n",strerror(errno));
+		}
+		mmap_fails++;
+	}
+	else {
+		(*expected)++;
+	}
+
+	/* zero read/write/exec, *should* count */
+	if (!quiet) printf("\t+ zero read/write/exec, *should* be counted.\n");
+	mmap6=mmap(NULL, mmap_pages*pagesize,
+		PROT_EXEC|PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
+	if (mmap6==MAP_FAILED) {
+		if (!quiet) {
+			printf("\t\tError! mmap6() failed %s!\n",strerror(errno));
+		}
+		mmap_fails++;
+	}
+	else {
+		(*expected)++;
+	}
+
+	if (!quiet) printf("\n");
+
+	return mmap_fails;
+}
+
+
+
 int main(int argc, char **argv) {
 
 	int ret;
@@ -74,22 +174,28 @@ int main(int argc, char **argv) {
 	int mmap_pages=1+MMAP_DATA_SIZE;
 	int events_read;
 	int version;
+	int mmap_fails=0;
 
 	struct perf_event_attr pe;
 
 	struct sigaction sa;
+	int expected=0;
 	char test_string[]="Testing PERF_RECORD_MMAP...";
 
 	quiet=test_quiet();
 
-	if (!quiet) printf("This tests PERF_RECORD_MMAP samples:\n");
+	if (!quiet) {
+		printf("This tests PERF_RECORD_MMAP samples:\n");
+		printf("\twe set up such an event and then run mmap() with\n");
+		printf("\tvarious combinations of paramaters\n\n");
+	}
 
         memset(&sa, 0, sizeof(struct sigaction));
         sa.sa_sigaction = our_handler;
         sa.sa_flags = SA_SIGINFO;
 
         if (sigaction( SIGIO, &sa, NULL) < 0) {
-                fprintf(stderr,"Error setting up signal handler\n");
+                if (!quiet) printf("Error setting up signal handler\n");
                 exit(1);
         }
 
@@ -126,7 +232,7 @@ int main(int argc, char **argv) {
 	fd=perf_event_open(&pe,0,-1,-1,0);
 	if (fd<0) {
 		if (!quiet) {
-			fprintf(stderr,"Problem opening leader %s\n",
+			printf("Problem opening leader %s\n",
 				strerror(errno));
 		}
 
@@ -136,7 +242,9 @@ int main(int argc, char **argv) {
 	our_mmap=mmap(NULL, mmap_pages*getpagesize(),
 		PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	if (our_mmap==MAP_FAILED) {
-		fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
+		if (!quiet) {
+			printf("mmap() failed %s!\n",strerror(errno));
+		}
 		test_fail(test_string);
 	}
 
@@ -151,59 +259,18 @@ int main(int argc, char **argv) {
 
 	if (ret<0) {
 		if (!quiet) {
-			fprintf(stderr,"Error with PERF_EVENT_IOC_ENABLE "
+			printf("Error with PERF_EVENT_IOC_ENABLE "
 				"of group leader: %d %s\n",
 				errno,strerror(errno));
-			exit(1);
+			test_fail(test_string);
 		}
 	}
 
 	/* The actual thing to measure */
 	instructions_million();
 
-	{
-
-		char *mmap1,*mmap2,*mmap3,*mmap4;
-        size_t pagesize = sysconf(_SC_PAGESIZE);
-
-		/* Anonymous read/write, should not count */
-		if (!quiet) printf("\t+ anon read/write, should not count.\n");
-		mmap1=mmap(NULL, pagesize,
-			PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
-		if (mmap1==MAP_FAILED) {
-			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
-			test_fail(test_string);
-		}
-
-		/* perf_event read/write, should not count */
-		if (!quiet) printf("\t+ perf read/write, should not count.\n");
-		mmap2=mmap(NULL, mmap_pages*pagesize,
-			PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-		if (mmap2==MAP_FAILED) {
-			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
-			test_fail(test_string);
-		}
-
-		/* Anonymous read/write/exec, *should* count */
-		if (!quiet) printf("\t+ anon read/write/exec, *should* count.\n");
-		mmap3=mmap(NULL, pagesize,
-			PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_SHARED, -1, 0);
-		if (mmap3==MAP_FAILED) {
-			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
-			test_fail(test_string);
-		}
-
-		/* perf_event read/write/exec, *should* count */
-		if (!quiet) printf("\t+ perf read/write/exec, *should* count.\n");
-		mmap4=mmap(NULL, mmap_pages*pagesize,
-			PROT_EXEC|PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-		if (mmap4==MAP_FAILED) {
-			fprintf(stderr,"mmap() failed %s!\n",strerror(errno));
-			test_fail(test_string);
-		}
-
-	}
-
+	/* generate some mmap_calls() */
+	mmap_fails=generate_mmaps(quiet,fd,&expected);
 
 	instructions_million();
 	/* Done measuring */
@@ -225,12 +292,15 @@ int main(int argc, char **argv) {
 
 	close(fd);
 
-#define EXPECTED_EVENTS 2
-
-	if (events_read!=EXPECTED_EVENTS) {
-		if (!quiet) fprintf(stderr,"Wrong number of events!  Expected %d but got %d\n",
-			EXPECTED_EVENTS,events_read);
+	if (events_read!=expected) {
+		if (!quiet) printf("Wrong number of events!  Expected %d but got %d\n",
+			expected,events_read);
 		test_fail(test_string);
+	}
+
+	if (mmap_fails) {
+		if (!quiet) printf("Some mmaps failed\n");
+//		test_warn(test_string);
 	}
 
 	test_pass(test_string);
