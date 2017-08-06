@@ -94,8 +94,6 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 	mmap2=mmap(NULL, mmap_pages*pagesize,
 			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
 
-	mmap2=mmap(NULL, mmap_pages*pagesize,
-			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
 	if (mmap2==MAP_FAILED) {
 		if (!quiet) {
 			printf("\t\tError! mmap2() failed %s!\n",strerror(errno));

@@ -86,13 +86,12 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 		mmap_fails++;
 	}
 	else {
+		if (!quiet) printf("\t\t%p\n",mmap1);
 		(*expected)++;
 	}
 
 	/* perf_event read/write, should count */
 	if (!quiet) printf("\t+ perf read/write, should be counted.\n");
-	mmap2=mmap(NULL, mmap_pages*pagesize,
-			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
 
 	mmap2=mmap(NULL, mmap_pages*pagesize,
 			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
@@ -102,6 +101,7 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 		}
 		mmap_fails++;
 	} else {
+		if (!quiet) printf("\t\t%p\n",mmap2);
 		(*expected)++;
 	}
 
@@ -117,6 +117,7 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 		}
 		mmap_fails++;
 	} else {
+		if (!quiet) printf("\t\t%p\n",mmap3);
 		(*expected)++;
 	}
 
@@ -129,6 +130,8 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 			printf("\t\tError! mmap4() failed %s!\n",strerror(errno));
 		}
 		mmap_fails++;
+	} else {
+		if (!quiet) printf("\t\t%p\n",mmap4);
 	}
 
 	/* perf_event read/write/exec, *should not* count */
@@ -140,6 +143,8 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 			printf("\t\tError! mmap5() failed %s!\n",strerror(errno));
 		}
 		mmap_fails++;
+	} else {
+		if (!quiet) printf("\t\t%p\n",mmap5);
 	}
 
 	/* zero read/write/exec, *should not* count */
@@ -152,6 +157,9 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 		}
 		mmap_fails++;
 	}
+	else {
+		if (!quiet) printf("\t\t%p\n",mmap6);
+	}
 
 	/* Anonymous read/write/exec, *should not* count */
 	if (!quiet) printf("\t+ anon read/write/exec, *should not* be counted.\n");
@@ -163,7 +171,9 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 		}
 		mmap_fails++;
 	}
-
+	else {
+		if (!quiet) printf("\t\t%p\n",mmap7);
+	}
 
 	if (!quiet) printf("\n");
 
@@ -260,6 +270,10 @@ int main(int argc, char **argv) {
 			printf("mmap() failed %s!\n",strerror(errno));
 		}
 		test_fail(test_string);
+	} else {
+		if (!quiet) {
+			printf("\tperf_event mmap is %p\n",our_mmap);
+		}
 	}
 
 

@@ -88,8 +88,6 @@ static int generate_mmaps(int quiet, int perf_fd, int *expected) {
 
 	/* perf_event read/write, should not count */
 	if (!quiet) printf("\t+ perf read/write, should not be counted.\n");
-	mmap2=mmap(NULL, mmap_pages*pagesize,
-			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
 
 	mmap2=mmap(NULL, mmap_pages*pagesize,
 			PROT_READ|PROT_WRITE, MAP_SHARED, perf_fd, 0);
