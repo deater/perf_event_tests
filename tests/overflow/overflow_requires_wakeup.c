@@ -33,31 +33,32 @@
 #define MMAP_PAGES 8
 
 static struct signal_counts {
-  int in,out,msg,err,pri,hup,unknown,total;
+	int in,out,msg,err,pri,hup,unknown,total;
 } count = {0,0,0,0,0,0,0,0};
 
 static int fd1;
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
-  int ret;
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
+	int ret;
 
-  switch(oh->si_code) {
-     case POLL_IN:  count.in++;  break;
-     case POLL_OUT: count.out++; break;
-     case POLL_MSG: count.msg++; break;
-     case POLL_ERR: count.err++; break;
-     case POLL_PRI: count.pri++; break;
-     case POLL_HUP: count.hup++; break;
-     default: count.unknown++; break;
-  }
+	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
-  count.total++;
+	switch(oh->si_code) {
+		case POLL_IN:  count.in++;  break;
+		case POLL_OUT: count.out++; break;
+		case POLL_MSG: count.msg++; break;
+		case POLL_ERR: count.err++; break;
+		case POLL_PRI: count.pri++; break;
+		case POLL_HUP: count.hup++; break;
+		default: count.unknown++; break;
+	}
 
-  ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,1);
+	count.total++;
 
-  (void) ret;
+	ret=ioctl(fd1, PERF_EVENT_IOC_ENABLE,1);
+
+	(void) ret;
 
 }
 
@@ -162,7 +163,7 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-	test_green_new_behavior(test_string);
+	test_pass(test_string);
 
 	return 0;
 }
