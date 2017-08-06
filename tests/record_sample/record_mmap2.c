@@ -203,14 +203,6 @@ int main(int argc, char **argv) {
 
         version=get_kernel_version();
 
-	/* Introdued in 3.12 but disabled until 3.16 */
-	if (version<0x31000) {
-		if (!quiet) {
-			printf("mmap2 support not added until Linux 3.16\n");
-		}
-		test_skip(test_string);
-	}
-
         memset(&sa, 0, sizeof(struct sigaction));
         sa.sa_sigaction = our_handler;
         sa.sa_flags = SA_SIGINFO;
@@ -255,6 +247,14 @@ int main(int argc, char **argv) {
 		if (!quiet) {
 			printf("Problem opening leader %s\n",
 				strerror(errno));
+		}
+
+		/* Introdued in 3.12 but disabled until 3.16 */
+		if (version<0x31000) {
+			if (!quiet) {
+				printf("mmap2 support not added until Linux 3.16\n");
+			}
+			test_skip(test_string);
 		}
 
 		test_fail(test_string);
