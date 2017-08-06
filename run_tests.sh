@@ -325,6 +325,10 @@ $TESTS_DIR/record_sample/sample_weight
 echo "  + tests/record_sample/overwrite_mmap"
 echo -n "    "
 $TESTS_DIR/record_sample/overwrite_mmap
+echo "  + tests/record_sample/mmap_multiple"
+echo -n "    "
+$TESTS_DIR/record_sample/mmap_multiple
+
 
 echo
 echo "* Checking bugs that PAPI has to work around"

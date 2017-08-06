@@ -7,6 +7,7 @@ LIB = ../../lib
 
 PROGRAM_LIST = \
 	lost_record_sample \
+	mmap_multiple \
 	multiple_mmap_sizes \
 	overwrite_mmap \
 	print_record_sample \
@@ -27,6 +28,9 @@ PROGRAM_LIST = \
 all: $(PROGRAM_LIST)
 
 lost_record_sample: lost_record_sample.o \
+		$(LIB)/libhelper.a
+
+mmap_multiple: mmap_multiple.o \
 		$(LIB)/libhelper.a
 
 multiple_mmap_sizes: multiple_mmap_sizes.o \
