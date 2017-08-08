@@ -7,8 +7,8 @@
 /* by Vince Weaver, vincent.weaver _at_ maine.edu              */
 
 
-char test_string[]="Testing if userspace rdpmc reads are supported...";
-int quiet=0;
+static char test_string[]="Testing if userspace rdpmc reads are supported...";
+static int quiet=0;
 
 #include <stdlib.h>
 #include <stdio.h>

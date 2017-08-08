@@ -3,6 +3,7 @@
 /* This feature was introduced in Linux 3.4                    */
 /* There were bugs in the detection interface until Linux 3.12 */
 /*   with a major API/ABI change in 3.12                       */
+/* All the bugs weren't really ironed out until 4.13	       */
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu              */
 
@@ -26,15 +27,6 @@
 
 #define MAX_EVENTS 16
 
-#if defined(__i386__) || defined (__x86_64__)
-
-#define barrier() __asm__ volatile("" ::: "memory")
-
-#else
-
-#define barrier()
-
-#endif
 
 #if 0
 /* From Peter Zijlstra's demo code */
@@ -194,11 +186,11 @@ int detect_rdpmc(int quiet) {
 	struct perf_event_mmap_page *our_mmap;
 	int page_size=getpagesize();
 
-#if defined(__i386__) || defined (__x86_64__)
-#else
-        if (!quiet) printf("Test is x86 specific for now...\n");
-	return 0;
-#endif
+//#if defined(__i386__) || defined (__x86_64__)
+//#else
+//	if (!quiet) printf("Test is x86 specific for now...\n");
+//	return 0;
+//#endif
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
@@ -222,7 +214,7 @@ int detect_rdpmc(int quiet) {
 	our_mmap=(struct perf_event_mmap_page *)addr;
 
 	if (our_mmap->cap_user_rdpmc) {
-		/* new 3.12 and newerrdpmc support found */
+		/* new 3.12 and newer rdpmc support found */
 		return 1;
 	}
 	else {
