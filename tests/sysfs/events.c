@@ -16,6 +16,7 @@
 
 static char test_string[]="Testing format of event files under /sys/...";
 static int quiet;
+static int uppercase_hex=0,unknown_chars=0;
 
 #define SYSFS "/sys/bus/event_source/devices/"
 
@@ -260,17 +261,22 @@ static int parse_generic(int pmu,char *value,
 
 				if (value[ptr]==0) break;
 				if (value[ptr]==',') break;
-				if (! ( ((value[ptr]>='0') && (value[ptr]<='9'))
-                   			|| ((value[ptr]>='a') && (value[ptr]<='f'))) ) {
-					fprintf(stderr,"Unexpected char %c\n",value[ptr]);
-					test_fail(test_string);
-				}
+
 				temp*=base;
 				if ((value[ptr]>='0') && (value[ptr]<='9')) {
 					temp+=value[ptr]-'0';
 				}
-				else {
+				else if ((value[ptr]>='A') && (value[ptr]<='F')) {
+					temp+=(value[ptr]-'A')+10;
+					uppercase_hex++;
+				}
+				else if ((value[ptr]>='a') && (value[ptr]<='f')) {
 					temp+=(value[ptr]-'a')+10;
+				}
+				else {
+					printf("Unexpected char %c\n",value[ptr]);
+					unknown_chars++;
+					test_fail(test_string);
 				}
 				i++;
 				ptr++;
@@ -479,7 +485,6 @@ static int init_pmus(void) {
 
 }
 
-#if 0
 void dump_pmus(void) {
 
 	int i,j;
@@ -515,7 +520,6 @@ void dump_pmus(void) {
 	}
 
 }
-#endif
 
 
 int main(int argc, char **argv) {
@@ -526,16 +530,19 @@ int main(int argc, char **argv) {
 		printf("\n");
 		printf("Testing files under /sys/bus/event_source/devices\n");
 		printf("To see if they match ABI documented in\n");
-		printf("  Documentation/ABI/testing/sysfs-bus-event_source-devices-format\n");
-		printf("and\n");
-		printf("  Documentation/ABI/testing/sysfs-bus-event_source-devices-events\n");
+		printf("\tDocumentation/ABI/testing/sysfs-bus-event_source-devices-format\n");
+		printf("\tDocumentation/ABI/testing/sysfs-bus-event_source-devices-events\n");
 		printf("\n");
-
 	}
 
 	init_pmus();
 
-//	dump_pmus();
+	if (!quiet) dump_pmus();
+
+	if (uppercase_hex) {
+		if (!quiet) printf("\nWarning!  Used uppercase hex chars!\n");
+		test_warn(test_string);
+	}
 
 	test_pass(test_string);
 
