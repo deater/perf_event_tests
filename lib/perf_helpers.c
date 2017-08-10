@@ -73,6 +73,11 @@ static int detect_processor_cpuinfo(void) {
 
 			processor_vendor=VENDOR_ARM;
 
+			if (strstr(string,"0xb76")) {
+				processor_type=PROCESSOR_ARM1176;
+				return 0;
+			}
+
 			if (strstr(string,"0xc05")) {
 				processor_type=PROCESSOR_CORTEX_A5;
 				return 0;
@@ -93,8 +98,9 @@ static int detect_processor_cpuinfo(void) {
 				processor_type=PROCESSOR_CORTEX_A15;
 				return 0;
 			}
-			if (strstr(string,"0xb76")) {
-				processor_type=PROCESSOR_ARM1176;
+
+			if (strstr(string,"0xd03")) {
+				processor_type=PROCESSOR_CORTEX_A53;
 				return 0;
 			}
 
@@ -152,6 +158,9 @@ static int detect_processor_cpuinfo(void) {
 				break;
 			case 0x16:
 				processor_type=PROCESSOR_AMD_FAM16H;
+				break;
+			case 0x17:
+				processor_type=PROCESSOR_AMD_FAM17H;
 				break;
 			default:
 				processor_type=PROCESSOR_UNKNOWN;
@@ -242,8 +251,20 @@ static int detect_processor_cpuinfo(void) {
 				case 61:
 				case 71:
 				case 79:
+				case 86:
 					processor_type=PROCESSOR_BROADWELL;
 					break;
+				case 78:
+				case 85:
+				case 94:
+					processor_type=PROCESSOR_SKYLAKE;
+					break;
+				case 142:
+				case 158:
+					processor_type=PROCESSOR_KABYLAKE;
+					break;
+
+
 				default:
 					processor_type=PROCESSOR_UNKNOWN;
 			}
@@ -288,14 +309,19 @@ void arch_adjust_domain(struct perf_event_attr *pe, int quiet) {
 
 	int processor=detect_processor();
 
-	if (processor!=PROCESSOR_CORTEX_A15) {
+	if ((processor==PROCESSOR_CORTEX_A15) ||
+		(processor==PROCESSOR_CORTEX_A7) ||
+		(processor==PROCESSOR_CORTEX_A53)) {
+
+	}
+	else {
 		/* older PMUs do not support exclude_user / exclude_kernel */
 		pe->exclude_user=0;
 		pe->exclude_kernel=0;
 		pe->exclude_hv=0;
 
 		if (!quiet) {
-			printf("Adjusting domain to 0,0,0 for ARM\n");
+			printf("Adjusting domain to 0,0,0 for ARM %d\n",processor);
 		}
 	}
 #endif

@@ -61,6 +61,10 @@ int detect_architecture(void);
 #define PROCESSOR_BROADWELL		28
 #define PROCESSOR_HASWELL_EP		29
 #define PROCESSOR_SKYLAKE		30
+#define PROCESSOR_AMD_FAM17H		31
+#define PROCESSOR_KABYLAKE		32
+
+
 
 #define PROCESSOR_POWER3      103
 #define PROCESSOR_POWER4      104
