@@ -150,6 +150,12 @@ static int detect_processor_cpuinfo(void) {
 			case 0x11:
 				processor_type=PROCESSOR_AMD_FAM11H;
 				break;
+			case 0x12:
+				processor_type=PROCESSOR_AMD_FAM12H;
+				break;
+			case 0x13:
+				processor_type=PROCESSOR_AMD_FAM13H;
+				break;
 			case 0x14:
 				processor_type=PROCESSOR_AMD_FAM14H;
 				break;

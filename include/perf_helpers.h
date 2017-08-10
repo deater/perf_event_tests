@@ -63,6 +63,8 @@ int detect_architecture(void);
 #define PROCESSOR_SKYLAKE		30
 #define PROCESSOR_AMD_FAM17H		31
 #define PROCESSOR_KABYLAKE		32
+#define PROCESSOR_AMD_FAM12H		33
+#define PROCESSOR_AMD_FAM13H		34
 
 
 
