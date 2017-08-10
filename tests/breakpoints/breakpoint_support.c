@@ -12,6 +12,7 @@
 #include <sys/ioctl.h>
 #include <time.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "perf_event.h"
 #include "hw_breakpoint.h"
@@ -21,6 +22,7 @@
 #include "instructions_testcode.h"
 
 static int quiet=0;
+static char test_string[]="Testing hardware breakpoints...";
 static int fd;
 
 int test_function(int a, int b, int quiet) __attribute__((noinline));
@@ -44,6 +46,13 @@ volatile int test_variable=5;
 #define READS 15
 #define WRITES 20
 
+static void alarm_handler(int signum,siginfo_t *oh, void *blah) {
+
+	if (!quiet) printf("Error!  Took too long!\n");
+	test_fail(test_string);
+}
+
+
 int main(int argc, char **argv) {
 
 	struct perf_event_attr pe;
@@ -52,15 +61,27 @@ int main(int argc, char **argv) {
 
 	void *address;
 
-	char test_string[]="Testing hardware breakpoints...";
+	struct sigaction sa;
 
-	address=test_function;
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = alarm_handler;
+	sa.sa_flags = SA_SIGINFO;
 
+	if (sigaction( SIGALRM, &sa, NULL) < 0) {
+		fprintf(stderr,"Error setting up signal handler\n");
+		exit(1);
+	}
+
+
+	/* Setup quiet variable */
 	quiet=test_quiet();
-
 	if (!quiet) {
 		printf("This test checks that hardware breakpoints work.\n");
 	}
+
+	/* Set address of breakpoint */
+	address=test_function;
+
 
 	/*******************************/
 	/* Test execution breakpoint   */
@@ -95,6 +116,10 @@ int main(int argc, char **argv) {
 		goto skip_execs;
 	}
 
+
+	/* Setup timeout, as on ARM/pi3 4.9 it hangs forever? */
+	alarm(5);
+
 	ioctl(fd, PERF_EVENT_IOC_RESET, 0);
 	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
 
@@ -108,6 +133,11 @@ int main(int argc, char **argv) {
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+
+	/* Disable alarm */
+	alarm(0);
+
+
 	read_result=read(fd,&count,sizeof(long long));
 
 	if (read_result!=sizeof(long long)) {
