@@ -1,4 +1,4 @@
-/* nmi_watchdog_group_leader  --- by Vince Weaver vweaver1 _at_ eecs.utk.edu */
+/* nmi_watchdog_group_leader  --- by Vince Weaver vincent.weaver@maine.edu */
 
 /* If the NMI watchdog is enabled it will steal a performance counter.   */
 /* There is a bug that if you try to use the maximum number of counters  */
@@ -6,12 +6,12 @@
 /* will indicate success, as will starting the count, but you will fail  */
 /* at read time.                                                         */
 
-/* This bug still exists in 3.x */
-/* The perf NMI watchdog was not introduced until 2.6.34        */
+/* This bug still exists and will probably never be fixed	*/
+/* The perf NMI watchdog was not introduced until 2.6.34	*/
 
-/* This also triggers in the case of the schedulability bug      */
-/* but since that was fixed in 2.6.34 then in theory there is    */
-/* no overlap in the tests.                                      */
+/* This also triggers in the case of the schedulability bug	*/
+/* but since that was fixed in 2.6.34 then in theory there is	*/
+/* no overlap in the tests.					*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 	struct perf_event_attr pe;
 
 	int quiet,nmi_enabled;
-	char test_string[]="Testing if NMI watchdog interferes with event scheduling...";
+	char test_string[]="Testing if NMI watchdog interferes w/ event scheduling...";
 
 	quiet=test_quiet();
 
