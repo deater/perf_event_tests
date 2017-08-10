@@ -72,10 +72,26 @@ int main(int argc, char **argv) {
 			uncore_event=0xff;
 			break;
 		case PROCESSOR_HASWELL:
-			/* no libpfm4 support as of 15 May 2014 */
+			/* still no libpfm4 support as of 10 August 2017 */
 			strcpy(uncore_box_name,"uncore_imc");
 			strcpy(uncore_event_name,"hsw_unc_imc::DATA_READS");
 			uncore_event=0x1;
+			break;
+		case PROCESSOR_HASWELL_EP:
+			strcpy(uncore_box_name,"uncore_cbox_0");
+			strcpy(uncore_event_name,"hswep_unc_cbo0::UNC_C_CLOCKTICKS");
+			uncore_event=0x0;
+			break;
+		case PROCESSOR_BROADWELL:
+			strcpy(uncore_box_name,"uncore_cbox_0");
+			strcpy(uncore_event_name,"bdx_unc_cbo0::UNC_C_CLOCKTICKS");
+			uncore_event=0x0;
+			break;
+		case PROCESSOR_SKYLAKE:
+			/* still no libpfm4 support as of 10 August 2017 */
+			strcpy(uncore_box_name,"uncore_cbox_0");
+			strcpy(uncore_event_name,"events/clockticks");
+			uncore_event=0xff;
 			break;
 		default:
 			if (!quiet) fprintf(stderr,"Unsupported processor\n");
