@@ -92,10 +92,12 @@ int main(int argc, char** argv) {
 		}
 
 		if (status==0) {
+			if (!quiet) printf("Old behavior\n");
 			test_yellow_old_behavior(test_string);
 		}
 		else {
-			test_green_new_behavior(test_string);
+			if (!quiet) printf("New behavior\n");
+			test_pass(test_string);
 		}
 		exit(0);
 	}

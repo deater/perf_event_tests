@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (rdpmc_support==1) {
-		test_green_new_behavior(test_string);
+		if (!quiet) printf("New behavior\n");
 	}
 	else {
 		test_yellow_old_behavior(test_string);

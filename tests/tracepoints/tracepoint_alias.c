@@ -78,8 +78,8 @@ int main(int argc, char **argv) {
 
 
 		if (fd<0) {
-			if (!quiet) printf("\tNo alias!\n");
-			test_green_new_behavior(test_string);
+			if (!quiet) printf("\tNo alias!  New behavior\n");
+			test_pass(test_string);
 		}
 		else {
 			if (!quiet) printf("\t0x%llx aliases to %llx\n",
