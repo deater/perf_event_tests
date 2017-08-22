@@ -4,7 +4,9 @@
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
 
-/* This bug still exists as of 4.13-rc2 (though it has been reported) */
+/* This bug was fixed by 9b231d9f47c6114d317ce28cff92a74ad80547f5	*/
+/* in Linux 4.14							*/
+
 /* The problem is if you attach to a process in PERF_EVENT_STATE_INACTIVE */
 /* and then enable/disable the event (while the process is not running) */
 /* the event->tstamp_enabled is updated but event->tstamp_stopped */

@@ -1,9 +1,12 @@
 /* This attempts to use rdpmc after we've execed */
 
-/* For "security" reasons this was made difficult under Linux */
+/* For "security" reasons this was made difficult under Linux	*/
 
-/* Chasing down a Linux bug showed by the PAPI tests */
-/* It exists still in 4.13-rc2 */
+/* Chasing down a Linux bug showed by the PAPI tests		*/
+/* where if we exec without closing the mmap() then the		*/
+/* reference count can go negative and rdpmc() accesses GPF	*/
+
+/* This was fixed by bfe334924ccd9f4a53f30240c03cf2f43f5b2df1 (Linux 4.14) */
 
 /* by Vince Weaver, vincent.weaver _at_ maine.edu       */
 
