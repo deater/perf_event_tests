@@ -36,6 +36,8 @@ static struct signal_counts {
 
 static int fd1;
 
+static int last_unknown=0;
+
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
 	int ret;
@@ -49,7 +51,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 		case POLL_ERR: count.err++; break;
 		case POLL_PRI: count.pri++; break;
 		case POLL_HUP: count.hup++; break;
-		default: count.unknown++; break;
+		default: last_unknown=oh->si_code; count.unknown++; break;
 	}
 
 	count.total++;
@@ -147,6 +149,13 @@ int main(int argc, char** argv) {
 	}
 
 	close(fd1);
+
+	if (count.unknown!=0) {
+		if (!quiet) {
+			printf("Detected unknown si_code!  Last was: %d\n",
+				last_unknown);
+		}
+	}
 
 	if (count.total==0) {
 		if (!quiet) printf("No overflow events generated.\n");
