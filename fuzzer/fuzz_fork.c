@@ -35,6 +35,7 @@ void fork_random_event(void) {
 		}
 
 		kill(forked_pid,SIGKILL);
+		stats.total_syscalls++;
 
 		/* not sure if this will cause us to miss bugs */
 		/* but it does make the logs more deterministic */
@@ -42,6 +43,7 @@ void fork_random_event(void) {
 		/* always wait for the children.	*/
 //		if (attempt_determinism) {
 			waitpid(forked_pid, &status, 0);
+			stats.total_syscalls++;
 //		}
 
 		already_forked=0;
@@ -69,6 +71,7 @@ void fork_random_event(void) {
 			}
 		}
 
+		stats.total_syscalls++;
 		stats.fork_attempts++;
 
 		/* We do see failures sometimes */

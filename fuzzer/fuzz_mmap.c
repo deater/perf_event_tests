@@ -357,6 +357,7 @@ int setup_mmap(int which) {
 	if (!ignore_but_dont_skip.mmap) {
 
 		stats.mmap_attempts++;
+		stats.total_syscalls++;
 		mmaps[i].addr=mmap(NULL, size,
 			prot, flags,
 			event_data[which].fd, 0);
@@ -499,6 +500,7 @@ void unmap_mmap(int i,int from_sigio) {
 	int result;
 
 	stats.mmap_unmap_attempts++;
+	stats.total_syscalls++;
 
 	if (i<0) {
 		fprintf(stderr,"ERROR! Invalid mmap index %d\n",i);

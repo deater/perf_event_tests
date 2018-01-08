@@ -9,7 +9,6 @@
 
 //#include <sys/mman.h>
 
-
 #include <signal.h>
 
 #include "perf_event.h"
@@ -228,6 +227,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 			event_data[i].group_fd,
 			event_data[i].flags);
 		stats.open_attempts++;
+		stats.total_syscalls++;
 
 		int which_type=event_data[i].attr.type;
 

@@ -741,7 +741,7 @@ int main(int argc, char **argv) {
 			}
 
 			gettimeofday(&current_time,NULL);
-			rate=((double)(end_count))/
+			rate=((double)(stats.total_syscalls))/
 				(current_time.tv_sec-interval_start);
 
 			dump_summary(stderr,1,rate);
@@ -761,7 +761,7 @@ int main(int argc, char **argv) {
 		if (stats.total_iterations%STATUS_UPDATE_INTERVAL==0) {
 
 			gettimeofday(&current_time,NULL);
-			rate=((double)STATUS_UPDATE_INTERVAL)/
+			rate=((double)stats.total_syscalls)/
 				(current_time.tv_sec-interval_start);
 
 			if (log_fd!=1) {

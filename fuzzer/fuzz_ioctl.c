@@ -441,6 +441,7 @@ void ioctl_random_event(void) {
 	}
 
 	stats.ioctl_attempts++;
+	stats.total_syscalls++;
 
 	if (result>=0) {
 		stats.ioctl_successful++;
