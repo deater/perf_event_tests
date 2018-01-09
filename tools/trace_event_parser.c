@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define MAX_FORMAT	30
 

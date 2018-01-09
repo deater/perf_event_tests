@@ -9,7 +9,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 struct generic_event_type {
 	char *name;
