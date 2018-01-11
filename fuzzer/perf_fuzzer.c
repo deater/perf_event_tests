@@ -297,7 +297,6 @@ int main(int argc, char **argv) {
 	struct tm* tm_info;
 	struct timeval current_time;
 	double interval_start=0.0,interval_end;
-	double rate;
 
 	/*********************************/
 	/* Parse command line parameters */
@@ -742,10 +741,8 @@ int main(int argc, char **argv) {
 
 			gettimeofday(&current_time,NULL);
 			interval_end=current_time.tv_sec+(current_time.tv_usec/1000000.0);
-			rate=((double)(stats.total_syscalls))/
-				(interval_end-interval_start);
 
-			dump_summary(stderr,1,rate);
+			dump_summary(stderr,1,interval_end-interval_start);
 
 			/* Kill child, doesn't happen automatically? */
 			if (already_forked) {
@@ -764,14 +761,11 @@ int main(int argc, char **argv) {
 			gettimeofday(&current_time,NULL);
 			interval_end=current_time.tv_sec+(current_time.tv_usec/1000000.0);
 
-			rate=((double)stats.total_syscalls)/
-				(interval_end-interval_start);
-
 			if (log_fd!=1) {
-				dump_summary(stderr,1,rate);
+				dump_summary(stderr,1,interval_end-interval_start);
 			}
 			else {
-				dump_summary(stderr,0,rate);
+				dump_summary(stderr,0,interval_end-interval_start);
 			}
 
 			interval_start=interval_end;
