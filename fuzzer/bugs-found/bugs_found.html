@@ -164,10 +164,20 @@
 
 <h2>Fixed bugs:</h2>
 
+<h3>Fixed in 4.15</h3>
+	<ul>
+	<li>Change to kernel left Haswell-EX using wrong msr registers
+		for RAPL.  Found with perf_fuzzer by Kan Liang.
+	<li>Various bugs found in the KPTI (meltdown) fixes.
+		Intel BTS in particular led to instant crashes.
+	</ul>
+
 <h3>Fixed in 4.13</h3>
 	<ul>
 	<li>pmu::read() called erroneously in v4.13-rc{3,4}
-		Found with perf_fuzzer by Mark Rutland
+		Found with perf_fuzzer by Mark Rutland on ARM64.
+		https://lkml.org/lkml/2017/8/10/742
+		Fix never committed for this?  Double check.
 	</ul>
 
 <h3>Fixed in 4.11</h3>
@@ -192,7 +202,6 @@
 		Didn't ask for confirmation as this is another one of those
 		mysterious hackers who doesn't believe in e-mail but is 
 		OK having a twitter account.
-
 	<li>perf/x86/intel: Account interrupts for PEBS errors
 		Found by Jiri Olsa
 		(475113d937adfd150eb82b5e2c5507125a68e7af)
