@@ -4,6 +4,7 @@
 #define MAX_IOCTL_TYPE 16
 
 struct fuzzer_stats_t {
+	long long total_syscalls;
 	long long total_iterations;
 	long long overflows;
 	long long already_overflows;

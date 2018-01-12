@@ -296,8 +296,7 @@ int main(int argc, char **argv) {
 	char buffer[26];
 	struct tm* tm_info;
 	struct timeval current_time;
-	long long interval_start=0;
-	double rate;
+	double interval_start=0.0,interval_end;
 
 	/*********************************/
 	/* Parse command line parameters */
@@ -657,7 +656,7 @@ int main(int argc, char **argv) {
 
 
 	gettimeofday(&current_time,NULL);
-	interval_start=current_time.tv_sec;
+	interval_start=current_time.tv_sec+(current_time.tv_usec/1000000.0);
 
 	/****************/
 	/* MAIN LOOP	*/
@@ -741,10 +740,9 @@ int main(int argc, char **argv) {
 			}
 
 			gettimeofday(&current_time,NULL);
-			rate=((double)(end_count))/
-				(current_time.tv_sec-interval_start);
+			interval_end=current_time.tv_sec+(current_time.tv_usec/1000000.0);
 
-			dump_summary(stderr,1,rate);
+			dump_summary(stderr,1,interval_end-interval_start);
 
 			/* Kill child, doesn't happen automatically? */
 			if (already_forked) {
@@ -761,17 +759,16 @@ int main(int argc, char **argv) {
 		if (stats.total_iterations%STATUS_UPDATE_INTERVAL==0) {
 
 			gettimeofday(&current_time,NULL);
-			rate=((double)STATUS_UPDATE_INTERVAL)/
-				(current_time.tv_sec-interval_start);
+			interval_end=current_time.tv_sec+(current_time.tv_usec/1000000.0);
 
 			if (log_fd!=1) {
-				dump_summary(stderr,1,rate);
+				dump_summary(stderr,1,interval_end-interval_start);
 			}
 			else {
-				dump_summary(stderr,0,rate);
+				dump_summary(stderr,0,interval_end-interval_start);
 			}
 
-			interval_start=current_time.tv_sec;
+			interval_start=interval_end;
 		}
 //		fsync(log_fd);
 	}

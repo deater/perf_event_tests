@@ -64,14 +64,17 @@ static void print_errno_name(FILE *fff, int e) {
 	}
 }
 
-void dump_summary(FILE *fff, int print_values, double rate) {
+void dump_summary(FILE *fff, int print_values, double elapsed) {
 
 	int i;
 
 	if (print_values) {
 
-	fprintf(fff,"Iteration %lld (%lf ops/s)\n",
-		stats.total_iterations,rate);
+	fprintf(fff,"Iteration %lld, %lld syscalls in %.2lf s (%.3lf k syscalls/s)\n",
+		stats.total_iterations,
+		stats.total_syscalls,
+		elapsed,
+		(stats.total_syscalls/elapsed)/1000.0);
 	fprintf(fff,"\tOpen attempts: %lld  Successful: %lld  Currently open: %lld\n",
 	       stats.open_attempts,stats.open_successful,stats.current_open);
 	for(i=0;i<MAX_ERRNOS;i++) {
@@ -158,6 +161,7 @@ void dump_summary(FILE *fff, int print_values, double rate) {
 	}
 
 	/* Reset counts back to zero */
+	stats.total_syscalls=0;
 	stats.open_attempts=0; stats.open_successful=0;
 	stats.close_attempts=0; stats.close_successful=0;
 	stats.read_attempts=0; stats.read_successful=0;

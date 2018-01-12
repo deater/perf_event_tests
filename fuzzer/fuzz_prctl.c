@@ -22,6 +22,7 @@ void prctl_random_event(void) {
 	int type;
 
 	stats.prctl_attempts++;
+	stats.total_syscalls++;
 
 	type=rand()%2;
 

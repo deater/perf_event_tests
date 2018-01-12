@@ -39,6 +39,8 @@ void read_random_event(void) {
 	}
 
 	stats.read_attempts++;
+	stats.total_syscalls++;
+
 	if (ignore_but_dont_skip.read) return;
 	result=read(event_data[i].fd,data,read_size);
 

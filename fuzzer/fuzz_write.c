@@ -41,6 +41,7 @@ void write_random_event(void) {
 	if (ignore_but_dont_skip.write) return;
 
 	stats.write_attempts++;
+	stats.total_syscalls++;
 
 	result=write(event_data[i].fd,data,write_size);
 

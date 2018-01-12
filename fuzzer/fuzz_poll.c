@@ -39,6 +39,7 @@ void poll_random_event(void) {
 	if (ignore_but_dont_skip.poll) return;
 
 	stats.poll_attempts++;
+	stats.total_syscalls++;
 	result=poll(pollfds,num_fds,timeout);
 
 	if (result>0) {
