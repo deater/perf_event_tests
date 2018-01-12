@@ -4,6 +4,8 @@
 /* Test to see if we can sample on two events at once */
 /* within the same group.                             */
 
+/* This test can fail on ivybridge(?) but not haswell or skylake? */
+
 #define _GNU_SOURCE 1
 
 #include <stdio.h>
@@ -44,8 +46,10 @@ struct {
 	int config;
 	int period;
 } event_values[NUM_EVENTS] = {
-	{ "perf::instructions", PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 1000000},
-	{ "perf::instructions", PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 2000000},
+	{ "perf::instructions", PERF_TYPE_HARDWARE,
+		PERF_COUNT_HW_INSTRUCTIONS, 1000000},
+	{ "perf::instructions", PERF_TYPE_HARDWARE,
+		PERF_COUNT_HW_INSTRUCTIONS, 2000000},
 };
 
 
