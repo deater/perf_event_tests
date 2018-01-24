@@ -168,8 +168,11 @@
 	<ul>
 	<li>Change to kernel left Haswell-EX using wrong msr registers
 		for RAPL.  Found with perf_fuzzer by Kan Liang.
-	<li>Various bugs found in the KPTI (meltdown) fixes.
+		Fixed by 1289e0e29857e606a70a0200bf7849ae38d3493a
+	<li>The KPTI (meltdown) fixes led to various issues.
 		Intel BTS in particular led to instant crashes.
+		Temporarily fixed by
+		99a9dc98ba52267ce5e062b52de88ea1f1b2a7d8
 	</ul>
 
 <h3>Fixed in 4.13</h3>
