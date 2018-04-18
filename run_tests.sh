@@ -154,26 +154,25 @@ echo -n "    "
 $TESTS_DIR/size/header_mismatch
 
 
-
-
-
 echo
 echo "* Checking perf_event ioctl calls"
 echo "  + tests/ioctl/ioctl_flag_group"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_flag_group
-echo "  + tests/ioctl/ioctl_id"
+echo "  + tests/ioctl/ioctl_4_period"
 echo -n "    "
-$TESTS_DIR/ioctl/ioctl_id
-echo "  + tests/ioctl/ioctl_period"
+$TESTS_DIR/ioctl/ioctl_4_period
+echo "  + tests/ioctl/ioctl_5_set_output"
 echo -n "    "
-$TESTS_DIR/ioctl/ioctl_period
-echo "  + tests/ioctl/ioctl_set_filter"
+$TESTS_DIR/ioctl/ioctl_5_set_output
+echo "  + tests/ioctl/ioctl_6_set_filter"
 echo -n "    "
-$TESTS_DIR/ioctl/ioctl_set_filter
-echo "  + tests/ioctl/ioctl_set_output"
+$TESTS_DIR/ioctl/ioctl_6_set_filter
+echo "  + tests/ioctl/ioctl_7_id"
 echo -n "    "
-$TESTS_DIR/ioctl/ioctl_set_output
+$TESTS_DIR/ioctl/ioctl_7_id
+
+
 
 echo
 echo "* Checking error returns"
