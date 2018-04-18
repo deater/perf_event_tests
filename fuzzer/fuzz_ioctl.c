@@ -31,6 +31,27 @@
 #define MAX_FILTER_SIZE 8192
 static char filter[MAX_FILTER_SIZE];
 
+/* Use as a valid address for random calls that could use one */
+static char valid_ram[4096];
+
+
+/* From asm-generic/ioctl.h */
+#define _IOC_NRSHIFT    0
+#define _IOC_TYPESHIFT  (_IOC_NRSHIFT+_IOC_NRBITS)
+#define _IOC_SIZESHIFT  (_IOC_TYPESHIFT+_IOC_TYPEBITS)
+#define _IOC_DIRSHIFT   (_IOC_SIZESHIFT+_IOC_SIZEBITS)
+
+static long create_ioctl(int dir, int type, int nr, int size) {
+
+	long number;
+
+	number=(((dir)  << _IOC_DIRSHIFT) |
+		((type) << _IOC_TYPESHIFT) |
+		((nr)   << _IOC_NRSHIFT) |
+		((size) << _IOC_SIZESHIFT));
+
+	return number;
+}
 
 static int make_crazy_filter(void) {
 
@@ -205,7 +226,7 @@ void ioctl_random_event(void) {
 	/* Exit if no events */
 	if (any_event<0) return;
 
-	type=rand()%13;
+	type=rand()%14;
 
 	switch(type) {
 
@@ -466,12 +487,52 @@ void ioctl_random_event(void) {
 			break;
 
 
+		/* Random perf ($) ioctl */
+		case 12:
+			/* dir = none, r, w, rw */
+			/* type = $ for perf */
+			/* nr = number */
+			/* size = size of argument? */
 
-		/* Random */
-		default:
-			arg=rand(); arg2=rand();
+			/* realisitic */
+			if (rand()%2) {
+				arg=create_ioctl(rand()%3,'$',
+					rand()%64,rand()%16);
+			}
+			/* unrealisitic */
+			else {
+				arg=create_ioctl(rand()%3,'$',rand(),rand());
+			}
+
+			if (rand()%2) {
+				arg2=rand();
+				valid_ram[rand()%4096]=rand();
+			}
+			else {
+				arg2=(long)(&valid_ram);
+			}
+
 			type=arg;
+
 			if (ignore_but_dont_skip.ioctl) return;
+
+			result=ioctl(event_data[any_event].fd,arg,arg2);
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
+				sprintf(log_buffer,"I %d %lld %lld\n",
+					event_data[any_event].fd,arg,arg2);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			break;
+
+		/* Random any ioctl */
+		default:
+			arg=create_ioctl(rand(),rand(),rand(),rand());
+			arg2=rand();
+			type=arg;
+
+			if (ignore_but_dont_skip.ioctl) return;
+
 			result=ioctl(event_data[any_event].fd,arg,arg2);
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %lld %lld\n",
