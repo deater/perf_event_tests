@@ -23,7 +23,7 @@ static char open_trinity_type_names[MAX_OPEN_TRINITY_TYPE][20]={
 static char ioctl_type_names[MAX_IOCTL_TYPE][20]={
 	"ENABLE","DISABLE","REFRESH","RESET",
 	"PERIOD","SET_OUTPUT","SET_FILTER","ID",
-	"SET_BPF","PAUSE_OUTPUT","#10","#11",
+	"SET_BPF","PAUSE_OUTPUT","QUERY_BPF","MOD_ATTR",
 	"#12","#13","#14",">14"
 };
 

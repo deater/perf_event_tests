@@ -205,7 +205,7 @@ void ioctl_random_event(void) {
 	/* Exit if no events */
 	if (any_event<0) return;
 
-	type=rand()%11;
+	type=rand()%13;
 
 	switch(type) {
 
@@ -424,6 +424,48 @@ void ioctl_random_event(void) {
 			}
 
 			break;
+
+		/* PERF_EVENT_IOC_QUERY_BPF */
+		/* argument is struct perf_event_query_bpf * */
+		case 10:
+			arg=rand()%3;
+			if (arg==2) arg=rand();
+
+			if (ignore_but_dont_skip.ioctl) return;
+
+			result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_QUERY_BPF,arg);
+
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
+				sprintf(log_buffer,"I %d %ld %lld\n",
+					event_data[any_event].fd,
+					(long)PERF_EVENT_IOC_QUERY_BPF,id);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			break;
+
+		/* PERF_EVENT_IOC_MODIFY_ATTRIBUTES */
+		/* argument is struct perf_event_attr * */
+		case 11:
+			arg=rand()%3;
+			if (arg==2) arg=rand();
+
+			if (ignore_but_dont_skip.ioctl) return;
+
+			result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_MODIFY_ATTRIBUTES,arg);
+
+			if ((result>=0)&&(logging&TYPE_IOCTL)) {
+				sprintf(log_buffer,"I %d %ld %lld\n",
+					event_data[any_event].fd,
+					(long)PERF_EVENT_IOC_MODIFY_ATTRIBUTES,id);
+				write(log_fd,log_buffer,strlen(log_buffer));
+			}
+
+			break;
+
+
 
 		/* Random */
 		default:
