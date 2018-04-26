@@ -166,6 +166,8 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 		event_data[i].group_fd=shm->syscall[0].a4;
 		event_data[i].flags=shm->syscall[0].a5;
 
+		post_perf_event_open(&shm->syscall[0]);
+
 		/* Randomly make part of a group 1/4 of the time */
 		if (rand()%4==2) {
 			int j;

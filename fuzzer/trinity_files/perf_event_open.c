@@ -1367,7 +1367,7 @@ int sanitise_perf_event_open(struct syscallrecord *rec)
 	return type;
 }
 
-static void post_perf_event_open(struct syscallrecord *rec)
+void post_perf_event_open(struct syscallrecord *rec)
 {
 	freeptr(&rec->a1);
 }
