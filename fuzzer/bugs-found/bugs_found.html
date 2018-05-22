@@ -164,6 +164,22 @@
 
 <h2>Fixed bugs:</h2>
 
+<h3>Fixed in 4.17</h3>
+
+	<ul>Found with syzkaller syzbot,
+		 Fix sample_max_stack maximum check		
+		5af44ca53d019de47efe6dbc4003dd518e5197ed
+	<li>armv8, perf/core: Fix perf_output_read_group()
+		9e5b127d6f33468143d90c8a45ca12410e4c3fa7
+	</ul>
+
+<h3>Fixed in 4.16</h3>
+	<ul>
+	<li>Francis Deslauriers:
+		Subject	[PATCH 0/1] x86/kprobes: Prohibit probing of .entry_trampoline code
+		Mentions found with fuzzer, did not say which one.
+	</ul>
+
 <h3>Fixed in 4.15</h3>
 	<ul>
 	<li>Change to kernel left Haswell-EX using wrong msr registers
