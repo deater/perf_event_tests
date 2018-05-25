@@ -1,3 +1,5 @@
++ Add KVM tests, specifically
+	PERF_RECORD_MISC_GUEST_KERNEL and PERF_RECORD_MISC_GUEST_USER events.
 + Test the new cycles field in LBR entries on Sandybridge
 + Test for new CONTEXT_SWITCH records
 + In sampling, be sure to handle the various sample_header values
