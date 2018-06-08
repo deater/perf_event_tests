@@ -172,7 +172,11 @@ echo "  + tests/ioctl/ioctl_7_id"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_7_id
 
-
+echo
+echo "* Checking perf_event prctl calls"
+echo "  + tests/prctl/prctl"
+echo -n "    "
+$TESTS_DIR/prctl/prctl
 
 echo
 echo "* Checking error returns"

@@ -13,6 +13,7 @@ all:
 	$(MAKE) -C openmp
 	$(MAKE) -C overflow
 	$(MAKE) -C periodic_stats
+	$(MAKE) -C prctl
 	$(MAKE) -C rdpmc
 	$(MAKE) -C record_sample
 	$(MAKE) -C size
@@ -39,6 +40,7 @@ install: all
 	$(MAKE) -C openmp install
 	$(MAKE) -C overflow install
 	$(MAKE) -C periodic_stats install
+	$(MAKE) -C prctl install
 	$(MAKE) -C rdpmc install
 	$(MAKE) -C record_sample install
 	$(MAKE) -C size install
@@ -65,6 +67,7 @@ clean: clean-local
 	$(MAKE) -C openmp clean
 	$(MAKE) -C overflow clean
 	$(MAKE) -C periodic_stats clean
+	$(MAKE) -C prctl clean
 	$(MAKE) -C rdpmc clean
 	$(MAKE) -C record_sample clean
 	$(MAKE) -C size clean
