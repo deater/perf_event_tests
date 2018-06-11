@@ -1,18 +1,26 @@
 include ../../Makefile.globals.inc
 
 CPPFLAGS += -I../../include
-CFLAGS += -Wall -O2
+CFLAGS += -Wall -O2 -g
 LDFLAGS +=
 LIB = ../../lib
 
 PROGRAM_LIST = \
-	prctl
-
+	prctl \
+	prctl_parent \
+	prctl_child \
+	prctl_inherit
 
 
 all: $(PROGRAM_LIST)
 
 prctl: prctl.o $(LIB)/libhelper.a
+
+prctl_parent: prctl_parent.o $(LIB)/libhelper.a
+
+prctl_child: prctl_child.o $(LIB)/libhelper.a
+
+prctl_inherit: prctl_inherit.o $(LIB)/libhelper.a
 
 install: all
 	$(INSTALL) -d $(prefix)/tests/prctl

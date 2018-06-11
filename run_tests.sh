@@ -177,6 +177,15 @@ echo "* Checking perf_event prctl calls"
 echo "  + tests/prctl/prctl"
 echo -n "    "
 $TESTS_DIR/prctl/prctl
+echo "  + tests/prctl/prctl_child"
+echo -n "    "
+$TESTS_DIR/prctl/prctl_child
+echo "  + tests/prctl/prctl_parent"
+echo -n "    "
+$TESTS_DIR/prctl/prctl_parent
+echo "  + tests/prctl/prctl_inherit"
+echo -n "    "
+$TESTS_DIR/prctl/prctl_inherit
 
 echo
 echo "* Checking error returns"
