@@ -186,6 +186,9 @@ $TESTS_DIR/prctl/prctl_parent
 echo "  + tests/prctl/prctl_inherit"
 echo -n "    "
 $TESTS_DIR/prctl/prctl_inherit
+echo "  + tests/prctl/prctl_attach"
+echo -n "    "
+$TESTS_DIR/prctl/prctl_attach
 
 echo
 echo "* Checking error returns"
