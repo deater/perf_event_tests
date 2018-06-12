@@ -115,6 +115,9 @@ $TESTS_DIR/attr_fields/exclude_kernel
 echo "  + tests/attr_fields/exclude_hv"
 echo -n "    "
 $TESTS_DIR/attr_fields/exclude_hv
+echo "  + tests/attr_fields/exclude_idle"
+echo -n "    "
+$TESTS_DIR/attr_fields/exclude_idle
 echo "  + tests/attr_fields/exclude_guest"
 echo -n "    "
 $TESTS_DIR/attr_fields/exclude_guest

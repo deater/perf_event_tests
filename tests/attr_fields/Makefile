@@ -10,6 +10,7 @@ PROGRAM_LIST = \
 	enable_on_exec \
 	exclude_guest \
 	exclude_host \
+	exclude_idle \
 	exclude_hv \
 	exclude_kernel \
 	exclude_user \
@@ -25,19 +26,21 @@ all: $(PROGRAM_LIST)
 
 disabled:disabled.o $(LIB)/libhelper.a
 
-exclude_user:exclude_user.o $(LIB)/libhelper.a
-
-exclude_kernel: exclude_kernel.o $(LIB)/libhelper.a
-
-exclude_host: exclude_host.o $(LIB)/libhelper.a
-
-exclude_guest: exclude_guest.o $(LIB)/libhelper.a
-
-exclude_hv: exclude_hv.o $(LIB)/libhelper.a
-
 enable_on_exec: enable_on_exec.o $(LIB)/libhelper.a
 
 exclusive: exclusive.o $(LIB)/libhelper.a
+
+exclude_guest: exclude_guest.o $(LIB)/libhelper.a
+
+exclude_host: exclude_host.o $(LIB)/libhelper.a
+
+exclude_hv: exclude_hv.o $(LIB)/libhelper.a
+
+exclude_idle: exclude_idle.o $(LIB)/libhelper.a
+
+exclude_kernel: exclude_kernel.o $(LIB)/libhelper.a
+
+exclude_user:exclude_user.o $(LIB)/libhelper.a
 
 inherit: inherit.o $(LIB)/libhelper.a
 
