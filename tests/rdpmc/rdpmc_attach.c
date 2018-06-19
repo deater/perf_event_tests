@@ -32,20 +32,20 @@ static int wait_for_attach_and_loop( int num ) {
 
 	int i,result=0;
 
-//	printf("BEFORE START\n");
-	kill( getpid(), SIGSTOP );
+	/* Wait to be triggered */
+	if (ptrace(PTRACE_TRACEME, 0, 0, 0) == 0) {
+	}
 
-//	printf("STARTING\n");
 	for(i=0;i<num;i++) {
 		result=instructions_million();
 	}
-//	sleep(5);
 
 	if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
 
-//	printf("BEFORE STOP\n");
-	kill( getpid(), SIGSTOP );
-//	printf("EXITING\n");
+
+	/* Wait again */
+	raise(SIGSTOP );
+
 	return 0;
 }
 
@@ -95,16 +95,16 @@ int main(int argc, char **argv) {
 	}
 	else if (pid==0) {
 		/* in child */
-		exit(wait_for_attach_and_loop(1));
+		exit(wait_for_attach_and_loop(100));
 	}
 
 	if ( ptrace( PTRACE_ATTACH, pid, NULL, NULL ) == -1 ) {
 		fprintf(stderr,"Error attaching to %d\n",pid);
-		return -1;
+		test_fail(test_string);
 	}
 	if ( waitpid( pid, &status, 0 ) == -1 ) {
 		fprintf(stderr,"Error waitpid %d\n",pid);
-		return -1;
+		test_fail(test_string);
 	}
 	if ( WIFSTOPPED( status ) == 0 ) {
 		fprintf(stderr,"WIFSTOPPED didn't happen %d\n",pid);
@@ -162,11 +162,11 @@ int main(int argc, char **argv) {
 	/* start up pid */
 	if ( ptrace( PTRACE_CONT, pid, NULL, NULL ) == -1 ) {
 		fprintf(stderr,"Couldn't continue %d\n",pid);
-		return -1;
+		test_fail(test_string);
 	}
 	if ( waitpid( pid, &status, 0 ) == -1 ) {
 		fprintf(stderr,"Couldn't waitpid() %d\n",pid );
-		return -1;
+		test_fail(test_string);
 	}
 	if ( WIFSTOPPED( status ) == 0 ) {
 		test_fail(test_string);
@@ -186,12 +186,6 @@ int main(int argc, char **argv) {
 	if ( waitpid( pid, &status, 0 ) == -1 ) {
 		fprintf(stderr, "waitpid() pid\n" );
 		return -1;
-	}
-	if ( WIFSTOPPED( status ) == 0 ) {
-              test_fail(test_string);
-	}
-	if ( WSTOPSIG( status ) != SIGSTOP ) {
-              test_fail(test_string);
 	}
 
 	/* read */
@@ -241,7 +235,7 @@ int main(int argc, char **argv) {
 	error=display_error(values[0],
 				values[0],
 				values[0],
-				1000000ULL,quiet);
+				100000000ULL,quiet);
 
 	if ((error>10.0) || ( error<-10.0)) {
 		if (!quiet) printf("Error out of range!\n");
