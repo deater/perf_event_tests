@@ -1,6 +1,10 @@
 
 **** RUNNING perf_event_tests ****
-Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 GNU/Linux
+Linux macbook-air 4.8.0-2-amd64 #1 SMP Debian 4.8.15-2 (2017-01-04) x86_64 GNU/Linux
+
+* Testing /proc/sys/kernel/perf_event_paranoid setting
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/utils/check_paranoid
+    Checking /proc/sys/kernel/perf_event_paranoid setting...     PASSED
 
 * Checking infrastructure
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/utils/get_cache_info
@@ -18,13 +22,13 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/instructions
     Testing "instructions" generalized event...                  PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/l1-dcache-stores
-    Testing "L1-dcache-stores" generalized event...              KNOWN ISSUE
+    Testing "L1-dcache-stores" generalized event...              PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/l1-dcache-loads
-    Testing "L1-dcache-loads" generalized event...               KNOWN ISSUE
+    Testing "L1-dcache-loads" generalized event...               PASSED
 
 * Checking Intel x86 specific features
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr0
-    Testing fixed counter 0 event...                             PASSED
+    Testing fixed counter 0 event...                             FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr1
     Testing fixed counter 1 event...                             FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr2
@@ -34,11 +38,11 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/offcore_response_mask
     Testing if setting invalid offcore bits is blocked...        PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/uncore_events
-    Testing uncore events...                                     FAILED
+    Testing uncore events...                                     PASSED
 
 * Checking breakpoint support
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/breakpoints/breakpoint_support
-    Testing hardware breakpoints (738996321)...                  PASSED
+    Testing hardware breakpoints...                              PASSED
 
 * Checking basic perf_event functionality
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/disabled
@@ -51,6 +55,8 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
     Testing inherit...                                           PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/inherit_stat
     Testing inherit_stat...                                      UNEXPLAINED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/pinned
+    Testing pinned...                                            PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/read_format_range_check
     Testing attr->read_format invalid bits...                    PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/sample_type_range_check
@@ -72,9 +78,19 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/flags/flags_fd_no_group
     Testing PERF_FLAG_FD_NO_GROUP flag...                        PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/flags/flags_fd_output
-    Testing PERF_FLAG_FD_OUTPUT flag...                          FAILED
+    Testing PERF_FLAG_FD_OUTPUT flag...                          WARNING KNOWN KERNEL BUG
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/socket/socket_pass
     Testing passing fd over a socket...                          PASSED
+
+* Checking attr.size behavior
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/too_big
+    Testing attr > kernel supported size...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/too_little
+    Testing attr < kernel supported size...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/just_right
+    Testing attr is kernel supported size...                     PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/header_mismatch
+    Testing header vs kernel attr size...                        PASSED
 
 * Checking perf_event ioctl calls
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_flag_group
@@ -84,7 +100,7 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_period
     Testing ioctl(PERF_EVENT_IOC_PERIOD)...                      NEW BEHAVIOR
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_set_filter
-    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   FAILED
+    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_set_output
     Testing PERF_EVENT_IOC_SET_OUTPUT ioctl...                   PASSED
 
@@ -100,13 +116,15 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/einval
     Testing EINVAL generation...                                 PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/emfile
-    Testing if EMFILE can be triggered...                        SKIPPED
+    Testing if EMFILE can be triggered...                        PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/enoent
     Testing ENOENT generation...                                 PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/enospc
     Testing ENOSPC generation...                                 PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eopnotsupp
     Testing EOPNOTSUPP generation...                             PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eoverflow
+    Testing EOVERFLOW generation...                              PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eperm
     Testing EPERM generation...                                  PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/esrch
@@ -116,9 +134,7 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
 
 * Checking multithread functionality
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/multithread/fork_then_read
-    In child, running an extra million
-In parent
-Testing reads in forked children...                          PASSED
+    Testing reads in forked children...                          PASSED
 
 * Checking overflow functionality
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/breakpoint_overflow
@@ -142,10 +158,11 @@ Testing reads in forked children...                          PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_requires_wakeup
     Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_poll
-    Returned HUP!
-Testing catching overflow with poll()...                     FAILED
+    Testing catching overflow with poll()...                     PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_large
-    Testing large sample_period...                               FAILED
+    Testing large sample_period...                               PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_skid
+    Testing if we can skid into kernel...                        WARNING KNOWN KERNEL BUG
 
 * Checking tracepoint functionality
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/tracepoints/tracepoint_alias
@@ -203,7 +220,7 @@ Testing catching overflow with poll()...                     FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/sw_start_leader
     Testing start with sw event group leader...                  PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/hw_sw_mix
-    Testing mixes of HW and SW events...                         FAILED
+    Testing mixes of HW and SW events...                         WARNING KNOWN KERNEL BUG
 
 * Checking bugs that can silently produce wrong results
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/constraints/check_constraints
@@ -233,15 +250,150 @@ Testing catching overflow with poll()...                     FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/huge_events_start
     Testing start of max events...                               PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/huge_group_start
-    data size=65544
-Trying to read 65536 bytes into data
-Testing start of max event group...                          FAILED
+    Testing start of max event group...                          PASSED
 
 * Checking for fast RDPMC support
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_support
-    Testing if userspace rdpmc reads are supported...            NEW BEHAVIOR
+    VMW: after enabled=4848, running=4848
+VMW: running=4848, delta=0
+VMW: after enabled=4848, running=4848
+VMW: running=4848, delta=0
+Testing if userspace rdpmc reads are supported...            NEW BEHAVIOR
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_validation
-    Testing if userspace rdpmc reads give expected results...    PASSED
+    VMW: after enabled=3883, running=3883
+VMW: running=3883, delta=0
+VMW: after enabled=4702, running=4702
+VMW: running=4702, delta=0
+VMW: after enabled=2531, running=2531
+VMW: running=2531, delta=0
+VMW: after enabled=3221, running=3221
+VMW: running=3221, delta=0
+VMW: after enabled=2531, running=2531
+VMW: running=2531, delta=0
+VMW: after enabled=3221, running=3221
+VMW: running=3221, delta=0
+Testing if userspace rdpmc reads give expected results...    PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_multiplexing
+      + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_reset
+    VMW: after enabled=15300317, running=15300317
+VMW: running=15300317, delta=0
+VMW: after enabled=15297900, running=15297900
+VMW: running=15297900, delta=0
+VMW: after enabled=35299700, running=35299700
+VMW: running=35299700, delta=0
+VMW: after enabled=35297172, running=35297172
+VMW: running=35297172, delta=0
+Testing if resetting while using rdpmc works...              PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_group
+    VMW: after enabled=14363172, running=14363172
+VMW: running=14363172, delta=0
+VMW: after enabled=14363466, running=14363466
+VMW: running=14363466, delta=0
+VMW: after enabled=14363746, running=14363746
+VMW: running=14363746, delta=0
+VMW: after enabled=34362377, running=34362377
+VMW: running=34362377, delta=0
+VMW: after enabled=34362627, running=34362627
+VMW: running=34362627, delta=0
+VMW: after enabled=34362866, running=34362866
+VMW: running=34362866, delta=0
+Testing if rdpmc works with event groups...                  PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_attach
+    VMW: after enabled=788071, running=788071
+VMW: after enabled=789258, running=789258
+Testing if rdpmc attach works...                             FAILED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_multiattach
+    VMW: after enabled=726112, running=726112
+VMW: after enabled=726884, running=726884
+VMW: after enabled=1360096, running=1360096
+VMW: after enabled=1360858, running=1360858
+Testing if rdpmc multi-attach works...                       FAILED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_multiattach_papi
+    VMW: enabled=-14292648918311712, running=789381
+VMW: enabled=-14292648918311712, delta=956652 offset=-14292676219507276 shift=31 quot=15272508 rem=93340611
+VMW: after enabled=-14292648917355060, running=789381
+VMW: enabled=-14292648918310885, running=790208
+VMW: enabled=-14292648918310885, delta=1084056 offset=-14292676219508103 shift=31 quot=15272508 rem=93634863
+VMW: after enabled=-14292648917226829, running=790208
+VMW: after enabled=1042005, running=1042005
+VMW: after enabled=1042596, running=1042596
+Testing if rdpmc papi-multi-attach works...                  FAILED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_pthreads
+    VMW: after enabled=13234, running=13234
+VMW: after enabled=11775, running=11775
+VMW: after enabled=10039, running=10039
+VMW: after enabled=7870, running=7870
+VMW: after enabled=38569083, running=38569083
+VMW: after enabled=38568003, running=38568003
+VMW: after enabled=38566625, running=38566625
+VMW: after enabled=38564566, running=38564566
+VMW: after enabled=382345995, running=382345995
+VMW: after enabled=382344184, running=382344184
+VMW: after enabled=382341483, running=382341483
+VMW: after enabled=382339009, running=382339009
+VMW: after enabled=771761747, running=771761747
+VMW: after enabled=771759097, running=771759097
+VMW: after enabled=771756887, running=771756887
+VMW: after enabled=771754556, running=771754556
+VMW: after enabled=1153914516, running=1153914516
+VMW: after enabled=1153914048, running=1153914048
+VMW: after enabled=1153913464, running=1153913464
+VMW: after enabled=1153910810, running=1153910810
+VMW: after enabled=1928666420, running=1928666420
+VMW: after enabled=1928665979, running=1928665979
+VMW: after enabled=1928665137, running=1928665137
+VMW: after enabled=1928663828, running=1928663828
+VMW: after enabled=1540756308, running=1540756308
+VMW: after enabled=1540755742, running=1540755742
+VMW: after enabled=1540754615, running=1540754615
+VMW: after enabled=1540752847, running=1540752847
+VMW: after enabled=2083943253, running=2083943253
+VMW: after enabled=2083942680, running=2083942680
+VMW: after enabled=2083941450, running=2083941450
+VMW: after enabled=2083939467, running=2083939467
+VMW: after enabled=2253036938, running=2253036938
+VMW: after enabled=2253036261, running=2253036261
+VMW: after enabled=2253035024, running=2253035024
+VMW: after enabled=2253033180, running=2253033180
+Testing if rdpmc with pthreads works...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/rdpmc/rdpmc_pthreads_group
+    VMW: after enabled=5807, running=5807
+VMW: after enabled=6457, running=6457
+VMW: after enabled=6956, running=6956
+VMW: after enabled=7433, running=7433
+VMW: after enabled=38498046, running=38498046
+VMW: after enabled=38498924, running=38498924
+VMW: after enabled=38499815, running=38499815
+VMW: after enabled=38500629, running=38500629
+VMW: after enabled=72859392, running=72859392
+VMW: after enabled=72860055, running=72860055
+VMW: after enabled=72860689, running=72860689
+VMW: after enabled=72861283, running=72861283
+VMW: after enabled=115752394, running=115752394
+VMW: after enabled=115753099, running=115753099
+VMW: after enabled=115753697, running=115753697
+VMW: after enabled=115754295, running=115754295
+VMW: after enabled=192768200, running=192768200
+VMW: after enabled=192769047, running=192769047
+VMW: after enabled=192769733, running=192769733
+VMW: after enabled=192770409, running=192770409
+VMW: after enabled=270016007, running=270016007
+VMW: after enabled=270016645, running=270016645
+VMW: after enabled=270017256, running=270017256
+VMW: after enabled=270017857, running=270017857
+VMW: after enabled=151044276, running=151044276
+VMW: after enabled=151044969, running=151044969
+VMW: after enabled=151045563, running=151045563
+VMW: after enabled=151046178, running=151046178
+VMW: after enabled=223375132, running=223375132
+VMW: after enabled=223375565, running=223375565
+VMW: after enabled=223375940, running=223375940
+VMW: after enabled=223376316, running=223376316
+VMW: after enabled=293820981, running=293820981
+VMW: after enabled=293821798, running=293821798
+VMW: after enabled=293822310, running=293822310
+VMW: after enabled=293822770, running=293822770
+Testing if rdpmc with pthreads works...                      PASSED
 
 * Checking OpenMP support
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_test
@@ -249,10 +401,7 @@ Testing start of max event group...                          FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_overflow
     Testing OpenMP overflow results...                           FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/openmp/openmp_sample
-    WARNING! CPU0 overflow count low!
-WARNING! CPU1 overflow count low!
-WARNING! CPU3 overflow count low!
-WARNING! CPU4 overflow count low!
+    WARNING! CPU4 overflow count low!
 WARNING! CPU5 overflow count low!
 WARNING! CPU6 overflow count low!
 WARNING! CPU7 overflow count low!
@@ -266,5 +415,5 @@ Testing OpenMP sampling results...                           FAILED
 
 * Checking for major bugs that are unlikely to ever be fixed
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/bugs/nmi_watchdog_group_leader
-    Testing if we can determine maximum events despite NMI watchdog... FAILED
+    Testing if we can determine maximum events despite NMI watchdog... SKIPPED
 

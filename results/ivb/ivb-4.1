@@ -1,6 +1,6 @@
 
 **** RUNNING perf_event_tests ****
-Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 GNU/Linux
+Linux vincent-weaver-1 4.1.0-2-amd64 #1 SMP Debian 4.1.6-1 (2015-08-23) x86_64 GNU/Linux
 
 * Checking infrastructure
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/utils/get_cache_info
@@ -18,13 +18,13 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/instructions
     Testing "instructions" generalized event...                  PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/l1-dcache-stores
-    Testing "L1-dcache-stores" generalized event...              KNOWN ISSUE
+    Testing "L1-dcache-stores" generalized event...              PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/generalized_events/l1-dcache-loads
-    Testing "L1-dcache-loads" generalized event...               KNOWN ISSUE
+    Testing "L1-dcache-loads" generalized event...               PASSED
 
 * Checking Intel x86 specific features
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr0
-    Testing fixed counter 0 event...                             PASSED
+    Testing fixed counter 0 event...                             FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr1
     Testing fixed counter 1 event...                             FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/x86_intel/fixed_ctr2
@@ -38,7 +38,7 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
 
 * Checking breakpoint support
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/breakpoints/breakpoint_support
-    Testing hardware breakpoints (738996321)...                  PASSED
+    Testing hardware breakpoints (749279205)...                  PASSED
 
 * Checking basic perf_event functionality
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/attr_fields/disabled
@@ -76,6 +76,16 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/socket/socket_pass
     Testing passing fd over a socket...                          PASSED
 
+* Checking attr.size behavior
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/too_big
+    Testing attr > kernel supported size...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/too_little
+    Testing attr < kernel supported size...                      PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/just_right
+    Testing attr is kernel supported size...                     PASSED
+  + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/size/header_mismatch
+    Testing header vs kernel attr size...                        PASSED
+
 * Checking perf_event ioctl calls
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_flag_group
     Testing PERF_IOC_FLAG_GROUP...                               PASSED
@@ -84,7 +94,7 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_period
     Testing ioctl(PERF_EVENT_IOC_PERIOD)...                      NEW BEHAVIOR
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_set_filter
-    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   FAILED
+    Testing PERF_EVENT_IOC_SET_FILTER ioctl...                   PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/ioctl/ioctl_set_output
     Testing PERF_EVENT_IOC_SET_OUTPUT ioctl...                   PASSED
 
@@ -92,7 +102,7 @@ Linux vincent-weaver-1 4.0.0-2-amd64 #1 SMP Debian 4.0.8-2 (2015-07-22) x86_64 G
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/e2big
     Testing E2BIG errors...                                      PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/eacces
-    Testing EACCES generation...                                 PASSED
+    Testing EACCES generation...                                 FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/ebadf
     Testing EBADF generation...                                  PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/error_returns/efault
@@ -143,7 +153,7 @@ Testing reads in forked children...                          PASSED
     Testing if we overflow w/o setting wakeup...                 NEW BEHAVIOR
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_poll
     Returned HUP!
-Testing catching overflow with poll()...                     FAILED
+Testing catching overflow with poll()...                     PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/overflow/overflow_large
     Testing large sample_period...                               FAILED
 
@@ -197,7 +207,7 @@ Testing catching overflow with poll()...                     FAILED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/multiplexing/check_papi_multiplexing
     Testing if schedulability checked with pinned=0...           PASSED
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/multiplexing/check_multiplexing
-    Testing if multiplexing works...                             PASSED
+    Testing if multiplexing works...                             FAILED
 
 * Checking other bugs
   + /home/vince/research/perf_event_tests/perf_event_tests.git/tests/corner_cases/sw_start_leader
