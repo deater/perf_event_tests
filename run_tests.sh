@@ -162,6 +162,18 @@ echo "* Checking perf_event ioctl calls"
 echo "  + tests/ioctl/ioctl_flag_group"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_flag_group
+echo "  + tests/ioctl/ioctl_0_enable"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_0_enable
+echo "  + tests/ioctl/ioctl_1_disable"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_1_disable
+echo "  + tests/ioctl/ioctl_2_refresh"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_2_refresh
+echo "  + tests/ioctl/ioctl_3_reset"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_3_reset
 echo "  + tests/ioctl/ioctl_4_period"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_4_period

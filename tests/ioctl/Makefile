@@ -7,6 +7,10 @@ LIB = ../../lib
 
 PROGRAM_LIST = \
 	ioctl_flag_group \
+	ioctl_0_enable \
+	ioctl_1_disable \
+	ioctl_2_refresh \
+	ioctl_3_reset \
 	ioctl_4_period \
 	ioctl_5_set_output \
 	ioctl_6_set_filter \
@@ -18,6 +22,14 @@ PROGRAM_LIST = \
 all: $(PROGRAM_LIST)
 
 ioctl_flag_group: ioctl_flag_group.o $(LIB)/libhelper.a
+
+ioctl_0_enable: ioctl_0_enable.o $(LIB)/libhelper.a
+
+ioctl_1_disable: ioctl_1_disable.o $(LIB)/libhelper.a
+
+ioctl_2_refresh: ioctl_2_refresh.o $(LIB)/libhelper.a
+
+ioctl_3_reset: ioctl_3_reset.o $(LIB)/libhelper.a
 
 ioctl_4_period: ioctl_4_period.o $(LIB)/libhelper.a
 
