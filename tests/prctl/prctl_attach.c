@@ -25,54 +25,28 @@
 
 static char test_string[]="Testing if prctl() affects attached events...";
 
-static volatile int done=1;
-
-static void our_handler(int signum,siginfo_t *info, void *uc) {
-
-	done=!done;
-
-}
-
 static int wait_for_attach_and_loop( int quiet ) {
 
 	int result=0,i;
-	struct sigaction sa;
 
 	if (!quiet) {
-		printf("CHILD: setting up signal handler\n");
+		printf("CHILD: stopping\n");
 	}
-
-	memset(&sa, 0, sizeof(struct sigaction));
-	sa.sa_sigaction = our_handler;
-	sa.sa_flags = SA_SIGINFO;
-
-	if (sigaction( SIGUSR1, &sa, NULL) < 0) {
-		fprintf(stderr,"Error setting up signal handler\n");
-		exit(1);
-	}
-
-	if (!quiet) {
-		printf("CHILD: setting up event\n");
-	}
-
 	/* Wait to be triggered */
-	while(done);
+	if (ptrace(PTRACE_TRACEME, 0, 0, 0) == 0) {
+	}
+
+	if (!quiet) {
+		printf("CHILD: continuing\n");
+	}
 
 	for(i=0;i<5;i++) {
 		result=instructions_million();
 	}
 	if (result==CODE_UNIMPLEMENTED) printf("Warning, no million\n");
 
-	/* Wait to be finished */
-	while(!done);
-
-
 	if (!quiet) {
-		printf("CHILD: continuing due to signal\n");
-	}
-
-	if (!quiet) {
-		printf("CHILD: exiting\n");
+		printf("CHILD: done and exiting\n");
 	}
 
 	return 0;
@@ -123,6 +97,19 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
+	/* Wait for child to stop */
+	if ( ptrace( PTRACE_ATTACH, pid, NULL, NULL ) == -1 ) {
+		fprintf(stderr,"Error attaching to %d\n",pid);
+		test_fail(test_string);
+	}
+	if ( waitpid( pid, &status, 0 ) == -1 ) {
+		fprintf(stderr,"Error waitpid %d\n",pid);
+		test_fail(test_string);
+	}
+	if ( WIFSTOPPED( status ) == 0 ) {
+		fprintf(stderr,"WIFSTOPPED didn't happen %d\n",pid);
+		test_fail(test_string);
+	}
 
 	/* Setup an attached event */
 
@@ -147,32 +134,36 @@ int main(int argc, char** argv) {
 		test_fail(test_string);
 	}
 
-	if (!quiet) {
-		printf("+ Continuing child\n");
-	}
 
 	if (!quiet) {
-		printf("+ Starting counting with prctl in parent\n");
+		printf("+ Enabling all events with prctl()\n");
 	}
 
 	prctl(PR_TASK_PERF_EVENTS_ENABLE);
 
-	kill( pid, SIGUSR1 );
 
-	sleep(1);		// should we yield so other gets to run?
+	if (!quiet) {
+		printf("+ Continuing child\n");
+	}
 
-	prctl(PR_TASK_PERF_EVENTS_DISABLE);
+	/* start up pid */
+	if ( ptrace( PTRACE_CONT, pid, NULL, NULL ) == -1 ) {
+		fprintf(stderr,"Couldn't continue %d\n",pid);
+		test_fail(test_string);
+	}
 
-	kill( pid, SIGUSR1 );
+	/* Wait for it to finish */
+	if ( waitpid( pid, &status, 0 ) == -1 ) {
+		fprintf(stderr,"Couldn't waitpid() %d %s\n",
+			pid,strerror(errno) );
+		test_fail(test_string);
+	}
 
 	if (!quiet) {
 		printf("+ Stopping counting with prctl in parent\n");
 	}
 
-	if (!quiet) {
-		printf("+ Stopping child\n");
-	}
-	kill( pid, SIGUSR1 );
+	prctl(PR_TASK_PERF_EVENTS_DISABLE);
 
 	read_result=read(fd[0],insn_data,2*sizeof(long long));
 
@@ -182,9 +173,24 @@ int main(int argc, char** argv) {
 	}
 
 	if (!quiet) {
-		printf("\t+ Read (should be large): %lld\n",insn_data[0]);
+		printf("\t+ Read (should be around 5 million): %lld\n",insn_data[0]);
 	}
 	old[0]=insn_data[0];
+
+	if (insn_data[0]<10000) {
+		if (!quiet) {
+			printf("Should have been much larger!\n");
+			test_fail(test_string);
+		}
+	}
+
+	if (insn_data[0]>10000000) {
+		if (!quiet) {
+			printf("Should have been much smaller!\n");
+			test_fail(test_string);
+		}
+	}
+
 
 	instructions_million();
 
@@ -210,16 +216,6 @@ int main(int argc, char** argv) {
 	}
 
 	close(fd[0]);
-
-	/* Wait for child to finish */
-	if ( waitpid( pid, &status, 0 ) == -1 ) {
-		fprintf(stderr,"Couldn't waitpid() %d\n",pid );
-		test_fail(test_string);
-	}
-	if ( WIFSTOPPED( status ) != 0 ) {
-		fprintf(stderr,"Failed due to child failing!\n");
-		test_fail(test_string);
-	}
 
 	test_pass(test_string);
 
