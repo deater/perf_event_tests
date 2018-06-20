@@ -431,6 +431,9 @@ $TESTS_DIR/corner_cases/huge_events_start
 echo "  + tests/corner_cases/huge_group_start"
 echo -n "    "
 $TESTS_DIR/corner_cases/huge_group_start
+echo "  + tests/corner_cases/signal_after_close"
+echo -n "    "
+$TESTS_DIR/corner_cases/signal_after_close
 
 
 

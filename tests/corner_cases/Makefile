@@ -18,6 +18,7 @@ PROGRAM_LIST =	\
 	overflow_requires_mmap \
 	reset_leader \
 	sampled_notleader_refresh \
+	signal_after_close \
 	signal_after_exec \
 	sw_start_leader \
 	wrap \
@@ -59,6 +60,9 @@ reset_leader: reset_leader.o \
 		$(LIB)/libhelper.a
 
 sampled_notleader_refresh: sampled_notleader_refresh.o \
+		$(LIB)/libhelper.a
+
+signal_after_close: signal_after_close.o \
 		$(LIB)/libhelper.a
 
 signal_after_exec: signal_after_exec.o \
