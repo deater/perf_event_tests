@@ -41,12 +41,13 @@ static void our_handler2(int signum,siginfo_t *oh, void *blah) {
 
 	count++;
 
-//	printf("COUNT=%d\n",count);
+//	printf("COUNT2=%d %d\n",count,oh->si_fd);
 	ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,0);
 	(void) ret;
 }
 
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
+
 	count++;
 }
 
@@ -138,6 +139,7 @@ int main(int argc, char** argv) {
 			printf("Proper error returned with PERF_EVENT_IOC_REFRESH "
 				"of group leader: %d %s\n",errno,strerror(errno));
 		}
+
 	}
 	else {
 		result=instructions_million();
@@ -160,6 +162,10 @@ int main(int argc, char** argv) {
 	}
 
 	close(fd1);
+
+	/* Need to munmap or can still generate signals */
+	munmap(blargh, (1+1)*4096);
+
 	close(fd2);
 
 
@@ -239,11 +245,11 @@ int main(int argc, char** argv) {
 		if (!quiet) fprintf(stderr,"Only counted one overflow.\n");
 		test_fail(test_string);
 	}
-	else if (count>1) {
+	else if ((count>900) && (count<1100)) {
 		test_pass(test_string);
 	}
 	else {
-		if (!quiet) printf("No overflow events generated.\n");
+		if (!quiet) printf("Unexpected overflow events generated.\n");
 		test_fail(test_string);
 	}
 
