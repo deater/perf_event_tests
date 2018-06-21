@@ -15,7 +15,8 @@ PROGRAM_LIST = \
 	ioctl_5_set_output \
 	ioctl_6_set_filter \
 	ioctl_7_id \
-	ioctl_8_set_bpf
+	ioctl_8_set_bpf \
+	ioctl_9_pause_output
 
 
 
@@ -40,6 +41,8 @@ ioctl_6_set_filter: ioctl_6_set_filter.o $(LIB)/libhelper.a
 ioctl_7_id: ioctl_7_id.o $(LIB)/libhelper.a
 
 ioctl_8_set_bpf: ioctl_8_set_bpf.o $(LIB)/libhelper.a
+
+ioctl_9_pause_output: ioctl_9_pause_output.o $(LIB)/libhelper.a
 
 
 install: all
