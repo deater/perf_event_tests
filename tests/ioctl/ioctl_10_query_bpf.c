@@ -1,6 +1,8 @@
-/* ioctl_set_bpf.c  */
+/* ioctl_10_query_bpf.c  */
 
-/* Tests the PERF_EVENT_IOC_SET_BPF functionality */
+/* Tests the PERF_EVENT_IOC_QUERY_BPF functionality */
+/* This was added in Linux 4.16 */
+/*	f371b304f12e31fe30207c41ca7754564e0ea4dc */
 
 /* Need to mount the tracepoints! */
 /* mount -t tracefs nodev /sys/kernel/tracing */
@@ -83,7 +85,7 @@ int main(int argc, char** argv) {
 
 	int result;
 
-	char test_string[]="Testing PERF_EVENT_IOC_SET_BPF ioctl...";
+	char test_string[]="Testing PERF_EVENT_IOC_QUERY_BPF ioctl...";
 
 	quiet=test_quiet();
 
@@ -236,6 +238,14 @@ int main(int argc, char** argv) {
 
 	/* stop */
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+
+	/* query with bad address*/
+	result=ioctl(fd, PERF_EVENT_IOC_QUERY_BPF,0);
+	if (result<0) {
+		fprintf(stderr,"Error: %s\n",strerror(errno));
+		/* expected to fail */
+		test_fail(test_string);
+	}
 
 	close(fd);
 

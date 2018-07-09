@@ -1,9 +1,10 @@
-/* ioctl_set_bpf.c  */
+/* ioctl_8_set_bpf.c  */
 
 /* Tests the PERF_EVENT_IOC_SET_BPF functionality */
 
 /* Need to mount the tracepoints! */
-/* mount -t tracefs nodev /sys/kernel/tracing */
+/*	mount -t tracefs nodev /sys/kernel/tracing */
+/* Also only works as root */
 
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
