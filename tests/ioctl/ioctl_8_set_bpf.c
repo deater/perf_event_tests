@@ -2,6 +2,9 @@
 
 /* Tests the PERF_EVENT_IOC_SET_BPF functionality */
 
+/* Need to mount the tracepoints! */
+/* mount -t tracefs nodev /sys/kernel/tracing */
+
 /* by Vince Weaver   vincent.weaver@maine.edu */
 
 #define _GNU_SOURCE 1
@@ -45,12 +48,36 @@ static int quiet;
 #define MAX_FILTER 8192
 char filter[MAX_FILTER];
 
+long long lookup_symbol(char *name) {
+
+	FILE *fff;
+	char buffer[BUFSIZ],sname[BUFSIZ],type[BUFSIZ];
+	unsigned long long address;
+	char *result;
+
+	fff=fopen("/proc/kallsyms","r");
+	while(1) {
+		result=fgets(buffer,BUFSIZ,fff);
+		if (result==NULL) break;
+
+		sscanf(buffer,"%llx %s %s",&address,type,sname);
+		if (type[0]=='T') {
+			if (!strncmp(name,sname,BUFSIZ)) {
+				return address;
+			}
+		}
+	}
+
+	return 0;
+}
 
 int main(int argc, char** argv) {
 
 	int fd,bpf_fd;
 	struct perf_event_attr pe1;
 	int errors=0;
+
+	unsigned long long text_begin,symbol;
 
 	union bpf_attr battr;
 
@@ -95,11 +122,20 @@ int main(int argc, char** argv) {
 	fff=fopen(filename, "w");
 	if (fff==NULL) {
 		printf("Cannot open %s!\n",filename);
+		printf("You may want to: mount -t tracefs nodev /sys/kernel/tracing\n");
+		test_fail(test_string);
+	}
+
+	text_begin=lookup_symbol("_text");
+	symbol=lookup_symbol("handle_mm_fault");
+
+	if ((text_begin==0) || (symbol==0)) {
+		fprintf(stderr,"Error finding symbol _text, handle_mm_fault\n");
 		test_fail(test_string);
 	}
 
 	/*  perf probe -a VMW=handle_mm_fault */
-	fprintf(fff,"p:probe/VMW _text+1664624");
+	fprintf(fff,"p:probe/VMW _text+%lld",symbol-text_begin);
 	fclose(fff);
 
 	sprintf(filename,"%s/events/probe/VMW/id",tracefs_location);
@@ -202,6 +238,14 @@ int main(int argc, char** argv) {
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 
 	close(fd);
+
+	fff=fopen(filename,"a");
+	if (fff==NULL) {
+		fprintf(stderr,"Couldn't open %s for closing\n",filename);
+		test_fail(test_string);
+	}
+	fprintf(fff,"-:probe/VMW\n");
+	fclose(fff);
 
 	if (errors) {
 		test_fail(test_string);
