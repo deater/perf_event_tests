@@ -192,6 +192,12 @@ $TESTS_DIR/ioctl/ioctl_8_set_bpf
 echo "  + tests/ioctl/ioctl_9_pause_output"
 echo -n "    "
 $TESTS_DIR/ioctl/ioctl_9_pause_output
+echo "  + tests/ioctl/ioctl_10_query_bpf"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_10_query_bpf
+echo "  + tests/ioctl/ioctl_11_modify_attributes"
+echo -n "    "
+$TESTS_DIR/ioctl/ioctl_11_modify_attributes
 
 echo
 echo "* Checking perf_event prctl calls"
