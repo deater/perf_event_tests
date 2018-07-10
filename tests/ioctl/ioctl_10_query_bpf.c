@@ -50,6 +50,8 @@ static int quiet;
 #define MAX_FILTER 8192
 char filter[MAX_FILTER];
 
+#define NUM_ATTACHES	5
+
 long long lookup_symbol(char *name) {
 
 	FILE *fff;
@@ -75,9 +77,10 @@ long long lookup_symbol(char *name) {
 
 int main(int argc, char** argv) {
 
-	int fd,bpf_fd;
+	int fd[NUM_ATTACHES],bpf_fd;
 	struct perf_event_attr pe1;
 	int errors=0;
+	int i;
 
 	unsigned long long text_begin,symbol;
 
@@ -151,103 +154,206 @@ int main(int argc, char** argv) {
 	fscanf(fff,"%d",&kprobe_id);
 	fclose(fff);
 
+	for(i=0;i<NUM_ATTACHES;i++) {
+		memset(&pe1,0,sizeof(struct perf_event_attr));
+		pe1.type=PERF_TYPE_TRACEPOINT;
+		pe1.size=sizeof(struct perf_event_attr);
 
-	memset(&pe1,0,sizeof(struct perf_event_attr));
-	pe1.type=PERF_TYPE_TRACEPOINT;
-	pe1.size=sizeof(struct perf_event_attr);
+		pe1.config=kprobe_id;
 
-	pe1.config=kprobe_id;
+		pe1.disabled=1;
+		pe1.exclude_kernel=0;
+		pe1.exclude_hv=0;
+		arch_adjust_domain(&pe1,quiet);
 
-	pe1.disabled=1;
-	pe1.exclude_kernel=0;
-	pe1.exclude_hv=0;
-	arch_adjust_domain(&pe1,quiet);
-
-	/* Create group leader */
-	fd=perf_event_open(&pe1,0,-1,-1,0);
-	if (fd<0) {
-		if (!quiet) {
-			fprintf(stderr,"Unexpected error %s\n",strerror(errno));
+		/* Create group leader */
+		fd[i]=perf_event_open(&pe1,0,-1,-1,0);
+		if (fd[i]<0) {
+			if (!quiet) {
+				fprintf(stderr,"Unexpected error %s\n",strerror(errno));
+			}
+			printf("Cannot open kprobe id %d\n",kprobe_id);
+			test_fail(test_string);
 		}
-		printf("Cannot open kprobe id %d\n",kprobe_id);
-		test_fail(test_string);
-	}
 
-	struct bpf_insn instructions[] = {
-		BPF_MOV64_IMM(BPF_REG_0, 0),		/* r0 = 0 */
-		BPF_EXIT_INSN(),			/* return r0 */
-	};
+		struct bpf_insn instructions[] = {
+			BPF_MOV64_IMM(BPF_REG_0, 0),		/* r0 = 0 */
+			BPF_EXIT_INSN(),			/* return r0 */
+		};
 
-	unsigned char license[]="GPL";
+		unsigned char license[]="GPL";
 
 #define LOG_BUF_SIZE 65536
-	static char bpf_log_buf[LOG_BUF_SIZE];
+		static char bpf_log_buf[NUM_ATTACHES][LOG_BUF_SIZE];
 
-	/* Kernel will EINVAL if unused bits aren't zero */
-	memset(&battr,0,sizeof(battr));
+		/* Kernel will EINVAL if unused bits aren't zero */
+		memset(&battr,0,sizeof(battr));
 
-	/* Version has to match currently running kernel */
+		/* Version has to match currently running kernel */
 
-	struct utsname version;
-	int major, minor, subminor, version_code;
+		struct utsname version;
+		int major, minor, subminor, version_code;
 
-	uname(&version);
+		uname(&version);
 
-	printf("We are running release %s\n",version.release);
+		if (!quiet) {
+			printf("We are running release %s\n",version.release);
+		}
+
+		sscanf(version.release,"%d.%d.%d",&major,&minor,&subminor);
+
+		version_code = (major<<16) | (minor<<8) | subminor;
+//		printf("Using LINUX_VERSION_CODE: %d\n",version_code);
+
+//	for(i=0;i<NUM_ATTACHES;i++) {
+
+		battr.prog_type = BPF_PROG_TYPE_KPROBE;
+//		battr.insn_cnt = sizeof(instructions);
+		battr.insn_cnt= sizeof(instructions) / sizeof(struct bpf_insn);
+		battr.insns = (uint64_t) (unsigned long) instructions;
+		battr.license = (uint64_t) (unsigned long) license;
+		battr.log_buf = (uint64_t) (unsigned long) bpf_log_buf[i];
+		battr.log_size = LOG_BUF_SIZE;
+		battr.log_level = 1;
+		battr.kern_version = version_code;
+
+		bpf_log_buf[i][0] = 0;
 
 
-	sscanf(version.release,"%d.%d.%d",&major,&minor,&subminor);
+		bpf_fd = sys_bpf(BPF_PROG_LOAD, &battr, sizeof(battr));
 
-	version_code = (major<<16) | (minor<<8) | subminor;
-	printf("Using LINUX_VERSION_CODE: %d\n",
-		version_code);
-
-	battr.prog_type = BPF_PROG_TYPE_KPROBE;
-//	battr.insn_cnt = sizeof(instructions);
-	battr.insn_cnt= sizeof(instructions) / sizeof(struct bpf_insn);
-	battr.insns = (uint64_t) (unsigned long) instructions;
-	battr.license = (uint64_t) (unsigned long) license;
-	battr.log_buf = (uint64_t) (unsigned long) bpf_log_buf;
-	battr.log_size = LOG_BUF_SIZE;
-	battr.log_level = 1;
-	battr.kern_version = version_code;
-
-	bpf_log_buf[0] = 0;
-
-	bpf_fd = sys_bpf(BPF_PROG_LOAD, &battr, sizeof(battr));
-
-	if (bpf_fd < 0) {
-		printf("bpf: load: failed to load program, %s\n"
-			"-- BEGIN DUMP LOG ---\n%s\n-- END LOG --\n",
-			strerror(errno), bpf_log_buf);
+		if (bpf_fd < 0) {
+			printf("bpf: load: failed to load program, %s\n"
+				"-- BEGIN DUMP LOG ---\n%s\n-- END LOG --\n",
+				strerror(errno), bpf_log_buf[i]);
 			return bpf_fd;
-	}
+		}
 
 
-	result=ioctl(fd, PERF_EVENT_IOC_SET_BPF, bpf_fd);
-	if (result<0) {
-		if (!quiet) printf("Unexpected %d %s\n",result,strerror(errno));
-		errors++;
+		result=ioctl(fd[i], PERF_EVENT_IOC_SET_BPF, bpf_fd);
+		if (result<0) {
+			if (!quiet) {
+				printf("Unexpected issue attaching #%d (%d),"
+					" %d %s\n",
+					i,bpf_fd,result,strerror(errno));
+			}
+			errors++;
+		}
 	}
 
 	/* start */
-	ioctl(fd, PERF_EVENT_IOC_ENABLE,0);
+	ioctl(fd[0], PERF_EVENT_IOC_ENABLE,0);
 
 	/* million */
 	result=instructions_million();
 
 	/* stop */
-	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
+	ioctl(fd[0], PERF_EVENT_IOC_DISABLE,0);
 
 	/* query with bad address*/
-	result=ioctl(fd, PERF_EVENT_IOC_QUERY_BPF,0);
+	result=ioctl(fd[0], PERF_EVENT_IOC_QUERY_BPF,0);
 	if (result<0) {
-		fprintf(stderr,"Error: %s\n",strerror(errno));
-		/* expected to fail */
+		if (errno==EFAULT) {
+			if (!quiet) {
+				printf("Properly failed on bad address\n");
+			}
+		}
+		else {
+			fprintf(stderr,"Unexpected error: %s\n",strerror(errno));
+			test_fail(test_string);
+		}
+	}
+	else {
+		fprintf(stderr,"Unexpected error: %s\n",strerror(errno));
 		test_fail(test_string);
 	}
 
-	close(fd);
+	// VMW
+
+	struct perf_event_query_bpf *query;
+	int ids_len=10;
+/*
+	struct perf_event_query_bpf {
+		__u32	ids_len;
+		__u32	prog_cnt;
+		__u32	ids[0];
+	};
+*/
+
+	if (!quiet) {
+		printf("Testing PERF_EVENT_IOC_QUERY_BPF with lots of room\n");
+	}
+
+	query = malloc(sizeof(struct perf_event_query_bpf) +
+			(sizeof(uint32_t) * ids_len));
+	if (query==NULL) {
+		fprintf(stderr,"Error allocating\n");
+		test_fail(test_string);
+	}
+
+	query->ids_len = ids_len;
+	result = ioctl(fd[0], PERF_EVENT_IOC_QUERY_BPF, query);
+	if (result == 0) {
+		if (!quiet) {
+			printf("\tSuccess %d!\n",query->ids_len);
+			printf("\tAvailable progs: %d\n",query->prog_cnt);
+			for(i=0;i<query->prog_cnt;i++) {
+				printf("\t+ %d\n",query->ids[i]);
+			}
+			if (query->prog_cnt!=NUM_ATTACHES) {
+				printf("\tMismatch of num!\n");
+				test_fail(test_string);
+			}
+		}
+	} else {
+		fprintf(stderr,"Unexpected error %s\n",strerror(errno));
+		test_fail(test_string);
+	}
+
+	free(query);
+
+
+	if (!quiet) {
+		printf("Testing PERF_EVENT_IOC_QUERY_BPF with only two spaces\n");
+	}
+
+	ids_len=2;
+
+	query = malloc(sizeof(struct perf_event_query_bpf) +
+			(sizeof(uint32_t) * ids_len));
+	if (query==NULL) {
+		fprintf(stderr,"Error allocating\n");
+		test_fail(test_string);
+	}
+
+	query->ids_len = ids_len;
+	result = ioctl(fd[0], PERF_EVENT_IOC_QUERY_BPF, query);
+	if (result == 0) {
+		if (!quiet) {
+			printf("\tShould not have succeeded!\n");
+		}
+		test_fail(test_string);
+	} else if (errno == ENOSPC) {
+		if (!quiet) {
+			printf("\tProperly failed with ENOSPC\n");
+			printf("\tAvailable progs: %d, only room for %d\n",
+				query->prog_cnt,query->ids_len);
+			for(i=0;i<query->ids_len;i++) {
+				printf("\t+ %d\n",query->ids[i]);
+			}
+			if (query->prog_cnt!=NUM_ATTACHES) {
+				printf("\tMismatch of num!\n");
+				test_fail(test_string);
+			}
+		}
+	} else {
+		fprintf(stderr,"Unexpected error %s\n",strerror(errno));
+		test_fail(test_string);
+	}
+
+	free(query);
+
+	for(i=0;i<NUM_ATTACHES;i++) close(fd[i]);
 
 	fff=fopen(filename,"a");
 	if (fff==NULL) {
