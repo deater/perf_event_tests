@@ -122,7 +122,6 @@ static int fill_filter(int which) {
 	return 0;
 }
 
-#if 1
 static int kprobe_initialized=0;
 int kprobe_id=0;
 
@@ -209,13 +208,15 @@ void ioctl_random_event(void) {
 	int result;
 	unsigned int type;
 	long long id;
-	int any_event,sampling_event;
+	int any_event,sampling_event,breakpoint_event;
 	int custom;
 	int which_tracepoint;
 	int bpf_fd;
 
 	any_event=find_random_active_event();
 	sampling_event=find_random_active_sampling_event();
+	breakpoint_event=find_random_active_breakpoint_event();
+
 
 	/* If no sampling event, use any event instead */
 	if (sampling_event<0) sampling_event=any_event;
@@ -467,15 +468,41 @@ void ioctl_random_event(void) {
 			break;
 
 		/* PERF_EVENT_IOC_MODIFY_ATTRIBUTES */
-		/* argument is struct perf_event_attr * */
+		/* argument is struct perf_event_attr */
+		/* Currently only works on BREAKPOINT events */
 		case 11:
-			arg=rand()%3;
-			if (arg==2) arg=rand();
 
 			if (ignore_but_dont_skip.ioctl) return;
 
-			result=ioctl(event_data[any_event].fd,
-					PERF_EVENT_IOC_MODIFY_ATTRIBUTES,arg);
+			custom=rand()%3;
+
+			/* Operate on breakpoint, try to replace with
+				and type of event */
+			if (custom==0) {
+				result=ioctl(event_data[breakpoint_event].fd,
+					PERF_EVENT_IOC_MODIFY_ATTRIBUTES,
+					&event_data[any_event].attr);
+
+			}
+
+			/* Operate on breakpoint, try to replace with
+				other breakpoint*/
+			if (custom==1) {
+				custom=find_random_active_breakpoint_event();
+				result=ioctl(event_data[breakpoint_event].fd,
+					PERF_EVENT_IOC_MODIFY_ATTRIBUTES,
+					&event_data[custom].attr);
+
+			}
+
+			// 1 in 3, make it totally random */
+			if (custom==2) {
+				arg=rand();
+				result=ioctl(event_data[any_event].fd,
+					PERF_EVENT_IOC_MODIFY_ATTRIBUTES,
+					arg);
+			}
+
 
 			if ((result>=0)&&(logging&TYPE_IOCTL)) {
 				sprintf(log_buffer,"I %d %ld %lld\n",
@@ -556,7 +583,7 @@ void ioctl_random_event(void) {
 	}
 }
 
-#else
+#if 0
 
 /* test filters */
 int main(int argc, char **argv) {
@@ -570,5 +597,6 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
-
 #endif
+
+

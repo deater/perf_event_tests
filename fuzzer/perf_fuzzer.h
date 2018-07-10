@@ -24,5 +24,6 @@ extern int active_events;
 
 int find_random_active_event(void);
 int find_random_active_sampling_event(void);
+int find_random_active_breakpoint_event(void);
 int find_empty_event(void);
 int lookup_event(int fd);

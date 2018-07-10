@@ -124,7 +124,7 @@ int find_random_active_sampling_event(void) {
 	x=rand()%active_events;
 
 	for(i=0;i<NUM_EVENTS;i++) {
-		if ((event_data[i].active) && 
+		if ((event_data[i].active) &&
 			(event_data[i].attr.sample_period)) {
 			if (j==x) return i;
 			j++;
@@ -132,6 +132,25 @@ int find_random_active_sampling_event(void) {
 	}
 	return -1;
 }
+
+int find_random_active_breakpoint_event(void) {
+
+	int i,x,j=0;
+
+	if (active_events<1) return -1;
+
+	x=rand()%active_events;
+
+	for(i=0;i<NUM_EVENTS;i++) {
+		if ((event_data[i].active) &&
+			(event_data[i].attr.type==PERF_TYPE_BREAKPOINT)) {
+			if (j==x) return i;
+			j++;
+		}
+	}
+	return -1;
+}
+
 
 int lookup_event(int fd) {
 
