@@ -184,13 +184,14 @@ int main(int argc, char **argv) {
 		}
 	}
 
-       naive_matrix_multiply(quiet);
+	naive_matrix_multiply(quiet);
 
 	ret=ioctl(fd, PERF_EVENT_IOC_REFRESH,0);
+	ret=ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
 
 	if (!quiet) {
-                printf("Counts %d, using mmap buffer %p\n",count_total,our_mmap);
-        }
+		printf("Counts %d, using mmap buffer %p\n",count_total,our_mmap);
+	}
 
 	if (count_total==0) {
 		if (!quiet) printf("No overflow events generated.\n");
