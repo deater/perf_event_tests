@@ -110,7 +110,7 @@ static int init_trace_events(void) {
 
 	DIR *dir,*event_dir;
 	struct dirent *entry,*event_entry;
-	char dir_name[BUFSIZ],filename[BUFSIZ],buffer[BUFSIZ];
+	char dir_name[BUFSIZ],filename[BUFSIZ*2],buffer[BUFSIZ];
 	FILE *fff;
 	int num_subevents,current_event,current_subevent,current_format;
 	char field_name[BUFSIZ];
@@ -159,8 +159,7 @@ static int init_trace_events(void) {
 
 		/* read name */
 		events[current_event].name=strdup(entry->d_name);
-		sprintf(dir_name,SYSFS"/%s",
-			entry->d_name);
+		snprintf(dir_name,BUFSIZ,SYSFS"/%s",entry->d_name);
 
 		/* Scan for subevents */
 		num_subevents=0;
@@ -206,7 +205,7 @@ static int init_trace_events(void) {
 				strdup(event_entry->d_name);
 
 			/* get id */
-			sprintf(filename,"%s/%s/id",dir_name,
+			snprintf(filename,BUFSIZ*2,"%s/%s/id",dir_name,
 					event_entry->d_name);
 			fff=fopen(filename,"r");
 			if (fff==NULL) {

@@ -278,8 +278,8 @@ static int init_pmus(void) {
 
 	DIR *dir,*event_dir,*format_dir;
 	struct dirent *entry,*event_entry,*format_entry;
-	char dir_name[BUFSIZ],event_name[BUFSIZ],event_value[BUFSIZ],
-		temp_name[BUFSIZ],format_name[BUFSIZ],format_value[BUFSIZ];
+	char dir_name[BUFSIZ],event_name[BUFSIZ*2],event_value[BUFSIZ],
+		temp_name[BUFSIZ*2],format_name[BUFSIZ*2],format_value[BUFSIZ];
 	int type,pmu_num=0,format_num=0,generic_num=0;
 	FILE *fff;
 	int result;
@@ -325,11 +325,11 @@ static int init_pmus(void) {
 
 		/* read name */
 		pmus[pmu_num].name=strdup(entry->d_name);
-		sprintf(dir_name,SYSFS"/%s",
+		snprintf(dir_name,BUFSIZ,SYSFS"/%s",
 			entry->d_name);
 
 		/* read type */
-		sprintf(temp_name,"%s/type",dir_name);
+		snprintf(temp_name,BUFSIZ*2,"%s/type",dir_name);
 		fff=fopen(temp_name,"r");
 		if (fff==NULL) {
 		}
@@ -342,7 +342,7 @@ static int init_pmus(void) {
 		/***********************/
 		/* Scan format strings */
 		/***********************/
-		sprintf(format_name,"%s/format",dir_name);
+		snprintf(format_name,BUFSIZ*2,"%s/format",dir_name);
 		format_dir=opendir(format_name);
 		if (format_dir==NULL) {
 			/* Can be normal to have no format strings */
@@ -400,7 +400,7 @@ static int init_pmus(void) {
 		/***********************/
 		/* Scan generic events */
 		/***********************/
-		sprintf(event_name,"%s/events",dir_name);
+		snprintf(event_name,BUFSIZ*2,"%s/events",dir_name);
 		event_dir=opendir(event_name);
 		if (event_dir==NULL) {
 			/* It's sometimes normal to have no generic events */
