@@ -137,6 +137,8 @@ static int update_read_size(int i) {
 	return read_size*sizeof(long long);
 }
 
+void post_perf_event_open(struct syscallrecord *rec);
+
 void open_random_event(int mmap_enabled, int overflow_enabled) {
 
 	int fd;
