@@ -239,20 +239,33 @@ static void poll_event(char *line) {
         strtok(line," ");       /* Point to num_fds */
         strtok(NULL," ");       /* Point to first value */
 
-        for(i=0;i<num_fds;i++) {
-                next=strtok(NULL," ");
-                pollfds[i].fd=atoi(next);
-                next=strtok(NULL," ");
-                pollfds[i].events=atoi(next);
+	for(i=0;i<num_fds;i++) {
+		next=strtok(NULL," ");
+		if (next==NULL) {
+			fprintf(stderr,"Truncated poll!\n");
+			break;
+		}
+		pollfds[i].fd=atoi(next);
+		next=strtok(NULL," ");
+		if (next==NULL) {
+			fprintf(stderr,"Truncated poll!\n");
+			break;
+		}
+		pollfds[i].events=atoi(next);
 		printf("\tpollfds[%d].fd=fd[%d]; pollfds[%d].events=%d;\n",
 			i,pollfds[i].fd,i,pollfds[i].events);
-        }
-        next=strtok(NULL," ");
+	}
+	next=strtok(NULL," ");
 
-        timeout=atoi(next);
+	if (next==NULL) {
+		fprintf(stderr,"Truncated poll!\n");
+		printf("\t/* poll() truncated */\n");
+	}
+	else {
+	        timeout=atoi(next);
 
-	printf("\tpoll(pollfds,%d,%d);\n",num_fds,timeout);
-
+		printf("\tpoll(pollfds,%d,%d);\n",num_fds,timeout);
+	}
 }
 
 #define MAX_FILENAMES 6
