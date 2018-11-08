@@ -522,8 +522,8 @@ int main(int argc, char **argv) {
 
 				break;
 			default:
-				fprintf(stderr,"Unknown log type \'%c\'\n",
-					line[0]);
+				fprintf(stderr,"Unknown log type \'%c\' on line %lld\n",
+					line[0],line_num);
 				break;
 		}
 		if (error) break;
