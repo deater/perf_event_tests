@@ -167,31 +167,46 @@
 <h2>Fixed bugs:</h2>
 
 <h3>Fixed in 4.20</h3>
-	<li><a href="4.20-rc1.bts.html">
-		(crash) 4.20-rc5 BUG: unable to handle kernel NULL pointer BTS</a>
-		(472de49fdc53365c880ab81ae2b5cfdd83db0b06)
 	<ul>
+	<li><a href="4.20-rc1.bts.html">
+		(crash) 4.20-rc5 BUG: unable to handle kernel NULL pointer BTS</a><br>
+		Fixed by 472de49fdc53365c880ab81ae2b5cfdd83db0b06
+	</ul>
+
+<h3>Fixed in 4.19</h3>
+	<ul>
+	<li>(warning) powerpc/perf: Remove sched_task function defined for thread-imc<br>
+		Found with perf_fuzzer by Anju T Sudhakar<br>
+		Fixed by 7ccc4fe5ff9e3a134e863beed0dba18a5e511659
+	<li>(warning) perf/x86/intel: Fix unwind errors from PEBS entries (mk-II)<br>
+		Found with perf_fuzzer by Vince Weaver<br>
+		Fixed by 6cbc304f2f360f25cc8607817239d6f4a2fd3dc5
+
+	</ul>
 
 <h3>Fixed in 4.17</h3>
 
-	<ul>Found with syzkaller syzbot,
-		 Fix sample_max_stack maximum check		
-		5af44ca53d019de47efe6dbc4003dd518e5197ed
-	<li>armv8, perf/core: Fix perf_output_read_group()
-		9e5b127d6f33468143d90c8a45ca12410e4c3fa7
+	<ul>
+	<li>Fix sample_max_stack maximum check<br>
+		Found with syzkaller syzbot<br>
+		Fixed by: 5af44ca53d019de47efe6dbc4003dd518e5197ed
+	<li>(warning?) armv8, perf/core: Fix perf_output_read_group()<br>
+		Found by Mark Rutland with perf_fuzzer<br>
+		Fixed by: 9e5b127d6f33468143d90c8a45ca12410e4c3fa7
 	</ul>
 
 <h3>Fixed in 4.16</h3>
 	<ul>
-	<li>Francis Deslauriers:
-		Subject	[PATCH 0/1] x86/kprobes: Prohibit probing of .entry_trampoline code
+	<li>Subject	[PATCH 0/1] x86/kprobes: Prohibit probing of .entry_trampoline code<br>
+		Found by: Francis Deslauriers<br>
 		Mentions found with fuzzer, did not say which one.
 	</ul>
 
 <h3>Fixed in 4.15</h3>
 	<ul>
 	<li>Change to kernel left Haswell-EX using wrong msr registers
-		for RAPL.  Found with perf_fuzzer by Kan Liang.
+		for RAPL.<br>
+		Found with perf_fuzzer by Kan Liang.<br>
 		Fixed by 1289e0e29857e606a70a0200bf7849ae38d3493a
 	<li>The KPTI (meltdown) fixes led to various issues.
 		Intel BTS in particular led to instant crashes.
