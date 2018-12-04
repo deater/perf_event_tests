@@ -8,14 +8,14 @@
 
 <hr><hr>
 
-<h3>Current Status></h3>
+<h3>Status as of last time I extensively Ran Things</h3>
 <ul>
 <li>ARM32 -- chugs along for days on a pi2 (4.8-rc2)
-<li>x86/intel -- multiple warnings.
+<li>x86/intel -- multiple warnings.  Many current issues are with BTS support
 	<ul>
 	<li>pentium4 -- 4.9-rc1 crashes more or less immediately
 	<li>core2 -- 4.9-rc1 crashes paranoid 1 and lower
-	<li>haswell -- 4.9-5c5 will crash in a day or so
+	<li>haswell -- 4.20-rc5 will crash in a day or so
 	<li>skylake -- 4.9-rc6 will crash in a day or so
 	</ul>
 <li>x86/amd -- 4.9-rc7 -- chugs along for over a week?
@@ -45,6 +45,8 @@
 
 <h3>Current Crashes (not reproducible):</h3>
 <ul>
+<li><a href="4.20-rc5.prepare_sample.html">
+	(crash) 4.20-rc5 General Protection fault, BTS related</a>
 <li><a href="3.14-rc.null_constraint.html">
 	(crash) 4.1.0-rc2 NULL pointer in constraint table</a>
 <li><a href="4.1.0-rc1-next.perf_event_ctx_lock.html">
@@ -163,6 +165,12 @@
 <hr><hr>
 
 <h2>Fixed bugs:</h2>
+
+<h3>Fixed in 4.20</h3>
+	<li><a href="4.20-rc1.bts.html">
+		(crash) 4.20-rc5 BUG: unable to handle kernel NULL pointer BTS</a>
+		(472de49fdc53365c880ab81ae2b5cfdd83db0b06)
+	<ul>
 
 <h3>Fixed in 4.17</h3>
 
