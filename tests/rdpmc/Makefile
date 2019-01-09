@@ -11,6 +11,7 @@ PROGRAM_LIST = \
 	rdpmc_exec \
 	rdpmc_exec_papi \
 	rdpmc_group \
+	rdpmc_group_syswide \
 	rdpmc_multiattach \
 	rdpmc_multiattach_papi \
 	rdpmc_multiplexing \
@@ -38,6 +39,8 @@ rdpmc_multiattach_papi: rdpmc_multiattach_papi.o rdpmc_lib.o $(LIB)/libhelper.a
 rdpmc_attach_multi_enable: rdpmc_attach_multi_enable.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_group: rdpmc_group.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_group_syswide: rdpmc_group_syswide.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_multiplexing: rdpmc_multiplexing.o rdpmc_lib.o $(LIB)/libhelper.a
 
