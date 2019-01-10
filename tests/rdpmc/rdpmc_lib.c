@@ -163,7 +163,9 @@ inline unsigned long long mmap_read_self(void *addr,
 
 			running+=delta;
 		}
-
+		else {
+			return 0xffffffffffffffffULL;
+		}
 		barrier();
 
 	} while (pc->lock != seq);

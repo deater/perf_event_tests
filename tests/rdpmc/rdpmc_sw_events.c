@@ -120,7 +120,13 @@ int main(int argc, char **argv) {
 
 	/* read */
 	for(i=0;i<count;i++) {
+		/* read using rdpmc value */
 		values[i] = mmap_read_self(addr[i], &enabled[i], &running[i]);
+
+		/* read using read() */
+		if (values[i]==-1) {
+			if (!quiet) printf("rdpmc not available for event %d\n",i);
+		}
 		read(fd[i],temp[i],64);
 	}
 

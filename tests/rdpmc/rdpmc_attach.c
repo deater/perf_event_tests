@@ -223,8 +223,13 @@ int main(int argc, char **argv) {
 		printf("Trying attach: %lld cycles\n",
 			stop_after-start_before);
 		for(i=0;i<count;i++) {
-			printf("\t* RDPMC Event %x -- count: %lld enabled %lld running: %lld\n",
-				i,values[i],enabled[i],running[i]);
+			if (values[i]==-1) {
+				printf("\t* RDPMC not available for Event %d\n",i);
+			}
+			else {
+				printf("\t* RDPMC Event %x -- count: %lld enabled %lld running: %lld\n",
+					i,values[i],enabled[i],running[i]);
+			}
 			printf("\t! READ Event %x -- count: %lld\n",
 				i,values2[i]);
 		}
@@ -232,13 +237,21 @@ int main(int argc, char **argv) {
 
 	if (!quiet) printf("\n");
 
-	error=display_error(values[0],
-				values[0],
-				values[0],
-				100000000ULL,quiet);
+	if (values[0]!=-1) {
 
-	if ((error>10.0) || ( error<-10.0)) {
-		if (!quiet) printf("Error out of range!\n");
+		error=display_error(values[0],
+					values[0],
+					values[0],
+					100000000ULL,quiet);
+
+		if ((error>10.0) || ( error<-10.0)) {
+			if (!quiet) printf("Error out of range!\n");
+			test_fail(test_string);
+		}
+
+		if (!quiet) {
+			printf("Attach unexpectedly worked!\n");
+		}
 		test_fail(test_string);
 	}
 
