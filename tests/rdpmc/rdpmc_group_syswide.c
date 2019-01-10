@@ -136,10 +136,13 @@ int main(int argc, char **argv) {
 
 	/* read */
 	for(i=0;i<count;i++) {
-		char blah[256];
 		long long rvalue;
 		int result;
 		result=read(fd[i],&rvalue,8);
+		if (result!=8) {
+			fprintf(stderr,"Read error!\n");
+			exit(1);
+		}
 		values2[i] = rvalue;
 	}
 

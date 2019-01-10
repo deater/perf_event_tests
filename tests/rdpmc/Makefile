@@ -7,6 +7,7 @@ LIB = ../../lib
 
 PROGRAM_LIST = \
 	rdpmc_attach \
+	rdpmc_attach_cpu \
 	rdpmc_attach_multi_enable \
 	rdpmc_exec \
 	rdpmc_exec_papi \
@@ -27,6 +28,8 @@ PROGRAM_LIST = \
 all: $(PROGRAM_LIST)
 
 rdpmc_attach: rdpmc_attach.o rdpmc_lib.o $(LIB)/libhelper.a
+
+rdpmc_attach_cpu: rdpmc_attach_cpu.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_exec: rdpmc_exec.o rdpmc_lib.o $(LIB)/libhelper.a
 
