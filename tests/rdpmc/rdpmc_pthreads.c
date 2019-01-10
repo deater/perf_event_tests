@@ -116,7 +116,12 @@ static void *our_thread(void *arg) {
 	/* Print results */
 	if (!quiet) {
 		for(i=0;i<count;i++) {
-			printf("%d %d %lld\n",p->num,i,values[i]);
+			if (values[i]==-1) {
+				printf("Thread: %d Event: %d -- rdpmc not supported\n",p->num,i);
+			}
+			else {
+				printf("Thread: %d Event: %d %lld\n",p->num,i,values[i]);
+			}
 		}
 	}
 

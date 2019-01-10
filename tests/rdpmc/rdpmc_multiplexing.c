@@ -36,6 +36,7 @@ int main(int argc, char **argv) {
 
 	unsigned long long values[MAX_EVENTS],enabled[MAX_EVENTS],running[MAX_EVENTS];
 	unsigned long long adjusted[MAX_EVENTS];
+	int failed[MAX_EVENTS];
 	double error;
 
 	int count=10;
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
 	quiet=test_quiet();
 
 	if (!quiet) {
-		printf("This test checks if userspace rdpmc() style reads work.\n\n");
+		printf("This test checks if userspace rdpmc multiplexing works.\n\n");
 	}
 
 	/* See if we support rdpmc access */
@@ -64,6 +65,8 @@ int main(int argc, char **argv) {
 
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
+	pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED |
+		PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 	fd[0]=-1;
 
@@ -123,29 +126,53 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	if (values[0]<0) {
-		if (!quiet) printf("rdpmc support not available.\n");
-		test_yellow_no(test_string);
+	for(i=0;i<count;i++) {
+		if (values[i]==-1) {
+			// fallback to read
+			long long temp[MAX_EVENTS][64];
+
+			failed[i]=1;
+			result=read(fd[i],temp,3*8);
+			if (result!=3*8) {
+				printf("Fallback failed!\n");
+			}
+			values[i]=temp[i][0];
+	                enabled[i]=temp[i][1];
+        	        running[i]=temp[i][2];
+		}
+		else {
+			failed[i]=0;
+		}
 	}
 
 	for(i=0;i<count;i++) {
 		/* PAPI algo for scaling */
-		adjusted[i] = (enabled[i] * 128LL) / running[i];
-		adjusted[i] = adjusted[i]*values[i];
-		adjusted[i] = adjusted[i] / 128LL;
+		if (running[i]!=0) {
+			adjusted[i] = (enabled[i] * 128LL) / running[i];
+			adjusted[i] = adjusted[i]*values[i];
+			adjusted[i] = adjusted[i] / 128LL;
+		} else {
+			adjusted[i]=0;
+		}
 	}
 
 	if (!quiet) {
 		printf("total start/read/stop latency: %lld cycles\n",
 			stop_after-start_before);
 		for(i=0;i<count;i++) {
-			printf("\tEvent %x -- Raw count: %lld enabled: %lld running: %lld\n",
+			printf("\t");
+			if (failed[i]) {
+				printf("FALLBACK: ");
+			}
+			printf("Event %x -- Raw count: %lld enabled: %lld running: %lld\n",
 				i,values[i],enabled[i],running[i]);
 
-			printf("\tScaled count: %lld (%.2lf%%, %lld/%lld)\n",
-				adjusted[i],
-				(double)running[i]/(double)enabled[i]*100.0,
-				running[i],enabled[i]);
+			if (enabled[i]) {
+				printf("\tScaled count: %lld (%.2lf%%, %lld/%lld)\n",
+					adjusted[i],
+					(double)running[i]/(double)enabled[i]*100.0,
+					running[i],enabled[i]);
+			}
 		}
 	}
 
@@ -157,13 +184,15 @@ int main(int argc, char **argv) {
 	if (!quiet) printf("\n");
 
 	long long max=0,min=1000000000000ULL,avg=0;
+	int nonzero=0;
 
 	for(i=0;i<count;i++) {
 		if (adjusted[i]>max) max=adjusted[i];
 		if (adjusted[i]<min) min=adjusted[i];
 		avg+=adjusted[i];
+		if (adjusted[i]!=0) nonzero++;
 	}
-	avg=avg/count;
+	avg=avg/nonzero;
 
 	error=display_error(avg, // avg
 				max,    // hi
