@@ -371,13 +371,18 @@ int main(int argc, char **argv) {
 		printf("Trying attach: %lld cycles\n",
 			stop_after-start_before);
 		for(i=0;i<count;i++) {
-			printf("\t* RDPMC 1 Event %x -- count: %lld enabled %llx running: %llx\n",
-				i,values[i],enabled[i],running[i]);
+			if (values[i]==-1) {
+				printf("\t* RDPMC 1 Event %x -- rdpmc not supported\n",i);
+			}
+			else {
+				printf("\t* RDPMC 1 Event %x -- count: %lld enabled %llx running: %llx\n",
+					i,values[i],enabled[i],running[i]);
+			}
 		}
 	}
 
 	for(i=0;i<count;i++) {
-		if (enabled[i]!=running[i]) {
+		if ((values[i]!=-1) && (enabled[i]!=running[i])) {
 			if (!quiet) printf("enabled doesn't match running!\n");
 			if (check_linux_version_newer(4,14,0)) {
 				test_fail(test_string);
@@ -390,36 +395,44 @@ int main(int argc, char **argv) {
 
 	if (!quiet) {
 		for(i=0;i<count;i++) {
-			printf("\t* RDPMC 2 Event %x -- count: %lld enabled %llx running: %llx\n",
-				i,values2[i],enabled2[i],running2[i]);
+			if (values2[i]==-1) {
+				printf("\t* RDPMC 2 Event %x -- rdpmc not supported\n",i);
+			}
+			else {
+				printf("\t* RDPMC 2 Event %x -- count: %lld enabled %llx running: %llx\n",
+					i,values2[i],enabled2[i],running2[i]);
+			}
 		}
 	}
 
 	if (!quiet) printf("\n");
 
-	error=display_error(values[0],
-				values[0],
-				values[0],
-				1000000ULL,quiet);
+	if ((values[0]!=-1) && (values2[0]!=-1)) {
 
-	if ((error>10.0) || ( error<-10.0)) {
-		if (!quiet) printf("Error out of range!\n");
-		test_fail(test_string);
-	}
+		error=display_error(values[0],
+					values[0],
+					values[0],
+					1000000ULL,quiet);
 
-	error=display_error(values2[0],
-				values2[0],
-				values2[0],
-				2000000ULL,quiet);
+		if ((error>10.0) || ( error<-10.0)) {
+			if (!quiet) printf("Error out of range!\n");
+			test_fail(test_string);
+		}
 
-	if ((error>10.0) || ( error<-10.0)) {
-		if (!quiet) printf("Error out of range!\n");
-		test_fail(test_string);
-	}
+		error=display_error(values2[0],
+					values2[0],
+					values2[0],
+					2000000ULL,quiet);
 
-	for(i=0;i<count;i++) {
-		close(fd[i]);
-		munmap(addr[i],page_size);
+		if ((error>10.0) || ( error<-10.0)) {
+			if (!quiet) printf("Error out of range!\n");
+			test_fail(test_string);
+		}
+
+		for(i=0;i<count;i++) {
+			close(fd[i]);
+			munmap(addr[i],page_size);
+		}
 	}
 
 	test_pass(test_string);
