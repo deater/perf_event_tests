@@ -239,9 +239,14 @@ int main(int argc, char **argv) {
 		}
 
 		if (!quiet) {
-			printf("\tEvent %x -- Raw count: %lld "
+			if (values[i]==-1) {
+				printf("\tCPU %x -- rdpmc not available\n",i);
+			}
+			else {
+				printf("\tCPU %x -- Raw count: %lld "
 					"enabled: %lld running: %lld\n",
 					i,values[i],enabled[i],running[i]);
+			}
 		}
 	}
 
@@ -255,7 +260,7 @@ int main(int argc, char **argv) {
 	for(i=0;i<num_cpus;i++) {
 
 		if (i!=current_cpu) {
-			if (values[i]!=0) {
+			if (values[i]!=-1) {
 				if (!quiet) {
 					fprintf(stderr,"Error: CPU %d not 0!\n",
 						i);
@@ -264,15 +269,10 @@ int main(int argc, char **argv) {
 			}
 		}
 		else {
-			error=display_error(values[i], // avg
-       		                        values[i],    // hi
-              		                values[i],    // low
-                       		        100000000ULL,quiet);
-
-		        if ((error>1.0) || ( error<-1.0)) {
-                		if (!quiet) printf("Error out of range!\n");
-                		test_fail(test_string);
- 		       }
+			if (values[i]>900000000) {
+				if (!quiet) printf("Should not be this high.\n");
+				test_fail(test_string);
+			}
 		}
 	}
 

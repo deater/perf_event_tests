@@ -227,9 +227,14 @@ int main(int argc, char **argv) {
 		}
 
 		if (!quiet) {
-			printf("\tEvent %x -- Raw count: %lld "
+			if (values[i]==-1) {
+				printf("\tCPU %x -- rdpmc not available\n",i);
+			}
+			else {
+				printf("\tCPU %x -- Raw count: %lld "
 					"enabled: %lld running: %lld\n",
 					i,values[i],enabled[i],running[i]);
+			}
 		}
 	}
 
@@ -243,9 +248,9 @@ int main(int argc, char **argv) {
 	for(i=0;i<num_cpus;i++) {
 
 		if (i!=current_cpu) {
-			if (values[i]!=0) {
+			if (values[i]!=-1) {
 				if (!quiet) {
-					fprintf(stderr,"Error: CPU %d not 0!\n",
+					fprintf(stderr,"Error: CPU %d unexpectedly worked!\n",
 						i);
 				}
 				test_fail(test_string);
