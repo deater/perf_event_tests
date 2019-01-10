@@ -472,6 +472,9 @@ $TESTS_DIR/rdpmc/rdpmc_attach
 echo "  + tests/rdpmc/rdpmc_attach_cpu"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_attach_cpu
+echo "  + tests/rdpmc/rdpmc_attach_global_cpu"
+echo -n "    "
+$TESTS_DIR/rdpmc/rdpmc_attach_global_cpu
 echo "  + tests/rdpmc/rdpmc_attach_other_cpu"
 echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_attach_other_cpu
