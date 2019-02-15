@@ -15,8 +15,8 @@
 	<ul>
 	<li>pentium4 -- 4.9-rc1 crashes more or less immediately
 	<li>core2 -- 4.9-rc1 crashes paranoid 1 and lower
-	<li>haswell -- 4.20-rc5 will crash in a day or so
-	<li>skylake -- 4.9-rc6 will crash in a day or so
+	<li>haswell -- 5.0 - doesn't crash? (still some warnings)
+	<li>skylake -- 5.0 - doesn't crash? (still some warnings)
 	</ul>
 <li>x86/amd -- 4.9-rc7 -- chugs along for over a week?
 <li>sparc -- newest kernel I can run is 3.2, but locks up
@@ -165,6 +165,16 @@
 <hr><hr>
 
 <h2>Fixed bugs:</h2>
+
+<h3>Fixed in 5.0</h3>
+	<ul>
+	<li>(crash) perf/x86: Add check_period PMU callback<br>
+		Fixed by 81ec3f3c4c4d78f2d3b6689c9816bfbdf7417dbb<br>
+		Last easy to trigger x86/Intel bug?
+	<li>(warning) perf/core: Don't WARN() for impossible ring-buffer sizes
+		Found with perf_fuzzer by Mark Rutland<br>
+		Fixed by 9dff0aa95a324e262ffb03f425d00e4751f3294e
+	</ul>
 
 <h3>Fixed in 4.20</h3>
 	<ul>
