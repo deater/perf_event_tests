@@ -30,7 +30,7 @@
 #include "perf_helpers.h"
 #include "instructions_testcode.h"
 
-#define CGROUP_FILENAME "/sys/fs/cgroup/systemd/"
+#define CGROUP_FILENAME "/sys/fs/cgroup/perf_event/"
 
 int main(int argc, char** argv) {
 
