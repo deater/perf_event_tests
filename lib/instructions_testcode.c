@@ -81,6 +81,15 @@ int instructions_million(void) {
 		: "cc", "x2" /* clobbered */
 	);
 	return 0;
+#elif defined(__s390x__)
+	asm(	"	lgfi	3,1000000	# set count\n"
+		"test_loop:\n"
+		"	brctg	3,test_loop\n"
+		: /* no output registers */
+		: /* no inputs */
+		: "cc", "3" /* clobbered */
+	);
+	return ALL_OK;
 #endif
 
 	return CODE_UNIMPLEMENTED;
