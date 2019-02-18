@@ -53,26 +53,32 @@ echo "  + tests/generalized_events/l1-dcache-loads"
 echo -n "    "
 $TESTS_DIR/generalized_events/l1-dcache-loads
 
-echo
-echo "* Checking Intel x86 specific features"
-echo "  + tests/x86_intel/fixed_ctr0"
-echo -n "    "
-$TESTS_DIR/x86_intel/fixed_ctr0
-echo "  + tests/x86_intel/fixed_ctr1"
-echo -n "    "
-$TESTS_DIR/x86_intel/fixed_ctr1
-echo "  + tests/x86_intel/fixed_ctr2"
-echo -n "    "
-$TESTS_DIR/x86_intel/fixed_ctr2
-echo "  + tests/x86_intel/offcore_response"
-echo -n "    "
-$TESTS_DIR/x86_intel/offcore_response
-echo "  + tests/x86_intel/offcore_response_mask"
-echo -n "    "
-$TESTS_DIR/x86_intel/offcore_response_mask
-echo "  + tests/x86_intel/uncore_events"
-echo -n "    "
-$TESTS_DIR/x86_intel/uncore_events
+arch="$(uname -m)"
+case "$arch" 
+in x86|x86_64)
+	echo
+	echo "* Checking Intel x86 specific features"
+	echo "  + tests/x86_intel/fixed_ctr0"
+	echo -n "    "
+	$TESTS_DIR/x86_intel/fixed_ctr0
+	echo "  + tests/x86_intel/fixed_ctr1"
+	echo -n "    "
+	$TESTS_DIR/x86_intel/fixed_ctr1
+	echo "  + tests/x86_intel/fixed_ctr2"
+	echo -n "    "
+	$TESTS_DIR/x86_intel/fixed_ctr2
+	echo "  + tests/x86_intel/offcore_response"
+	echo -n "    "
+	$TESTS_DIR/x86_intel/offcore_response
+	echo "  + tests/x86_intel/offcore_response_mask"
+	echo -n "    "
+	$TESTS_DIR/x86_intel/offcore_response_mask
+	echo "  + tests/x86_intel/uncore_events"
+	echo -n "    "
+	$TESTS_DIR/x86_intel/uncore_events
+;; s390x|s390)
+	:
+esac
 
 echo
 echo "* Checking breakpoint support"
