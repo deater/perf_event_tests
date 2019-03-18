@@ -1037,6 +1037,8 @@ static void create_mostly_valid_counting_event(struct perf_event_attr *attr,
 	attr->context_switch = RAND_BOOL();
 	attr->write_backward = RAND_BOOL();
 	attr->namespaces = RAND_BOOL();
+	attr->ksymbol = RAND_BOOL();
+	attr->bpf_event = RAND_BOOL();
 
 	/* wakeup events not relevant */
 
@@ -1108,6 +1110,8 @@ static void create_mostly_valid_sampling_event(struct perf_event_attr *attr,
 	attr->context_switch = RAND_BOOL();
 	attr->write_backward = RAND_BOOL();
 	attr->namespaces = RAND_BOOL();
+	attr->ksymbol = RAND_BOOL();
+	attr->bpf_event = RAND_BOOL();
 
 	attr->wakeup_events = rand32();
 
