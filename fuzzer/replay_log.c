@@ -338,7 +338,11 @@ static void close_event(char *line) {
 	int fd;
 	int result;
 
-	sscanf(line,"%*c %d",&fd);
+	result=sscanf(line,"%*c %d",&fd);
+	if (result!=1) {
+		fprintf(stderr,"Line %lld invalid Close\n",line_num);
+		return;
+	}
 
 	if (event[fd].fd_remap==-1) {
 		fprintf(stderr,"Line %lld Skipping close as fd %d not valid\n",
