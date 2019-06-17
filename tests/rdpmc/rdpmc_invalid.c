@@ -10,6 +10,9 @@
 
 #include <stdio.h>
 
+#include "rdpmc_lib.h"
+
+#if 0
 
 inline unsigned long long rdpmc(unsigned int counter) {
 
@@ -20,6 +23,8 @@ inline unsigned long long rdpmc(unsigned int counter) {
         return (unsigned long long)low | ((unsigned long long)high) <<32;
 }
 
+
+#endif
 
 int main(int argc, char **argv) {
 
