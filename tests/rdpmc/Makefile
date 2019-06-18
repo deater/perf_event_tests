@@ -3,6 +3,7 @@ include ../../Makefile.globals.inc
 CPPFLAGS += -I../../include
 CFLAGS += -Wall -O2 -g
 LDFLAGS +=
+LDLIBS += -lpthread
 LIB = ../../lib
 
 PROGRAM_LIST = \
@@ -56,9 +57,9 @@ rdpmc_invalid: rdpmc_invalid.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_multiplexing: rdpmc_multiplexing.o rdpmc_lib.o $(LIB)/libhelper.a
 
-rdpmc_pthreads: rdpmc_pthreads.o rdpmc_lib.o $(LIB)/libhelper.a -lpthread
+rdpmc_pthreads: rdpmc_pthreads.o rdpmc_lib.o $(LIB)/libhelper.a
 
-rdpmc_pthreads_group: rdpmc_pthreads_group.o rdpmc_lib.o $(LIB)/libhelper.a -lpthread
+rdpmc_pthreads_group: rdpmc_pthreads_group.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_reset: rdpmc_reset.o rdpmc_lib.o $(LIB)/libhelper.a
 
