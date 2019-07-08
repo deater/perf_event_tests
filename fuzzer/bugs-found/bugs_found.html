@@ -13,10 +13,10 @@
 <li>ARM32 -- chugs along for days on a pi2 (4.8-rc2)
 <li>x86/intel -- multiple warnings.  Many current issues are with BTS support
 	<ul>
-	<li>pentium4 -- 4.9-rc1 crashes more or less immediately
+	<li>pentium4 -- 5.0 crashes more or less immediately
 	<li>core2 -- 4.9-rc1 crashes paranoid 1 and lower
 	<li>haswell -- 5.0 - doesn't crash? (still some warnings)
-	<li>skylake -- 5.0 - doesn't crash? (still some warnings)
+	<li>skylake -- 5.2 - doesn't crash? (still some warnings)
 	</ul>
 <li>x86/amd -- 4.9-rc7 -- chugs along for over a week?
 <li>sparc -- newest kernel I can run is 3.2, but locks up
@@ -165,6 +165,23 @@
 <hr><hr>
 
 <h2>Fixed bugs:</h2>
+
+
+<h3>Fixed in 5.2</h3>
+	<ul>
+	<li>(warning)
+		perf/x86/regs: Check reserved bits
+		With the addition of XMM bits, some bits that were
+		reserved weren't checked.
+		Fixed by 90d424915ab6550826d297fd62df8ee255345b95
+	<li>(crash)
+		perf/x86: Disable extended registers for non-supported PMUs
+		Fixed by e321d02db87af7840da29ef833a2a71fc0eab198
+	<li>(crash)
+		perf/ioctl: Add check for the sample_period value
+		causes crash on PowerPC
+		Fixed by 913a90bc5a3a06b1f04c337320e9aeee2328dd77
+	</ul>
 
 <h3>Fixed in 5.0</h3>
 	<ul>
