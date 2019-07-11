@@ -16,7 +16,7 @@ PROGRAM_LIST = perf_tool_fuzzer
 
 all: $(PROGRAM_LIST)
 
-perf_tool_fuzzer: perf_tool_fuzzer.o
+perf_tool_fuzzer: perf_tool_fuzzer.o create_perf_data.o
 
 install: all
 	$(INSTALL) -d $(prefix)/fuzzer
