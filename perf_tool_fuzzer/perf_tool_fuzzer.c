@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 	pid_t pid,w;
 	int status;
 
-	char *newargv[] = { NULL, "report", NULL };
+	char *newargv[] = { "perf-perf-perf", "report", NULL };
 	char *newenviron[] = { NULL };
 
 
@@ -41,8 +41,10 @@ int main(int argc, char **argv) {
                 		printf("exited, status=%d\n", WEXITSTATUS(status));
 			} else if (WIFSIGNALED(status)) {
 				printf("killed by signal %d\n", WTERMSIG(status));
+				return -1;
 			} else if (WIFSTOPPED(status)) {
 				printf("stopped by signal %d\n", WSTOPSIG(status));
+				return -1;
 			} else if (WIFCONTINUED(status)) {
 				printf("continued\n");
 			}
