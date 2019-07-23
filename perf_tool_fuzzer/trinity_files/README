@@ -1,0 +1,8 @@
+These files come from Dave Jones' trinity project
+
+   http://codemonkey.org.uk/projects/trinity/
+
+They are GPL v2
+
+The perf_event_open.c file was contributed by me (Vince Weaver)
+

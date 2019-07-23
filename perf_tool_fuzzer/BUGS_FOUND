@@ -1,2 +1,5 @@
 #0 -- calling perf via execve() with argv[0]==NULL causes segfault
 	this technically isn't really a bug, just annoying
+
+#1 -- f_header.attr_size ==0 causes a floating point exception
+	patch sent
