@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include "random.h"
 
+#include "../include/perf_event.h"
+
 #include "create_perf_data.h"
 
 struct perf_file_section {
@@ -31,6 +33,8 @@ static int create_perf_header(int fd) {
 
 	struct perf_header ph;
 
+	/* Fuzz the header magic */
+
 	switch(rand()%3) {
 		case 0:	memcpy(ph.magic,"PERFILE2",8);
 			break;
@@ -42,18 +46,69 @@ static int create_perf_header(int fd) {
 			break;
 	}
 
+	/* Fuzz the header size */
+
 	switch(rand()%3) {
 		case 0: ph.size=sizeof(struct perf_header);
 			break;
-		case 1: ph.size=rand()%128;
+		case 1: ph.size=rand()%256;
 			break;
 		case 2: ph.size=rand64();
 			break;
 	}
 
-	/* FIXME: write random size */
-	write(fd,&ph,sizeof(struct perf_header));
+	/* Fuzz the header attr_size */
 
+	switch(rand()%3) {
+		case 0: ph.size=sizeof(struct perf_event_attr);
+			break;
+		case 1: ph.attr_size=rand()%256;
+			break;
+		case 2: ph.attr_size=rand64();
+			break;
+	}
+
+	/* attrs, data, event_types */
+	/* we'll come back and fill those in later */
+
+
+	/* Fuzz the header flags */
+
+	switch(rand()%3) {
+		case 0: ph.flags=0;
+			break;
+		case 1: ph.flags=rand()%256;
+			break;
+		case 2: ph.flags=rand64();
+			break;
+	}
+
+	/* Fuzz the reserved fields */
+	/* Do this slightly more rarely */
+	switch(rand()%16) {
+		case 0 ... 13: /* do nothing */
+			break;
+		case 14: ph.flags1[rand()%4]=rand64();
+			break;
+		case 15: for(i=0;i<3;i++) {
+				ph.flags1[i]=rand64();
+			}
+			break;
+	}
+
+
+	/* write random size output (truncate sometimes) */
+
+	switch(rand()%16) {
+		case 0 ...14:
+			/* proper case */
+			write(fd,&ph,sizeof(struct perf_header));
+			break;
+		case 15:
+			i=rand()%16384;
+			write(fd,&ph,i);
+			break;
+	}
 	return 0;
 }
 
@@ -73,6 +128,11 @@ int create_perf_data_file(void) {
 
 	/* First, a header */
 	create_perf_header(fd);
+
+
+
+
+
 
 
 	/* FIXME: randomly truncate */

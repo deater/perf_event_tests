@@ -73,10 +73,10 @@ int main(int argc, char **argv) {
 		iterations++;
 
 		if (iterations%1000==0) {
-			printf("Done %d iterations\n",iterations);
+			printf("Iteration: %7d: ",iterations);
 			for(i=0;i<NUM_STATUSES;i++) {
 				if (exit_statuses[i]) {
-					printf("#%d=%d\n",
+					printf("#%d=%d ",
 						i,exit_statuses[i]);
 				}
 			}
