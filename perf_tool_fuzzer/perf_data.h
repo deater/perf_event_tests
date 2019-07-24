@@ -1,3 +1,9 @@
+struct our_perf_event_header {
+	uint32_t type;
+	uint16_t misc;
+	uint16_t size;
+};
+
 struct perf_file_section {
 	uint64_t offset;	/* offset from start of file */
 	uint64_t size;		/* size of the section */
@@ -13,6 +19,29 @@ struct perf_header {
 	uint64_t flags;
 	uint64_t flags1[3];
 };
+
+/* Note, BUILD_ID_SIZE is 20, but this is aligned to a 64-bit boundary */
+/* so 24 */
+
+
+#define BUILD_ID_SIZE	24
+
+/* ugh, the size of filename varies, as it can be as big as the size */
+/* of the largest existing headersize-rest of the padding, and this */
+/* is all in a union */
+
+struct build_id_event {
+	struct our_perf_event_header header;
+	pid_t pid;
+	uint8_t	build_id[BUILD_ID_SIZE];
+	char filename[200-36];
+};
+
+struct perf_header_string {
+	uint32_t len;
+	char string[]; /* zero terminated */
+};
+
 
 #define	HEADER_RESERVED		0
 #define	HEADER_TRACING_DATA	1

@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -127,25 +128,143 @@ static int dump_header(int fd) {
 	return 0;
 }
 
+static int read_section_build_id(int fd, int len) {
+
+	int result,i;
+	struct build_id_event bev;
+
+	result=read(fd,&bev,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read build_id header!: %s\n",
+			strerror(errno));
+		return -1;
+	}
+
+	printf("\t\tType: %d, Misc %hd, Size: %hd\n",
+		bev.header.type,bev.header.misc,bev.header.size);
+
+	printf("\t\tPid: %d\n",bev.pid);
+
+	printf("\t\tBuild Id: ");
+	for(i=0;i<BUILD_ID_SIZE;i++) {
+		printf("%02x",bev.build_id[i]);
+	}
+	printf("\n");
+	printf("\t\tFilename: %s\n",bev.filename);
+
+
+
+	return 0;
+}
+
+
+static int read_section_hostname(int fd, int len) {
+
+	int result;
+	struct perf_header_string hostname;
+
+	result=read(fd,&hostname,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read build_id header!: %s\n",
+			strerror(errno));
+		return -1;
+	}
+
+	printf("\t\tLength: %d\n",hostname.len);
+	printf("\t\tHostname: %s\n",hostname.string);
+
+	return 0;
+}
+
+
+
+static int dump_section(int fd, int which,off_t offset,int length) {
+
+	int result;
+	off_t old_offset;
+
+	/* save old offset */
+	old_offset=lseek(fd,0,SEEK_CUR);
+
+	/* seek to right place */
+	result=lseek(fd,offset,SEEK_SET);
+
+	printf("\tFlag section %d (%s)\n",which,section_names[which]);
+
+	switch(which) {
+		case HEADER_RESERVED:
+			fprintf(stderr,"Invalid section!\n");
+			return -1;
+		case HEADER_TRACING_DATA:
+			fprintf(stderr,"Invalid section!\n");
+			return -1;
+		case HEADER_BUILD_ID:
+			result=read_section_build_id(fd,length);
+			if (result<0) return -1;
+			break;
+		case HEADER_HOSTNAME:
+			result=read_section_hostname(fd,length);
+			break;
+
+		default:
+			fprintf(stderr,"Invalid section!\n");
+			return -1;
+	}
+
+	/* restore old offset */
+	lseek(fd,old_offset,SEEK_SET);
+
+	return 0;
+}
+
+static off_t dump_section_offset(int fd, int *bytes) {
+
+	int result;
+	struct perf_file_section section;
+
+	/* read in the section value */
+	result=read(fd,&section,sizeof(struct perf_file_section));
+	if (result<0) {
+		fprintf(stderr,"Trouble reading section\n");
+		return -1;
+	}
+
+	printf("\t%ld bytes at offset 0x%lx\n",section.size,section.offset);
+
+	*bytes=section.size;
+
+	return section.offset;
+}
+
 static int dump_flag_sections(int fd) {
 
-	int i;
+	int i,result=0,length=0;
+	off_t offset;
 
 	printf("\nFLAGS sections:\n");
+
+	/* seek to after data section */
+	result=lseek(fd,header.data.offset+header.data.size,SEEK_SET);
+	if (result<0) {
+		fprintf(stderr,"Trouble seeking!\n");
+		return -1;
+	}
 
 	/* FIXME: 256??? */
 	for(i=0;i<64;i++) {
 
-
 		if (header.flags&(1UL<<i)) {
-			printf("\tFlag section %d (%s)\n",i,section_names[i]);
+			offset=dump_section_offset(fd,&length);
+			if (offset==-1) return offset;
+			result=dump_section(fd,i,offset,length);
+			if (result<0) return result;
 		}
 
 
 	}
 
 
-	return 0;
+	return result;
 }
 
 
