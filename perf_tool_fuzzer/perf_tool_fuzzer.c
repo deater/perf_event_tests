@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/wait.h>
 
 #include "create_perf_data.h"

@@ -26,6 +26,7 @@
 
 
 static struct perf_header ph;
+static int header_written_size=0;
 
 static int create_perf_header(int fd) {
 
@@ -108,9 +109,11 @@ static int create_perf_header(int fd) {
 	switch(rand()%16) {
 		case 0 ... 13: /* do nothing */
 			break;
-		case 14: ph.flags1[rand()%4]=rand64();
+		case 14:
+			ph.flags1[rand()%3]=rand64();
 			break;
-		case 15: for(i=0;i<3;i++) {
+		case 15:
+			for(i=0;i<3;i++) {
 				ph.flags1[i]=rand64();
 			}
 			break;
@@ -122,13 +125,15 @@ static int create_perf_header(int fd) {
 	switch(rand()%16) {
 		case 0 ...14:
 			/* proper case */
-			write(fd,&ph,sizeof(struct perf_header));
+			header_written_size=sizeof(struct perf_header);
 			break;
 		case 15:
-			i=rand()%16384;
-			write(fd,&ph,i);
+			header_written_size=rand()%16384;
 			break;
 	}
+
+	write(fd,&ph,header_written_size);
+
 	return 0;
 }
 
@@ -149,12 +154,28 @@ int create_perf_data_file(void) {
 	/* First, a header */
 	create_perf_header(fd);
 
+	/* Padding????? Not sure what that's about yet */
+	/* FIXME: seek to 168 */
+	lseek(fd,168,SEEK_SET);
+
+	/* Next some perf attributes? */
+	/* FIXME: seek 128 bytes further */
+	ph.attrs.offset=168;
+	ph.attrs.size=128;
+	lseek(fd,128,SEEK_CUR);
 
 
+	/* Next the data */
+	/* FIXME: seek 1576 bytes further */
+	ph.data.offset=296;
+	ph.attrs.size=1576;
+	lseek(fd,1576,SEEK_CUR);
 
+	/* Next the flag sections */
 
-	/* FIXME: If there were flags in the header, write out sections here??? */
-
+	/* re-write the header */
+	lseek(fd,0,SEEK_SET);
+	write(fd,&ph,header_written_size);
 
 	/* FIXME: randomly truncate */
 	/* FIXME: randomly sprinkle zeros */
