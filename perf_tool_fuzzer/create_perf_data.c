@@ -35,9 +35,13 @@ static int create_perf_header(int fd) {
 	/* Fuzz the header magic */
 
 	switch(rand()%16) {
-		case 0 ... 13:
+		case 0 ... 12:
 			/* valid case */
 			memcpy(ph.magic,"PERFILE2",8);
+			break;
+		case 13:/* change the version number up */
+			memcpy(ph.magic,"PERFILE2",8);
+			ph.magic[7]=(rand()%10)+'0';
 			break;
 		case 14:/* change the version number up */
 			memcpy(ph.magic,"PERFILE2",8);
