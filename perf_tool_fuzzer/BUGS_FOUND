@@ -3,3 +3,9 @@
 
 #1 -- f_header.attr_size ==0 causes a floating point exception
 	patch sent
+
+#2 -- perf_header__read_build_ids gets filename size from the
+	perf.data file and copies it to a 4096 buffer w/o
+	checking it is too big.  Despite being a buffer smash,
+	various Linux protections make this hard to exploit.
+

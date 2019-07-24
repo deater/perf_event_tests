@@ -11,6 +11,16 @@
 
 #include "create_perf_data.h"
 
+#define ENDIAN_SWAP_U64(val) ((uint64_t) ( \
+    (((uint64_t) (val) & (uint64_t) 0x00000000000000ffULL) << 56) | \
+    (((uint64_t) (val) & (uint64_t) 0x000000000000ff00ULL) << 40) | \
+    (((uint64_t) (val) & (uint64_t) 0x0000000000ff0000ULL) << 24) | \
+    (((uint64_t) (val) & (uint64_t) 0x00000000ff000000ULL) <<  8) | \
+    (((uint64_t) (val) & (uint64_t) 0x000000ff00000000ULL) >>  8) | \
+    (((uint64_t) (val) & (uint64_t) 0x0000ff0000000000ULL) >> 24) | \
+    (((uint64_t) (val) & (uint64_t) 0x00ff000000000000ULL) >> 40) | \
+    (((uint64_t) (val) & (uint64_t) 0xff00000000000000ULL) >> 56)))
+
 struct perf_file_section {
 	uint64_t offset;	/* offset from start of file */
 	uint64_t size;		/* size of the section */
@@ -32,19 +42,36 @@ static int create_perf_header(int fd) {
 	int i;
 
 	struct perf_header ph;
+	uint64_t temp64;
 
 	/* Fuzz the header magic */
 
-	switch(rand()%3) {
-		case 0:	memcpy(ph.magic,"PERFILE2",8);
+	switch(rand()%16) {
+		case 0 ... 13:
+			/* valid case */
+			memcpy(ph.magic,"PERFILE2",8);
 			break;
-		case 1:	memcpy(ph.magic,"PERFILE2",8);
+		case 14:/* change the version number up */
+			memcpy(ph.magic,"PERFILE2",8);
 			ph.magic[7]=rand();
 			break;
-		case 2:
+		case 15:
+			/* completely random */
 			for(i=0;i<8;i++) ph.magic[i]=rand();
 			break;
 	}
+	switch(rand()%4) {
+		case 0 ... 2: /* do nothing */
+			break;
+		case 3: /* swap endian */
+			memcpy(&temp64,ph.magic,8*sizeof(char));
+			temp64=ENDIAN_SWAP_U64(temp64);
+			memcpy(ph.magic,&temp64,8*sizeof(char));
+			break;
+	}
+	/* FIXME: if we endian swap, we should remember and endian swap */
+	/* all kinds of values */
+
 
 	/* Fuzz the header size */
 
