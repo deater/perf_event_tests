@@ -11,6 +11,8 @@
 
 #include "create_perf_data.h"
 
+#include "perf_data.h"
+
 #define ENDIAN_SWAP_U64(val) ((uint64_t) ( \
     (((uint64_t) (val) & (uint64_t) 0x00000000000000ffULL) << 56) | \
     (((uint64_t) (val) & (uint64_t) 0x000000000000ff00ULL) << 40) | \
@@ -21,27 +23,13 @@
     (((uint64_t) (val) & (uint64_t) 0x00ff000000000000ULL) >> 40) | \
     (((uint64_t) (val) & (uint64_t) 0xff00000000000000ULL) >> 56)))
 
-struct perf_file_section {
-	uint64_t offset;	/* offset from start of file */
-	uint64_t size;		/* size of the section */
-};
 
-struct perf_header {
-	char magic[8];		/* PERFILE2 */
-	uint64_t size;		/* size of the header */
-	uint64_t attr_size;	/* size of an attribute in attrs */
-	struct perf_file_section attrs;
-	struct perf_file_section data;
-	struct perf_file_section event_types;
-	uint64_t flags;
-	uint64_t flags1[3];
-};
+static struct perf_header ph;
 
 static int create_perf_header(int fd) {
 
 	int i;
 
-	struct perf_header ph;
 	uint64_t temp64;
 
 	/* Fuzz the header magic */
@@ -160,6 +148,7 @@ int create_perf_data_file(void) {
 
 
 
+	/* FIXME: If there were flags in the header, write out sections here??? */
 
 
 	/* FIXME: randomly truncate */
