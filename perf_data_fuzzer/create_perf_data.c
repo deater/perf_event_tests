@@ -366,7 +366,7 @@ static int create_perf_data(int fd) {
 	unsigned char data[4096];
 
 	ph.data.offset=296;
-	ph.attrs.size=1576;
+	ph.data.size=1576;
 
 	for(i=0;i<1576;i++) data[i]=rand();
 	write(fd,data,1576);
