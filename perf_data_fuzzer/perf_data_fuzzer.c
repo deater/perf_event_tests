@@ -22,9 +22,9 @@ int main(int argc, char **argv) {
 	int iterations=0;
 	int exit_statuses[NUM_STATUSES];
 
-	char *newargv[] = { "perf-perf-perf", "report", NULL };
+	char *newargv[] = { "perf-perf-perf", "report", "--stdio", "--header", NULL };
 
-	char *newenviron[] = { NULL };
+	char *newenviron[] = { "TERM=ansi", NULL };
 
 	memset(exit_statuses,0,NUM_STATUSES*sizeof(int));
 
@@ -38,6 +38,14 @@ int main(int argc, char **argv) {
 
 		/* child */
 		if (pid==0) {
+
+			int nullfd;
+
+			nullfd=open("/dev/null",O_WRONLY);
+
+			dup2(nullfd, STDOUT_FILENO);
+			dup2(nullfd, STDERR_FILENO);
+
 			execve(PERF_LOCATION,newargv,newenviron);
 
 			/* if we got here, execve failed */

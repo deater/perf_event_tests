@@ -12,13 +12,13 @@ LDFLAGS_X32 += -mx32 -static
 	$(CC) -c $< -o $@ $(CPPFLAGS) $(CFLAGS) $(CFLAGS_X32)
 
 
-PROGRAM_LIST = perf_tool_fuzzer perf_data_dump
+PROGRAM_LIST = perf_data_fuzzer perf_data_dump
 
 all: $(PROGRAM_LIST)
 
 perf_data_dump: perf_data_dump.o
 
-perf_tool_fuzzer: perf_tool_fuzzer.o create_perf_data.o \
+perf_data_fuzzer: perf_data_fuzzer.o create_perf_data.o \
 		trinity_files/trinity_lib.a
 
 

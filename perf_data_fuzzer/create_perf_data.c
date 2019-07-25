@@ -224,6 +224,73 @@ static int create_flag_section_string(int fd) {
 }
 
 
+static int create_flag_section_string_list(int fd) {
+
+	int len,i;
+	char data[16384];
+	struct perf_header_string *string;
+	int string_len;
+
+	string=(struct perf_header_string *)data;
+
+	i=rand()%16;
+	switch(i) {
+		/* create realistic string */
+		case 0:
+			strcpy(string->string,"VMW");
+			string_len=strlen(string->string);
+			string->len=string_len;
+			break;
+		case 1:
+			string_len=rand()%8192;
+			for(i=0;i<string_len;i++) string->string[i]=rand();
+			string->len=rand();
+		default:
+			string_len=rand()%8192;
+			for(i=0;i<string_len;i++) string->string[i]=rand();
+			string->len=string_len;
+			break;
+
+	}
+
+	/* FIXME: truncate? */
+
+	len=string_len+4;
+	write(fd,data,len);
+
+	return len;
+
+}
+
+
+
+static int create_flag_section_u64(int fd) {
+
+	int i;
+	uint64_t value;
+
+	i=rand()%16;
+	switch(i) {
+		case 0:
+			value=rand64();
+			break;
+		case 1:
+			value=0;
+			break;
+		default:
+			value=rand64()%256000000;
+			break;
+
+	}
+
+	write(fd,&value,8);
+
+	return 8;
+
+}
+
+
+
 
 static int create_flag_section(int fd,int which, int *len) {
 
@@ -246,10 +313,65 @@ static int create_flag_section(int fd,int which, int *len) {
 		case HEADER_OSRELEASE:
 			*len=create_flag_section_string(fd);
 			break;
+		case HEADER_VERSION:
+			*len=create_flag_section_string(fd);
+			break;
+		case HEADER_ARCH:
+			*len=create_flag_section_string(fd);
+			break;
+		case HEADER_NRCPUS:
+			/* FIXME */
+			*len=create_flag_section_random(fd);
+			break;
+		case HEADER_CPUDESC:
+			*len=create_flag_section_string(fd);
+			break;
+		case HEADER_CPUID:
+			*len=create_flag_section_string(fd);
+			break;
+		case HEADER_TOTAL_MEM:
+			*len=create_flag_section_u64(fd);
+			break;
+		case HEADER_CMDLINE:
+			*len=create_flag_section_string_list(fd);
+			break;
+
 		default:
 			*len=create_flag_section_random(fd);
 			break;
 	}
+
+	return 0;
+}
+
+static int create_perf_attributes(int fd) {
+
+	int i;
+	unsigned char fake_attr[128];
+
+	ph.attrs.offset=168;
+	ph.attrs.size=128;
+
+	for(i=0;i<128;i++) fake_attr[i]=rand();
+	write(fd,fake_attr,128);
+
+//	lseek(fd,128,SEEK_CUR);
+
+	return 0;
+}
+
+static int create_perf_data(int fd) {
+
+	int i;
+	unsigned char data[4096];
+
+	ph.data.offset=296;
+	ph.attrs.size=1576;
+
+	for(i=0;i<1576;i++) data[i]=rand();
+	write(fd,data,1576);
+
+//	lseek(fd,1576,SEEK_CUR);
 
 	return 0;
 }
@@ -279,17 +401,10 @@ int create_perf_data_file(void) {
 	lseek(fd,168,SEEK_SET);
 
 	/* Next some perf attributes? */
-	/* FIXME: seek 128 bytes further */
-	ph.attrs.offset=168;
-	ph.attrs.size=128;
-	lseek(fd,128,SEEK_CUR);
-
+	create_perf_attributes(fd);
 
 	/* Next the data */
-	/* FIXME: seek 1576 bytes further */
-	ph.data.offset=296;
-	ph.attrs.size=1576;
-	lseek(fd,1576,SEEK_CUR);
+	create_perf_data(fd);
 
 	/**************************/
 	/* Next the flag sections */

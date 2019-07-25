@@ -9,3 +9,6 @@
 	checking it is too big.  Despite being a buffer smash,
 	various Linux protections make this hard to exploit.
 
+#3 -- perf_header pmu parsing.  If a string is marked as size 0,
+	malloc will happily allocate space but any string ops
+	trying to operate on it will have problems with that.
