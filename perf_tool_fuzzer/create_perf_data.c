@@ -137,9 +137,129 @@ static int create_perf_header(int fd) {
 	return 0;
 }
 
+static int create_flag_section_random(int fd) {
+
+	/* FIXME: random string? */
+
+	int len,i;
+	char data[4096];
+
+	len=rand()%4096;
+
+	for(i=0;i<len;i++) {
+		data[i]=rand();
+	}
+
+	write(fd,data,len);
+
+	return len;
+
+}
+
+
+
+static int create_flag_section_build_id(int fd) {
+
+	/* FIXME: random string? */
+
+	int len;
+	char data[4096];
+	struct build_id_event *bev;
+
+	bev=(struct build_id_event *)data;
+
+	bev->header.type=0;
+	bev->header.misc=1;
+	bev->header.size=100;
+
+	bev->pid=rand();
+
+	strncpy(bev->filename,"VMW",4);
+
+	len=rand()%512;
+
+	write(fd,data,len);
+
+	return len;
+
+}
+
+
+static int create_flag_section_string(int fd) {
+
+	int len,i;
+	char data[16384];
+	struct perf_header_string *string;
+	int string_len;
+
+	string=(struct perf_header_string *)data;
+
+	i=rand()%16;
+	switch(i) {
+		/* create realistic string */
+		case 0:
+			strcpy(string->string,"VMW");
+			string_len=strlen(string->string);
+			string->len=string_len;
+			break;
+		case 1:
+			string_len=rand()%8192;
+			for(i=0;i<string_len;i++) string->string[i]=rand();
+			string->len=rand();
+		default:
+			string_len=rand()%8192;
+			for(i=0;i<string_len;i++) string->string[i]=rand();
+			string->len=string_len;
+			break;
+
+	}
+
+	/* FIXME: truncate? */
+
+	len=string_len+4;
+	write(fd,data,len);
+
+	return len;
+
+}
+
+
+
+static int create_flag_section(int fd,int which, int *len) {
+
+	*len=0;
+
+	switch(which) {
+
+		case HEADER_RESERVED:
+			*len=create_flag_section_random(fd);
+			break;
+		case HEADER_TRACING_DATA:
+			*len=create_flag_section_random(fd);
+			break;
+		case HEADER_BUILD_ID:
+			*len=create_flag_section_build_id(fd);
+			break;
+		case HEADER_HOSTNAME:
+			*len=create_flag_section_string(fd);
+			break;
+		case HEADER_OSRELEASE:
+			*len=create_flag_section_string(fd);
+			break;
+		default:
+			*len=create_flag_section_random(fd);
+			break;
+	}
+
+	return 0;
+}
+
+
 int create_perf_data_file(void) {
 
-	int fd;
+	int fd,flag_count=0,i,len=0;
+	off_t flag_header_offset,flag_section_offset;
+	struct perf_file_section temp_section;
 
 	/* Open file */
 	fd=open("perf.data",O_WRONLY|O_CREAT,0666);
@@ -171,7 +291,38 @@ int create_perf_data_file(void) {
 	ph.attrs.size=1576;
 	lseek(fd,1576,SEEK_CUR);
 
+	/**************************/
 	/* Next the flag sections */
+	/**************************/
+	for(i=0;i<64;i++) {
+		if (ph.flags&1UL<<i) flag_count++;
+	}
+
+	flag_section_offset=lseek(fd,0,SEEK_CUR);
+	flag_section_offset+=flag_count*sizeof(struct perf_file_section);
+
+//	printf("Flag count: %d\n",flag_count);
+
+	for(i=0;i<flag_count;i++) {
+
+		/* save current offset */
+		flag_header_offset=lseek(fd,0,SEEK_CUR);
+
+		create_flag_section(fd,i,&len);
+
+		/* restore current offset */
+		lseek(fd,flag_header_offset,SEEK_SET);
+
+		temp_section.offset=flag_section_offset;
+		temp_section.size=len;
+
+		/* FIXME: fuzz this? */
+		write(fd,&temp_section,sizeof(struct perf_file_section));
+
+		flag_section_offset+=len;
+
+	}
+
 
 	/* re-write the header */
 	lseek(fd,0,SEEK_SET);

@@ -131,9 +131,12 @@ static int dump_header(int fd) {
 static int read_section_build_id(int fd, int len) {
 
 	int result,i;
-	struct build_id_event bev;
+	struct build_id_event *bev;
+	char data[4096];
 
-	result=read(fd,&bev,len);
+	bev=(struct build_id_event *)data;
+
+	result=read(fd,bev,len);
 	if (result!=len) {
 		fprintf(stderr,"Couldn't read build_id header!: %s\n",
 			strerror(errno));
@@ -141,16 +144,16 @@ static int read_section_build_id(int fd, int len) {
 	}
 
 	printf("\t\tType: %d, Misc %hd, Size: %hd\n",
-		bev.header.type,bev.header.misc,bev.header.size);
+		bev->header.type,bev->header.misc,bev->header.size);
 
-	printf("\t\tPid: %d\n",bev.pid);
+	printf("\t\tPid: %d\n",bev->pid);
 
 	printf("\t\tBuild Id: ");
 	for(i=0;i<BUILD_ID_SIZE;i++) {
-		printf("%02x",bev.build_id[i]);
+		printf("%02x",bev->build_id[i]);
 	}
 	printf("\n");
-	printf("\t\tFilename: %s\n",bev.filename);
+	printf("\t\tFilename: %s\n",bev->filename);
 
 
 
@@ -158,20 +161,117 @@ static int read_section_build_id(int fd, int len) {
 }
 
 
-static int read_section_hostname(int fd, int len) {
+
+static int read_section_nrcpus(int fd, int len) {
 
 	int result;
-	struct perf_header_string hostname;
+	struct nr_cpus *cpus;
+	char data[4096];
 
-	result=read(fd,&hostname,len);
+	cpus=(struct nr_cpus *)data;
+
+	result=read(fd,cpus,len);
 	if (result!=len) {
-		fprintf(stderr,"Couldn't read build_id header!: %s\n",
+		fprintf(stderr,"Couldn't read cpus header!: %s\n",
 			strerror(errno));
 		return -1;
 	}
 
-	printf("\t\tLength: %d\n",hostname.len);
-	printf("\t\tHostname: %s\n",hostname.string);
+	printf("\t\tCPUs available: %d, CPUs online: %d\n",
+		cpus->nr_cpus_available,cpus->nr_cpus_online);
+
+	return 0;
+}
+
+
+
+static int read_section_string(int fd, int len,char *name) {
+
+	int result;
+	char data[4096];
+
+	struct perf_header_string *string;
+
+	string=(struct perf_header_string *)data;
+
+	if (len>4096) {
+		fprintf(stderr,"String length too big!\n");
+		return -1;
+	}
+
+	result=read(fd,string,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read %s header!: %s\n",
+			name,strerror(errno));
+		return -1;
+	}
+
+	printf("\t\tLength: %d\n",string->len);
+	printf("\t\t%s: %s\n",name,string->string);
+
+	return 0;
+}
+
+static int read_section_string_list(int fd, int len,char *name) {
+
+	int result,i;
+	char data[4096],*hack;
+
+	struct perf_header_string_list *string_list;
+	struct perf_header_string *string;
+
+	string_list=(struct perf_header_string_list *)data;
+
+	if (len>4096) {
+		fprintf(stderr,"String list %d size too big!\n",len);
+		return -1;
+	}
+
+	result=read(fd,string_list,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read %s header!: %s\n",
+			name,strerror(errno));
+		return -1;
+	}
+
+	printf("\t\tContains %d strings\n",string_list->nr);
+	string=string_list->strings;
+	for(i=0;i<string_list->nr;i++) {
+		printf("\t\t\t%d: (%d) %s\n",
+			i,
+			string->len,
+			string->string);
+		hack=(char *)string;
+		hack+=(string->len+4);
+		string=(struct perf_header_string *)hack;
+	}
+	return 0;
+}
+
+
+
+static int read_section_u64(int fd, int len,char *name) {
+
+	int result;
+	char data[4096];
+
+	uint64_t *value;
+
+	value=(uint64_t *)data;
+
+	if (len!=sizeof(uint64_t)) {
+		fprintf(stderr,"U64 size wrong!\n");
+		return -1;
+	}
+
+	result=read(fd,value,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read %s header!: %s\n",
+			name,strerror(errno));
+		return -1;
+	}
+
+	printf("\t\t%s: %ld\n",name,*value);
 
 	return 0;
 }
@@ -200,16 +300,40 @@ static int dump_section(int fd, int which,off_t offset,int length) {
 			return -1;
 		case HEADER_BUILD_ID:
 			result=read_section_build_id(fd,length);
-			if (result<0) return -1;
 			break;
 		case HEADER_HOSTNAME:
-			result=read_section_hostname(fd,length);
+			result=read_section_string(fd,length,"hostname");
 			break;
-
+		case HEADER_OSRELEASE:
+			result=read_section_string(fd,length,"OS release");
+			break;
+		case HEADER_VERSION:
+			result=read_section_string(fd,length,"Version");
+			break;
+		case HEADER_ARCH:
+			result=read_section_string(fd,length,"Arch");
+			break;
+		case HEADER_NRCPUS:
+			result=read_section_nrcpus(fd,length);
+			break;
+		case HEADER_CPUDESC:
+			result=read_section_string(fd,length,"CPU Description");
+			break;
+		case HEADER_CPUID:
+			result=read_section_string(fd,length,"CPU ID");
+			break;
+		case HEADER_TOTAL_MEM:
+			result=read_section_u64(fd,length,"Total memory (kB)");
+			break;
+		case HEADER_CMDLINE:
+			result=read_section_string_list(fd,length,"Cmdline");
+			break;
 		default:
 			fprintf(stderr,"Invalid section!\n");
 			return -1;
 	}
+
+	if (result<0) return result;
 
 	/* restore old offset */
 	lseek(fd,old_offset,SEEK_SET);

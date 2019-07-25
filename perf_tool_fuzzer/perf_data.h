@@ -37,11 +37,20 @@ struct build_id_event {
 	char filename[200-36];
 };
 
+struct nr_cpus {
+	int32_t nr_cpus_available; /* CPUs not yet onlined */
+	uint32_t nr_cpus_online;
+};
+
 struct perf_header_string {
 	uint32_t len;
 	char string[]; /* zero terminated */
 };
 
+struct perf_header_string_list {
+	uint32_t nr;
+	struct perf_header_string strings[]; /* variable length records */
+};
 
 #define	HEADER_RESERVED		0
 #define	HEADER_TRACING_DATA	1
