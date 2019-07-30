@@ -263,7 +263,12 @@ static int read_section_nrcpus(int fd, int len) {
 }
 
 
-
+/*
+struct perf_header_string {
+       uint32_t len;
+       char string[len]; // zero terminated
+};
+*/
 static int read_section_string(int fd, int len,char *name) {
 
 	int result;
@@ -340,68 +345,93 @@ static int read_section_string_list(int fd, int len,char *name) {
 
 static int read_section_u64(int fd, int len,char *name) {
 
-	int result;
-	char data[BUFFER_SIZE];
-
-	uint64_t *value;
-
-	value=(uint64_t *)data;
+	int result,offset=0;
+	unsigned char data[BUFFER_SIZE];
+	uint64_t value;
 
 	if (len!=sizeof(uint64_t)) {
 		fprintf(stderr,"U64 size wrong!\n");
 		return -1;
 	}
 
-	result=read(fd,value,len);
+	result=read(fd,data,len);
 	if (result!=len) {
 		fprintf(stderr,"Couldn't read %s header!: %s\n",
 			name,strerror(errno));
 		return -1;
 	}
 
-	printf("\t\t%s: %ld\n",name,*value);
+	value=get_uint64(data,offset);
+
+	printf("\t\t%s: %ld\n",name,value);
 
 	return 0;
 }
 
-
+/*
+struct {
+       uint32_t nr; // number of events
+       uint32_t attr_size; // size of each perf_event_attr
+       struct {
+              struct perf_event_attr attr;  // size of attr_size
+              uint32_t nr_ids;
+              struct perf_header_string event_string;
+              uint64_t ids[nr_ids];
+       } events[nr]; // Variable length records
+};
+*/
 
 static int read_section_event_desc(int fd, int len) {
 
-	int result,i,j;
+	int result,i,j,offset=0;
 	unsigned char data[BUFFER_SIZE];
-
-	struct perf_header_event_desc *desc;
-	struct perf_header_event_desc_events *events;
+	char event_name[BUFFER_SIZE];
+	uint32_t nr,attr_size,nr_ids,length;
+	uint64_t id;
 
 	if (len>BUFFER_SIZE) {
-		fprintf(stderr,"Size too big...\n");
+		fprintf(stderr,"event desc size too big...\n");
 		return -1;
 	}
 
-	desc=(struct perf_header_event_desc *)data;
-
-	result=read(fd,desc,len);
+	result=read(fd,data,len);
 	if (result!=len) {
 		fprintf(stderr,"Couldn't read event_desc header!: %s\n",
 			strerror(errno));
 		return -1;
 	}
 
+	nr=get_uint32(data,offset);
+	offset+=4;
+	attr_size=get_uint32(data,offset);
+	offset+=4;
+
+
 	printf("\t\tNumber of events: %d, each size %d bytes\n",
-		desc->nr,desc->attr_size);
+		nr,attr_size);
 
-	for(i=0;i<desc->nr;i++) {
+	for(i=0;i<nr;i++) {
 
-		events=&(desc->events[i]);
+		printf("\t\t\tEvent data: TODO\n");
+		offset+=attr_size;
 
-		/* FIXME: event_attr */
+		nr_ids=get_uint32(data,offset);
+		offset+=4;
 
-		printf("\t\t\tEvent %d, Ids %d\n",i,events->nr_ids);
-		printf("\t\t\tName: %s\n",events->event_string.string);
+		printf("\t\t\tEvent %d, Ids %d\n",i,nr_ids);
+
+		length=get_string(data,offset,event_name);
+		offset+=length;
+
+		printf("\t\t\tName: %s\n",event_name);
 		printf("\t\t\tIds: ");
-		for(j=0;j<events->nr_ids;j++) printf("%lx ",events->ids[j]);
+		for(j=0;j<nr_ids;j++) {
+			id=get_uint64(data,offset);
+			offset+=8;
+			printf("%lx ",id);
+		}
 		printf("\n");
+
 	}
 
 	return 0;
