@@ -100,6 +100,16 @@ struct perf_header_numa_topology {
        struct perf_header_numa_topology_nodes nodes[];
 };
 
+struct perf_header_pmu {
+	uint32_t pmu_type;
+	struct perf_header_string pmu_name;
+};
+
+struct perf_header_pmu_mapping {
+	uint32_t nr;
+	struct perf_header_pmu pmu[];
+};
+
 
 
 #define	HEADER_RESERVED		0
