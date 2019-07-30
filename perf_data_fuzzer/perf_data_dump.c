@@ -8,13 +8,18 @@
 
 #include "create_perf_data.h"
 
+#include "../include/perf_event.h"
 #include "perf_data.h"
+
+#define BUFFER_SIZE 4096
 
 #define LITTLE_ENDIAN	0
 #define BIG_ENDIAN	1
 
 static struct perf_header header;
 static int file_endian=LITTLE_ENDIAN;
+
+static uint32_t nr_cpus_avail=0;
 
 
 static char *section_names[256]={
@@ -132,7 +137,12 @@ static int read_section_build_id(int fd, int len) {
 
 	int result,i;
 	struct build_id_event *bev;
-	char data[4096];
+	char data[BUFFER_SIZE];
+
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"Size too big...\n");
+		return -1;
+	}
 
 	bev=(struct build_id_event *)data;
 
@@ -166,7 +176,12 @@ static int read_section_nrcpus(int fd, int len) {
 
 	int result;
 	struct nr_cpus *cpus;
-	char data[4096];
+	char data[BUFFER_SIZE];
+
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"Size too big...\n");
+		return -1;
+	}
 
 	cpus=(struct nr_cpus *)data;
 
@@ -180,6 +195,8 @@ static int read_section_nrcpus(int fd, int len) {
 	printf("\t\tCPUs available: %d, CPUs online: %d\n",
 		cpus->nr_cpus_available,cpus->nr_cpus_online);
 
+	nr_cpus_avail=cpus->nr_cpus_available;
+
 	return 0;
 }
 
@@ -188,13 +205,18 @@ static int read_section_nrcpus(int fd, int len) {
 static int read_section_string(int fd, int len,char *name) {
 
 	int result;
-	char data[4096];
+	char data[BUFFER_SIZE];
 
 	struct perf_header_string *string;
 
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"Size too big...\n");
+		return -1;
+	}
+
 	string=(struct perf_header_string *)data;
 
-	if (len>4096) {
+	if (len>BUFFER_SIZE) {
 		fprintf(stderr,"String length too big!\n");
 		return -1;
 	}
@@ -215,14 +237,14 @@ static int read_section_string(int fd, int len,char *name) {
 static int read_section_string_list(int fd, int len,char *name) {
 
 	int result,i;
-	char data[4096],*hack;
+	char data[BUFFER_SIZE],*hack;
 
 	struct perf_header_string_list *string_list;
 	struct perf_header_string *string;
 
 	string_list=(struct perf_header_string_list *)data;
 
-	if (len>4096) {
+	if (len>BUFFER_SIZE) {
 		fprintf(stderr,"String list %d size too big!\n",len);
 		return -1;
 	}
@@ -253,7 +275,7 @@ static int read_section_string_list(int fd, int len,char *name) {
 static int read_section_u64(int fd, int len,char *name) {
 
 	int result;
-	char data[4096];
+	char data[BUFFER_SIZE];
 
 	uint64_t *value;
 
@@ -275,6 +297,220 @@ static int read_section_u64(int fd, int len,char *name) {
 
 	return 0;
 }
+
+
+
+static int read_section_event_desc(int fd, int len) {
+
+	int result,i,j;
+	char data[BUFFER_SIZE];
+
+	struct perf_header_event_desc *desc;
+	struct perf_header_event_desc_events *events;
+
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"Size too big...\n");
+		return -1;
+	}
+
+	desc=(struct perf_header_event_desc *)data;
+
+	result=read(fd,desc,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read event_desc header!: %s\n",
+			strerror(errno));
+		return -1;
+	}
+
+	printf("\t\tNumber of events: %d, each size %d bytes\n",
+		desc->nr,desc->attr_size);
+
+	for(i=0;i<desc->nr;i++) {
+
+		events=&(desc->events[i]);
+
+		/* FIXME: event_attr */
+
+		printf("\t\t\tEvent %d, Ids %d\n",i,events->nr_ids);
+		printf("\t\t\tName: %s\n",events->event_string.string);
+		printf("\t\t\tIds: ");
+		for(j=0;j<events->nr_ids;j++) printf("%lx ",events->ids[j]);
+		printf("\n");
+	}
+
+	return 0;
+}
+
+
+
+static int read_section_cpu_topology(int fd, int len) {
+
+	int result,i,size=0,total_size=0;
+	char data[BUFFER_SIZE],*hack;
+
+	struct perf_header_cpu_topology *topo;
+	struct perf_header_string_list *string_list;
+	struct perf_header_string *string;
+	struct perf_header_cpu_topology_cpus *cpus;
+	struct perf_header_cpu_topology_pt3 *pt3;
+	uint32_t *die_id;
+
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"CPU topo Size too big...\n");
+		return -1;
+	}
+
+	topo=(struct perf_header_cpu_topology *)data;
+
+	result=read(fd,topo,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read cpu_topo header!: %s\n",
+			strerror(errno));
+		return -1;
+	}
+
+	string_list=&(topo->cores);
+	size=sizeof(uint32_t);
+
+	printf("\t\tCores: %d\n",string_list->nr);
+	string=string_list->strings;
+	for(i=0;i<string_list->nr;i++) {
+		printf("\t\t\t%d: (%d) %s\n",
+			i,
+			string->len,
+			string->string);
+		hack=(char *)string;
+		hack+=(string->len+4);
+		size+=(string->len+4);
+		string=(struct perf_header_string *)hack;
+	}
+
+	total_size+=size;
+
+	hack=(char *)string_list;
+	hack+=(size);
+	string_list=(struct perf_header_string_list *)hack;
+	size=sizeof(uint32_t);
+
+	printf("\t\tThreads: %d\n",string_list->nr);
+	string=string_list->strings;
+	for(i=0;i<string_list->nr;i++) {
+		printf("\t\t\t%d: (%d) %s\n",
+			i,
+			string->len,
+			string->string);
+		hack=(char *)string;
+		hack+=(string->len+4);
+		size+=(string->len+4);
+		string=(struct perf_header_string *)hack;
+	}
+
+	total_size+=size;
+
+	/* only do the following if len from disk was large enough */
+	if (total_size>=len) {
+		return 0;
+	}
+
+	hack=(char *)string_list;
+	hack+=(size);
+	cpus=(struct perf_header_cpu_topology_cpus *)hack;
+
+	for(i=0;i<nr_cpus_avail;i++) {
+		printf("\t\t%d: core_id=%d, socket_id=%d\n",
+			i,cpus[i].core_id,cpus[i].socket_id);
+	}
+
+	total_size+=nr_cpus_avail*2*sizeof(uint32_t);
+
+	/* only do the following if len from disk was large enough */
+	if (total_size>=len) {
+		//printf("Stopping early %d %d\n",total_size,len);
+		return 0;
+	}
+
+	hack=(char *)cpus;
+	hack+=(size);
+	pt3=(struct perf_header_cpu_topology_pt3 *)hack;
+
+	string_list=&(pt3->dies);
+	size=sizeof(uint32_t);
+
+	printf("\t\tDies: %d\n",string_list->nr);
+	string=string_list->strings;
+	for(i=0;i<string_list->nr;i++) {
+		printf("\t\t\t%d: (%d) %s\n",
+			i,
+			string->len,
+			string->string);
+		hack=(char *)string;
+		hack+=(string->len+4);
+		size+=(string->len+4);
+		string=(struct perf_header_string *)hack;
+	}
+
+	total_size+=size;
+
+	hack=(char *)string_list;
+	hack+=(size);
+	die_id=(uint32_t *)hack;
+
+	for(i=0;i<nr_cpus_avail;i++) {
+		printf("\t\t%d: die_id=%d\n",
+			i,die_id[i]);
+	}
+
+	return 0;
+}
+
+
+
+static int read_section_numa_topology(int fd, int len) {
+
+	int result,i;
+	char data[BUFFER_SIZE],*hack;
+
+	struct perf_header_numa_topology *numa;
+	struct perf_header_numa_topology_nodes *node;
+
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"NUMA topo Size too big...\n");
+		return -1;
+	}
+
+	numa=(struct perf_header_numa_topology *)data;
+	result=read(fd,numa,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read cpu_numa header!: %s\n",
+			strerror(errno));
+		return -1;
+	}
+
+
+	printf("\t\tNodes: %d\n",numa->nr);
+
+	hack=(char *)(&numa->nodes[0]);
+
+	for(i=0;i<numa->nr;i++) {
+		node=(struct perf_header_numa_topology_nodes *)hack;
+
+		printf("\t\t\tNode %d: \"%s\"\n",i,
+			node->cpus.string);
+		printf("\t\t\t#%d, RAM total %ld, Ram Free %ld\n",
+			node->nodenr,
+			node->mem_total, node->mem_free);
+
+		hack+=(24+node->cpus.len);
+
+	}
+
+
+
+
+	return 0;
+
+}
+
 
 
 
@@ -328,6 +564,16 @@ static int dump_section(int fd, int which,off_t offset,int length) {
 		case HEADER_CMDLINE:
 			result=read_section_string_list(fd,length,"Cmdline");
 			break;
+		case HEADER_EVENT_DESC:
+			result=read_section_event_desc(fd,length);
+			break;
+		case HEADER_CPU_TOPOLOGY:
+			result=read_section_cpu_topology(fd,length);
+			break;
+		case HEADER_NUMA_TOPOLOGY:
+			result=read_section_numa_topology(fd,length);
+			break;
+
 		default:
 			fprintf(stderr,"Invalid section!\n");
 			return -1;

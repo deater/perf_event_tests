@@ -52,6 +52,56 @@ struct perf_header_string_list {
 	struct perf_header_string strings[]; /* variable length records */
 };
 
+
+struct perf_header_event_desc_events {
+	struct perf_event_attr attr;  /* size of attr_size */
+	uint32_t nr_ids;
+	struct perf_header_string event_string;
+	uint64_t ids[];	/* nr_ids */
+};
+
+
+struct perf_header_event_desc {
+       uint32_t nr; /* number of events */
+       uint32_t attr_size; /* size of each perf_event_attr */
+       struct perf_header_event_desc_events events[];  /* Variable length records */
+};
+
+struct perf_header_cpu_topology_cpus {
+	uint32_t core_id;
+	uint32_t socket_id;
+};
+
+struct perf_header_cpu_topology {
+
+	struct perf_header_string_list cores; /* Variable length */
+	struct perf_header_string_list threads; /* Variable length */
+
+	/* Second revision of HEADER_CPU_TOPOLOGY also has the following */
+	/* 'nr' comes from previously processed HEADER_NRCPUS's nr_cpu_avail */
+	struct perf_header_cpu_topology_cpus cpus[];
+};
+
+        /* Third revision of HEADER_CPU_TOPOLOGY also has the following */
+struct perf_header_cpu_topology_pt3 {
+	struct perf_header_string_list dies; /* Variable length */
+	uint32_t die_id[]; /* from previously processed HEADER_NR_CPUS, VLA */
+};
+
+struct perf_header_numa_topology_nodes {
+	uint32_t nodenr;
+	uint64_t mem_total;
+	uint64_t mem_free;
+	struct perf_header_string cpus;
+} __attribute((packed));
+
+struct perf_header_numa_topology {
+       uint32_t nr;
+       struct perf_header_numa_topology_nodes nodes[];
+};
+
+
+
 #define	HEADER_RESERVED		0
 #define	HEADER_TRACING_DATA	1
 #define	HEADER_BUILD_ID		2
