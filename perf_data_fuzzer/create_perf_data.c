@@ -7,8 +7,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "random.h"
+#include "sanitise.h"
 
 #include "../include/perf_event.h"
+
 
 #include "create_perf_data.h"
 
@@ -28,6 +30,59 @@
 static struct perf_header ph;
 static int header_written_size=0;
 
+
+#define UNICODE_PAGESIZE	16384
+
+static char random_unicode[UNICODE_PAGESIZE];
+
+static int random_string(char *dest, int size) {
+
+	int r,offset,length=0;
+
+	/* refresh unicode page occasionally */
+	r=rand()%128;
+	if (r==0) gen_unicode_page(random_unicode,UNICODE_PAGESIZE);
+
+	if (size>UNICODE_PAGESIZE) {
+		fprintf(stderr,"Error! request too big of a string!\n");
+		exit(1);
+	}
+
+	offset=rand()%(UNICODE_PAGESIZE-size);
+
+	/* randomly pick size */
+	r=rand()%4;
+	switch(r) {
+		case 0:
+		case 1:
+			length=rand()%size;
+			break;
+		case 2:
+		case 3:
+			length=size;
+			break;
+	}
+
+	memcpy(dest,random_unicode+offset,length);
+
+	/* randomly NUL terminate */
+	r=rand()%16;
+	switch(r) {
+		case 0:
+			/* do nothing */
+			break;
+		default:
+			if (length>0) dest[length-1]=0;
+			break;
+	}
+
+
+
+
+	return 0;
+}
+
+
 static int create_perf_header(int fd) {
 
 	int i;
@@ -37,18 +92,20 @@ static int create_perf_header(int fd) {
 	/* Fuzz the header magic */
 
 	switch(rand()%16) {
-		case 0 ... 12:
+		case 0 ... 11:
 			/* valid case */
 			memcpy(ph.magic,"PERFILE2",8);
 			break;
-		case 13:/* change the version number up */
+		case 12:/* change the version number up */
 			memcpy(ph.magic,"PERFILE2",8);
 			ph.magic[7]=(rand()%10)+'0';
 			break;
-		case 14:/* change the version number up */
+		case 13:/* change the version number up */
 			memcpy(ph.magic,"PERFILE2",8);
 			ph.magic[7]=rand();
 			break;
+		case 14:/* random string */
+			random_string(ph.magic,8);
 		case 15:
 			/* completely random */
 			for(i=0;i<8;i++) ph.magic[i]=rand();
@@ -139,8 +196,6 @@ static int create_perf_header(int fd) {
 
 static int create_flag_section_random(int fd) {
 
-	/* FIXME: random string? */
-
 	int len,i;
 	char data[4096];
 
@@ -156,15 +211,21 @@ static int create_flag_section_random(int fd) {
 
 }
 
-
+/*
+struct build_id_event {
+        struct perf_event_header header;
+        pid_t                    pid;
+        uint8_t                  build_id[24];
+        char                     filename[header.size - offsetof(struct build_id_event, filename)];
+};
+*/
 
 static int create_flag_section_build_id(int fd) {
-
-	/* FIXME: random string? */
 
 	int len;
 	char data[4096];
 	struct build_id_event *bev;
+	int i;
 
 	bev=(struct build_id_event *)data;
 
@@ -174,7 +235,9 @@ static int create_flag_section_build_id(int fd) {
 
 	bev->pid=rand();
 
-	strncpy(bev->filename,"VMW",4);
+	for(i=0;i<24;i++) bev->build_id[i]=rand();
+
+	random_string(bev->filename,bev->header.size-64);
 
 	len=rand()%512;
 
@@ -206,6 +269,11 @@ static int create_flag_section_string(int fd) {
 			string_len=rand()%8192;
 			for(i=0;i<string_len;i++) string->string[i]=rand();
 			string->len=rand();
+			break;
+		case 2:
+			string_len=rand()%8192;
+			random_string(string->string,string_len);
+			break;
 		default:
 			string_len=rand()%8192;
 			for(i=0;i<string_len;i++) string->string[i]=rand();
@@ -245,6 +313,11 @@ static int create_flag_section_string_list(int fd) {
 			string_len=rand()%8192;
 			for(i=0;i<string_len;i++) string->string[i]=rand();
 			string->len=rand();
+			break;
+		case 2:
+			string_len=rand()%8192;
+			random_string(string->string,string_len);
+			break;
 		default:
 			string_len=rand()%8192;
 			for(i=0;i<string_len;i++) string->string[i]=rand();
@@ -289,6 +362,69 @@ static int create_flag_section_u64(int fd) {
 
 }
 
+/*
+struct nr_cpus {
+       uint32_t nr_cpus_available; // CPUs not yet onlined 
+       uint32_t nr_cpus_online;
+};
+*/
+
+static uint32_t nr_cpus_available,nr_cpus_online;
+
+static int create_flag_section_nrcpus(int fd) {
+
+	int len,i;
+
+	i=rand()%16;
+	switch(i) {
+		/* create random value */
+		case 0:
+		case 1:
+			nr_cpus_available=rand();
+			break;
+		/* create realistic value */
+		default:
+			nr_cpus_available=rand()%128;
+			break;
+
+	}
+
+	i=rand()%16;
+	switch(i) {
+		/* create random value */
+		case 0:
+		case 1:
+			nr_cpus_online=rand();
+			break;
+		/* create random realistic value */
+		case 2:
+		case 3:
+			nr_cpus_online=rand()%128;
+			break;
+		/* create realistic value */
+		case 4:
+			nr_cpus_online=nr_cpus_available-rand()%4;
+			break;
+		case 5:
+			nr_cpus_online=nr_cpus_available+rand()%4;
+			break;
+
+		/* create realistic value */
+		default:
+			nr_cpus_online=nr_cpus_available;
+			break;
+
+	}
+
+	/* FIXME: truncate? */
+
+	len=8;
+	write(fd,&nr_cpus_available,sizeof(uint32_t));
+	write(fd,&nr_cpus_online,sizeof(uint32_t));
+
+	return len;
+
+}
 
 
 
@@ -320,8 +456,7 @@ static int create_flag_section(int fd,int which, int *len) {
 			*len=create_flag_section_string(fd);
 			break;
 		case HEADER_NRCPUS:
-			/* FIXME */
-			*len=create_flag_section_random(fd);
+			*len=create_flag_section_nrcpus(fd);
 			break;
 		case HEADER_CPUDESC:
 			*len=create_flag_section_string(fd);
@@ -335,7 +470,6 @@ static int create_flag_section(int fd,int which, int *len) {
 		case HEADER_CMDLINE:
 			*len=create_flag_section_string_list(fd);
 			break;
-
 		default:
 			*len=create_flag_section_random(fd);
 			break;
@@ -382,6 +516,9 @@ int create_perf_data_file(void) {
 	int fd,flag_count=0,i,len=0;
 	off_t flag_header_offset,flag_section_offset;
 	struct perf_file_section temp_section;
+
+	/* setup random strings */
+	gen_unicode_page(random_unicode,4096);
 
 	/* Open file */
 	fd=open("perf.data",O_WRONLY|O_CREAT,0666);

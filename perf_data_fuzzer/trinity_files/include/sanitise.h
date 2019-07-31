@@ -18,6 +18,6 @@ const char * get_filename(void);
 int get_random_fd(void);
 const char * generate_pathname(void);
 
-void gen_unicode_page(char *page);
+void gen_unicode_page(char *page, int pagesize);
 
 void generate_syscall_args(struct syscallrecord *rec);

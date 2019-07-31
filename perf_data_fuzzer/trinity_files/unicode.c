@@ -18,9 +18,9 @@
 #include "arch.h"
 #include "sanitise.h"
 
-void gen_unicode_page(char *page)
+void gen_unicode_page(char *page, int pagesize)
 {
-	unsigned int i = 0, l;
+	unsigned int i = 0, l, m,n;
 	unsigned int unilen;
 
 	const char unicode1[4] = { 0xb8, 0xe0, 0xe0, 0xaa };
@@ -32,78 +32,104 @@ void gen_unicode_page(char *page)
 	const char unicode7[2] = { 0x0a, 0xbf };
 	const char *zalgo[] = { "T̫̺̳o̬̜ ì̬͎̲̟nv̖̗̻̣̹̕o͖̗̠̜̤k͍͚̹͖̼e̦̗̪͍̪͍ ̬ͅt̕h̠͙̮͕͓e̱̜̗͙̭ ̥͔̫͙̪͍̣͝ḥi̼̦͈̼v҉̩̟͚̞͎e͈̟̻͙̦̤-m̷̘̝̱í͚̞̦̳n̝̲̯̙̮͞d̴̺̦͕̫ ̗̭̘͎͖r̞͎̜̜͖͎̫͢ep͇r̝̯̝͖͉͎̺e̴s̥e̵̖̳͉͍̩̗n̢͓̪͕̜̰̠̦t̺̞̰i͟n҉̮̦̖̟g̮͍̱̻͍̜̳ ̳c̖̮̙̣̰̠̩h̷̗͍̖͙̭͇͈a̧͎̯̹̲̺̫ó̭̞̜̣̯͕s̶̤̮̩̘.̨̻̪̖͔  ̳̭̦̭̭̦̞́I̠͍̮n͇̹̪̬v̴͖̭̗̖o̸k҉̬̤͓͚̠͍i͜n̛̩̹͉̘̹g͙ ̠̥ͅt̰͖͞h̫̼̪e̟̩̝ ̭̠̲̫͔fe̤͇̝̱e͖̮̠̹̭͖͕l͖̲̘͖̠̪i̢̖͎̮̗̯͓̩n̸̰g̙̱̘̗͚̬ͅ ͍o͍͍̩̮͢f̖͓̦̥ ̘͘c̵̫̱̗͚͓̦h͝a̝͍͍̳̣͖͉o͙̟s̤̞.̙̝̭̣̳̼͟  ̢̻͖͓̬̞̰̦W̮̲̝̼̩̝͖i͖͖͡ͅt̘̯͘h̷̬̖̞̙̰̭̳ ̭̪̕o̥̤̺̝̼̰̯͟ṳ̞̭̤t̨͚̥̗ ̟̺̫̩̤̳̩o̟̰̩̖ͅr̞̘̫̩̼d̡͍̬͎̪̺͚͔e͓͖̝̙r̰͖̲̲̻̠.̺̝̺̟͈  ̣̭T̪̩̼h̥̫̪͔̀e̫̯͜ ̨N̟e҉͔̤zp̮̭͈̟é͉͈ṛ̹̜̺̭͕d̺̪̜͇͓i̞á͕̹̣̻n͉͘ ̗͔̭͡h̲͖̣̺̺i͔̣̖̤͎̯v̠̯̘͖̭̱̯e̡̥͕-m͖̭̣̬̦͈i͖n̞̩͕̟̼̺͜d̘͉ ̯o̷͇̹͕̦f̰̱ ̝͓͉̱̪̪c͈̲̜̺h̘͚a̞͔̭̰̯̗̝o̙͍s͍͇̱͓.̵͕̰͙͈ͅ ̯̞͈̞̱̖Z̯̮̺̤̥̪̕a͏̺̗̼̬̗ḻg͢o̥̱̼.̺̜͇͡ͅ ̴͓͖̭̩͎̗  ̧̪͈̱̹̳͖͙H̵̰̤̰͕̖e̛ ͚͉̗̼̞w̶̩̥͉̮h̩̺̪̩͘ͅọ͎͉̟ ̜̩͔̦̘ͅW̪̫̩̣̲͔̳a͏͔̳͖i͖͜t͓̤̠͓͙s̘̰̩̥̙̝ͅ ̲̠̬̥Be̡̙̫̦h̰̩i̛̫͙͔̭̤̗̲n̳͞d̸ ͎̻͘T̛͇̝̲̹̠̗ͅh̫̦̝ͅe̩̫͟ ͓͖̼W͕̳͎͚̙̥ą̙l̘͚̺͔͞ͅl̳͍̙̤̤̮̳.̢  ̟̺̜̙͉Z̤̲̙̙͎̥̝A͎̣͔̙͘L̥̻̗̳̻̳̳͢G͉̖̯͓̞̩̦O̹̹̺!̙͈͎̞̬ T̷̗͑̃ͦ̊͊̓͡͞h̛̥͚̖͇̝̬̹̟̃̋̽ͥ͆̂ͦ͗ȅ̱͗͘ ̱͈͋͛͡͝e͙͓̼̰̹̲̒ͤ́ͫ̓́͊͆͢n͂͗͊͌ͦ̐̊҉̧̟̺t̐ͧ̍̀ͤ̈́̔̒͏̻̜͙̝͕͍ͅï̛̠̩̦̿̉ͪ͌ͩ̚r̶̳̺͈̺͈͚͍ͯ̄ͤ͌̋͂͝e͖̟͓̝̩̺̬̭͙̐̉ ̵̴̴̗̤̺̥̰͚̐ͧͥͦ̿͛ͤr͙̣͔̺͆͞o̶̠̯͇͈ͧͭ̄ͩ̔̍͞ơ̖͙͔̥͋ͣ̈m͙͉̱̱̞̦̘̰͑ͭ͒̂̀͘ ̛̔ͭ̈ͬͮ҉̞͢ͅiͮ̒̔͘͏͉̯͎̦s̶̡͈͎̱̖͎̫̙̊ͫ̿̋ͣ͡ͅ ̙̣̬̟͈͋̓f͍͈̰̘̻̃͋͂̐i̸̺͙̪͔̞͙̣ͧͨ͝lͬ͂҉̸̻͔̙l͖̼ͮ͢͝e̷̟̙͔̠̯̓̓ͧ́ͬͪ̇̃d̶͕͇͎̦̐̓ ̮̯̥́͋̚̕w͑̍̔̔̀ͪͯ͘͢͏͉̰i̛̟̰̣ͭ̌̊͑̒ͫ̉͠t͇̖̬̠̗̲̄̓̈ͣͮ̂͂̊͗ḩ̲̖̊ͪ̓̄ ̝̺̟͕͖̈͋̎ͩͩ͆̈́̿͡Z̵̴̖͖͕̔ͬͮ͒̏̅̍̎a̤͖ͬ͑̎͐͑̔ͭ͞l̝̼̩͋̂g̨ͦ̓̓̏̈́̉ͯ͏͎͔̟̮̠̬͙ỏ͍̝̺͕͈ͭ̓̏̽̓ͭ̾́͢͞.͓̹͇̬̔̓̏ͦ̚͜͠" };
 	const char *thai[] = { "ก็็็็็็็็็็กิิิิิิิิิิก้้้้้้้้้้ก็็็็็็็็็็ก็็็็็็็็็็กิิิิิิิิิิก้้้้้้้้้้" };
+	const char *pangram[] = {"The quick brown fux jumps over the lazy dog.\n" };
+	const char *cmds[] = {"ls -la ; echo && \" \t \r \n \\ %%s %%d" };
+	unsigned char temp[32];
+
 
 	unsigned int zalgolen = strlen(*zalgo);
 	unsigned int thailen = strlen(*thai);
+	unsigned int pangramlen = strlen(*pangram);
+	unsigned int cmdslen = strlen(*cmds);
 
 	char *ptr = page;
 
-	while (i < (page_size - zalgolen)) {
+	while (i < (pagesize - zalgolen)) {
 		unsigned int j;
 
-		j = rand() % 9;
+		j = rand() % 12;
 
 		switch (j) {
 
 		case 0:
-			strncpy(ptr, unicode1, 4);
+			memcpy(ptr, unicode1, 4);
 			ptr += 4;
 			i += 4;
 			break;
 
 		case 1: unilen = rand() % 10;
 			for (l = 0; l < unilen; l++) {
-				strncpy(ptr, unicode2, 6);
+				memcpy(ptr, unicode2, 6);
 				ptr += 6;
 				i += 6;
-				if ((i + 6) > page_size)
+				if ((i + 6) > pagesize)
 					break;
 			}
 			break;
 
-		case 2:	strncpy(ptr, unicode3, 2);
+		case 2:	memcpy(ptr, unicode3, 2);
 			i += 2;
 			ptr += 2;
 			break;
-		case 3:	strncpy(ptr, unicode4, 18);
+		case 3:	memcpy(ptr, unicode4, 18);
 			i += 18;
 			ptr += 18;
 			break;
 
-		case 4:	strncpy(ptr, unicode5, 4);
+		case 4:	memcpy(ptr, unicode5, 4);
 			i += 4;
 			ptr += 4;
 			break;
 
 		case 5: unilen = rand() % 10;
 			for (l = 0; l < unilen; l++) {
-				strncpy(ptr, unicode6, 4);
+				memcpy(ptr, unicode6, 4);
 				ptr += 4;
 				i += 4;
-				if ((i + 4) > page_size)
+				if ((i + 4) > pagesize)
 					break;
 			}
 			break;
 
-		case 6:	strncpy(ptr, unicode7, 2);
+		case 6:	memcpy(ptr, unicode7, 2);
 			i += 2;
 			ptr += 2;
 			break;
 
 		/* HE COMES. */
-		case 7:	strncpy(ptr, *zalgo, zalgolen);
+		case 7:	memcpy(ptr, *zalgo, zalgolen);
 			i += zalgolen;
 			ptr += zalgolen;
 			break;
 
-		case 8:	strncpy(ptr, *thai, thailen);
+		case 8:	memcpy(ptr, *thai, thailen);
 			i += thailen;
 			ptr += thailen;
 			break;
+
+		case 9:	memcpy(ptr, *pangram, pangramlen);
+			i += pangramlen;
+			ptr += pangramlen;
+			break;
+
+		case 10:	memcpy(ptr, *cmds, cmdslen);
+			i += cmdslen;
+			ptr += cmdslen;
+			break;
+
+		case 11:
+			n=rand()%32;
+			for(m=0;m<n;m++) temp[m]=rand();
+
+			memcpy(ptr, temp, n);
+			i += n;
+			ptr += n;
+			break;
 		}
+
 	}
 
-	page[rand() % page_size] = 0;
+	page[rand() % pagesize] = 0;
 }
 
 #ifdef STANDALONE
@@ -113,8 +139,6 @@ void gen_unicode_page(char *page)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-unsigned int page_size = 4096;
 
 void main(int argc, char* argv[])
 {
@@ -128,7 +152,7 @@ void main(int argc, char* argv[])
 	page = malloc(4096);
 	memset(page, 0, 4096);
 
-	gen_unicode_page(page);
+	gen_unicode_page(page,4096);
 
 	for (y = 0; y < 4096; y+=32) {
 		for (x = 0; x < 32; x++) {
