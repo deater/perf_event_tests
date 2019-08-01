@@ -656,6 +656,21 @@ static int read_section_pmu_mappings(int fd, int len) {
 
 }
 
+/*
+u32 version     Currently always 1
+        u32 number_of_cache_levels
+
+struct {
+        u32     level;
+        u32     line_size;
+        u32     sets;
+        u32     ways;
+        struct perf_header_string type;
+        struct perf_header_string size;
+        struct perf_header_string map;
+}[number_of_cache_levels];
+*/
+
 static int read_section_cache(int fd, int len) {
 
 	int result,i,offset=0;
@@ -720,6 +735,7 @@ static int read_section_cache(int fd, int len) {
 
 }
 
+/* two uint64_t */
 static int read_section_sample_time(int fd, int len) {
 
 	int result,offset=0;
@@ -751,6 +767,89 @@ static int read_section_sample_time(int fd, int len) {
 	return 0;
 
 }
+
+/*
+Physical memory map and its node assignments.
+
+The format of data in MEM_TOPOLOGY is as follows:
+
+
+
+u64 version;     		Currently 1
+u64 block_size_bytes;		/sys/devices/system/memory/block_size_bytes
+u64 count;			number of nodes
+
+struct memory_node {
+	u64 node_id;			 node index
+	u64 size;			size of bitmap
+	struct bitmap {
+		u64 bitmapsize;
+		u64 entries[(bitmapsize/64)+1];
+	}
+		          bitmap of memory indexes that belongs to node
+                        /sys/devices/system/node/node<NODE>/memory<INDEX>
+}[count];
+
+*/
+
+static int read_section_sample_topology(int fd, int len) {
+
+	int result,offset=0,i,j,k;
+	unsigned char data[BUFFER_SIZE];
+	uint64_t version,block_size_bytes,count,node_id,size,bitmap_size;
+	uint64_t bitmap;
+
+	if (len>BUFFER_SIZE) {
+		fprintf(stderr,"Sample topology too big...\n");
+		return -1;
+	}
+
+	result=read(fd,data,len);
+	if (result!=len) {
+		fprintf(stderr,"Couldn't read sample topology header!: %s\n",
+			strerror(errno));
+		return -1;
+	}
+
+	version=get_uint64(data,offset);
+	offset+=8;
+	block_size_bytes=get_uint64(data,offset);
+	offset+=8;
+	count=get_uint64(data,offset);
+	offset+=8;
+
+	printf("\t\tSample Topology:\n");
+	printf("\t\t\tVersion: %lu\n",version);
+	printf("\t\t\tBlock size: %lu (0x%lx)\n",
+		block_size_bytes,block_size_bytes);
+	printf("\t\t\t%ld Nodes:\n",
+		count);
+	for(i=0;i<count;i++) {
+		node_id=get_uint64(data,offset);
+		offset+=8;
+		size=get_uint64(data,offset);
+		offset+=8;
+		bitmap_size=get_uint64(data,offset);
+		offset+=8;
+		printf("\t\t\t\t%d: Node=%ld Size=%ld\n",
+			i,node_id,size);
+		printf("\t\t\t\t\tBitmap size: %ld\n",bitmap_size);
+		printf("\t\t\t\t\t");
+		for(j=0;j<(bitmap_size/64)+1;j++) {
+			bitmap=get_uint64(data,offset);
+			offset+=8;
+			printf("%lx: ",bitmap);
+			for(k=0;k<64;k++) {
+				if (bitmap&1ULL<<k) printf("%d ",k);
+
+			}
+		}
+		printf("\n");
+	}
+	return 0;
+
+}
+
 
 
 
@@ -825,6 +924,9 @@ static int dump_section(int fd, int which,off_t offset,int length) {
 			break;
 		case HEADER_SAMPLE_TIME:
 			result=read_section_sample_time(fd,length);
+			break;
+		case HEADER_SAMPLE_TOPOLOGY:
+			result=read_section_sample_topology(fd,length);
 			break;
 		default:
 			fprintf(stderr,"Invalid section!\n");
