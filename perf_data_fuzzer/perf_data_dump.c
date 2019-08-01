@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "create_perf_data.h"
+#include "parse_record.h"
 
 #include "../include/perf_event.h"
 #include "perf_data.h"
@@ -992,6 +993,62 @@ static int dump_flag_sections(int fd) {
 }
 
 
+static int dump_attributes(int fd) {
+
+//	int i,result=0,length=0;
+//	off_t offset;
+
+	printf("\nAttribute section:\n");
+#if 0
+	/* seek to after data section */
+	result=lseek(fd,header.data.offset,SEEK_SET);
+	if (result<0) {
+		fprintf(stderr,"Trouble seeking!\n");
+		return -1;
+	}
+#endif
+
+	return 0;
+}
+
+#define MAX_RECORD_SIZE	16384
+
+
+
+static int dump_data(int fd) {
+
+	int result=0,length=0;
+	off_t offset=0;
+	unsigned char data[MAX_RECORD_SIZE];
+
+
+	printf("\nDATA section:\n");
+
+	/* seek to after data section */
+	result=lseek(fd,header.data.offset,SEEK_SET);
+	if (result<0) {
+		fprintf(stderr,"Trouble seeking!\n");
+		return -1;
+	}
+
+	while(offset<=header.data.size) {
+
+		result=read(fd,data,MAX_RECORD_SIZE);
+		if (result<0) {
+			fprintf(stderr,"Couldn't read data header!: %s\n",
+			strerror(errno));
+			return -1;
+		}
+
+		length=parse_perf_record(data);
+		offset+=length;
+	}
+
+	return 0;
+}
+
+
+
 int main(int argc, char **argv) {
 
 	int fd,result;
@@ -1017,6 +1074,18 @@ int main(int argc, char **argv) {
 
 	/* Dump flag sections */
 	result=dump_flag_sections(fd);
+	if (result<0) {
+		return -1;
+	}
+
+	/* Go back and dump attributes section */
+	result=dump_attributes(fd);
+	if (result<0) {
+		return -1;
+	}
+
+	/* Go back and dump data section */
+	result=dump_data(fd);
 	if (result<0) {
 		return -1;
 	}
