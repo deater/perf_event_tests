@@ -34,8 +34,7 @@
 
 /* Urgh who designed this interface */
 static int handle_struct_read_format(unsigned char *sample,
-				     int read_format,
-				     int quiet) {
+				     int read_format) {
 
 	int offset=0,i;
 
@@ -43,36 +42,36 @@ static int handle_struct_read_format(unsigned char *sample,
 		long long nr,time_enabled,time_running;
 
 		memcpy(&nr,&sample[offset],sizeof(long long));
-		if (!quiet) printf("\t\tNumber: %lld ",nr);
+		printf("\t\tNumber: %lld ",nr);
 		offset+=8;
 
 		if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
 			memcpy(&time_enabled,&sample[offset],sizeof(long long));
-			if (!quiet) printf("enabled: %lld ",time_enabled);
+			printf("enabled: %lld ",time_enabled);
 			offset+=8;
 		}
 		if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
 			memcpy(&time_running,&sample[offset],sizeof(long long));
-			if (!quiet) printf("running: %lld ",time_running);
+			printf("running: %lld ",time_running);
 			offset+=8;
 		}
 
-		if (!quiet) printf("\n");
+		printf("\n");
 
 		for(i=0;i<nr;i++) {
 			long long value, id;
 
 			memcpy(&value,&sample[offset],sizeof(long long));
-			if (!quiet) printf("\t\t\tValue: %lld ",value);
+			printf("\t\t\tValue: %lld ",value);
 			offset+=8;
 
 			if (read_format & PERF_FORMAT_ID) {
 				memcpy(&id,&sample[offset],sizeof(long long));
-				if (!quiet) printf("id: %lld ",id);
+				printf("id: %lld ",id);
 				offset+=8;
 			}
 
-			if (!quiet) printf("\n");
+			printf("\n");
 		}
 	}
 	else {
@@ -80,25 +79,25 @@ static int handle_struct_read_format(unsigned char *sample,
 		long long value,time_enabled,time_running,id;
 
 		memcpy(&value,&sample[offset],sizeof(long long));
-		if (!quiet) printf("\t\tValue: %lld ",value);
+		printf("\t\tValue: %lld ",value);
 		offset+=8;
 
 		if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
 			memcpy(&time_enabled,&sample[offset],sizeof(long long));
-			if (!quiet) printf("enabled: %lld ",time_enabled);
+			printf("enabled: %lld ",time_enabled);
 			offset+=8;
 		}
 		if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
 			memcpy(&time_running,&sample[offset],sizeof(long long));
-			if (!quiet) printf("running: %lld ",time_running);
+			printf("running: %lld ",time_running);
 			offset+=8;
 		}
 		if (read_format & PERF_FORMAT_ID) {
 			memcpy(&id,&sample[offset],sizeof(long long));
-			if (!quiet) printf("id: %lld ",id);
+			printf("id: %lld ",id);
 			offset+=8;
 		}
-		if (!quiet) printf("\n");
+		printf("\n");
 	}
 
 	return offset;
@@ -137,7 +136,7 @@ static char reg_names[1][8]={"NONE!"};
 
 
 
-static int print_regs(int quiet,long long abi,long long reg_mask,
+static int print_regs(long long abi,long long reg_mask,
 		unsigned char *data) {
 
 	int return_offset=0;
@@ -145,20 +144,18 @@ static int print_regs(int quiet,long long abi,long long reg_mask,
 	int i;
 	unsigned long long reg_value;
 
-	if (!quiet) printf("\t\tReg mask %llx\n",reg_mask);
+	printf("\t\tReg mask %llx\n",reg_mask);
 	for(i=0;i<64;i++) {
 		if (reg_mask&1ULL<<i) {
-			if (!quiet) {
-				memcpy(&reg_value,&data[return_offset],8);
-				if (i<num_regs) {
-					printf("\t\t%s : ",reg_names[i]);
-				}
-				else {
-					printf("\t\t??? : ");
-				}
-
-				printf("%llx\n",reg_value);
+			memcpy(&reg_value,&data[return_offset],8);
+			if (i<num_regs) {
+				printf("\t\t%s : ",reg_names[i]);
 			}
+			else {
+				printf("\t\t??? : ");
+			}
+
+			printf("%llx\n",reg_value);
 			return_offset+=8;
 		}
 	}
@@ -420,7 +417,8 @@ static int print_data_header(uint32_t type, uint16_t misc, uint16_t size) {
 
 int parse_perf_record(unsigned char *data) {
 
-	int offset=0;
+	int offset=0,i;
+	int sample_type=0,read_format=0,raw_type=0,reg_mask=0;
 
 	uint32_t record_type;
 	uint16_t record_misc;
@@ -440,21 +438,20 @@ int parse_perf_record(unsigned char *data) {
 	print_data_header(record_type, record_misc, record_size);
 
 
-#if 0
-		/***********************/
-		/* Print event Details */
-		/***********************/
+	/***********************/
+	/* Print event Details */
+	/***********************/
 
-		switch(event->type) {
+	switch(record_type) {
 
 		/* Lost */
 		case PERF_RECORD_LOST: {
 			long long id,lost;
 			memcpy(&id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tID: %lld\n",id);
+			printf("\tID: %lld\n",id);
 			offset+=8;
 			memcpy(&lost,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tLOST: %lld\n",lost);
+			printf("\tLOST: %lld\n",lost);
 			offset+=8;
 			}
 			break;
@@ -465,19 +462,19 @@ int parse_perf_record(unsigned char *data) {
 			char *string;
 
 			memcpy(&pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPID: %d\n",pid);
+			printf("\tPID: %d\n",pid);
 			offset+=4;
 			memcpy(&tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tTID: %d\n",tid);
+			printf("\tTID: %d\n",tid);
 			offset+=4;
 
 			/* FIXME: sample_id handling? */
 
 			/* two ints plus the 64-bit header */
-			string_size=event->size-16;
+			string_size=record_size-16;
 			string=calloc(string_size,sizeof(char));
 			memcpy(string,&data[offset],string_size);
-			if (!quiet) printf("\tcomm: %s\n",string);
+			printf("\tcomm: %s\n",string);
 			offset+=string_size;
 			if (string) free(string);
 			}
@@ -489,19 +486,19 @@ int parse_perf_record(unsigned char *data) {
 			long long fork_time;
 
 			memcpy(&pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPID: %d\n",pid);
+			printf("\tPID: %d\n",pid);
 			offset+=4;
 			memcpy(&ppid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPPID: %d\n",ppid);
+			printf("\tPPID: %d\n",ppid);
 			offset+=4;
 			memcpy(&tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tTID: %d\n",tid);
+			printf("\tTID: %d\n",tid);
 			offset+=4;
 			memcpy(&ptid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPTID: %d\n",ptid);
+			printf("\tPTID: %d\n",ptid);
 			offset+=4;
 			memcpy(&fork_time,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tTime: %lld\n",fork_time);
+			printf("\tTime: %lld\n",fork_time);
 			offset+=8;
 			}
 			break;
@@ -513,25 +510,25 @@ int parse_perf_record(unsigned char *data) {
 			char *filename;
 
 			memcpy(&pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPID: %d\n",pid);
+			printf("\tPID: %d\n",pid);
 			offset+=4;
 			memcpy(&tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tTID: %d\n",tid);
+			printf("\tTID: %d\n",tid);
 			offset+=4;
 			memcpy(&address,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tAddress: %llx\n",address);
+			printf("\tAddress: %llx\n",address);
 			offset+=8;
 			memcpy(&len,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tLength: %llx\n",len);
+			printf("\tLength: %llx\n",len);
 			offset+=8;
 			memcpy(&pgoff,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tPage Offset: %llx\n",pgoff);
+			printf("\tPage Offset: %llx\n",pgoff);
 			offset+=8;
 
-			string_size=event->size-40;
+			string_size=record_size-40;
 			filename=calloc(string_size,sizeof(char));
 			memcpy(filename,&data[offset],string_size);
-			if (!quiet) printf("\tFilename: %s\n",filename);
+			printf("\tFilename: %s\n",filename);
 			offset+=string_size;
 			if (filename) free(filename);
 
@@ -548,43 +545,43 @@ int parse_perf_record(unsigned char *data) {
 			char *filename;
 
 			memcpy(&pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPID: %d\n",pid);
+			printf("\tPID: %d\n",pid);
 			offset+=4;
 			memcpy(&tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tTID: %d\n",tid);
+			printf("\tTID: %d\n",tid);
 			offset+=4;
 			memcpy(&address,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tAddress: %llx\n",address);
+			printf("\tAddress: %llx\n",address);
 			offset+=8;
 			memcpy(&len,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tLength: %llx\n",len);
+			printf("\tLength: %llx\n",len);
 			offset+=8;
 			memcpy(&pgoff,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tPage Offset: %llx\n",pgoff);
+			printf("\tPage Offset: %llx\n",pgoff);
 			offset+=8;
 			memcpy(&major,&data[offset],sizeof(int));
-			if (!quiet) printf("\tMajor: %d\n",major);
+			printf("\tMajor: %d\n",major);
 			offset+=4;
 			memcpy(&minor,&data[offset],sizeof(int));
-			if (!quiet) printf("\tMinor: %d\n",minor);
+			printf("\tMinor: %d\n",minor);
 			offset+=4;
 			memcpy(&ino,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tIno: %llx\n",ino);
+			printf("\tIno: %llx\n",ino);
 			offset+=8;
 			memcpy(&ino_generation,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tIno generation: %llx\n",ino_generation);
+			printf("\tIno generation: %llx\n",ino_generation);
 			offset+=8;
 			memcpy(&prot,&data[offset],sizeof(int));
-			if (!quiet) printf("\tProt: %d\n",prot);
+			printf("\tProt: %d\n",prot);
 			offset+=4;
 			memcpy(&flags,&data[offset],sizeof(int));
-			if (!quiet) printf("\tFlags: %d\n",flags);
+			printf("\tFlags: %d\n",flags);
 			offset+=4;
 
-			string_size=event->size-72;
+			string_size=record_size-72;
 			filename=calloc(string_size,sizeof(char));
 			memcpy(filename,&data[offset],string_size);
-			if (!quiet) printf("\tFilename: %s\n",filename);
+			printf("\tFilename: %s\n",filename);
 			offset+=string_size;
 			if (filename) free(filename);
 
@@ -597,19 +594,19 @@ int parse_perf_record(unsigned char *data) {
 			long long fork_time;
 
 			memcpy(&pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPID: %d\n",pid);
+			printf("\tPID: %d\n",pid);
 			offset+=4;
 			memcpy(&ppid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPPID: %d\n",ppid);
+			printf("\tPPID: %d\n",ppid);
 			offset+=4;
 			memcpy(&tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tTID: %d\n",tid);
+			printf("\tTID: %d\n",tid);
 			offset+=4;
 			memcpy(&ptid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPTID: %d\n",ptid);
+			printf("\tPTID: %d\n",ptid);
 			offset+=4;
 			memcpy(&fork_time,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tTime: %lld\n",fork_time);
+			printf("\tTime: %lld\n",fork_time);
 			offset+=8;
 			}
 			break;
@@ -620,13 +617,13 @@ int parse_perf_record(unsigned char *data) {
 			long long throttle_time,id,stream_id;
 
 			memcpy(&throttle_time,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tTime: %lld\n",throttle_time);
+			printf("\tTime: %lld\n",throttle_time);
 			offset+=8;
 			memcpy(&id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tID: %lld\n",id);
+			printf("\tID: %lld\n",id);
 			offset+=8;
 			memcpy(&stream_id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tStream ID: %lld\n",stream_id);
+			printf("\tStream ID: %lld\n",stream_id);
 			offset+=8;
 
 			}
@@ -637,77 +634,71 @@ int parse_perf_record(unsigned char *data) {
 			if (sample_type & PERF_SAMPLE_IP) {
 				long long ip;
 				memcpy(&ip,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_IP, IP: %llx\n",ip);
+				printf("\tPERF_SAMPLE_IP, IP: %llx\n",ip);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_TID) {
 				int pid, tid;
 				memcpy(&pid,&data[offset],sizeof(int));
 				memcpy(&tid,&data[offset+4],sizeof(int));
-
-				if (!quiet) {
-					printf("\tPERF_SAMPLE_TID, pid: %d  tid %d\n",pid,tid);
-				}
+				printf("\tPERF_SAMPLE_TID, pid: %d  tid %d\n",pid,tid);
 				offset+=8;
 			}
 
 			if (sample_type & PERF_SAMPLE_TIME) {
 				long long time;
 				memcpy(&time,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_TIME, time: %lld\n",time);
+				printf("\tPERF_SAMPLE_TIME, time: %lld\n",time);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_ADDR) {
 				long long addr;
 				memcpy(&addr,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_ADDR, addr: %llx\n",addr);
+				printf("\tPERF_SAMPLE_ADDR, addr: %llx\n",addr);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_ID) {
 				long long sample_id;
 				memcpy(&sample_id,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_ID, sample_id: %lld\n",sample_id);
+				printf("\tPERF_SAMPLE_ID, sample_id: %lld\n",sample_id);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_STREAM_ID) {
 				long long sample_stream_id;
 				memcpy(&sample_stream_id,&data[offset],sizeof(long long));
-				if (!quiet) {
-					printf("\tPERF_SAMPLE_STREAM_ID, sample_stream_id: %lld\n",sample_stream_id);
-				}
+				printf("\tPERF_SAMPLE_STREAM_ID, sample_stream_id: %lld\n",sample_stream_id);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_CPU) {
 				int cpu, res;
 				memcpy(&cpu,&data[offset],sizeof(int));
 				memcpy(&res,&data[offset+4],sizeof(int));
-				if (!quiet) printf("\tPERF_SAMPLE_CPU, cpu: %d  res %d\n",cpu,res);
+				printf("\tPERF_SAMPLE_CPU, cpu: %d  res %d\n",cpu,res);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_PERIOD) {
 				long long period;
 				memcpy(&period,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_PERIOD, period: %lld\n",period);
+				printf("\tPERF_SAMPLE_PERIOD, period: %lld\n",period);
 				offset+=8;
 			}
 			if (sample_type & PERF_SAMPLE_READ) {
 				int length;
 
-				if (!quiet) printf("\tPERF_SAMPLE_READ, read_format\n");
+				printf("\tPERF_SAMPLE_READ, read_format\n");
 				length=handle_struct_read_format(&data[offset],
-						read_format,
-						quiet);
+						read_format);
 				if (length>=0) offset+=length;
 			}
 			if (sample_type & PERF_SAMPLE_CALLCHAIN) {
 				long long nr,ip;
 				memcpy(&nr,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_CALLCHAIN, callchain length: %lld\n",nr);
+				printf("\tPERF_SAMPLE_CALLCHAIN, callchain length: %lld\n",nr);
 				offset+=8;
 
 				for(i=0;i<nr;i++) {
 					memcpy(&ip,&data[offset],sizeof(long long));
-					if (!quiet) printf("\t\t ip[%d]: %llx\n",i,ip);
+					printf("\t\t ip[%d]: %llx\n",i,ip);
 					offset+=8;
 				}
 			}
@@ -715,23 +706,21 @@ int parse_perf_record(unsigned char *data) {
 				int size;
 
 				memcpy(&size,&data[offset],sizeof(int));
-				if (!quiet) printf("\tPERF_SAMPLE_RAW, Raw length: %d\n",size);
+				printf("\tPERF_SAMPLE_RAW, Raw length: %d\n",size);
 				offset+=4;
 
-				if (!quiet) {
-					if (raw_type==RAW_IBS_FETCH) {
-						dump_raw_ibs_fetch(&data[offset],size);
+				if (raw_type==RAW_IBS_FETCH) {
+					dump_raw_ibs_fetch(&data[offset],size);
+				}
+				else if (raw_type==RAW_IBS_OP) {
+					dump_raw_ibs_op(&data[offset],size);
+				}
+				else {
+					printf("\t\t");
+					for(i=0;i<size;i++) {
+						printf("%d ",data[offset+i]);
 					}
-					else if (raw_type==RAW_IBS_OP) {
-						dump_raw_ibs_op(&data[offset],size);
-					}
-					else {
-						printf("\t\t");
-						for(i=0;i<size;i++) {
-							printf("%d ",data[offset+i]);
-						}
-						printf("\n");
-					}
+					printf("\n");
 				}
 				offset+=size;
 			}
@@ -739,9 +728,7 @@ int parse_perf_record(unsigned char *data) {
 			if (sample_type & PERF_SAMPLE_BRANCH_STACK) {
 				long long bnr;
 				memcpy(&bnr,&data[offset],sizeof(long long));
-				if (!quiet) {
-					printf("\tPERF_SAMPLE_BRANCH_STACK, branch_stack entries: %lld\n",bnr);
-				}
+				printf("\tPERF_SAMPLE_BRANCH_STACK, branch_stack entries: %lld\n",bnr);
 				offset+=8;
 
 				for(i=0;i<bnr;i++) {
@@ -754,39 +741,34 @@ int parse_perf_record(unsigned char *data) {
 					/* To Value */
 					memcpy(&to,&data[offset],sizeof(long long));
 					offset+=8;
-					if (!quiet) {
-						printf("\t\t lbr[%d]: %llx %llx ",
+					printf("\t\t lbr[%d]: %llx %llx ",
 							i,from,to);
-		 			}
 
 					/* Flags */
 					memcpy(&flags,&data[offset],sizeof(long long));
 					offset+=8;
 
-					if (!quiet) {
-						if (flags==0) printf("0");
+					if (flags==0) printf("0");
 
-						if (flags&1) {
-							printf("MISPREDICTED ");
-							flags&=~2;
-						}
-
-						if (flags&2) {
-							printf("PREDICTED ");
-							flags&=~2;
-						}
-
-						if (flags&4) {
-							printf("IN_TRANSACTION ");
-							flags&=~4;
-						}
-
-						if (flags&8) {
-							printf("TRANSACTION_ABORT ");
-							flags&=~8;
-						}
-						printf("\n");
+					if (flags&1) {
+						printf("MISPREDICTED ");
+						flags&=~2;
 					}
+					if (flags&2) {
+						printf("PREDICTED ");
+						flags&=~2;
+					}
+
+					if (flags&4) {
+						printf("IN_TRANSACTION ");
+						flags&=~4;
+					}
+
+					if (flags&8) {
+						printf("TRANSACTION_ABORT ");
+						flags&=~8;
+					}
+					printf("\n");
 	      			}
 	   		}
 
@@ -794,38 +776,34 @@ int parse_perf_record(unsigned char *data) {
 				long long abi;
 
 				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) {
-					printf("\tPERF_SAMPLE_REGS_USER, ABI: ");
-					if (abi==PERF_SAMPLE_REGS_ABI_NONE) printf ("PERF_SAMPLE_REGS_ABI_NONE");
-					if (abi==PERF_SAMPLE_REGS_ABI_32) printf("PERF_SAMPLE_REGS_ABI_32");
-					if (abi==PERF_SAMPLE_REGS_ABI_64) printf("PERF_SAMPLE_REGS_ABI_64");
-					printf("\n");
-				}
+				printf("\tPERF_SAMPLE_REGS_USER, ABI: ");
+				if (abi==PERF_SAMPLE_REGS_ABI_NONE) printf ("PERF_SAMPLE_REGS_ABI_NONE");
+				if (abi==PERF_SAMPLE_REGS_ABI_32) printf("PERF_SAMPLE_REGS_ABI_32");
+				if (abi==PERF_SAMPLE_REGS_ABI_64) printf("PERF_SAMPLE_REGS_ABI_64");
+				printf("\n");
 				offset+=8;
 
-				offset+=print_regs(quiet,abi,reg_mask,
+				offset+=print_regs(abi,reg_mask,
 						&data[offset]);
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 
 			if (sample_type & PERF_SAMPLE_REGS_INTR) {
 				long long abi;
 
 				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) {
-					printf("\tPERF_SAMPLE_REGS_INTR, ABI: ");
-					if (abi==PERF_SAMPLE_REGS_ABI_NONE) printf ("PERF_SAMPLE_REGS_ABI_NONE");
-					if (abi==PERF_SAMPLE_REGS_ABI_32) printf("PERF_SAMPLE_REGS_ABI_32");
-					if (abi==PERF_SAMPLE_REGS_ABI_64) printf("PERF_SAMPLE_REGS_ABI_64");
-					printf("\n");
-				}
+				printf("\tPERF_SAMPLE_REGS_INTR, ABI: ");
+				if (abi==PERF_SAMPLE_REGS_ABI_NONE) printf ("PERF_SAMPLE_REGS_ABI_NONE");
+				if (abi==PERF_SAMPLE_REGS_ABI_32) printf("PERF_SAMPLE_REGS_ABI_32");
+				if (abi==PERF_SAMPLE_REGS_ABI_64) printf("PERF_SAMPLE_REGS_ABI_64");
+				printf("\n");
 				offset+=8;
 
-				offset+=print_regs(quiet,abi,reg_mask,
+				offset+=print_regs(abi,reg_mask,
 						&data[offset]);
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 
 			if (sample_type & PERF_SAMPLE_STACK_USER) {
@@ -834,7 +812,7 @@ int parse_perf_record(unsigned char *data) {
 				int k;
 
 				memcpy(&size,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_STACK_USER, Requested size: %lld\n",size);
+				printf("\tPERF_SAMPLE_STACK_USER, Requested size: %lld\n",size);
 				offset+=8;
 
 				stack_data=malloc(size);
@@ -842,131 +820,129 @@ int parse_perf_record(unsigned char *data) {
 				offset+=size;
 
 				memcpy(&dyn_size,&data[offset],sizeof(long long));
-				if (!quiet) printf("\t\tDynamic (used) size: %lld\n",dyn_size);
+				printf("\t\tDynamic (used) size: %lld\n",dyn_size);
 				offset+=8;
 
-				if (!quiet) printf("\t\t");
+				printf("\t\t");
 				for(k=0;k<dyn_size;k+=4) {
-					if (!quiet) printf("0x%x ",stack_data[k]);
+					printf("0x%x ",stack_data[k]);
 				}
 
 				free(stack_data);
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 
 			if (sample_type & PERF_SAMPLE_WEIGHT) {
 				long long weight;
 
 				memcpy(&weight,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_WEIGHT, Weight: %lld ",weight);
+				printf("\tPERF_SAMPLE_WEIGHT, Weight: %lld ",weight);
 				offset+=8;
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 
 			if (sample_type & PERF_SAMPLE_DATA_SRC) {
 				long long src;
 
 				memcpy(&src,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_DATA_SRC, Raw: %llx\n",src);
+				printf("\tPERF_SAMPLE_DATA_SRC, Raw: %llx\n",src);
 				offset+=8;
 
-				if (!quiet) {
-					if (src!=0) printf("\t\t");
-					if (src & (PERF_MEM_OP_NA<<PERF_MEM_OP_SHIFT))
-						printf("Op Not available ");
-					if (src & (PERF_MEM_OP_LOAD<<PERF_MEM_OP_SHIFT))
-						printf("Load ");
-					if (src & (PERF_MEM_OP_STORE<<PERF_MEM_OP_SHIFT))
-						printf("Store ");
-					if (src & (PERF_MEM_OP_PFETCH<<PERF_MEM_OP_SHIFT))
-						printf("Prefetch ");
-					if (src & (PERF_MEM_OP_EXEC<<PERF_MEM_OP_SHIFT))
-						printf("Executable code ");
+				if (src!=0) printf("\t\t");
+				if (src & (PERF_MEM_OP_NA<<PERF_MEM_OP_SHIFT))
+					printf("Op Not available ");
+				if (src & (PERF_MEM_OP_LOAD<<PERF_MEM_OP_SHIFT))
+					printf("Load ");
+				if (src & (PERF_MEM_OP_STORE<<PERF_MEM_OP_SHIFT))
+					printf("Store ");
+				if (src & (PERF_MEM_OP_PFETCH<<PERF_MEM_OP_SHIFT))
+					printf("Prefetch ");
+				if (src & (PERF_MEM_OP_EXEC<<PERF_MEM_OP_SHIFT))
+					printf("Executable code ");
 
-					if (src & (PERF_MEM_LVL_NA<<PERF_MEM_LVL_SHIFT))
-						printf("Level Not available ");
-					if (src & (PERF_MEM_LVL_HIT<<PERF_MEM_LVL_SHIFT))
-						printf("Hit ");
-					if (src & (PERF_MEM_LVL_MISS<<PERF_MEM_LVL_SHIFT))
-						printf("Miss ");
-					if (src & (PERF_MEM_LVL_L1<<PERF_MEM_LVL_SHIFT))
-						printf("L1 cache ");
-					if (src & (PERF_MEM_LVL_LFB<<PERF_MEM_LVL_SHIFT))
-						printf("Line fill buffer ");
-					if (src & (PERF_MEM_LVL_L2<<PERF_MEM_LVL_SHIFT))
-						printf("L2 cache ");
-					if (src & (PERF_MEM_LVL_L3<<PERF_MEM_LVL_SHIFT))
-						printf("L3 cache ");
-					if (src & (PERF_MEM_LVL_LOC_RAM<<PERF_MEM_LVL_SHIFT))
-						printf("Local DRAM ");
-					if (src & (PERF_MEM_LVL_REM_RAM1<<PERF_MEM_LVL_SHIFT))
-						printf("Remote DRAM 1 hop ");
-					if (src & (PERF_MEM_LVL_REM_RAM2<<PERF_MEM_LVL_SHIFT))
-						printf("Remote DRAM 2 hops ");
-					if (src & (PERF_MEM_LVL_REM_CCE1<<PERF_MEM_LVL_SHIFT))
-						printf("Remote cache 1 hop ");
-					if (src & (PERF_MEM_LVL_REM_CCE2<<PERF_MEM_LVL_SHIFT))
-						printf("Remote cache 2 hops ");
-					if (src & (PERF_MEM_LVL_IO<<PERF_MEM_LVL_SHIFT))
-						printf("I/O memory ");
-					if (src & (PERF_MEM_LVL_UNC<<PERF_MEM_LVL_SHIFT))
-						printf("Uncached memory ");
+				if (src & (PERF_MEM_LVL_NA<<PERF_MEM_LVL_SHIFT))
+					printf("Level Not available ");
+				if (src & (PERF_MEM_LVL_HIT<<PERF_MEM_LVL_SHIFT))
+					printf("Hit ");
+				if (src & (PERF_MEM_LVL_MISS<<PERF_MEM_LVL_SHIFT))
+					printf("Miss ");
+				if (src & (PERF_MEM_LVL_L1<<PERF_MEM_LVL_SHIFT))
+					printf("L1 cache ");
+				if (src & (PERF_MEM_LVL_LFB<<PERF_MEM_LVL_SHIFT))
+					printf("Line fill buffer ");
+				if (src & (PERF_MEM_LVL_L2<<PERF_MEM_LVL_SHIFT))
+					printf("L2 cache ");
+				if (src & (PERF_MEM_LVL_L3<<PERF_MEM_LVL_SHIFT))
+					printf("L3 cache ");
+				if (src & (PERF_MEM_LVL_LOC_RAM<<PERF_MEM_LVL_SHIFT))
+					printf("Local DRAM ");
+				if (src & (PERF_MEM_LVL_REM_RAM1<<PERF_MEM_LVL_SHIFT))
+					printf("Remote DRAM 1 hop ");
+				if (src & (PERF_MEM_LVL_REM_RAM2<<PERF_MEM_LVL_SHIFT))
+					printf("Remote DRAM 2 hops ");
+				if (src & (PERF_MEM_LVL_REM_CCE1<<PERF_MEM_LVL_SHIFT))
+					printf("Remote cache 1 hop ");
+				if (src & (PERF_MEM_LVL_REM_CCE2<<PERF_MEM_LVL_SHIFT))
+					printf("Remote cache 2 hops ");
+				if (src & (PERF_MEM_LVL_IO<<PERF_MEM_LVL_SHIFT))
+					printf("I/O memory ");
+				if (src & (PERF_MEM_LVL_UNC<<PERF_MEM_LVL_SHIFT))
+					printf("Uncached memory ");
 
-					if (src & (PERF_MEM_SNOOP_NA<<PERF_MEM_SNOOP_SHIFT))
-						printf("Not available ");
-					if (src & (PERF_MEM_SNOOP_NONE<<PERF_MEM_SNOOP_SHIFT))
-						printf("No snoop ");
-					if (src & (PERF_MEM_SNOOP_HIT<<PERF_MEM_SNOOP_SHIFT))
-						printf("Snoop hit ");
-					if (src & (PERF_MEM_SNOOP_MISS<<PERF_MEM_SNOOP_SHIFT))
-						printf("Snoop miss ");
-					if (src & (PERF_MEM_SNOOP_HITM<<PERF_MEM_SNOOP_SHIFT))
-						printf("Snoop hit modified ");
+				if (src & (PERF_MEM_SNOOP_NA<<PERF_MEM_SNOOP_SHIFT))
+					printf("Not available ");
+				if (src & (PERF_MEM_SNOOP_NONE<<PERF_MEM_SNOOP_SHIFT))
+					printf("No snoop ");
+				if (src & (PERF_MEM_SNOOP_HIT<<PERF_MEM_SNOOP_SHIFT))
+					printf("Snoop hit ");
+				if (src & (PERF_MEM_SNOOP_MISS<<PERF_MEM_SNOOP_SHIFT))
+					printf("Snoop miss ");
+				if (src & (PERF_MEM_SNOOP_HITM<<PERF_MEM_SNOOP_SHIFT))
+					printf("Snoop hit modified ");
 
-					if (src & (PERF_MEM_LOCK_NA<<PERF_MEM_LOCK_SHIFT))
-						printf("Not available ");
-					if (src & (PERF_MEM_LOCK_LOCKED<<PERF_MEM_LOCK_SHIFT))
-						printf("Locked transaction ");
+				if (src & (PERF_MEM_LOCK_NA<<PERF_MEM_LOCK_SHIFT))
+					printf("Not available ");
+				if (src & (PERF_MEM_LOCK_LOCKED<<PERF_MEM_LOCK_SHIFT))
+					printf("Locked transaction ");
 
-					if (src & (PERF_MEM_TLB_NA<<PERF_MEM_TLB_SHIFT))
-						printf("Not available ");
-					if (src & (PERF_MEM_TLB_HIT<<PERF_MEM_TLB_SHIFT))
-						printf("Hit ");
-					if (src & (PERF_MEM_TLB_MISS<<PERF_MEM_TLB_SHIFT))
-						printf("Miss ");
-					if (src & (PERF_MEM_TLB_L1<<PERF_MEM_TLB_SHIFT))
-						printf("Level 1 TLB ");
-					if (src & (PERF_MEM_TLB_L2<<PERF_MEM_TLB_SHIFT))
-						printf("Level 2 TLB ");
-					if (src & (PERF_MEM_TLB_WK<<PERF_MEM_TLB_SHIFT))
-						printf("Hardware walker ");
-					if (src & ((long long)PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
-						printf("OS fault handler ");
-				}
+				if (src & (PERF_MEM_TLB_NA<<PERF_MEM_TLB_SHIFT))
+					printf("Not available ");
+				if (src & (PERF_MEM_TLB_HIT<<PERF_MEM_TLB_SHIFT))
+					printf("Hit ");
+				if (src & (PERF_MEM_TLB_MISS<<PERF_MEM_TLB_SHIFT))
+					printf("Miss ");
+				if (src & (PERF_MEM_TLB_L1<<PERF_MEM_TLB_SHIFT))
+					printf("Level 1 TLB ");
+				if (src & (PERF_MEM_TLB_L2<<PERF_MEM_TLB_SHIFT))
+					printf("Level 2 TLB ");
+				if (src & (PERF_MEM_TLB_WK<<PERF_MEM_TLB_SHIFT))
+					printf("Hardware walker ");
+				if (src & ((long long)PERF_MEM_TLB_OS<<PERF_MEM_TLB_SHIFT))
+					printf("OS fault handler ");
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 
 			if (sample_type & PERF_SAMPLE_IDENTIFIER) {
 				long long abi;
 
 				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_IDENTIFIER, Raw length: %lld\n",abi);
+				printf("\tPERF_SAMPLE_IDENTIFIER, Raw length: %lld\n",abi);
 				offset+=8;
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 
 			if (sample_type & PERF_SAMPLE_TRANSACTION) {
 				long long abi;
 
 				memcpy(&abi,&data[offset],sizeof(long long));
-				if (!quiet) printf("\tPERF_SAMPLE_TRANSACTION, Raw length: %lld\n",abi);
+				printf("\tPERF_SAMPLE_TRANSACTION, Raw length: %lld\n",abi);
 				offset+=8;
 
-				if (!quiet) printf("\n");
+				printf("\n");
 			}
 			break;
 
@@ -976,28 +952,27 @@ int parse_perf_record(unsigned char *data) {
 			long long sample_id;
 
 			memcpy(&aux_offset,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tAUX_OFFSET: %lld\n",aux_offset);
+			printf("\tAUX_OFFSET: %lld\n",aux_offset);
 			offset+=8;
 
 			memcpy(&aux_size,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tAUX_SIZE: %lld\n",aux_size);
+			printf("\tAUX_SIZE: %lld\n",aux_size);
 			offset+=8;
 
 			memcpy(&flags,&data[offset],sizeof(long long));
-			if (!quiet) {
-				printf("\tFLAGS: %llx ",flags);
-				if (flags & PERF_AUX_FLAG_TRUNCATED) {
-					printf("FLAG_TRUNCATED ");
-				}
-				if (flags & PERF_AUX_FLAG_OVERWRITE) {
-					printf("FLAG_OVERWRITE ");
-				}
-				printf("\n");
+			printf("\tFLAGS: %llx ",flags);
+			if (flags & PERF_AUX_FLAG_TRUNCATED) {
+				printf("FLAG_TRUNCATED ");
 			}
+			if (flags & PERF_AUX_FLAG_OVERWRITE) {
+				printf("FLAG_OVERWRITE ");
+			}
+			printf("\n");
+
 			offset+=8;
 
 			memcpy(&sample_id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			printf("\tSAMPLE_ID: %lld\n",sample_id);
 			offset+=8;
 
 			}
@@ -1008,11 +983,11 @@ int parse_perf_record(unsigned char *data) {
 			int pid,tid;
 
 			memcpy(&pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPID: %d\n",pid);
+			printf("\tPID: %d\n",pid);
 			offset+=4;
 
 			memcpy(&tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tTID: %d\n",tid);
+			printf("\tTID: %d\n",tid);
 			offset+=4;
 			}
 			break;
@@ -1022,11 +997,11 @@ int parse_perf_record(unsigned char *data) {
 			long long lost,sample_id;
 
 			memcpy(&lost,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tLOST: %lld\n",lost);
+			printf("\tLOST: %lld\n",lost);
 			offset+=8;
 
 			memcpy(&sample_id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			printf("\tSAMPLE_ID: %lld\n",sample_id);
 			offset+=8;
 			}
 			break;
@@ -1036,7 +1011,7 @@ int parse_perf_record(unsigned char *data) {
 			long long sample_id;
 
 			memcpy(&sample_id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			printf("\tSAMPLE_ID: %lld\n",sample_id);
 			offset+=8;
 			}
 			break;
@@ -1047,36 +1022,26 @@ int parse_perf_record(unsigned char *data) {
 			long long sample_id;
 
 			memcpy(&prev_pid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPREV_PID: %d\n",prev_pid);
+			printf("\tPREV_PID: %d\n",prev_pid);
 			offset+=4;
 
 			memcpy(&prev_tid,&data[offset],sizeof(int));
-			if (!quiet) printf("\tPREV_TID: %d\n",prev_tid);
+			printf("\tPREV_TID: %d\n",prev_tid);
 			offset+=4;
 
 			memcpy(&sample_id,&data[offset],sizeof(long long));
-			if (!quiet) printf("\tSAMPLE_ID: %lld\n",sample_id);
+			printf("\tSAMPLE_ID: %lld\n",sample_id);
 			offset+=8;
 			}
 			break;
 
 
 		default:
-			if (!quiet) printf("\tUnknown type %d\n",event->type);
+			printf("\tUnknown type %d\n",record_type);
 			/* Probably best to just skip it all */
-			offset=size;
+			offset=record_size;
 
-		}
-		if (events_read) (*events_read)++;
 	}
-
-//	mb();
-	control_page->data_tail=head;
-
-	free(data);
-
-	return head;
-#endif
 
 	return record_size;
 }
