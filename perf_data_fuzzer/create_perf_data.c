@@ -48,6 +48,11 @@ static int random_string(char *dest, int size) {
 		exit(1);
 	}
 
+	/* Can't do anything useful with size 0 string?? */
+	if (size==0) {
+		return 0;
+	}
+
 	offset=rand()%(UNICODE_PAGESIZE-size);
 
 	/* randomly pick size */
