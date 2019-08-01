@@ -16,7 +16,7 @@ PROGRAM_LIST = perf_data_fuzzer perf_data_dump
 
 all: $(PROGRAM_LIST)
 
-perf_data_dump: perf_data_dump.o parse_record.o
+perf_data_dump: perf_data_dump.o parse_record.o data_read.o
 
 perf_data_fuzzer: perf_data_fuzzer.o create_perf_data.o \
 		trinity_files/trinity_lib.a

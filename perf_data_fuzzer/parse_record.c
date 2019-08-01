@@ -26,6 +26,7 @@
 #include "../include/perf_event.h"
 
 #include "parse_record.h"
+#include "data_read.h"
 
 #if defined(__x86_64__) || defined(__i386__) ||defined(__arm__)
 #include <asm/perf_regs.h>
@@ -420,16 +421,26 @@ static int print_data_header(uint32_t type, uint16_t misc, uint16_t size) {
 int parse_perf_record(unsigned char *data) {
 
 	int offset=0;
-#if 0
-	event = ( struct perf_event_header * ) & data[offset];
+
+	uint32_t record_type;
+	uint16_t record_misc;
+	uint16_t record_size;
 
 	/********************/
 	/* Print event Type */
 	/********************/
 
+	record_type=get_uint32(data,offset);
+        offset+=4;
+	record_misc=get_uint16(data,offset);
+        offset+=2;
+	record_size=get_uint16(data,offset);
+        offset+=2;
 
-		offset+=8; /* skip header */
+	print_data_header(record_type, record_misc, record_size);
 
+
+#if 0
 		/***********************/
 		/* Print event Details */
 		/***********************/
@@ -1067,5 +1078,5 @@ int parse_perf_record(unsigned char *data) {
 	return head;
 #endif
 
-	return 0;
+	return record_size;
 }

@@ -8,6 +8,7 @@
 
 #include "create_perf_data.h"
 #include "parse_record.h"
+#include "data_read.h"
 
 #include "../include/perf_event.h"
 #include "perf_data.h"
@@ -133,50 +134,6 @@ static int dump_header(int fd) {
 	printf("\n");
 	return 0;
 }
-
-/* FIXME: endian aware */
-static uint32_t get_uint32(unsigned char *data, int offset) {
-
-	uint32_t temp;
-
-	temp=data[offset] | (data[offset+1]<<8)
-		| (data[offset+2]<<16) | (data[offset+3]<<24);
-
-	return temp;
-}
-
-/* FIXME: endian aware */
-static uint64_t get_uint64(unsigned char *data, int offset) {
-
-	uint64_t temp;
-
-	temp=	(((uint64_t)data[offset+0])<< 0) |
-		(((uint64_t)data[offset+1])<< 8) |
-		(((uint64_t)data[offset+2])<<16) |
-		(((uint64_t)data[offset+3])<<24) |
-		(((uint64_t)data[offset+4])<<32) |
-		(((uint64_t)data[offset+5])<<40) |
-		(((uint64_t)data[offset+6])<<48) |
-		(((uint64_t)data[offset+7])<<56);
-	return temp;
-}
-
-
-/* FIXME: check for overflow */
-static uint32_t get_string(unsigned char *data, int offset, char *string) {
-
-	uint32_t len,total=0;
-
-	len=get_uint32(data,offset);
-	total+=4;
-
-	memcpy(string,data+offset+4,len);
-	total+=len;
-
-	return total;
-
-}
-
 
 /*
 struct build_id_event {
@@ -1041,6 +998,10 @@ static int dump_data(int fd) {
 		}
 
 		length=parse_perf_record(data);
+		if (length<0) {
+			fprintf(stderr,"Error parsing data!\n");
+			return -1;
+		}
 		offset+=length;
 	}
 
