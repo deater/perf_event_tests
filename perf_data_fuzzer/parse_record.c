@@ -355,6 +355,92 @@ static int print_data_header(uint32_t type, uint16_t misc, uint16_t size) {
 		case PERF_RECORD_SWITCH_CPU_WIDE:
 			printf("PERF_RECORD_SWITCH_CPU_WIDE");
 			break;
+		case PERF_RECORD_NAMESPACES:
+			printf("PERF_RECORD_NAMESPACES");
+			break;
+		case PERF_RECORD_KSYMBOL:
+			printf("PERF_RECORD_KSYMBOL");
+			break;
+		case PERF_RECORD_BPF_EVENT:
+			printf("PERF_RECORD_BPF_EVENT");
+			break;
+
+		/* "synthesized" fake events provided by perf tool */
+#define PERF_RECORD_HEADER_ATTR		64
+#define PERF_RECORD_HEADER_EVENT_TYPE	65 /* deprecated */
+#define PERF_RECORD_HEADER_TRACING_DATA	66
+#define PERF_RECORD_HEADER_BUILD_ID	67
+#define PERF_RECORD_FINISHED_ROUND	68
+#define PERF_RECORD_ID_INDEX		69
+#define PERF_RECORD_AUXTRACE_INFO	70
+#define PERF_RECORD_AUXTRACE		71
+#define PERF_RECORD_AUXTRACE_ERROR	72
+#define	PERF_RECORD_THREAD_MAP		73
+#define	PERF_RECORD_CPU_MAP		74
+#define	PERF_RECORD_STAT_CONFIG		75
+#define	PERF_RECORD_STAT		76
+#define	PERF_RECORD_STAT_ROUND		77
+#define	PERF_RECORD_EVENT_UPDATE	78
+#define	PERF_RECORD_TIME_CONV		79
+#define PERF_RECORD_HEADER_FEATURE	80
+#define PERF_RECORD_COMPRESSED		81
+
+		case PERF_RECORD_HEADER_ATTR:
+			printf("PERF_RECORD_HEADER_ATTR");
+			break;
+		case PERF_RECORD_HEADER_EVENT_TYPE:
+			printf("PERF_RECORD_HEADER_EVENT_TYPE");
+			break;
+		case PERF_RECORD_HEADER_TRACING_DATA:
+			printf("PERF_RECORD_HEADER_TRACING_DATA");
+			break;
+		case PERF_RECORD_HEADER_BUILD_ID:
+			printf("PERF_RECORD_HEADER_BUILD_ID");
+			break;
+		case PERF_RECORD_FINISHED_ROUND:
+			printf("PERF_RECORD_FINISHED_ROUND");
+			break;
+		case PERF_RECORD_ID_INDEX:
+			printf("PERF_RECORD_ID_INDEX");
+			break;
+		case PERF_RECORD_AUXTRACE_INFO:
+			printf("PERF_RECORD_AUXTRACE_INFO");
+			break;
+		case PERF_RECORD_AUXTRACE:
+			printf("PERF_RECORD_AUXTRACE");
+			break;
+		case PERF_RECORD_AUXTRACE_ERROR:
+			printf("PERF_RECORD_AUXTRACE_ERROR");
+			break;
+		case PERF_RECORD_THREAD_MAP:
+			printf("PERF_RECORD_THREAD_MAP");
+			break;
+		case PERF_RECORD_CPU_MAP:
+			printf("PERF_RECORD_CPU_MAP");
+			break;
+		case PERF_RECORD_STAT_CONFIG:
+			printf("PERF_RECORD_STAT_CONFIG");
+			break;
+		case PERF_RECORD_STAT:
+			printf("PERF_RECORD_STAT");
+			break;
+		case PERF_RECORD_STAT_ROUND:
+			printf("PERF_RECORD_STAT_ROUND");
+			break;
+		case PERF_RECORD_EVENT_UPDATE:
+			printf("PERF_RECORD_EVENT_UPDATE");
+			break;
+		case PERF_RECORD_TIME_CONV:
+			printf("PERF_RECORD_TIME_CONV");
+			break;
+		case PERF_RECORD_HEADER_FEATURE:
+			printf("PERF_RECORD_HEADER_FEATURE");
+			break;
+		case PERF_RECORD_COMPRESSED:
+			printf("PERF_RECORD_COMPRESSED");
+			break;
+
+
 		default: printf("UNKNOWN %d",type);
 			break;
 	}
