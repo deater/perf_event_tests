@@ -988,7 +988,11 @@ static int dump_data(int fd) {
 		return -1;
 	}
 
-	while(offset<=header.data.size) {
+	while(offset<header.data.size) {
+
+//		printf("VMW: offset=%ld, size=%ld\n",offset,header.data.size);
+
+		result=lseek(fd,header.data.offset+offset,SEEK_SET);
 
 		result=read(fd,data,MAX_RECORD_SIZE);
 		if (result<0) {

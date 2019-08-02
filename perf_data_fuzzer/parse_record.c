@@ -1122,6 +1122,78 @@ int parse_perf_record(unsigned char *data) {
 			break;
 
 
+
+/* Synthesized by perf tool */
+
+		case PERF_RECORD_HEADER_ATTR:
+		case PERF_RECORD_HEADER_EVENT_TYPE:	/* deprecated */
+		case PERF_RECORD_HEADER_TRACING_DATA:
+		case PERF_RECORD_HEADER_BUILD_ID:
+			printf("\tUnknown type %d\n",record_type);
+			/* Probably best to just skip it all */
+			offset=record_size;
+			break;
+
+		/*
+		struct stat_round_event {
+        		struct perf_event_header        header;
+			u64                             type;
+			u64                             time;
+		};
+		*/
+		case PERF_RECORD_FINISHED_ROUND: {
+				uint64_t type,time;
+
+				type=get_uint64(data,offset);
+				offset+=8;
+				time=get_uint64(data,offset);
+				offset+=8;
+				printf("\tType: %ld\n",type);
+				printf("\tTime: %ld\n",time);
+			}
+			break;
+		case PERF_RECORD_ID_INDEX:
+		case PERF_RECORD_AUXTRACE_INFO:
+		case PERF_RECORD_AUXTRACE:
+		case PERF_RECORD_AUXTRACE_ERROR:
+		case PERF_RECORD_THREAD_MAP:
+		case PERF_RECORD_CPU_MAP:
+		case PERF_RECORD_STAT_CONFIG:
+		case PERF_RECORD_STAT:
+		case PERF_RECORD_STAT_ROUND:
+		case PERF_RECORD_EVENT_UPDATE:
+			printf("\tUnknown type %d\n",record_type);
+			/* Probably best to just skip it all */
+			offset=record_size;
+			break;
+
+		/*
+		struct time_conv_event {
+        		struct perf_event_header header;
+        		u64 time_shift;
+       			 u64 time_mult;
+        		u64 time_zero;
+		};
+		*/
+
+		case PERF_RECORD_TIME_CONV: {
+				uint64_t time_shift,time_mult,time_zero;
+
+				time_shift=get_uint64(data,offset);
+				offset+=8;
+				time_mult=get_uint64(data,offset);
+				offset+=8;
+				time_zero=get_uint64(data,offset);
+				offset+=8;
+				printf("\tTime shift: %ld\n",time_shift);
+				printf("\tTime mult: %ld\n",time_mult);
+				printf("\tTime zero: %ld\n",time_zero);
+			}
+			break;
+
+		case PERF_RECORD_HEADER_FEATURE:
+		case PERF_RECORD_COMPRESSED:
+
 		default:
 			printf("\tUnknown type %d\n",record_type);
 			/* Probably best to just skip it all */
