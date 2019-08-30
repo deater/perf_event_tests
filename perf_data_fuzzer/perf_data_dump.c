@@ -6,11 +6,14 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include "../include/perf_event.h"
+
 #include "create_perf_data.h"
 #include "parse_record.h"
 #include "data_read.h"
+#include "perf_attr_print.h"
 
-#include "../include/perf_event.h"
+
 #include "perf_data.h"
 
 #define BUFFER_SIZE 4096
@@ -955,15 +958,33 @@ static int dump_attributes(int fd) {
 //	int i,result=0,length=0;
 //	off_t offset;
 
+#define MAX_ATTR_SIZE	4096
+
+	unsigned char raw_attr[MAX_ATTR_SIZE];
+
+	int result;
+	struct perf_event_attr *attr;
+
 	printf("\nAttribute section:\n");
-#if 0
-	/* seek to after data section */
-	result=lseek(fd,header.data.offset,SEEK_SET);
+
+	/* seek to attr section */
+	result=lseek(fd,header.attrs.offset,SEEK_SET);
 	if (result<0) {
 		fprintf(stderr,"Trouble seeking!\n");
 		return -1;
 	}
-#endif
+
+	if (header.attrs.size>MAX_ATTR_SIZE) {
+		fprintf(stderr,"Error! attr too big %ld > %d\n",
+			header.attrs.size,MAX_ATTR_SIZE);
+		return -1;
+	}
+
+	result=read(fd,raw_attr,header.attrs.size);
+
+	attr=(struct perf_event_attr *)raw_attr;
+
+	perf_pretty_print_attr(stdout, attr, 0);
 
 	return 0;
 }
