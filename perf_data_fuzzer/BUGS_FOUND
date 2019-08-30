@@ -3,6 +3,8 @@
 
 #1 -- f_header.attr_size ==0 causes a floating point exception
 	patch sent
+	fixed in 7622236ceb167aa3857395f9bdaf871442aa467e
+
 
 #2 -- perf_header__read_build_ids gets filename size from the
 	perf.data file and copies it to a 4096 buffer w/o
@@ -14,4 +16,12 @@
 	trying to operate on it will have problems with that.
 
 	same issue: cmdline parsing
+
+
+
+
+Documentation bugs:
+#1 -- wrong size memory
+	Fixed in 2e9a06dda10aea81a17c623f08534dac6735434a
+
 
