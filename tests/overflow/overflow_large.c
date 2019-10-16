@@ -42,6 +42,7 @@ static int fd1;
 static void our_handler(int signum,siginfo_t *oh, void *blah) {
 
 	int ret;
+	int saved_errno = errno;
 
 	ret=ioctl(fd1, PERF_EVENT_IOC_DISABLE, 0);
 
@@ -64,6 +65,7 @@ static void our_handler(int signum,siginfo_t *oh, void *blah) {
 		ret=ioctl(fd1, PERF_EVENT_IOC_REFRESH,1);
 	}
 
+	errno = saved_errno;
 	(void) ret;
 
 }
