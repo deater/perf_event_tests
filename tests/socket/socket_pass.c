@@ -42,7 +42,7 @@ ssize_t sock_fd_write(int sock, void *buf, ssize_t buflen, int fd) {
 	msg.msg_iovlen = 1;	/* elements in iov */
         msg.msg_control = cmsgu.control;	/* control data */
         msg.msg_controllen = sizeof(cmsgu.control);
-				/* flags is unused */
+	msg.msg_flags = 0;	/* flags is unused */
 
 	cmsg = CMSG_FIRSTHDR(&msg);
 	cmsg->cmsg_len = CMSG_LEN(sizeof (int));
