@@ -61,7 +61,7 @@ void *thread_work(void *blah) {
    while(1) {
 
       pe.type=PERF_TYPE_RAW;
-      pe.config=nehalem_events[i%NUM_EVENTS];
+      pe.config=nehalem_events[i%24];
       pe.disabled=0;
       pe.inherit=1;
       pe.exclude_kernel=1;
