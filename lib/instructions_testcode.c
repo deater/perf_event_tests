@@ -11,9 +11,9 @@ int instructions_million(void) {
 #if defined(__i386__) || (defined __x86_64__)
 	asm(	"	xor	%%ecx,%%ecx\n"
 		"	mov	$499999,%%ecx\n"
-		"test_loop:\n"
+		"1:\n"
 		"	dec	%%ecx\n"
-		"	jnz	test_loop\n"
+		"	jnz	1b\n"
 		: /* no output registers */
 		: /* no inputs */
 		: "cc", "%ecx" /* clobbered */
