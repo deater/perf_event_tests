@@ -12,6 +12,7 @@
 	various Linux protections make this hard to exploit.
 
 	not applied
+	NEW.PATCHES1 (half)
 
 #3 -- perf_header pmu parsing.  If a string is marked as size 0,
 	malloc will happily allocate space but any string ops
@@ -22,7 +23,7 @@
 	[patch] perf report segfault with 0-sized strings
 
 	not applied???
-
+	NEW.PATCHES1 (other half)
 
 
 #4 -- perf: perf report stuck in an infinite loop
@@ -31,7 +32,8 @@
 
 #5 -- carrying a patch (vince document better in future)
 	same as 6ef81c55a2b6584cb642917f5fdf3632ef44b670
-	unclear why.  Possibly same as #3?
+	unclear why.
+
 
 
 Documentation bugs:

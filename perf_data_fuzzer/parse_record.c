@@ -501,10 +501,10 @@ static int print_data_header(uint32_t type, uint16_t misc, uint16_t size) {
 	return 0;
 }
 
-int parse_perf_record(unsigned char *data) {
+int parse_perf_record(unsigned char *data, int sample_type, int read_format) {
 
 	int offset=0,i;
-	int sample_type=0,read_format=0,raw_type=0,reg_mask=0;
+	int raw_type=0,reg_mask=0;
 
 	uint32_t record_type;
 	uint16_t record_misc;

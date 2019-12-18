@@ -26,6 +26,8 @@ static int file_endian=LITTLE_ENDIAN;
 
 static uint32_t nr_cpus_avail=0;
 
+static int sample_type,read_format;
+
 
 static char *section_names[256]={
 /*  0 */	"HEADER_RESERVED",
@@ -986,6 +988,10 @@ static int dump_attributes(int fd) {
 
 	perf_pretty_print_attr(stdout, attr, 0);
 
+	sample_type=attr->sample_type;
+	read_format=attr->read_format;
+
+
 	return 0;
 }
 
@@ -998,7 +1004,6 @@ static int dump_data(int fd) {
 	int result=0,length=0;
 	off_t offset=0;
 	unsigned char data[MAX_RECORD_SIZE];
-
 
 	printf("\nDATA section:\n");
 
@@ -1022,7 +1027,7 @@ static int dump_data(int fd) {
 			return -1;
 		}
 
-		length=parse_perf_record(data);
+		length=parse_perf_record(data,sample_type,read_format);
 		if (length<0) {
 			fprintf(stderr,"Error parsing data!\n");
 			return -1;
