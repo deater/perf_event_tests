@@ -882,6 +882,8 @@ static long long random_sample_type(void)
 		sample_type |= PERF_SAMPLE_REGS_INTR;
 	if (RAND_BOOL())
 		sample_type |= PERF_SAMPLE_PHYS_ADDR;
+	if (RAND_BOOL())
+		sample_type |= PERF_SAMPLE_AUX;
 
 	return sample_type;
 }
@@ -910,7 +912,7 @@ static int random_attr_size(void) {
 
 	int size=0;
 
-	switch(rand() % 10) {
+	switch(rand() % 11) {
 	case 0:	size = PERF_ATTR_SIZE_VER0;
 		break;
 	case 1: size = PERF_ATTR_SIZE_VER1;
@@ -923,13 +925,15 @@ static int random_attr_size(void) {
 		break;
 	case 5: size = PERF_ATTR_SIZE_VER5;
 		break;
-	case 6: size = sizeof(struct perf_event_attr);
+	case 6: size = PERF_ATTR_SIZE_VER6;
 		break;
-	case 7: size = rand32();
+	case 7: size = sizeof(struct perf_event_attr);
 		break;
-	case 8:	size = get_len();
+	case 8: size = rand32();
 		break;
-	case 9: size = 0;
+	case 9:	size = get_len();
+		break;
+	case 10: size = 0;
 		break;
 	default:
 		break;
@@ -1039,6 +1043,7 @@ static void create_mostly_valid_counting_event(struct perf_event_attr *attr,
 	attr->namespaces = RAND_BOOL();
 	attr->ksymbol = RAND_BOOL();
 	attr->bpf_event = RAND_BOOL();
+	attr->aux_output = RAND_BOOL();
 
 	/* wakeup events not relevant */
 
@@ -1163,6 +1168,7 @@ static void create_mostly_valid_sampling_event(struct perf_event_attr *attr,
 
 	attr->aux_watermark = rand32();
 	attr->sample_max_stack = rand32();
+	attr->aux_sample_size = rand32();
 
 }
 
