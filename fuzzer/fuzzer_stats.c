@@ -31,6 +31,7 @@ void stats_set_pmu_name(int which, char *name) {
 	strncpy(open_type_names[which],name,20);
 }
 
+/* /usr/include/asm-generic/errno-base.h */
 static void print_errno_name(FILE *fff, int e) {
 
 	switch(e) {
@@ -45,6 +46,8 @@ static void print_errno_name(FILE *fff, int e) {
 		case EINVAL:	fprintf(fff,"EINVAL");
 				break;
 		case EOPNOTSUPP:	fprintf(fff,"EOPNOTSUPP");
+				break;
+		case ENODEV:	fprintf(fff,"ENODEV");
 				break;
 		case ENOSPC:	fprintf(fff,"ENOSPC");
 				break;
