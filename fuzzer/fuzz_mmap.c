@@ -21,6 +21,8 @@
 
 #include "fuzz_mmap.h"
 
+#include "trinity_files/include/sanitise.h"
+
 #define MAX_MMAPS	1024
 
 struct our_mmap_t {
@@ -337,7 +339,8 @@ void trash_random_mmap(void) {
 /* active is set to 1 but addr is not valid.			*/
 int setup_mmap(int which) {
 
-	int i,prot,flags,size;
+	int i,prot,flags,size,found;
+	void *addr;
 
 	i=find_empty_mmap();
 	if (i<0) return -1;
@@ -356,9 +359,34 @@ int setup_mmap(int which) {
 
 	if (!ignore_but_dont_skip.mmap) {
 
+		switch(rand()%20) {
+			case 0:
+				/* random address */
+				addr=get_address();
+				break;
+/* note -- some of these rightfully cause segfaults as parts */
+/* of memory get over-written */
+#if 0
+			case 1:
+				/* re-use address */
+				found=find_random_active_mmap();
+				addr=mmaps[found].addr;
+				break;
+			case 9:
+				/* re-use+offset */
+				found=find_random_active_mmap();
+				addr=mmaps[found].addr+rand();
+				break;
+#endif
+			default:
+				/* Let the OS pick */
+				addr=NULL;
+				break;
+		}
+
 		stats.mmap_attempts++;
 		stats.total_syscalls++;
-		mmaps[i].addr=mmap(NULL, size,
+		mmaps[i].addr=mmap(addr, size,
 			prot, flags,
 			event_data[which].fd, 0);
 
