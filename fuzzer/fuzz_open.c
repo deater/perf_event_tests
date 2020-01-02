@@ -34,86 +34,131 @@ extern struct syscallentry syscall_perf_event_open;
 #include "perf_helpers.h"
 
 
-static void perf_log_attr(struct perf_event_attr *attr) {
+static void perf_log_attr(int fd, struct perf_event_attr *attr) {
 
 	sprintf(log_buffer,"%x ",attr->type);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%x ",attr->size);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%llx ",attr->config);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%llx ",attr->sample_period);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%llx ",attr->sample_type);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%llx ",attr->read_format);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->disabled);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->inherit);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->pinned);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclusive);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclude_user);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclude_kernel);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclude_hv);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclude_idle);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->mmap);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->comm);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->freq);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->inherit_stat);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->enable_on_exec);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->task);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->watermark);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->precise_ip);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->mmap_data);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->sample_id_all);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclude_host);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->exclude_guest);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->wakeup_events);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->bp_type);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%llx ",attr->config1);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%llx ",attr->config2);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%lld ",attr->branch_sample_type);
-	write(log_fd,log_buffer,strlen(log_buffer));
+	write(fd,log_buffer,strlen(log_buffer));
 
+	sprintf(log_buffer,"%x ",attr->size);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%llx ",attr->config);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%llx ",attr->sample_period);	/* union */
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%llx ",attr->sample_type);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%llx ",attr->read_format);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	/* 64-bit bitfield */
+	sprintf(log_buffer,"%d ",attr->disabled);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->inherit);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->pinned);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclusive);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_user);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_kernel);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_hv);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_idle);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->mmap);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->comm);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->freq);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->inherit_stat);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->enable_on_exec);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->task);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->watermark);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->precise_ip);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->mmap_data);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->sample_id_all);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_host);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->exclude_guest);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	/****/
 	sprintf(log_buffer,"%d ",attr->exclude_callchain_kernel);
-	write(log_fd,log_buffer,strlen(log_buffer));
+	write(fd,log_buffer,strlen(log_buffer));
 	sprintf(log_buffer,"%d ",attr->exclude_callchain_user);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%lld ",attr->sample_regs_user);
-	write(log_fd,log_buffer,strlen(log_buffer));
-	sprintf(log_buffer,"%d ",attr->sample_stack_user);
-	write(log_fd,log_buffer,strlen(log_buffer));
+	write(fd,log_buffer,strlen(log_buffer));
 	sprintf(log_buffer,"%d ",attr->mmap2);
-	write(log_fd,log_buffer,strlen(log_buffer));
+	write(fd,log_buffer,strlen(log_buffer));
 	sprintf(log_buffer,"%d ",attr->comm_exec);
-	write(log_fd,log_buffer,strlen(log_buffer));
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->use_clockid);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->context_switch);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->write_backward);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->namespaces);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->ksymbol);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->bpf_event);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->aux_output);
+	write(fd,log_buffer,strlen(log_buffer));
+
+
+	sprintf(log_buffer,"%d ",attr->wakeup_events);	/* union */
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%d ",attr->bp_type);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%llx ",attr->config1);	/* union */
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%llx ",attr->config2);	/* union */
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%lld ",attr->branch_sample_type);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%lld ",attr->sample_regs_user);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%d ",attr->sample_stack_user);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%d ",attr->clockid);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%lld ",attr->sample_regs_intr);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%d ",attr->aux_watermark);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%hd ",attr->sample_max_stack);
+	write(fd,log_buffer,strlen(log_buffer));
+
+	sprintf(log_buffer,"%d ",attr->aux_sample_size);
+	write(fd,log_buffer,strlen(log_buffer));
 
 	sprintf(log_buffer,"\n");
-	write(log_fd,log_buffer,strlen(log_buffer));
+	write(fd,log_buffer,strlen(log_buffer));
 	sync();
 
 }
@@ -138,6 +183,29 @@ static int update_read_size(int i) {
 }
 
 void post_perf_event_open(struct syscallrecord *rec);
+
+
+static int known_errno(int e) {
+
+	switch(e) {
+		case EPERM:
+		case ENOENT:
+		case E2BIG:
+		case EBADF:
+		case EINVAL:
+		case EOPNOTSUPP:
+		case ENODEV:
+		case ENOSPC:
+		case EMFILE:
+		case EACCES:
+		case EBUSY:
+		case EAGAIN:
+		case EOVERFLOW:
+			return 1;
+                default:
+			return 0;
+	}
+}
 
 void open_random_event(int mmap_enabled, int overflow_enabled) {
 
@@ -209,7 +277,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 					event_data[i].group_fd,
 					event_data[i].flags);
 				write(log_fd,log_buffer,strlen(log_buffer));
-	                	perf_log_attr(&event_data[i].attr);
+	                	perf_log_attr(log_fd,&event_data[i].attr);
 //				fsync(log_fd);
 //				}
 //				if (quit_next==1) exit(1);
@@ -245,23 +313,29 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 			stats.open_trinity_type_success[trinity_type]++;
 			break;
 		}
-#if 0
-		/* Track source of UNKNOWN errnos */
-		if (errno==16) {
-			printf("Event t=%d c=%llx pid=%d cpu=%d %s\n",
-				event_data[i].attr.type,
-				event_data[i].attr.config,
-				event_data[i].pid,
-				event_data[i].cpu,
-				strerror(errno));
-		}
-#endif
+
 
 		/* Otherwise, track the errors */
 		if (errno<MAX_ERRNOS) {
 			stats.open_errno_count[errno]++;
 			stats.open_type_fail[which_type]++;
 			stats.open_trinity_type_fail[trinity_type]++;
+		}
+		else {
+			/* TODO */
+			/* print message? */
+		}
+
+		/* Track source of UNKNOWN errnos */
+		if (!known_errno(errno)) {
+			printf("UNKNOWN ERROR %d\n",errno);
+			sprintf(log_buffer,"# O -1 %d %d %d %lx ",
+				event_data[i].pid,
+				event_data[i].cpu,
+				event_data[i].group_fd,
+				event_data[i].flags);
+			write(fileno(stdout),log_buffer,strlen(log_buffer));
+                	perf_log_attr(fileno(stdout),&event_data[i].attr);
 		}
 
 		/* no more file descriptors, so give up */
@@ -282,7 +356,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 				event_data[i].group_fd,
 				event_data[i].flags);
 		write(log_fd,log_buffer,strlen(log_buffer));
-		perf_log_attr(&event_data[i].attr);
+		perf_log_attr(log_fd,&event_data[i].attr);
 #if FSYNC_EVERY
 		fsync(log_fd);
 #endif

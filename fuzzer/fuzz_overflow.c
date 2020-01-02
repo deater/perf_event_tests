@@ -58,14 +58,14 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 	int i;
 	int ret;
 	static int last_fd=0;
-
+	int saved_errno=errno;
 
 	/* In some cases (syscall tracepoint) */
 	/* The act of disabling an event would trigger */
 	/* Another overflow, leading to a recursive storm */
 	if (already_handling) {
 		stats.already_overflows++;
-		return;
+		goto our_handler_exit;
 	}
 
 	already_handling=1;
@@ -90,7 +90,7 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 			last_fd=fd;
 		}
 		already_handling=0;
-		return;
+		goto our_handler_exit;
 //		orderly_shutdown();
 	}
 
@@ -157,8 +157,14 @@ void our_handler(int signum, siginfo_t *info, void *uc) {
 
 	already_handling=0;
 
-	(void) ret;
 
+our_handler_exit:
+
+	/* restore saved errno value */
+
+	errno=saved_errno;
+
+	(void) ret;
 }
 
 void sigio_handler(int signum, siginfo_t *info, void *uc) {

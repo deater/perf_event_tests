@@ -22,6 +22,7 @@
 #include "fuzz_compat.h"
 
 #include "perf_attr_print.h"
+#include "parse_log.h"
 
 static unsigned long long line_num=0;
 
@@ -98,40 +99,7 @@ static void open_event(char *line) {
 	int cpu,group_fd;
 	long int flags;
 
-	/* I hate bitfields */
-	int disabled,inherit,pinned,exclusive;
-	int exclude_user,exclude_kernel,exclude_hv,exclude_idle;
-	int mmap,comm,freq,inherit_stat;
-	int enable_on_exec,task,watermark,precise_ip;
-	int mmap_data,sample_id_all,exclude_host,exclude_guest;
-	int exclude_callchain_user,exclude_callchain_kernel;
-	int mmap2;
-
-
-	sscanf(line,
-		"%*c %d %d %d %d %lx "
-		"%x %x "
-		"%llx %llx %llx %llx "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d "
-		"%llx %llx %lld "
-		"%d %d %lld %d %d",
-		&orig_fd,&pid,&cpu,&group_fd,&flags,
-		&pe.type,&pe.size,
-		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format,
-		&disabled,&inherit,&pinned,&exclusive,
-		&exclude_user,&exclude_kernel,&exclude_hv,&exclude_idle,
-		&mmap,&comm,&freq,&inherit_stat,
-		&enable_on_exec,&task,&watermark,&precise_ip,
-		&mmap_data,&sample_id_all,&exclude_host,&exclude_guest,
-		&pe.wakeup_events,&pe.bp_type,
-		&pe.config1,&pe.config2,&pe.branch_sample_type,
-		&exclude_callchain_kernel,&exclude_callchain_user,
-		&pe.sample_regs_user,&pe.sample_stack_user,&mmap2);
+	parse_open_event(line,&orig_fd,&pid,&cpu,&group_fd,&flags,&pe);
 
 	if ((orig_fd<0) || (orig_fd>=MAX_EVENTS)) {
 		fprintf(stderr,"Error! fd %d out of range\n",orig_fd);
@@ -156,32 +124,32 @@ static void open_event(char *line) {
 	event_info[orig_fd].attr.sample_regs_user=pe.sample_regs_user;
 	event_info[orig_fd].attr.sample_stack_user=pe.sample_stack_user;
 
-	event_info[orig_fd].attr.disabled=disabled;
-	event_info[orig_fd].attr.inherit=inherit;
-	event_info[orig_fd].attr.pinned=pinned;
-	event_info[orig_fd].attr.exclusive=exclusive;
-	event_info[orig_fd].attr.exclude_user=exclude_user;
-	event_info[orig_fd].attr.exclude_kernel=exclude_kernel;
-	event_info[orig_fd].attr.exclude_hv=exclude_hv;
-	event_info[orig_fd].attr.exclude_idle=exclude_idle;
-	event_info[orig_fd].attr.mmap=mmap;
-	event_info[orig_fd].attr.comm=comm;
-	event_info[orig_fd].attr.freq=freq;
-	event_info[orig_fd].attr.inherit_stat=inherit_stat;
-	event_info[orig_fd].attr.enable_on_exec=enable_on_exec;
-	event_info[orig_fd].attr.task=task;
-	event_info[orig_fd].attr.watermark=watermark;
-	event_info[orig_fd].attr.precise_ip=precise_ip;
-	event_info[orig_fd].attr.mmap_data=mmap_data;
-	event_info[orig_fd].attr.sample_id_all=sample_id_all;
-	event_info[orig_fd].attr.exclude_host=exclude_host;
-	event_info[orig_fd].attr.exclude_guest=exclude_guest;
-	event_info[orig_fd].attr.exclude_callchain_user=exclude_callchain_user;
-	event_info[orig_fd].attr.exclude_callchain_kernel=exclude_callchain_kernel;
-	event_info[orig_fd].attr.mmap2=mmap2;
+	event_info[orig_fd].attr.disabled=pe.disabled;
+	event_info[orig_fd].attr.inherit=pe.inherit;
+	event_info[orig_fd].attr.pinned=pe.pinned;
+	event_info[orig_fd].attr.exclusive=pe.exclusive;
+	event_info[orig_fd].attr.exclude_user=pe.exclude_user;
+	event_info[orig_fd].attr.exclude_kernel=pe.exclude_kernel;
+	event_info[orig_fd].attr.exclude_hv=pe.exclude_hv;
+	event_info[orig_fd].attr.exclude_idle=pe.exclude_idle;
+	event_info[orig_fd].attr.mmap=pe.mmap;
+	event_info[orig_fd].attr.comm=pe.comm;
+	event_info[orig_fd].attr.freq=pe.freq;
+	event_info[orig_fd].attr.inherit_stat=pe.inherit_stat;
+	event_info[orig_fd].attr.enable_on_exec=pe.enable_on_exec;
+	event_info[orig_fd].attr.task=pe.task;
+	event_info[orig_fd].attr.watermark=pe.watermark;
+	event_info[orig_fd].attr.precise_ip=pe.precise_ip;
+	event_info[orig_fd].attr.mmap_data=pe.mmap_data;
+	event_info[orig_fd].attr.sample_id_all=pe.sample_id_all;
+	event_info[orig_fd].attr.exclude_host=pe.exclude_host;
+	event_info[orig_fd].attr.exclude_guest=pe.exclude_guest;
+	event_info[orig_fd].attr.exclude_callchain_user=pe.exclude_callchain_user;
+	event_info[orig_fd].attr.exclude_callchain_kernel=pe.exclude_callchain_kernel;
+	event_info[orig_fd].attr.mmap2=pe.mmap2;
 
 	event_info[orig_fd].opened=1;
-	event_info[orig_fd].enabled=enable_on_exec;
+	event_info[orig_fd].enabled=pe.enable_on_exec;
 	event_info[orig_fd].mmap=0;
 	event_info[orig_fd].signal_handler=0;
 

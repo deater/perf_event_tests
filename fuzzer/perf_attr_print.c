@@ -665,6 +665,13 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	if (pe->exclude_callchain_user) fprintf(fff,"\tpe[%d].exclude_callchain_user=%d;\n",fd,pe->exclude_callchain_user);
 	if (pe->mmap2) fprintf(fff,"\tpe[%d].mmap2=%d;\n",fd,pe->mmap2);
 	if (pe->comm_exec) fprintf(fff,"\tpe[%d].comm_exec=%d;\n",fd,pe->comm_exec);
+	if (pe->use_clockid) fprintf(fff,"\tpe[%d].use_clockid=%d;\n",fd,pe->use_clockid);
+	if (pe->context_switch) fprintf(fff,"\tpe[%d].context_switch=%d;\n",fd,pe->context_switch);
+	if (pe->write_backward) fprintf(fff,"\tpe[%d].write_backward=%d;\n",fd,pe->write_backward);
+	if (pe->namespaces) fprintf(fff,"\tpe[%d].namespaces=%d;\n",fd,pe->namespaces);
+	if (pe->ksymbol) fprintf(fff,"\tpe[%d].ksymbol=%d;\n",fd,pe->ksymbol);
+	if (pe->bpf_event) fprintf(fff,"\tpe[%d].bpf_event=%d;\n",fd,pe->bpf_event);
+	if (pe->aux_output) fprintf(fff,"\tpe[%d].aux_output=%d;\n",fd,pe->aux_output);
 
 	if (pe->watermark) {
 		fprintf(fff,"\tpe[%d].wakeup_watermark=%d;\n",fd,pe->wakeup_watermark);
@@ -672,6 +679,17 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	else {
 		fprintf(fff,"\tpe[%d].wakeup_events=%d;\n",fd,pe->wakeup_events);
 	}
+
+	/* handle the config1/config2 union, URGH */
+#if 0
+	/* only know it's kprobe/uprobe if type is set to those */
+	/* but not possible to know that without looking up the */
+	/* type in /sys/? */
+	/* guess we fall back to just config1/config2 */
+		if (pe->kprobe_func) fprintf(fff,"\tpe[%d].kprobe_func=0x%llxULL;\n",fd,pe->kprobe_func);
+		if (pe->kprobe_addr) fprintf(fff,"\tpe[%d].kpeobe_addr=0x%llxULL;\n",fd,pe->krpobe_addr);
+
+#endif
 
 	if (pe->bp_type==HW_BREAKPOINT_EMPTY) {
 		fprintf(fff,"\tpe[%d].bp_type=HW_BREAKPOINT_EMPTY;\n",fd);
@@ -685,6 +703,7 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 		fprintf(fff,"\tpe[%d].bp_addr=0x%llxULL;\n",fd,pe->bp_addr);
 		fprintf(fff,"\tpe[%d].bp_len=0x%llxULL;\n",fd,pe->bp_len);
 	}
+
 	if (pe->branch_sample_type) {
 		fprintf(fff,"\tpe[%d].branch_sample_type=",fd);
 		perf_pretty_print_branch_sample_type(fff,pe->branch_sample_type);
@@ -692,7 +711,16 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	}
 
 	if (pe->sample_regs_user) fprintf(fff,"\tpe[%d].sample_regs_user=%lldULL;\n",fd,pe->sample_regs_user);
-	if (pe->sample_stack_user) fprintf(fff,"\tpe[%d].sample_stack_user=%d;\n",fd,pe->sample_stack_user);
+	if (pe->sample_stack_user) fprintf(fff,"\tpe[%d].sample_stack_user=0x%x;\n",fd,pe->sample_stack_user);
+
+	if (pe->clockid) fprintf(fff,"\tpe[%d].clockid=%d;\n",fd,pe->clockid);
+
+	if (pe->sample_regs_intr) fprintf(fff,"\tpe[%d].sample_regs_intr=%lldULL;\n",fd,pe->sample_regs_intr);
+
+	if (pe->aux_watermark) fprintf(fff,"\tpe[%d].aux_watermark=%d;\n",fd,pe->aux_watermark);
+	if (pe->sample_max_stack) fprintf(fff,"\tpe[%d].sample_max_stack=%hd;\n",fd,pe->sample_max_stack);
+	if (pe->aux_sample_size) fprintf(fff,"\tpe[%d].aux_sample_size=%d;\n",fd,pe->aux_sample_size);
+
 	fprintf(fff,"\n");
 }
 

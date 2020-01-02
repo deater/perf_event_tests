@@ -21,6 +21,7 @@ all: $(PROGRAM_LIST)
 x32:	$(PROGRAM_LIST_X32)
 
 replay_log: replay_log.o \
+		parse_log.o \
 		../lib/libhelper.a perf_attr_print.o \
 		trinity_files/trinity_lib.a
 
@@ -30,10 +31,11 @@ replay_log.x32: replay_log.xo perf_attr_print.xo
 		../lib/libhelper.xa
 
 active_events: active_events.o \
+		parse_log.o \
 		../lib/libhelper.a perf_attr_print.o
 
 log_to_code: log_to_code.o \
-		perf_attr_print.o \
+		perf_attr_print.o parse_log.o \
 		../lib/libhelper.a
 
 perf_fuzzer: perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \

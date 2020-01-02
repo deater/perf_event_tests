@@ -11,6 +11,7 @@
 #include "perf_helpers.h"
 
 #include "perf_attr_print.h"
+#include "parse_log.h"
 
 static int error=0;
 static unsigned long long line_num=0;
@@ -58,65 +59,8 @@ static void open_event(char *line) {
 	int cpu,group_fd;
 	long int flags;
 
-	/* I hate bitfields */
-	int disabled,inherit,pinned,exclusive;
-	int exclude_user,exclude_kernel,exclude_hv,exclude_idle;
-	int mmap,comm,freq,inherit_stat;
-	int enable_on_exec,task,watermark,precise_ip;
-	int mmap_data,sample_id_all,exclude_host,exclude_guest;
-	int exclude_callchain_kernel,exclude_callchain_user;
-	int mmap2;
-
-	sscanf(line,
-		"%*c %d %d %d %d %lx "
-		"%x %x "
-		"%llx %llx %llx %llx "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d %d %d "
-		"%d %d "
-		"%llx %llx %lld "
-		"%d %d %lld %d %d ",
-		&orig_fd,&pid,&cpu,&group_fd,&flags,
-		&pe.type,&pe.size,
-		&pe.config,&pe.sample_period,&pe.sample_type,&pe.read_format,
-		&disabled,&inherit,&pinned,&exclusive,
-		&exclude_user,&exclude_kernel,&exclude_hv,&exclude_idle,
-		&mmap,&comm,&freq,&inherit_stat,
-		&enable_on_exec,&task,&watermark,&precise_ip,
-		&mmap_data,&sample_id_all,&exclude_host,&exclude_guest,
-		&pe.wakeup_events,&pe.bp_type,
-		&pe.config1,&pe.config2,&pe.branch_sample_type,
-		&exclude_callchain_kernel,&exclude_callchain_user,
-		&pe.sample_regs_user,&pe.sample_stack_user,&mmap2);
-
-	/* re-populate bitfields */
-	/* can't sscanf into them */
-	pe.disabled=disabled;
-	pe.inherit=inherit;
-	pe.pinned=pinned;
-	pe.exclusive=exclusive;
-	pe.exclude_user=exclude_user;
-	pe.exclude_kernel=exclude_kernel;
-	pe.exclude_hv=exclude_hv;
-	pe.exclude_idle=exclude_idle;
-	pe.mmap=mmap;
-	pe.comm=comm;
-	pe.freq=freq;
-	pe.inherit_stat=inherit_stat;
-	pe.enable_on_exec=enable_on_exec;
-	pe.task=task;
-	pe.watermark=watermark;
-	pe.precise_ip=precise_ip;
-	pe.mmap_data=mmap_data;
-	pe.sample_id_all=sample_id_all;
-	pe.exclude_host=exclude_host;
-	pe.exclude_guest=exclude_guest;
-	pe.exclude_callchain_user=exclude_callchain_user;
-	pe.exclude_callchain_kernel=exclude_callchain_kernel;
-	pe.mmap2=mmap2;
+	parse_open_event(line,
+			&orig_fd, &pid, &cpu, &group_fd, &flags, &pe);
 
 	perf_pretty_print_event(stdout,orig_fd,original_pid,
 				&pe,pid,cpu,group_fd,flags);
