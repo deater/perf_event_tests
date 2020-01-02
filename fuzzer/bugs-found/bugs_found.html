@@ -166,7 +166,12 @@
 
 <h2>Un Fixed bugs:</h2>
 	<ul>
-
+	<li>5.5 (correctness)
+		Introduced in 5.4.
+		If aux_sample_size set improperly,
+		an event will fail to create but
+		perf_event_open() will return 0
+		Reported 2 January 2020
 	</ul>
 
 <h2>Fixed bugs:</h2>

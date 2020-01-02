@@ -308,10 +308,23 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 		}
 
 		/* If we succede, break out of the infinite loop */
-		if (fd>0) {
+		if (fd>2) {
 			stats.open_type_success[which_type]++;
 			stats.open_trinity_type_success[trinity_type]++;
 			break;
+		}
+
+		/* This shouldn't be possible, but has happened */
+		if ((fd==0) || (fd==1) || (fd==2)) {
+			printf("PERF_EVENT_BAD_RETURN fd=%d\n",fd);
+			sprintf(log_buffer,"# O -1 %d %d %d %lx ",
+				event_data[i].pid,
+				event_data[i].cpu,
+				event_data[i].group_fd,
+				event_data[i].flags);
+			write(fileno(stdout),log_buffer,strlen(log_buffer));
+                	perf_log_attr(fileno(stdout),&event_data[i].attr);
+			exit(1);
 		}
 
 
@@ -336,6 +349,7 @@ void open_random_event(int mmap_enabled, int overflow_enabled) {
 				event_data[i].flags);
 			write(fileno(stdout),log_buffer,strlen(log_buffer));
                 	perf_log_attr(fileno(stdout),&event_data[i].attr);
+			exit(1);
 		}
 
 		/* no more file descriptors, so give up */

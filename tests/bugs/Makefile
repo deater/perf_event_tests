@@ -8,6 +8,7 @@ LIB = ../../lib
 PROGRAM_LIST = \
 	check_schedulability \
 	nmi_watchdog_group_leader \
+	peo_zero_return \
 	read_group_attached \
 	sync_read_required
 
@@ -23,6 +24,9 @@ sync_read_required: sync_read_required.o \
 				$(LIB)/libhelper.a
 
 nmi_watchdog_group_leader: nmi_watchdog_group_leader.o \
+				$(LIB)/libhelper.a
+
+peo_zero_return: peo_zero_return.o \
 				$(LIB)/libhelper.a
 
 install: all

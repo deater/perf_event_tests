@@ -404,6 +404,10 @@ $TESTS_DIR/corner_cases/sw_start_leader
 echo "  + tests/corner_cases/hw_sw_mix"
 echo -n "    "
 $TESTS_DIR/corner_cases/hw_sw_mix
+echo "  + tests/bugs/peo_zero_return"
+echo -n "    "
+$TESTS_DIR/bugs/peo_zero_return
+
 
 echo
 echo "* Checking bugs that can silently produce wrong results"
