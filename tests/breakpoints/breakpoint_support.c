@@ -25,17 +25,17 @@ static int quiet=0;
 static char test_string[]="Testing hardware breakpoints...";
 static int fd;
 
-int test_function(int a, int b, int quiet) __attribute__((noinline));
+size_t test_function(size_t a, size_t b, int quiet) __attribute__((noinline));
 
-int test_function(int a, int b, int quiet) {
+size_t test_function(size_t a, size_t b, int quiet) {
 
-	int c;
+	size_t c;
 
 	/* The time thing is there to keep the compiler */
 	/* from optimizing this away.                   */
 
 	c=a+b+rand();
-	if (!quiet) printf("\t\tFunction: %d\n",c);
+	if (!quiet) printf("\t\tFunction: %zd\n",c);
 	return c;
 
 }
@@ -56,12 +56,14 @@ static void alarm_handler(int signum,siginfo_t *oh, void *blah) {
 int main(int argc, char **argv) {
 
 	struct perf_event_attr pe;
-	int i, sum=0, read_result, passes=0;
+	int i, read_result, passes=0;
 	long long count;
 
 	void *address;
 
 	struct sigaction sa;
+
+	size_t sum=0;
 
 	memset(&sa, 0, sizeof(struct sigaction));
 	sa.sa_sigaction = alarm_handler;
@@ -129,7 +131,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (!quiet) {
-		printf("\t\tSum=%d\n",sum);
+		printf("\t\tSum=%zd\n",sum);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
@@ -147,7 +149,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (!quiet) {
-		printf("\t\tTried %d calls, found %lld times, sum=%d\n",
+		printf("\t\tTried %d calls, found %lld times, sum=%zd\n",
 			EXECUTIONS,count,sum);
 
 		if (count!=EXECUTIONS) {
@@ -164,7 +166,7 @@ skip_execs:
 
 	/* Urgh, it's hard to force gcc 4.8+ to not optimize */
 	/* this all away.                                    */
-	if (!quiet) printf("Testing hardware breakpoints (%d)...",sum);
+	if (!quiet) printf("Testing hardware breakpoints (%zd)...",sum);
 
 	/*******************************/
 	/* Test write breakpoint       */
@@ -215,7 +217,7 @@ skip_execs:
 	}
 
 	if (!quiet) {
-		printf("\t\tTried %d writes, found %lld times, sum=%d\n",
+		printf("\t\tTried %d writes, found %lld times, sum=%zd\n",
 			WRITES,count,sum);
 	}
 
@@ -275,7 +277,7 @@ skip_writes:
 	/* Read a variable READS times */
 	for(i=0;i<READS;i++) {
 		sum+=test_variable;
-		if (!quiet) printf("\t\tRead %d\n",sum);
+		if (!quiet) printf("\t\tRead %zd\n",sum);
 	}
 
 	ioctl(fd, PERF_EVENT_IOC_DISABLE,0);
@@ -287,7 +289,7 @@ skip_writes:
 	}
 
 	if (!quiet) {
-		printf("\t\tTrying %d reads, found %lld times, sum=%d\n",
+		printf("\t\tTrying %d reads, found %lld times, sum=%zd\n",
 			READS,count,sum);
 	}
 
