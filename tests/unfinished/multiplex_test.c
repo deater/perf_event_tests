@@ -19,7 +19,9 @@
 
 #define NUM_EVENTS 64
 
-int nehalem_events[24]={
+#define NEHALEM_EVENTS	24
+
+int nehalem_events[NEHALEM_EVENTS]={
    0x52003c,0x5200c0,0x52010b,0x520143,
    0x520149,0x520151,0x520185,0x520188,
    0x5201a2,0x5201d0,0x52020b,0x520224,
@@ -61,7 +63,7 @@ void *thread_work(void *blah) {
    while(1) {
 
       pe.type=PERF_TYPE_RAW;
-      pe.config=nehalem_events[i%24];
+      pe.config=nehalem_events[i%NEHALEM_EVENTS];
       pe.disabled=0;
       pe.inherit=1;
       pe.exclude_kernel=1;
