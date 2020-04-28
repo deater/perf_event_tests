@@ -170,6 +170,18 @@
 
 <h2>Fixed bugs:</h2>
 
+<h3>Fixed in 5.6?</h3>
+	<ul>
+	<li>(warning)
+		x86/entry/64: Fix unwind hints in kernel exit path
+		WARNING: can't dereference registers at 000000003aeb0cdd for ip
+swapgs_restore_regs_and_return_to_usermode+0x93/0xa0
+	<li>(warning)
+		objtool: Fix stack offset tracking for indirect CFAs
+		WARNING: can't dereference registers at 00000000f0a6bdba for ip
+interrupt_entry+0x9f/0xa0
+	</ul>
+
 <h3>Fixed in 5.5</h3>
 	<ul>
 	<li>(correctness)
