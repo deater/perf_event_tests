@@ -884,6 +884,12 @@ static long long random_sample_type(void)
 		sample_type |= PERF_SAMPLE_PHYS_ADDR;
 	if (RAND_BOOL())
 		sample_type |= PERF_SAMPLE_AUX;
+	if (RAND_BOOL())
+		sample_type |= PERF_SAMPLE_CGROUP;
+	if (RAND_BOOL())
+		sample_type |= PERF_SAMPLE_DATA_PAGE_SIZE;
+	if (RAND_BOOL())
+		sample_type |= PERF_SAMPLE_CODE_PAGE_SIZE;
 
 	return sample_type;
 }
@@ -989,7 +995,8 @@ static long long random_branch_sample_type(void)
 		branch_sample |= PERF_SAMPLE_BRANCH_NO_CYCLES;
 	if (RAND_BOOL())
 		branch_sample |= PERF_SAMPLE_BRANCH_TYPE_SAVE;
-
+	if (RAND_BOOL())
+		branch_sample |= PERF_SAMPLE_BRANCH_HW_INDEX;
 
 	return branch_sample;
 }
@@ -1064,6 +1071,8 @@ static void create_mostly_valid_counting_event(struct perf_event_attr *attr,
 	/* aux_watermark not relevant if not sampling */
 
 	/* sample_max_stack not relevant if not sampling */
+
+	/* aux_sample_size not relevant if not sampling */
 }
 
 static void create_mostly_valid_sampling_event(struct perf_event_attr *attr,
