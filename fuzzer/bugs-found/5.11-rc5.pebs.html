@@ -1,0 +1,196 @@
+<html>
+<head>
+<title> BUG: kernel NULL pointer dereference intel_pmu_drain_pebs_nhm
+</title>
+</head>
+
+<body>
+
+<center> 
+<h1>
+BUG: kernel NULL pointer dereference intel_pmu_drain_pebs_nhm
+</h1> 
+</center>
+
+<h3>Severity</h3>
+Crash/Panic
+
+<h3>Found by</h3>
+perf_fuzzer: Vince Weaver
+
+<h3>First Seen</h3>
+5.11-rc5
+
+<h3>Most recently Seen</h3>
+5.11-rc5
+
+<h3>Reproducible</h3>
+Yes
+
+<h3>Found On</h3>
+haswell
+
+<h3>Linux-kernel Mailing List Report</h3>
+28 January 2021 -- [perf] perf_fuzzer causes crash in intel_pmu_drain_pebs_nhm()
+
+
+<h3>Introduced by</h3>
+
+
+<h3>Fixed by</h3>
+	
+<h3>Kernel Splat</h3>
+
+<ol>
+<li>
+<pre>
+*** perf_fuzzer 0.32-rc0 *** by Vince Weaver
+
+	Linux version 5.11.0-rc5+ x86_64
+	Processor: Intel 6/60/3
+
+	Stopping after 30000
+	Watchdog enabled with timeout 60s
+	Will auto-exit if signal storm detected
+	Seeding RNG from time 1611784483
+
+	To reproduce, try:
+		echo 1 > /proc/sys/kernel/nmi_watchdog
+		echo 0 > /proc/sys/kernel/perf_event_paranoid
+		echo 1000 > /proc/sys/kernel/perf_event_max_sample_rate
+		./perf_fuzzer -s 30000 -r 1611784483
+
+	Fuzzing the following syscalls: mmap perf_event_open close read write ioctl fork prctl poll 
+	Also attempting the following: signal-handler-on-overflow busy-instruction-loop accessing-perf-proc-and-sys-files trashing-the-mmap-page 
+
+	Pid=594840, sleeping 1s
+
+==================================================
+Starting fuzzing at 2021-01-27 16:54:44
+==================================================
+Cannot open /sys/kernel/tracing/kprobe_events
+Iteration 10000, 121706 syscalls in 7.84 s (15.521 k syscalls/s)
+	Open attempts: 113898  Successful: 910  Currently open: 35
+		EPERM : 26
+		ENOENT : 1069
+		E2BIG : 9064
+		EBADF : 5866
+		EACCES : 4587
+		EINVAL : 92164
+		EOVERFLOW : 3
+		EOPNOTSUPP : 209
+		Trinity Type (Normal 92/28339)(Sampling 21/28651)(Global 766/28517)(Random 31/28391)
+		Type (Hardware 205/15861)(software 288/15381)(tracepoint 63/15310)(Cache 58/14245)(cpu 255/15195)(breakpoint 11/15260)(kprobe 0/921)(power 1/905)(msr 12/975)(uncore_imc 0/896)(uncore_cbox_0 3/875)(uncore_cbox_1 2/870)(uncore_cbox_2 2/881)(uncore_cbox_3 0/887)(uncore_arb 3/911)(cstate_core 3/915)(cstate_pkg 4/1009)(i915 0/873)(#18 0/16)(>19 0/11712)
+	Close:	875/875 Successful
+	Read:	789/877 Successful
+	Write:	0/835 Successful
+	Ioctl:	266/883 Successful: (ENABLE 62/62)(DISABLE 56/56)(REFRESH 5/62)(RESET 59/59)(PERIOD 4/71)(SET_OUTPUT 6/69)(SET_FILTER 0/70)(ID 71/71)(SET_BPF 0/63)(PAUSE_OUTPUT 3/52)(QUERY_BPF 0/77)(MOD_ATTR 0/58)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/113)
+	Mmap:	465/1078 Successful: (MMAP 465/1078)(TRASH 105/164)(READ 94/97)(UNMAP 465/965)(AUX 0/110)(AUX_READ 0/0)
+	Prctl:	921/921 Successful
+	Fork:	443/443 Successful
+	Poll:	899/920 Successful
+	Access:	122/922 Successful
+	Overflows: 1  Recursive: 0
+	SIGIOs due to RT signal queue full: 0
+Iteration 20000, 120596 syscalls in 8.13 s (14.834 k syscalls/s)
+	Open attempts: 112583  Successful: 939  Currently open: 99
+		EPERM : 22
+		ENOENT : 1120
+		E2BIG : 9064
+		EBADF : 5355
+		EACCES : 4638
+		ENODEV : 1
+		EINVAL : 91240
+		EOVERFLOW : 3
+		EOPNOTSUPP : 201
+		Trinity Type (Normal 91/28034)(Sampling 21/27999)(Global 786/28331)(Random 41/28219)
+		Type (Hardware 214/15858)(software 290/15228)(tracepoint 69/14814)(Cache 59/14152)(cpu 278/15158)(breakpoint 2/14972)(kprobe 0/919)(power 0/866)(msr 8/1013)(uncore_imc 0/892)(uncore_cbox_0 1/870)(uncore_cbox_1 2/879)(uncore_cbox_2 8/838)(uncore_cbox_3 3/880)(uncore_arb 2/858)(cstate_core 0/885)(cstate_pkg 3/1014)(i915 0/967)(#18 0/15)(>19 0/11505)
+	Close:	875/875 Successful
+	Read:	860/953 Successful
+	Write:	0/934 Successful
+	Ioctl:	269/890 Successful: (ENABLE 69/69)(DISABLE 61/61)(REFRESH 6/77)(RESET 58/58)(PERIOD 6/61)(SET_OUTPUT 8/66)(SET_FILTER 0/67)(ID 60/60)(SET_BPF 0/76)(PAUSE_OUTPUT 1/62)(QUERY_BPF 0/65)(MOD_ATTR 0/42)(#12 0/0)(#13 0/0)(#14 0/0)(>14 0/126)
+	Mmap:	456/1082 Successful: (MMAP 456/1082)(TRASH 125/168)(READ 904/1594)(UNMAP 455/980)(AUX 0/117)(AUX_READ 0/0)
+	Prctl:	934/934 Successful
+	Fork:	454/454 Successful
+	Poll:	864/878 Successful
+	Access:	135/928 Successful
+	Overflows: 1486  Recursive: 0
+	SIGIOs due to RT signal queue full: 0
+[96289.009646] BUG: kernel NULL pointer dereference, address: 0000000000000150
+[96289.017094] #PF: supervisor read access in kernel mode
+[96289.022588] #PF: error_code(0x0000) - not-present page
+[96289.028069] PGD 0 P4D 0 
+[96289.030796] Oops: 0000 [#1] SMP PTI
+[96289.034549] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G        W         5.11.0-rc5+ #151
+[96289.043059] Hardware name: LENOVO 10AM000AUS/SHARKBAY, BIOS FBKT72AUS 01/26/2014
+[96289.050946] RIP: 0010:intel_pmu_drain_pebs_nhm+0x464/0x5f0
+[96289.056817] Code: 09 00 00 0f b6 c0 49 39 c4 74 2a 48 63 82 78 09 00 00 48 01 c5 48 39 6c 24 08 76 17 0f b6 05 14 70 3f 01 83 e0 0f 3c 03 77 a4 <48> 8b 85 90 00 00 00 eb 9f 31 ed 83 eb 01 83 fb 01 0f 85 30 ff ff
+[96289.076876] RSP: 0000:ffffffff822039e0 EFLAGS: 00010097
+[96289.082468] RAX: 0000000000000002 RBX: 0000000000000155 RCX: 0000000000000008
+[96289.090095] RDX: ffff88811ac118a0 RSI: ffffffff82203980 RDI: ffffffff82203980
+[96289.097746] RBP: 00000000000000c0 R08: 0000000000000000 R09: 0000000000000000
+[96289.105376] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000001
+[96289.113008] R13: ffffffff82203bc0 R14: ffff88801c3cf800 R15: ffffffff829814a0
+[96289.120671] FS:  0000000000000000(0000) GS:ffff88811ac00000(0000) knlGS:0000000000000000
+[96289.129346] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[96289.135526] CR2: 0000000000000150 CR3: 000000000220c003 CR4: 00000000001706f0
+[96289.143159] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[96289.150803] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[96289.158414] Call Trace:
+[96289.161041]  ? update_blocked_averages+0x532/0x620
+[96289.166152]  ? update_group_capacity+0x25/0x1d0
+[96289.171025]  ? cpumask_next_and+0x19/0x20
+[96289.175339]  ? update_sd_lb_stats.constprop.0+0x702/0x820
+[96289.181105]  intel_pmu_drain_pebs_buffer+0x33/0x50
+[96289.186259]  ? x86_pmu_commit_txn+0xbc/0xf0
+[96289.190749]  ? _raw_spin_lock_irqsave+0x1d/0x30
+[96289.195603]  ? timerqueue_add+0x64/0xb0
+[96289.199720]  ? update_load_avg+0x6c/0x5e0
+[96289.204001]  ? enqueue_task_fair+0x98/0x5a0
+[96289.208464]  ? timerqueue_del+0x1e/0x40
+[96289.212556]  ? uncore_msr_read_counter+0x10/0x20
+[96289.217513]  intel_pmu_pebs_disable+0x12a/0x130
+[96289.222324]  x86_pmu_stop+0x48/0xa0
+[96289.226076]  x86_pmu_del+0x40/0x160
+[96289.229813]  event_sched_out.isra.0+0x81/0x1e0
+[96289.234602]  group_sched_out.part.0+0x4f/0xc0
+[96289.239257]  __perf_event_disable+0xef/0x1d0
+[96289.243831]  event_function+0x8c/0xd0
+[96289.247785]  remote_function+0x3e/0x50
+[96289.251797]  flush_smp_call_function_queue+0x11b/0x1a0
+[96289.257268]  flush_smp_call_function_from_idle+0x38/0x60
+[96289.262944]  do_idle+0x15f/0x240
+[96289.266421]  cpu_startup_entry+0x19/0x20
+[96289.270639]  start_kernel+0x7df/0x804
+[96289.274558]  ? apply_microcode_early.cold+0xc/0x27
+[96289.279678]  secondary_startup_64_no_verify+0xb0/0xbb
+[96289.285078] Modules linked in: nf_tables libcrc32c nfnetlink intel_rapl_msr intel_rapl_common snd_hda_codec_realtek snd_hda_codec_generic snd_hda_codec_hdmi x86_pkg_temp_thermal ledtrig_audio intel_powerclamp snd_hda_intel coretemp snd_intel_dspcfg snd_hda_codec snd_hda_core kvm_intel kvm snd_hwdep irqbypass at24 snd_pcm tpm_tis crct10dif_pclmul snd_timer crc32_pclmul regmap_i2c wmi_bmof sg tpm_tis_core snd ghash_clmulni_intel tpm iTCO_wdt aesni_intel soundcore rng_core iTCO_vendor_support crypto_simd mei_me mei cryptd pcspkr evdev glue_helper binfmt_misc ip_tables x_tables autofs4 sr_mod sd_mod t10_pi cdrom i915 iosf_mbi ahci i2c_algo_bit libahci drm_kms_helper xhci_pci ehci_pci ehci_hcd libata xhci_hcd lpc_ich usbcore i2c_i801 drm crc32c_intel e1000e mfd_core scsi_mod usb_common i2c_smbus wmi fan thermal video button
+[96289.362498] CR2: 0000000000000150
+[96289.366070] ---[ end trace 80c577f99562015f ]---
+[96289.371007] RIP: 0010:intel_pmu_drain_pebs_nhm+0x464/0x5f0
+[96289.376868] Code: 09 00 00 0f b6 c0 49 39 c4 74 2a 48 63 82 78 09 00 00 48 01 c5 48 39 6c 24 08 76 17 0f b6 05 14 70 3f 01 83 e0 0f 3c 03 77 a4 <48> 8b 85 90 00 00 00 eb 9f 31 ed 83 eb 01 83 fb 01 0f 85 30 ff ff
+[96289.396981] RSP: 0000:ffffffff822039e0 EFLAGS: 00010097
+[96289.402573] RAX: 0000000000000002 RBX: 0000000000000155 RCX: 0000000000000008
+[96289.410226] RDX: ffff88811ac118a0 RSI: ffffffff82203980 RDI: ffffffff82203980
+[96289.417841] RBP: 00000000000000c0 R08: 0000000000000000 R09: 0000000000000000
+[96289.425461] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000001
+[96289.433122] R13: ffffffff82203bc0 R14: ffff88801c3cf800 R15: ffffffff829814a0
+[96289.440774] FS:  0000000000000000(0000) GS:ffff88811ac00000(0000) knlGS:0000000000000000
+[96289.449374] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[96289.455507] CR2: 0000000000000150 CR3: 000000000220c003 CR4: 00000000001706f0
+[96289.463119] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[96289.470764] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000600
+[96289.478408] Kernel panic - not syncing: Attempted to kill the idle task!
+[96289.485598] Kernel Offset: disabled
+[96289.489355] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
+
+</pre>
+
+</ol>
+
+
+<hr>
+<a href="bugs_found.html">Back to perf_fuzzer bugs found</a>
+
+</body>
+</html>
