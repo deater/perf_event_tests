@@ -172,16 +172,33 @@
 
 <h2>Fixed bugs:</h2>
 
+
+<h3>Fixed in 5.12</h3>
+	<ul>
+	<li>(crash)
+		perf/x86/intel: Fix a crash caused by zero PEBS status<br>
+		Possibly haswell/PEBS specific<br>
+		Reported: ?? 2021<br>
+		Fixed by: d88d05a9e0b6d9356e97129d4ff9942d765f46ea
+	<li>(warning)
+		perf/x86/intel: Fix unchecked MSR access error caused by VLBR_EVENT<br>
+		Some invalid events are used by virtualized systems and weren't being filtered out<br>
+		Reported: ?? 2021<br>
+		Fixed by: 2dc0572f2cef87425147658698dce2600b799bd3
+	</ul>
+
 <h3>Fixed in 5.6?</h3>
 	<ul>
 	<li>(warning)
-		x86/entry/64: Fix unwind hints in kernel exit path
+		x86/entry/64: Fix unwind hints in kernel exit path<br>
 		WARNING: can't dereference registers at 000000003aeb0cdd for ip
-swapgs_restore_regs_and_return_to_usermode+0x93/0xa0
+swapgs_restore_regs_and_return_to_usermode+0x93/0xa0<br>
+		Fixed by: ??<br>
 	<li>(warning)
-		objtool: Fix stack offset tracking for indirect CFAs
+		objtool: Fix stack offset tracking for indirect CFAs<br>
 		WARNING: can't dereference registers at 00000000f0a6bdba for ip
-interrupt_entry+0x9f/0xa0
+interrupt_entry+0x9f/0xa0<br>
+		Fixed by: ??<br>
 	</ul>
 
 <h3>Fixed in 5.5</h3>
