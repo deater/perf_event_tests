@@ -52,13 +52,13 @@
 
 /* Globals from Trinity */
 int page_size;
-struct shm_s *shm;
+//struct shm_s *fshm;
 char *page_rand;
 unsigned int num_online_cpus;
 unsigned int max_children=1;
 
 /* Stats globals */
-struct fuzzer_stats_t stats;
+//struct fuzzer_stats_t fstats;
 
 /* Logging globals */
 int logging=0;
