@@ -693,7 +693,7 @@ static long long random_event_config(__u32 *event_type,
 		}
 		break;
 	case PERF_TYPE_SOFTWARE:
-		switch (rand() % 12) {
+		switch (rand() % 13) {
 		case 0:
 			config = PERF_COUNT_SW_CPU_CLOCK;
 			break;
@@ -728,6 +728,9 @@ static long long random_event_config(__u32 *event_type,
 			config = PERF_COUNT_SW_BPF_OUTPUT;
 			break;
 		case 11:
+			config = PERF_COUNT_SW_CGROUP_SWITCHES;
+			break;
+		case 12:
 			config = rand64();
 			break;
 		default:
@@ -890,6 +893,8 @@ static long long random_sample_type(void)
 		sample_type |= PERF_SAMPLE_DATA_PAGE_SIZE;
 	if (RAND_BOOL())
 		sample_type |= PERF_SAMPLE_CODE_PAGE_SIZE;
+	if (RAND_BOOL())
+		sample_type |= PERF_SAMPLE_WEIGHT_STRUCT;
 
 	return sample_type;
 }
@@ -918,7 +923,7 @@ static int random_attr_size(void) {
 
 	int size=0;
 
-	switch(rand() % 11) {
+	switch(rand() % 12) {
 	case 0:	size = PERF_ATTR_SIZE_VER0;
 		break;
 	case 1: size = PERF_ATTR_SIZE_VER1;
@@ -933,13 +938,15 @@ static int random_attr_size(void) {
 		break;
 	case 6: size = PERF_ATTR_SIZE_VER6;
 		break;
-	case 7: size = sizeof(struct perf_event_attr);
+	case 7: size = PERF_ATTR_SIZE_VER7;
 		break;
-	case 8: size = rand32();
+	case 8: size = sizeof(struct perf_event_attr);
 		break;
-	case 9:	size = get_len();
+	case 9: size = rand32();
 		break;
-	case 10: size = 0;
+	case 10: size = get_len();
+		break;
+	case 11: size = 0;
 		break;
 	default:
 		break;
@@ -1051,6 +1058,12 @@ static void create_mostly_valid_counting_event(struct perf_event_attr *attr,
 	attr->ksymbol = RAND_BOOL();
 	attr->bpf_event = RAND_BOOL();
 	attr->aux_output = RAND_BOOL();
+	attr->cgroup = RAND_BOOL();
+	attr->text_poke = RAND_BOOL();
+	attr->build_id = RAND_BOOL();
+	attr->inherit_thread = RAND_BOOL();
+	attr->remove_on_exec = RAND_BOOL();
+	attr->sigtrap = RAND_BOOL();
 
 	/* wakeup events not relevant */
 
