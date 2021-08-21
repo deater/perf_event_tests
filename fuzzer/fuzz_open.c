@@ -201,6 +201,7 @@ static int known_errno(int e) {
 		case EBUSY:
 		case EAGAIN:
 		case EOVERFLOW:
+		case EFAULT:
 			return 1;
                 default:
 			return 0;
