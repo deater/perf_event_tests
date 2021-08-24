@@ -61,6 +61,8 @@ static void print_errno_name(FILE *fff, int e) {
 				break;
 		case EOVERFLOW:	fprintf(fff,"EOVERFLOW");
 				break;
+		case EFAULT:	fprintf(fff,"EFAULT");
+				break;
 
 		default:	fprintf(fff,"UNKNOWN %d",e);
 				break;
