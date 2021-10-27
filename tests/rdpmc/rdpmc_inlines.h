@@ -38,20 +38,20 @@ inline unsigned long long rdpmc(unsigned int counter) {
 
 
 inline unsigned long long rdtsc(void) {
-
-	return 0;
-
+	unsigned long long __val;
+	__asm__ volatile("mrs %0, cntvct_el0" : "=r" (__val));
+	return __val;
 }
 
 inline unsigned long long rdpmc(unsigned int counter) {
 
 	unsigned long long ret=0;
 
-	if (counter == PERF_COUNT_HW_CPU_CYCLES) {
+	if (counter == 31) {
 		asm volatile("mrs %0, pmccntr_el0" : "=r" (ret));
 	}
 	else {
-		asm volatile("msr pmselr_el0, %0" : : "r" ((counter-1)));
+		asm volatile("msr pmselr_el0, %0" : : "r" (counter));
 		asm volatile("mrs %0, pmxevcntr_el0" : "=r" (ret));
 	}
 
