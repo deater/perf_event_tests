@@ -77,6 +77,26 @@ fail:
 }
 #endif
 
+static inline uint64_t mul_u32_u32(uint32_t a, uint32_t b)
+{
+	return (uint64_t)a * b;
+}
+
+static inline uint64_t mul_u64_u32_shr(uint64_t a, uint64_t b, unsigned int shift)
+{
+	uint32_t ah, al;
+	uint64_t ret;
+
+	al = a;
+	ah = a >> 32;
+
+	ret = mul_u32_u32(al, b) >> shift;
+	if (ah)
+		ret += mul_u32_u32(ah, b) << (32 - shift);
+
+	return ret;
+}
+
 /* based on the code in include/uapi/linux/perf_event.h */
 inline unsigned long long mmap_read_self(void *addr,
 					 unsigned long long *en,
@@ -86,10 +106,8 @@ inline unsigned long long mmap_read_self(void *addr,
 
 	uint32_t seq, time_mult, time_shift, index, width;
 	uint64_t count, enabled, running;
-	uint64_t cyc, time_offset;
+	uint64_t cyc, time_offset = 0, time_cycles = 0, time_mask = ~0ULL;
 	int64_t pmc = 0,pmc_before=0;
-	uint64_t quot, rem;
-	uint64_t delta = 0;
 
 
 	do {
@@ -120,12 +138,11 @@ inline unsigned long long mmap_read_self(void *addr,
 			time_mult = pc->time_mult;
 			time_shift = pc->time_shift;
 
-			quot=(cyc>>time_shift);
-			rem = cyc & (((uint64_t)1 << time_shift) - 1);
-			delta = time_offset + (quot * time_mult) +
-				((rem * time_mult) >> time_shift);
+			if (pc->cap_user_time_short) {
+				time_cycles = pc->time_cycles;
+				time_mask = pc->time_mask;
+			}
 		}
-		enabled+=delta;
 
 		/* actually do the measurement */
 
@@ -161,7 +178,6 @@ inline unsigned long long mmap_read_self(void *addr,
 			/* add current count into the existing kernel count */
 			count+=pmc;
 
-			running+=delta;
 		}
 		else {
 			return 0xffffffffffffffffULL;
@@ -169,6 +185,19 @@ inline unsigned long long mmap_read_self(void *addr,
 		barrier();
 
 	} while (pc->lock != seq);
+
+	if (enabled != running) {
+		uint64_t delta;
+
+		/* Adjust for cap_usr_time_short, a nop if not */
+		cyc = time_cycles + ((cyc - time_cycles) & time_mask);
+
+		delta = time_offset + mul_u64_u32_shr(cyc, time_mult, time_shift);
+
+		enabled += delta;
+		if (index)
+			running += delta;
+	}
 
 //	printf("BLAH: pmc_raw=%lx pmc=%lx offset=%llx width=%d\n",
 //		pmc_before,pmc,pc->offset,width);
