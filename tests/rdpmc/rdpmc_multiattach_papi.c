@@ -160,6 +160,7 @@ int main(int argc, char **argv) {
 
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
+	pe.config1=ARCH_EVENT_CONFIG1_VAL;
 
 	fd[0]=-1;
 
@@ -199,6 +200,7 @@ int main(int argc, char **argv) {
 
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
+	pe.config1=ARCH_EVENT_CONFIG1_VAL;
 
 	fd2[0]=-1;
 

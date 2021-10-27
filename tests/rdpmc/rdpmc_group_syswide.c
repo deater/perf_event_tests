@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
 
 	for(i=0;i<count;i++) {
 		pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+		pe.config1=ARCH_EVENT_CONFIG1_VAL;
 
 		if (i==0) {
 			pe.disabled=1;

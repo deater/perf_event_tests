@@ -84,12 +84,14 @@ int main(int argc, char **argv) {
 		if (i==0) {
 			pe.type=PERF_TYPE_HARDWARE;
 			pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+			pe.config1=ARCH_EVENT_CONFIG1_VAL;
 			pe.disabled=1;
 			pe.pinned=1;
 		}
 		else {
 			pe.type=PERF_TYPE_SOFTWARE;
 			pe.config=PERF_COUNT_SW_TASK_CLOCK;
+			pe.config1=0;
 			pe.disabled=0;
 			pe.pinned=0;
 		}

@@ -137,6 +137,7 @@ int main(int argc, char **argv) {
 			pe.disabled=0;
 			pe.pinned=0;
 		}
+		pe.config1=ARCH_EVENT_CONFIG1_VAL;
 
 		fd[i]=perf_event_open(&pe,pid,-1,fd[0],0);
 		if (fd[i]<0) {

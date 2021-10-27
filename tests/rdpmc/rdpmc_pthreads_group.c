@@ -52,6 +52,7 @@ static void *our_thread(void *arg) {
 
 	pe.type=PERF_TYPE_HARDWARE;
 	pe.size=sizeof(struct perf_event_attr);
+	pe.config1=ARCH_EVENT_CONFIG1_VAL;
 
 	fd[0]=-1;
 

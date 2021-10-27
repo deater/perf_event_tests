@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
 	pe.type=PERF_TYPE_HARDWARE;
+	pe.config1=ARCH_EVENT_CONFIG1_VAL;
 	pe.size=sizeof(struct perf_event_attr);
 	pe.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED |
 		PERF_FORMAT_TOTAL_TIME_RUNNING;

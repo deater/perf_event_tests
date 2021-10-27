@@ -109,6 +109,7 @@ int main(int argc, char **argv) {
 	pe.size=sizeof(struct perf_event_attr);
 
 	pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+	pe.config1=ARCH_EVENT_CONFIG1_VAL;
 	pe.disabled=1;
 	pe.pinned=1;
 
