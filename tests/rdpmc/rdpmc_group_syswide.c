@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 	syswide.config=PERF_COUNT_HW_INSTRUCTIONS;
 	syswide.disabled=0;
 	for(i=0;i<4;i++) {
-		syswide_fd[i]=perf_event_open(&pe,0,-1,-1,0);
+		syswide_fd[i]=perf_event_open(&syswide,0,-1,-1,0);
 		if (syswide_fd[i]<0) {
 			fprintf(stderr,"Error opening syswide event\n");
 			test_fail(test_string);
