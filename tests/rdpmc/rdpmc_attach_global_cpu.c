@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
 		pe.size=sizeof(struct perf_event_attr);
 		fd[i]=-1;
 		pe.config=PERF_COUNT_HW_INSTRUCTIONS;
+		pe.config1=ARCH_EVENT_CONFIG1_VAL;
 		pe.disabled=1;
 		fd[i]=perf_event_open(&pe,-1,i,-1,0);
 		if (fd[i]<0) {

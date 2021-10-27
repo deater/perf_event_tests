@@ -28,11 +28,14 @@
 
 #if defined(__i386__) || defined(__x86_64__)
 #define barrier()	__asm__ volatile("" ::: "memory")
+#define ARCH_EVENT_CONFIG1_VAL 0
 #elif defined(__aarch64__)
 #define barrier()	asm volatile("dmb ish" : : : "memory")
 #define isb()		asm volatile("isb" : : : "memory")
+#define ARCH_EVENT_CONFIG1_VAL 0x2
 #else
 #define barrier()
+#define ARCH_EVENT_CONFIG1_VAL 0
 #endif
 
 #define ARMV8_PMCNTENSET_EL0_ENABLE (1<<31) /**< Enable Perf count reg */
@@ -68,6 +71,7 @@ static int counter_init(unsigned int counter, unsigned long sample)
 	attr.sample_type = PERF_SAMPLE_IP;
 	attr.wakeup_events = 1;
 	attr.config = counter;
+	attr.config1 = ARCH_EVENT_CONFIG1_VAL;
 	attr.mmap = 1;
 	attr.watermark = 0;
 	attr.disabled = 1;
