@@ -524,6 +524,9 @@ $TESTS_DIR/rdpmc_libperf/rdpmc_attach_cpu
 echo "  + tests/rdpmc_libperf/rdpmc_attach_global_cpu"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_attach_global_cpu
+echo "  + tests/rdpmc_libperf/rdpmc_attach_other_cpu"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach_other_cpu
 
 echo
 echo "* Checking OpenMP support"
