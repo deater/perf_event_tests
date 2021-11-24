@@ -13,6 +13,7 @@ LIB = ../../lib
 
 PROGRAM_LIST = \
 	rdpmc_attach \
+	rdpmc_attach_cpu \
 	rdpmc_support
 
 all: $(PROGRAM_LIST)
@@ -22,6 +23,12 @@ rdpmc_attach: rdpmc_attach.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_attach.o: rdpmc_attach.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_attach.c
+
+rdpmc_attach_cpu: rdpmc_attach_cpu.o rdpmc_lib.o $(LIB)/libhelper.a
+	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_attach_cpu.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_attach_cpu
+
+rdpmc_attach_cpu.o: rdpmc_attach_cpu.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_attach_cpu.c
 
 rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_support.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_support
