@@ -511,6 +511,12 @@ echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_exec_papi
 
 echo
+echo "* Checking for fast RDPMC support(libperf)"
+echo "  + tests/rdpmc_libperf/rdpmc_support"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_support
+
+echo
 echo "* Checking OpenMP support"
 echo "  + tests/openmp/openmp_test"
 echo -n "    "
