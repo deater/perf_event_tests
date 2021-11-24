@@ -515,6 +515,9 @@ echo "* Checking for fast RDPMC support(libperf)"
 echo "  + tests/rdpmc_libperf/rdpmc_support"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_support
+echo "  + tests/rdpmc_libperf/rdpmc_attach"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach
 
 echo
 echo "* Checking OpenMP support"
