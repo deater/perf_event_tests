@@ -24,6 +24,7 @@ PROGRAM_LIST = \
 	rdpmc_multiattach \
 	rdpmc_pthreads \
 	rdpmc_pthreads_group \
+	rdpmc_sw_events \
 	rdpmc_support
 
 all: $(PROGRAM_LIST)
@@ -105,6 +106,12 @@ rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_support.o: rdpmc_support.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_support.c
+
+rdpmc_sw_events: rdpmc_sw_events.o rdpmc_lib.o $(LIB)/libhelper.a
+	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_sw_events.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_sw_events
+
+rdpmc_sw_events.o: rdpmc_sw_events.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_sw_events.c
 
 rdpmc_lib.o: rdpmc_lib.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_lib.c

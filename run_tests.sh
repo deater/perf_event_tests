@@ -551,6 +551,9 @@ $TESTS_DIR/rdpmc_libperf/rdpmc_exec
 echo "  + tests/rdpmc_libperf/rdpmc_exec_papi"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_exec_papi
+echo "  + tests/rdpmc_libperf/rdpmc_sw_events"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_sw_events
 
 echo
 echo "* Checking OpenMP support"
