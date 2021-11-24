@@ -25,7 +25,8 @@ PROGRAM_LIST = \
 	rdpmc_pthreads \
 	rdpmc_pthreads_group \
 	rdpmc_sw_events \
-	rdpmc_support
+	rdpmc_support \
+	rdpmc_validation
 
 all: $(PROGRAM_LIST)
 
@@ -112,6 +113,12 @@ rdpmc_sw_events: rdpmc_sw_events.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_sw_events.o: rdpmc_sw_events.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_sw_events.c
+
+rdpmc_validation: rdpmc_validation.o rdpmc_lib.o $(LIB)/libhelper.a
+	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_validation.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_validation
+
+rdpmc_validation.o: rdpmc_validation.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_validation.c
 
 rdpmc_lib.o: rdpmc_lib.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_lib.c
