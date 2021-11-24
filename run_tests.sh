@@ -518,6 +518,9 @@ $TESTS_DIR/rdpmc_libperf/rdpmc_support
 echo "  + tests/rdpmc_libperf/rdpmc_group"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_group
+echo "  + tests/rdpmc_libperf/rdpmc_group_syswide"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_group_syswide
 echo "  + tests/rdpmc_libperf/rdpmc_attach"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_attach
