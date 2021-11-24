@@ -16,6 +16,7 @@ PROGRAM_LIST = \
 	rdpmc_attach_cpu \
 	rdpmc_attach_global_cpu \
 	rdpmc_attach_other_cpu \
+	rdpmc_attach_multi_enable \
 	rdpmc_support
 
 all: $(PROGRAM_LIST)
@@ -43,6 +44,12 @@ rdpmc_attach_other_cpu: rdpmc_attach_other_cpu.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_attach_other_cpu.o: rdpmc_attach_other_cpu.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_attach_other_cpu.c
+
+rdpmc_attach_multi_enable: rdpmc_attach_multi_enable.o rdpmc_lib.o $(LIB)/libhelper.a
+	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_attach_multi_enable.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_attach_multi_enable
+
+rdpmc_attach_multi_enable.o: rdpmc_attach_multi_enable.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_attach_multi_enable.c
 
 rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_support.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_support
