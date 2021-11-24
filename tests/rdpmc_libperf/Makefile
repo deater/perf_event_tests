@@ -23,6 +23,7 @@ PROGRAM_LIST = \
 	rdpmc_group_syswide \
 	rdpmc_multiattach \
 	rdpmc_pthreads \
+	rdpmc_pthreads_group \
 	rdpmc_support
 
 all: $(PROGRAM_LIST)
@@ -92,6 +93,12 @@ rdpmc_pthreads: rdpmc_pthreads.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_pthreads.o: rdpmc_pthreads.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_pthreads.c
+
+rdpmc_pthreads_group: rdpmc_pthreads_group.o rdpmc_lib.o $(LIB)/libhelper.a
+	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_pthreads_group.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_pthreads_group
+
+rdpmc_pthreads_group.o: rdpmc_pthreads_group.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_pthreads_group.c
 
 rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_support.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_support

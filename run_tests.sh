@@ -539,6 +539,9 @@ $TESTS_DIR/rdpmc_libperf/rdpmc_multiattach
 echo "  + tests/rdpmc_libperf/rdpmc_pthreads"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_pthreads
+echo "  + tests/rdpmc_libperf/rdpmc_pthreads_group"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_pthreads_group
 echo "  + tests/rdpmc_libperf/rdpmc_attach_multi_enable"
 echo -n "    "
 $TESTS_DIR/rdpmc_libperf/rdpmc_attach_multi_enable
