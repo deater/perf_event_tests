@@ -21,6 +21,7 @@ PROGRAM_LIST = \
 	rdpmc_exec_papi \
 	rdpmc_group \
 	rdpmc_group_syswide \
+	rdpmc_multiattach \
 	rdpmc_support
 
 all: $(PROGRAM_LIST)
@@ -78,6 +79,12 @@ rdpmc_group_syswide: rdpmc_group_syswide.o rdpmc_lib.o $(LIB)/libhelper.a
 
 rdpmc_group_syswide.o: rdpmc_group_syswide.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_group_syswide.c
+
+rdpmc_multiattach: rdpmc_multiattach.o rdpmc_lib.o $(LIB)/libhelper.a
+	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_multiattach.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_multiattach
+
+rdpmc_multiattach.o: rdpmc_multiattach.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c rdpmc_multiattach.c
 
 rdpmc_support: rdpmc_support.o rdpmc_lib.o $(LIB)/libhelper.a
 	$(CC) $(CPPFLAGS) $(RPATH) $(LPATH) rdpmc_lib.o rdpmc_support.o $(LIB)/libhelper.a $(LDLIBS) -lperf -o rdpmc_support
