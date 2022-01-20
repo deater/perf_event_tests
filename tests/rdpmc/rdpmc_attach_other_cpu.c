@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
                                 values[0],    // low
                                 100000000ULL,quiet);
 
-        if ((error>1.0) || ( error<-1.0)) {
+        if (error_out_of_range(error)) {
                 if (!quiet) printf("Error out of range!\n");
                 test_fail(test_string);
         }

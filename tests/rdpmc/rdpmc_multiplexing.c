@@ -199,7 +199,7 @@ int main(int argc, char **argv) {
 				min,    // low
 				1000000000ULL,quiet);
 
-	if ((error>1.0) || ( error<-1.0)) {
+	if (error_out_of_range(error)) {
 		if (!quiet) printf("Error out of range!\n");
 		test_fail(test_string);
 	}
