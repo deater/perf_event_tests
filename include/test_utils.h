@@ -24,6 +24,12 @@ int get_paranoid_setting(void);
 int check_linux_version_newer(int major, int minor, int subminor);
 int check_linux_version_older(int major, int minor, int subminor);
 
+#define MAX_ERROR_PERCENT 1.0
+static inline int error_out_of_range(float error)
+{
+	return (error > MAX_ERROR_PERCENT) || ( error < -MAX_ERROR_PERCENT);
+}
+
 double display_error(long long average,
 		     long long high,
 		     long long low,
