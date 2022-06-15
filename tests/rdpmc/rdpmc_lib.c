@@ -216,12 +216,21 @@ int detect_rdpmc(int quiet) {
 	char *addr;
 	struct perf_event_mmap_page *our_mmap;
 	int page_size=getpagesize();
+	FILE *fff;
+	int perf_user_access=0;
 
-//#if defined(__i386__) || defined (__x86_64__)
-//#else
-//	if (!quiet) printf("Test is x86 specific for now...\n");
-//	return 0;
-//#endif
+	/* This check only matters on ARM64 for some reason */
+	fff=fopen("/proc/sys/kernel/perf_user_access","r");
+	if (fff!=NULL) {
+		fscanf(fff,"%d",&perf_user_access);
+
+		if (perf_user_access==0) {
+			printf("Error!  user rdpmc support disabled via /proc/sys/kernel/perf_user_access == %d\n\n",perf_user_access);
+			fclose(fff);
+			return 0;
+		}
+		fclose(fff);
+	}
 
 	memset(&pe,0,sizeof(struct perf_event_attr));
 
