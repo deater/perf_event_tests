@@ -125,9 +125,12 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	if (values[0]<0) {
-		if (!quiet) printf("rdpmc support not available.\n");
-		test_yellow_no(test_string);
+	if (values[0]==(unsigned long long)-1) {
+		if (!quiet) {
+			printf("rdpmc support looks available but mmap cpu idx returns 0.\n");
+			printf("on ARM64 machines check /proc/sys/kernel/perf_user_access\n\n");
+		}
+		test_fail(test_string);
 	}
 
 	if (!quiet) {
@@ -214,9 +217,12 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	if (values[0]<0) {
-		if (!quiet) printf("rdpmc support not available.\n");
-		test_yellow_no(test_string);
+	if (values[0]==(unsigned long long)-1) {
+		if (!quiet) {
+			printf("rdpmc support looks available but mmap cpu idx returns 0.\n");
+			printf("on ARM64 machines check /proc/sys/kernel/perf_user_access\n\n");
+		}
+		test_fail(test_string);
 	}
 
 	if (!quiet) {
