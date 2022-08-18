@@ -908,6 +908,8 @@ static long long random_read_format(void)
 		return rand64();
 
 	if (RAND_BOOL())
+		read_format |= PERF_FORMAT_LOST;
+	if (RAND_BOOL())
 		read_format |= PERF_FORMAT_GROUP;
 	if (RAND_BOOL())
 		read_format |= PERF_FORMAT_ID;

@@ -171,12 +171,16 @@ static int update_read_size(int i) {
 	if (event_data[i].attr.read_format&PERF_FORMAT_GROUP) {
 		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_ENABLED) read_size++;
 		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_RUNNING) read_size++;
-		read_size+=(1+!!(event_data[i].attr.read_format&PERF_FORMAT_ID)) * event_data[i].number_in_group;
+		read_size+=(1+ (
+			!!(event_data[i].attr.read_format&PERF_FORMAT_ID) +
+			!!(event_data[i].attr.read_format&PERF_FORMAT_LOST)
+			) * event_data[i].number_in_group);
 	}
 	else {
 		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_ENABLED) read_size++;
 		if (event_data[i].attr.read_format&PERF_FORMAT_TOTAL_TIME_RUNNING) read_size++;
 		if (event_data[i].attr.read_format&PERF_FORMAT_ID) read_size++;
+		if (event_data[i].attr.read_format&PERF_FORMAT_LOST) read_size++;
 	}
 
 	return read_size*sizeof(long long);
