@@ -925,7 +925,7 @@ static int random_attr_size(void) {
 
 	int size=0;
 
-	switch(rand() % 12) {
+	switch(rand() % 13) {
 	case 0:	size = PERF_ATTR_SIZE_VER0;
 		break;
 	case 1: size = PERF_ATTR_SIZE_VER1;
@@ -942,13 +942,15 @@ static int random_attr_size(void) {
 		break;
 	case 7: size = PERF_ATTR_SIZE_VER7;
 		break;
-	case 8: size = sizeof(struct perf_event_attr);
+	case 8: size = PERF_ATTR_SIZE_VER8;
 		break;
-	case 9: size = rand32();
+	case 9: size = sizeof(struct perf_event_attr);
 		break;
-	case 10: size = get_len();
+	case 10: size = rand32();
 		break;
-	case 11: size = 0;
+	case 11: size = get_len();
+		break;
+	case 12: size = 0;
 		break;
 	default:
 		break;
@@ -1193,6 +1195,9 @@ static void create_mostly_valid_sampling_event(struct perf_event_attr *attr,
 	attr->aux_watermark = rand32();
 	attr->sample_max_stack = rand32();
 	attr->aux_sample_size = rand32();
+
+	attr->sig_data = rand64();
+	attr->config3 = rand64();
 
 }
 
