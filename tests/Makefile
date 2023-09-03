@@ -15,6 +15,7 @@ all:
 	$(MAKE) -C periodic_stats
 	$(MAKE) -C prctl
 	$(MAKE) -C rdpmc
+	$(MAKE) -C rdpmc_libperf
 	$(MAKE) -C record_sample
 	$(MAKE) -C size
 	$(MAKE) -C socket
@@ -42,6 +43,7 @@ install: all
 	$(MAKE) -C periodic_stats install
 	$(MAKE) -C prctl install
 	$(MAKE) -C rdpmc install
+	$(MAKE) -C rdpmc_libperf install
 	$(MAKE) -C record_sample install
 	$(MAKE) -C size install
 	$(MAKE) -C socket install
@@ -69,6 +71,7 @@ clean: clean-local
 	$(MAKE) -C periodic_stats clean
 	$(MAKE) -C prctl clean
 	$(MAKE) -C rdpmc clean
+	$(MAKE) -C rdpmc_libperf clean
 	$(MAKE) -C record_sample clean
 	$(MAKE) -C size clean
 	$(MAKE) -C socket clean

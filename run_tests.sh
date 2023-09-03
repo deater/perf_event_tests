@@ -511,6 +511,54 @@ echo -n "    "
 $TESTS_DIR/rdpmc/rdpmc_exec_papi
 
 echo
+echo "* Checking for fast RDPMC support(libperf)"
+echo "  + tests/rdpmc_libperf/rdpmc_support"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_support
+echo "  + tests/rdpmc_libperf/rdpmc_validation"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_validation
+echo "  + tests/rdpmc_libperf/rdpmc_group"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_group
+echo "  + tests/rdpmc_libperf/rdpmc_group_syswide"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_group_syswide
+echo "  + tests/rdpmc_libperf/rdpmc_attach"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach
+echo "  + tests/rdpmc_libperf/rdpmc_attach_cpu"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach_cpu
+echo "  + tests/rdpmc_libperf/rdpmc_attach_global_cpu"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach_global_cpu
+echo "  + tests/rdpmc_libperf/rdpmc_attach_other_cpu"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach_other_cpu
+echo "  + tests/rdpmc_libperf/rdpmc_multiattach"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_multiattach
+echo "  + tests/rdpmc_libperf/rdpmc_pthreads"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_pthreads
+echo "  + tests/rdpmc_libperf/rdpmc_pthreads_group"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_pthreads_group
+echo "  + tests/rdpmc_libperf/rdpmc_attach_multi_enable"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_attach_multi_enable
+echo "  + tests/rdpmc_libperf/rdpmc_exec"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_exec
+echo "  + tests/rdpmc_libperf/rdpmc_exec_papi"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_exec_papi
+echo "  + tests/rdpmc_libperf/rdpmc_sw_events"
+echo -n "    "
+$TESTS_DIR/rdpmc_libperf/rdpmc_sw_events
+
+echo
 echo "* Checking OpenMP support"
 echo "  + tests/openmp/openmp_test"
 echo -n "    "
