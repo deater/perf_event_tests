@@ -241,19 +241,23 @@ static void setup_overflow(char *line) {
 }
 
 
-#define REPLAY_OPEN		0x001
-#define REPLAY_CLOSE		0x002
-#define REPLAY_IOCTL		0x004
-#define REPLAY_READ		0x008
-#define REPLAY_MMAP		0x010
-#define REPLAY_MUNMAP		0x020
-#define REPLAY_PRCTL		0x040
-#define REPLAY_FORK		0x080
-#define REPLAY_POLL		0x100
-#define REPLAY_SEED		0x200
-#define REPLAY_OVERFLOW		0x400
-#define REPLAY_TRASH_MMAP	0x800
-#define REPLAY_ALL		0xfff
+static void vsyscall_event(char *line) {
+}
+
+#define REPLAY_OPEN		 0x001
+#define REPLAY_CLOSE		 0x002
+#define REPLAY_IOCTL		 0x004
+#define REPLAY_READ		 0x008
+#define REPLAY_MMAP		 0x010
+#define REPLAY_MUNMAP		 0x020
+#define REPLAY_PRCTL		 0x040
+#define REPLAY_FORK		 0x080
+#define REPLAY_POLL		 0x100
+#define REPLAY_SEED		 0x200
+#define REPLAY_OVERFLOW 	 0x400
+#define REPLAY_TRASH_MMAP	 0x800
+#define REPLAY_VSYSCALL		0x1000
+#define REPLAY_ALL		0xffff
 
 
 void print_usage(char *exec_name) {
@@ -374,6 +378,12 @@ int main(int argc, char **argv) {
 			case 'P':
 				if (replay_which & REPLAY_PRCTL) {
 					prctl_event(line);
+					replay_syscalls++;
+				}
+				break;
+			case 'V':
+				if (replay_which & REPLAY_VSYSCALL) {
+					vsyscall_event(line);
 					replay_syscalls++;
 				}
 				break;

@@ -41,6 +41,7 @@
 #include "fuzz_poll.h"
 #include "fuzz_prctl.h"
 #include "fuzz_read.h"
+#include "fuzz_vsyscall.h"
 #include "fuzz_write.h"
 
 #include "get_cpuinfo.h"
@@ -88,7 +89,8 @@ static int type=TYPE_MMAP|
 		TYPE_POLL|
 		TYPE_MILLION|
 		TYPE_ACCESS|
-		TYPE_TRASH_MMAP;
+		TYPE_TRASH_MMAP|
+		TYPE_VSYSCALL;
 
 
 static int throttle_close_event=0;
@@ -294,6 +296,7 @@ static void usage(char *name,int help) {
 		printf("\t\tM mmap\t\t\tF fork\n");
 		printf("\t\tQ trash-mmap\t\tW write\n");
 		printf("\t\tP prctl\t\t\tp poll\n");
+		printf("\t\tV vsyscall\n");
 		printf("\t\tA file access\t\to overflow\n");
 		printf("\t\ti instruction loop\n");
 		printf("\n");
@@ -358,6 +361,7 @@ int main(int argc, char **argv) {
 					case 'Q': type|=TYPE_TRASH_MMAP; break;
 					case 'W': type|=TYPE_WRITE; break;
 					case 'P': type|=TYPE_PRCTL; break;
+					case 'V': type|=TYPE_VSYSCALL; break;
 					case 'p': type|=TYPE_POLL; break;
 					case 'A': type|=TYPE_ACCESS; break;
 					case 'o': type|=TYPE_OVERFLOW; break;
@@ -554,6 +558,7 @@ int main(int argc, char **argv) {
 	if (type&TYPE_FORK)  printf("fork "); else missing++;
 	if (type&TYPE_PRCTL) printf("prctl "); else missing++;
 	if (type&TYPE_POLL)  printf("poll "); else missing++;
+	if (type&TYPE_VSYSCALL)  printf("vsyscall "); else missing++;
 	printf("\n");
 
 	if (missing) {
@@ -567,6 +572,7 @@ int main(int argc, char **argv) {
 		if (!(type&TYPE_FORK)) printf("fork ");
 		if (!(type&TYPE_PRCTL)) printf("prctl ");
 		if (!(type&TYPE_POLL)) printf("poll ");
+		if (!(type&TYPE_VSYSCALL)) printf("vsyscall ");
 		printf("\n");
 	}
 
@@ -683,7 +689,7 @@ int main(int argc, char **argv) {
 
 	while(1) {
 
-		switch(rand()%11) {
+		switch(rand()%12) {
 			case 0:	if (type&TYPE_OPEN) {
 					open_random_event(type&TYPE_MMAP,
 							type&TYPE_OVERFLOW);
@@ -724,6 +730,10 @@ int main(int argc, char **argv) {
 				break;
 			case 9:if (type&TYPE_MMAP) {
 					mmap_random_event(type);
+				}
+				break;
+			case 10:if (type&TYPE_VSYSCALL) {
+					vsyscall_random_event();
 				}
 				break;
 			default:

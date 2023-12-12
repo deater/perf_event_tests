@@ -1,3 +1,5 @@
+hookup vsyscall replay
+
 md5sum the executable and store a copy, so can reproduce later even
 in the face of changing versions
 

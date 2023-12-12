@@ -143,6 +143,8 @@ void dump_summary(FILE *fff, int print_values, double elapsed) {
 
 	fprintf(fff,"\tPrctl:\t%lld/%lld Successful\n",
 	       stats.prctl_successful,stats.prctl_attempts);
+	fprintf(fff,"\tVsyscall:\t%lld/%lld Successful\n",
+	       stats.vsyscall_successful,stats.vsyscall_attempts);
 	fprintf(fff,"\tFork:\t%lld/%lld Successful\n",
 	       stats.fork_successful,stats.fork_attempts);
 	if (stats.fork_successful!=stats.fork_attempts) {
@@ -179,6 +181,7 @@ void dump_summary(FILE *fff, int print_values, double elapsed) {
 	stats.mmap_aux_attempts=0; stats.mmap_aux_successful=0;
 	stats.mmap_aux_read_attempts=0; stats.mmap_aux_read_successful=0;
 	stats.prctl_attempts=0; stats.prctl_successful=0;
+	stats.vsyscall_attempts=0; stats.vsyscall_successful=0;
 	stats.fork_attempts=0; stats.fork_successful=0;
 	stats.poll_attempts=0; stats.poll_successful=0;
 	stats.access_attempts=0; stats.access_successful=0;

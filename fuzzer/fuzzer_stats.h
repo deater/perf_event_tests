@@ -22,6 +22,7 @@ struct fuzzer_stats_t {
 	long long write_attempts,write_successful;
 	long long ioctl_attempts,ioctl_successful;
 	long long prctl_attempts,prctl_successful;
+	long long vsyscall_attempts,vsyscall_successful;
 	long long fork_attempts,fork_successful;
 	long long poll_attempts,poll_successful;
 	long long access_attempts,access_successful;

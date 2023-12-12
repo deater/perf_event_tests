@@ -17,6 +17,7 @@ static int ignore_but_dont_skip_poll=1;
 static int ignore_but_dont_skip_million=1;
 static int ignore_but_dont_skip_access=1;
 static int ignore_but_dont_skip_trash_mmap=1;
+static int ignore_but_dont_skip_vsyscall=1;
 #endif
 
 struct skip_t {
@@ -33,6 +34,7 @@ struct skip_t {
 	int million;
 	int access;
 	int trash_mmap;
+	int vsyscall;
 };
 
 extern struct skip_t ignore_but_dont_skip;
