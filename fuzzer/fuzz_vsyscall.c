@@ -57,8 +57,6 @@ void vsyscall_random_event(void) {
 		memset(&tv, 0, sizeof(tv));
 		ret+=vsyscall_gettimeofday(&tv);
 	}
-	if (ret==1000) ret=0;
-	else ret=1;
 
 	sprintf(log_buffer,"V 1\n");
 
