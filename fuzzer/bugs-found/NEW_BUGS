@@ -1,0 +1,18 @@
+New bugs since last paper:
+
+	6.7.0-rc5
+
+	xingwei lee found
+	possible deadlock in down_trylock/perf_event_open
+	WARNING: CPU: 1 PID: 8266 at kernel/events/core.c:1950 __do_sys_perf_event_open0
+	
+	with syzcaller (perf_fuzzer found it too a few days later)
+
+
+	6.7.0-rc5
+
+	added vsyscall support and perf_fuzzer found possible deadlock
+	reported to Linux kernel on 13 December 2023
+
+	[perf] vsyscall, possible circular locking dependency detected
+

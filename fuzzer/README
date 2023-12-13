@@ -6,7 +6,7 @@
 This is the perf_fuzzer, a system call fuzzer specifically designed
 to find flaws in the complex Linux perf_event system call interface.
 
-http://web.eece.maine.edu/~vweaver/projects/perf_events/fuzzer/
+https://web.eece.maine.edu/~vweaver/projects/perf_events/fuzzer/
 
 NOTE TO HACKERS:
 
