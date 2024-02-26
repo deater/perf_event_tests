@@ -213,70 +213,103 @@ static int detect_processor_cpuinfo(void) {
 				case 29:
 					processor_type=PROCESSOR_CORE2;
 					break;
-				case 28: /* 0x1C Bonnel (intel PMU list) */
-				case 38: /* 0x26 */
-				case 39: /* 0x27 */
-				case 53: /* 0x35 */
+				case 28: /* 0x1C - bonnel (diamondville) */
+				case 38: /* 0x26 - bonnel (silverthorns) */
+				case 39: /* 0x27 - saltwell (penwell) */
+				case 53: /* 0x35 - saltwell (cloverview) */
 					processor_type=PROCESSOR_ATOM;
 					break;
-				case 54: /* 0x36 Bonnel (intel PMU list) */
+				case 54: /* 0x36 - saltwell (cedarview) */
 					processor_type=PROCESSOR_ATOM_CEDARVIEW;
 					break;
-				case 55: /* 0x37 - silvermont */
-				case 74: /* 0x4a */
-				case 76: /* 0x4c */
-				case 77: /* 0x4d */
-				case 90: /* 0x5a */
+				case 55: /* 0x37 - silvermont (bay trail) */
+				case 74: /* 0x4a - silvermont (merriefield) */
+				case 77: /* 0x4d - silvermont (avaton) */
+				case 93: /* 0x5d - SoFIA */
+						/* airmont */
+				case 76: /* 0x4c - airmont (cherry trail) */
+				case 90: /* 0x5a - airmont (moorefield) */
+				case 117: /* 0x75 - airmont (NP Lightning Mountain) */
 					processor_type=PROCESSOR_ATOM_SILVERMONT;
 					break;
-				case 26: /* 0x1a - Nehalem-EP */
+				case 92: /* 0x5c - goldmont (apollo lake) */
+				case 95: /* 0x5f - goldmont (denverton) */
+					processor_type=PROCESSOR_GOLDMONT;
+					break;
+				case 122: /* 0x7a - goldmont+ (gemini lake) */
+					processor_type=PROCESSOR_GOLDMONTPLUS;
+					break;
+				case 150: /* 0x96 - Tremont (Elkhart Lake) */
+				case 156: /* 0x9c - Tremont L (Jasper Lake) */
+					processor_type=PROCESSOR_ELKHARTLAKE;
+					break;
+				case 134: /* 0x86 - Snowridge-X */
+					/* 0x86 - Tremont D (Jacobville) */
+					processor_type=PROCESSOR_SNOWRIDGE_X;
+					break;
+
+
+				case 87: /* 0x57 - Knight's Landing*/
+				case 133: /* 0x85 - Knight's Mill */
+					processor_type=PROCESSOR_KNIGHTSLANDING;
+					break;
+
+
+				case 26: /* 0x1a - Nehalem-EP (Bloomfield) */
 				case 30: /* 0x1e - Nehalem-EP */
-				case 31: /* 0x1f - Nehalem-EP */
+				case 31: /* 0x1f - Nehalem-EP (Auburndale) */
 					processor_type=PROCESSOR_NEHALEM;
 					break;
 				case 46: /* 0x2e - Nehalem-EX */
 					processor_type=PROCESSOR_NEHALEM_EX;
 					break;
-				case 37: /* 0x25 - westmere-ep sp */
-				case 44: /* 0x2c - westmere-ep dp */
+
+				case 37: /* 0x25 - westmere-ep sp (Arrandale) */
+				case 44: /* 0x2c - westmere-ep dp (Gulftown) */
 					processor_type=PROCESSOR_WESTMERE;
 					break;
 				case 47: /* 0x2f - westmere-ex */
 					processor_type=PROCESSOR_WESTMERE_EX;
 					break;
+
 				case 42: /* 0x2A - sandybridge */
 					processor_type=PROCESSOR_SANDYBRIDGE;
 					break;
-				case 45: /* 0x2d - jaketown */
+				case 45: /* 0x2d - jaketown (E, EN, EP) */
 					processor_type=PROCESSOR_SANDYBRIDGE_EP;
 					break;
-				case 58: /* 0x3a - ivybridge */
+
+				case 58: /* 0x3a - ivybridge (M, H, Gladden) */
 					processor_type=PROCESSOR_IVYBRIDGE;
 					break;
-				case 62: /* 0x3e - ivytown */
+				case 62: /* 0x3e - ivytown (E, EN, EP, EX) */
 					processor_type=PROCESSOR_IVYBRIDGE_EP;
 					break;
-				case 60: /* 0x3c */
-				case 69: /* 0x45 */
-				case 70: /* 0x46 */
+
+				case 60: /* 0x3c - haswell S */
+				case 69: /* 0x45 - haswell L ULT*/
+				case 70: /* 0x46 - haswell G */
 					processor_type=PROCESSOR_HASWELL;
 					break;
 				case 63: /* 0x3f - Haswell-X */
 					processor_type=PROCESSOR_HASWELL_EP;
 					break;
-				case 61: /* 0x3d */
-				case 71: /* 0x47 */
-				case 79: /* 0x4F Broadwell-X */
-				case 86: /* 0x56 Broadwell-E */
+
+				case 61: /* 0x3d - U, Y, S */
+				case 71: /* 0x47 - G H, C, W*/
+				case 79: /* 0x4F - Broadwell-X (E, EP, EX) */
+				case 86: /* 0x56 Broadwell-E (D, DE, Hewitt Lake) */
 					processor_type=PROCESSOR_BROADWELL;
 					break;
-				case 78: /* 0x4e - skylake*/
-				case 94: /* 0x5e - skylake*/
+
+				case 78: /* 0x4e - skylake L (Y,U) */
+				case 94: /* 0x5e - skylake (DT, H, S) */
 					processor_type=PROCESSOR_SKYLAKE;
 					break;
 
-				case 85: /* 0x55 , stepping 5-F cascadelakex? */
-					/* 0x44, stepping 0-4 skylakex */
+				case 85: /* 0x55 , stepping B = cooperlakeX? */
+					 /* 0x55 , stepping 5-F cascadelakex? */
+					 /* 0x55 , stepping 0-4 skylakex */
 					if (stepping<5) {
 						processor_type=PROCESSOR_SKYLAKE_X;
 					}
@@ -285,60 +318,68 @@ static int detect_processor_cpuinfo(void) {
 					}
 					break;
 
-				case 134: /* 0x86 - Snowridge-X */
-					processor_type=PROCESSOR_SNOWRIDGE_X;
-					break;
-
-				case 140: /* 0x8c - tigerlake */
+				case 140: /* 0x8c - tigerlake L (U) */
 				case 141: /* 0x8d - tigerlake */
 					processor_type=PROCESSOR_TIGERLAKE;
 					break;
 
-				case 142: /* 0x8e - skylake */
-				case 158: /* 0x9e - skylake */
-				case 165: /* 0xa5 - skylake (coffee? cannon?) */
-				case 166: /* 0xa6 - skylake */
+				case 142: /* 0x8e - kabylake */
+					  /* 0x8e stepping 9 = amberlake */
+					  /* 0x8e stepping 10 = coffee lake */
+					  /* 0x8e stepping 11,12 = whiskey lake */
+				case 158: /* 0x9e - kabylake (dt, h, s, x) */
+					  /* 0x9e stepping >9 coffelake */
 					processor_type=PROCESSOR_KABYLAKE;
 					break;
+				case 165: /* 0xa5 - cometlake */
+				case 166: /* 0xa6 - cometlake L */
+					processor_type=PROCESSOR_COMETLAKE;
+					break;
+
+				case 102: /* 0x66 - cannonlake U/L */
+					processor_type=PROCESSOR_CANNONLAKE;
+					break;
+
+				case 125: /* 0x7d - Icelake (Y) */
+				case 126: /* 0x7e - Icelake (L) */
+				case 157: /* 0x9d - Icelake NNPI */
+					processor_type=PROCESSOR_ICELAKE;
+					break;
+				case 106: /* 0x6a - Icelake X : Server */
+				case 108: /* 0x6c - Icelake D : Server */
+					processor_type=PROCESSOR_ICELAKE_X;
+					break;
+
+				case 138: /* 0x8a - Lakefield (Sunny Cove / Tremont)  */
+					processor_type=PROCESSOR_LAKEFIELD;
+					break;
+
+				case 143: /* 0x8f - Sapphirerapids X */
+					processor_type=PROCESSOR_SAPPHIRERAPIDS;
+					break;
+
 
 				case 151: /* 0x97 */
 				case 154: /* 0x9A */
-				case 183: /* 0xB7 */ /* Raptor Lake */
-				case 186: /* 0xBA */
 				case 191: /* 0xBF */
 					processor_type=PROCESSOR_ALDERLAKE;
 					break;
-
 				case 190: /* 0xBE */
 					processor_type=PROCESSOR_ALDERLAKEN;
 					break;
 
-				case 150: /* 0x96 */
-				case 156: /* 0x9C */
-					processor_type=PROCESSOR_ELKHARTLAKE;
+				case 183: /* 0xB7 - Raptor Lake */
+				case 186: /* 0xBA - Raptor Lake P */
+					processor_type=PROCESSOR_RAPTORLAKE;
 					break;
+
+				case 167: /* 0xa7 - Rocketlake / Cypress Cove (S L) */
+					processor_type=PROCESSOR_ROCKETLAKE;
+					break;
+
 
 				case 207: /* 0xCF */
 					processor_type=PROCESSOR_EMERALDRAPIDS;
-					break;
-
-				case 92: /* 0x5c */
-				case 95: /* 0x5f */
-					processor_type=PROCESSOR_GOLDMONT;
-					break;
-
-				case 122: /* 0x7a */
-					processor_type=PROCESSOR_GOLDMONTPLUS;
-					break;
-
-				case 125: /* 0x7d */
-				case 126: /* 0x7e */
-					processor_type=PROCESSOR_ICELAKE;
-					break;
-
-				case 106: /* 0x6a */
-				case 108: /* 0x6c */
-					processor_type=PROCESSOR_ICELAKE_X;
 					break;
 
 				case 182: /* 0xb6 */
@@ -357,19 +398,6 @@ static int detect_processor_cpuinfo(void) {
 				case 173: /* 0xad */
 				case 174: /* 0xae */
 					processor_type=PROCESSOR_GRANITERAPIDS;
-					break;
-
-				case 87: /* 0x57 */
-				case 133: /* 0x85 */
-					processor_type=PROCESSOR_KNIGHTSLANDING;
-					break;
-
-				case 167: /* 0xa7 */
-					processor_type=PROCESSOR_ROCKETLAKE;
-					break;
-
-				case 143: /* 0x8f */
-					processor_type=PROCESSOR_SAPPHIRERAPIDS;
 					break;
 
 				case 175: /* 0xaf */
