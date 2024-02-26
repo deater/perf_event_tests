@@ -49,7 +49,7 @@ static int processor_vendor=-2;
 static int detect_processor_cpuinfo(void) {
 
 	FILE *fff;
-	int cpu_family=0,model=0;
+	int cpu_family=0,model=0,stepping;
 	char string[BUFSIZ];
 
 	fff=fopen("/proc/cpuinfo","r");
@@ -133,6 +133,12 @@ static int detect_processor_cpuinfo(void) {
 		if ((strstr(string,"model")) && (!strstr(string,"model name")) ) {
 			sscanf(string,"%*s %*s %d",&model);
 		}
+
+		/* stepping */
+		if (strstr(string,"stepping")) {
+			sscanf(string,"%*s %*s %*s %d",&stepping);
+		}
+
 	}
 
 	fclose(fff);
@@ -207,70 +213,168 @@ static int detect_processor_cpuinfo(void) {
 				case 29:
 					processor_type=PROCESSOR_CORE2;
 					break;
-				case 28:
-				case 38:
-				case 39:
-				case 53:
+				case 28: /* 0x1C Bonnel (intel PMU list) */
+				case 38: /* 0x26 */
+				case 39: /* 0x27 */
+				case 53: /* 0x35 */
 					processor_type=PROCESSOR_ATOM;
 					break;
-				case 54:
+				case 54: /* 0x36 Bonnel (intel PMU list) */
 					processor_type=PROCESSOR_ATOM_CEDARVIEW;
 					break;
-				case 55:
-				case 77:
+				case 55: /* 0x37 - silvermont */
+				case 74: /* 0x4a */
+				case 76: /* 0x4c */
+				case 77: /* 0x4d */
+				case 90: /* 0x5a */
 					processor_type=PROCESSOR_ATOM_SILVERMONT;
 					break;
-				case 26:
-				case 30:
-				case 31:
+				case 26: /* 0x1a - Nehalem-EP */
+				case 30: /* 0x1e - Nehalem-EP */
+				case 31: /* 0x1f - Nehalem-EP */
 					processor_type=PROCESSOR_NEHALEM;
 					break;
-				case 46:
+				case 46: /* 0x2e - Nehalem-EX */
 					processor_type=PROCESSOR_NEHALEM_EX;
 					break;
-				case 37:
-				case 44:
+				case 37: /* 0x25 - westmere-ep sp */
+				case 44: /* 0x2c - westmere-ep dp */
 					processor_type=PROCESSOR_WESTMERE;
 					break;
-				case 47:
+				case 47: /* 0x2f - westmere-ex */
 					processor_type=PROCESSOR_WESTMERE_EX;
 					break;
-				case 42:
+				case 42: /* 0x2A - sandybridge */
 					processor_type=PROCESSOR_SANDYBRIDGE;
 					break;
-				case 45:
+				case 45: /* 0x2d - jaketown */
 					processor_type=PROCESSOR_SANDYBRIDGE_EP;
 					break;
-				case 58:
+				case 58: /* 0x3a - ivybridge */
 					processor_type=PROCESSOR_IVYBRIDGE;
 					break;
-				case 62:
+				case 62: /* 0x3e - ivytown */
 					processor_type=PROCESSOR_IVYBRIDGE_EP;
 					break;
-				case 60:
-				case 69:
-				case 70:
+				case 60: /* 0x3c */
+				case 69: /* 0x45 */
+				case 70: /* 0x46 */
 					processor_type=PROCESSOR_HASWELL;
 					break;
-				case 63:
+				case 63: /* 0x3f - Haswell-X */
 					processor_type=PROCESSOR_HASWELL_EP;
 					break;
-				case 61:
-				case 71:
-				case 79:
-				case 86:
+				case 61: /* 0x3d */
+				case 71: /* 0x47 */
+				case 79: /* 0x4F Broadwell-X */
+				case 86: /* 0x56 Broadwell-E */
 					processor_type=PROCESSOR_BROADWELL;
 					break;
-				case 78:
-				case 85:
-				case 94:
+				case 78: /* 0x4e - skylake*/
+				case 94: /* 0x5e - skylake*/
 					processor_type=PROCESSOR_SKYLAKE;
 					break;
-				case 142:
-				case 158:
+
+				case 85: /* 0x55 , stepping 5-F cascadelakex? */
+					/* 0x44, stepping 0-4 skylakex */
+					if (stepping<5) {
+						processor_type=PROCESSOR_SKYLAKE_X;
+					}
+					else {
+						processor_type=PROCESSOR_CASCADELAKE_X;
+					}
+					break;
+
+				case 134: /* 0x86 - Snowridge-X */
+					processor_type=PROCESSOR_SNOWRIDGE_X;
+					break;
+
+				case 140: /* 0x8c - tigerlake */
+				case 141: /* 0x8d - tigerlake */
+					processor_type=PROCESSOR_TIGERLAKE;
+					break;
+
+				case 142: /* 0x8e - skylake */
+				case 158: /* 0x9e - skylake */
+				case 165: /* 0xa5 - skylake (coffee? cannon?) */
+				case 166: /* 0xa6 - skylake */
 					processor_type=PROCESSOR_KABYLAKE;
 					break;
 
+				case 151: /* 0x97 */
+				case 154: /* 0x9A */
+				case 183: /* 0xB7 */ /* Raptor Lake */
+				case 186: /* 0xBA */
+				case 191: /* 0xBF */
+					processor_type=PROCESSOR_ALDERLAKE;
+					break;
+
+				case 190: /* 0xBE */
+					processor_type=PROCESSOR_ALDERLAKEN;
+					break;
+
+				case 150: /* 0x96 */
+				case 156: /* 0x9C */
+					processor_type=PROCESSOR_ELKHARTLAKE;
+					break;
+
+				case 207: /* 0xCF */
+					processor_type=PROCESSOR_EMERALDRAPIDS;
+					break;
+
+				case 92: /* 0x5c */
+				case 95: /* 0x5f */
+					processor_type=PROCESSOR_GOLDMONT;
+					break;
+
+				case 122: /* 0x7a */
+					processor_type=PROCESSOR_GOLDMONTPLUS;
+					break;
+
+				case 125: /* 0x7d */
+				case 126: /* 0x7e */
+					processor_type=PROCESSOR_ICELAKE;
+					break;
+
+				case 106: /* 0x6a */
+				case 108: /* 0x6c */
+					processor_type=PROCESSOR_ICELAKE_X;
+					break;
+
+				case 182: /* 0xb6 */
+					processor_type=PROCESSOR_GRANDRIDGE;
+					break;
+
+				case 189: /* 0xbd */
+					processor_type=PROCESSOR_LUNARLAKE;
+					break;
+
+				case 170: /* 0xaa */
+				case 172: /* 0xac */
+					processor_type=PROCESSOR_METEORLAKE;
+					break;
+
+				case 173: /* 0xad */
+				case 174: /* 0xae */
+					processor_type=PROCESSOR_GRANITERAPIDS;
+					break;
+
+				case 87: /* 0x57 */
+				case 133: /* 0x85 */
+					processor_type=PROCESSOR_KNIGHTSLANDING;
+					break;
+
+				case 167: /* 0xa7 */
+					processor_type=PROCESSOR_ROCKETLAKE;
+					break;
+
+				case 143: /* 0x8f */
+					processor_type=PROCESSOR_SAPPHIRERAPIDS;
+					break;
+
+				case 175: /* 0xaf */
+					processor_type=PROCESSOR_SIERRAFOREST;
+					break;
 
 				default:
 					processor_type=PROCESSOR_UNKNOWN;
