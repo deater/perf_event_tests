@@ -15,21 +15,47 @@ all:	\
 	offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
-	papi_heterogeneous
+	papi_hybrid_sleep \
+	papi_hybrid_100m_two_events \
+	papi_hybrid_100m_one_eventset \
+	papi_hybrid_100m_one_eventset_multiplex
 
+###
+
+papi_hybrid_sleep:	papi_hybrid_sleep.o
+	$(CC) $(LFLAGS) -o papi_hybrid_sleep papi_hybrid_sleep.o \
+		$(PAPI_LIB)
+
+papi_hybrid_sleep.o:	papi_hybrid_sleep.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_hybrid_sleep.c
 
 
 ###
 
-papi_heterogeneous:	papi_heterogeneous.o ../lib/test_utils.o \
-		../lib/matrix_multiply.o ../lib/nops_testcode.o
-	$(CC) $(LFLAGS) -o papi_heterogeneous papi_heterogeneous.o \
-		../lib/test_utils.o \
-		../lib/matrix_multiply.o ../lib/nops_testcode.o $(PAPI_LIB)
+papi_hybrid_100m_two_events:	papi_hybrid_100m_two_events.o ../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o papi_hybrid_100m_two_events papi_hybrid_100m_two_events.o \
+		../lib/instructions_testcode.o $(PAPI_LIB)
 
-papi_heterogeneous.o:	papi_heterogeneous.c
-	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_heterogeneous.c
+papi_hybrid_100m_two_events.o:	papi_hybrid_100m_two_events.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_hybrid_100m_two_events.c
 
+###
+
+papi_hybrid_100m_one_eventset:	papi_hybrid_100m_one_eventset.o ../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o papi_hybrid_100m_one_eventset papi_hybrid_100m_one_eventset.o \
+		../lib/instructions_testcode.o $(PAPI_LIB)
+
+papi_hybrid_100m_one_eventset.o:	papi_hybrid_100m_one_eventset.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_hybrid_100m_one_eventset.c
+
+###
+
+papi_hybrid_100m_one_eventset_multiplex:	papi_hybrid_100m_one_eventset_multiplex.o ../lib/instructions_testcode.o
+	$(CC) $(LFLAGS) -o papi_hybrid_100m_one_eventset_multiplex papi_hybrid_100m_one_eventset_multiplex.o \
+		../lib/instructions_testcode.o $(PAPI_LIB)
+
+papi_hybrid_100m_one_eventset_multiplex.o:	papi_hybrid_100m_one_eventset_multiplex.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_hybrid_100m_one_eventset_multiplex.c
 
 
 ###
@@ -147,6 +173,10 @@ clean:
 	offcore_response \
 	perfevent_sw_events \
 	perfevent_generalized_events \
-	papi_profile
+	papi_profile \
+	papi_hybrid_sleep \
+	papi_hybrid_100m_two_events \
+	papi_hybrid_100m_one_eventset \
+	papi_hybrid_100m_one_eventset_multiplex
 
 install:	all
