@@ -19,13 +19,13 @@
 #define CPU_SANDYBRIDGE     2
 
 int main(int argc, char **argv) {
-   
+
    int retval,quiet;
    const PAPI_hw_info_t *info;
 
    int our_cpu=CPU_UNKNOWN;
 
-   int events[2];
+	int eventset=PAPI_NULL;
    long long counts[2];
 
    char test_string[]="Testing if offcore events are supported...";
@@ -66,25 +66,35 @@ int main(int argc, char **argv) {
      test_skip(test_string);
    }
 
-   retval=PAPI_event_name_to_code(event_names[our_cpu],&events[0]);
-   if (retval!=PAPI_OK) {
-      if (!quiet) printf("Error: PAPI_event_name_to_code %d\n", retval);      
-      test_fail(test_string);
-   }
+	retval=PAPI_create_eventset(&eventset);
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_create_eventset() failed\n");
+		test_fail(test_string);
+	}
 
-   events[1]=PAPI_TOT_INS;
+	retval=PAPI_add_named_event(eventset,event_names[our_cpu]);
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_event_name_to_code %d\n", retval);
+		test_fail(test_string);
+	}
 
-   retval=PAPI_start_counters(events,2);
+	retval=PAPI_add_named_event(eventset,"PAPI_TOT_INS");
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_event_name_to_code %d\n", retval);
+		test_fail(test_string);
+	}
+
+   retval=PAPI_start(eventset);
 
    naive_matrix_multiply(quiet);
 
-   PAPI_stop_counters(counts,2);
-   
+   PAPI_stop(eventset,counts);
+
    if (retval!=PAPI_OK) {
      if (!quiet) printf("Error starting!\n");
      test_fail(test_string);
    }
-  
+
    if (counts[0]==0) {
       if (!quiet) printf("Error!  Counted 0!\n");
       test_fail(test_string);

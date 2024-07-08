@@ -20,11 +20,13 @@
 
 
 int main(int argc, char **argv) {
-   
+
    int retval,quiet;
    const PAPI_hw_info_t *info;
 
-   int events[2];
+	int eventset = PAPI_NULL;
+	int eventset2 = PAPI_NULL;
+
    long long counts[2];
    double error;
    long long expected;
@@ -56,19 +58,29 @@ int main(int argc, char **argv) {
 
    expected=naive_matrix_multiply_estimated_flops(quiet);
 
-   retval=PAPI_event_name_to_code("FP_COMP_OPS_EXE",&events[0]);
+	retval=PAPI_create_eventset(&eventset);
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_create_eventset() failed\n");
+		test_fail(test_string);
+	}
+
+   retval=PAPI_add_named_event(eventset,"FP_COMP_OPS_EXE");
    if (retval!=PAPI_OK) {
-      if (!quiet) printf("PAPI_event_name_to_code %d\n", retval);      
+      if (!quiet) printf("PAPI_event_name_to_code %d\n", retval);
       test_fail(test_string);
    }
 
-   events[1]=PAPI_TOT_INS;
+	retval=PAPI_add_named_event(eventset,"PAPI_TOT_INS");
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("Error adding PAPI_TOT_INS\n");
+		test_fail(test_string);
+	}
 
-   PAPI_start_counters(events,2);
+   PAPI_start(eventset);
 
    naive_matrix_multiply(quiet);
 
-   PAPI_stop_counters(counts,2);
+   PAPI_stop(eventset,counts);
 
    error=(((double)counts[0]-(double)expected)/(double)expected)*100.0;
    if (!quiet) printf("   Expected: %lld  Actual: %lld   Error: %.2lf\n", 
@@ -81,19 +93,29 @@ int main(int argc, char **argv) {
 
    /* set FP_COMP_OPS_EXE to be in slot 2 */
 
-   retval=PAPI_event_name_to_code("FP_COMP_OPS_EXE",&events[1]);
-   if (retval!=PAPI_OK) {
-      if (!quiet) printf("PAPI_event_name_to_code %d\n",retval);
-      test_fail(test_string);
-   }
-   events[0]=events[1];
+	retval=PAPI_create_eventset(&eventset2);
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_create_eventset() failed\n");
+		test_fail(test_string);
+	}
 
-   PAPI_start_counters(events,2);
+	retval=PAPI_add_named_event(eventset2,"FP_COMP_OPS_EXE");
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_event_name_to_code %d\n", retval);
+		test_fail(test_string);
+	}
+	retval=PAPI_add_named_event(eventset2,"FP_COMP_OPS_EXE");
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("PAPI_event_name_to_code %d\n", retval);
+		test_fail(test_string);
+	}
+
+   PAPI_start(eventset2);
 
    naive_matrix_multiply(quiet);
 
-   PAPI_stop_counters(counts,2);
-   
+   PAPI_stop(eventset2,counts);
+
    error=(((double)counts[1]-(double)expected)/(double)expected)*100.0;
    if (!quiet) printf("   Expected: %lld  Actual: %lld   Error: %.2lf\n", 
              expected, counts[1],error);
