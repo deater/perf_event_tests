@@ -10,26 +10,27 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <string.h>
 
 #include "papiStdEventDefs.h"
 #include "papi.h"
-
-
-//#include "test_utils.h"
-
-//#include "matrix_multiply.h"
-//#include "nops_testcode.h"
 
 #include "instructions_testcode.h"
 
 #define NUM_RUNS 100
 
 void test_fail(char *string) {
+	printf("Test failed...\n");
 	exit(-1);
 }
 
 void test_pass(char *string) {
 	exit(0);
+}
+
+void test_skip(char *string) {
+	printf("Test skipped...\n");
+	exit(1);
 }
 
 int main(int argc, char **argv) {
@@ -40,9 +41,13 @@ int main(int argc, char **argv) {
 	int eventset=PAPI_NULL;
 
 	int i,quiet=0;
-	long long counts[2],high=0,low=0;
+	long long counts[2]={0,0},high=0,low=0;
 	long long total_p=0,average_p=0;
 	long long total_e=0,average_e=0;
+
+	char *instruction_event_p=NULL;
+	char *instruction_event_e=NULL;
+
 
 	char test_string[]="Testing heterogeneous event...";
 
@@ -59,6 +64,28 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
+	/* Raptor Lake */
+	if ((info->vendor==PAPI_VENDOR_INTEL) && (info->cpuid_family==6) &&
+            ((info->cpuid_model==183))) {
+
+		instruction_event_p=strdup("adl_glc::INST_RETIRED:ANY");
+		instruction_event_e=strdup("adl_grt::INST_RETIRED:ANY_P");
+	}
+
+	/* Orangepi Arm Cortex A53/A72 */
+	else if ((info->vendor==PAPI_VENDOR_ARM_ARM) && (info->cpuid_family==8) &&
+            ((info->cpuid_model==3331))) {
+		instruction_event_p=strdup("arm_ac72::INST_RETIRED");
+		instruction_event_e=strdup("arm_ac53::INST_RETIRED");
+
+	}
+	else {
+		printf("Unknown vendor=%d, family=%d, model=%d\n",
+			info->vendor, info->cpuid_family,
+			info->cpuid_model);
+		test_skip(test_string);
+	}
+
 	/* create eventset */
 
 	retval=PAPI_create_eventset(&eventset);
@@ -67,16 +94,18 @@ int main(int argc, char **argv) {
 		test_fail(test_string);
 	}
 
-	retval=PAPI_add_named_event(eventset,"INST_RETIRED:ANY");
+	/* Try to open performance/BIG event */
+	retval=PAPI_add_named_event(eventset,instruction_event_p);
 	if (retval!=PAPI_OK) {
-		if (!quiet) printf("Error adding INST_RETIRED:ANY!\n");
+		if (!quiet) printf("Error adding %s\n",instruction_event_p);
 		printf("%s\n",PAPI_strerror(retval));
 		test_fail(test_string);
 	}
 
-	retval=PAPI_add_named_event(eventset,"adl_grt::INST_RETIRED:ANY_P");
+	/* Try to open performance/little event */
+	retval=PAPI_add_named_event(eventset,instruction_event_e);
 	if (retval!=PAPI_OK) {
-		if (!quiet) printf("Error adding adl_grt::INST_RETIRED:ANY_P!\n");
+		if (!quiet) printf("Error adding %s\n",instruction_event_e);
 		printf("%s\n",PAPI_strerror(retval));
 		test_fail(test_string);
 	}
@@ -90,7 +119,7 @@ int main(int argc, char **argv) {
 	int stop_result;
 
 	for(i=0;i<NUM_RUNS;i++) {
-		printf("starting event\n");
+		//printf("starting event\n");
 		start_result=PAPI_start(eventset);
 		if (start_result!=PAPI_OK) {
 			if (!quiet) printf("Error starting event %s!\n",
@@ -100,7 +129,7 @@ int main(int argc, char **argv) {
 
 		instructions_million();
 
-		printf("stopping event\n");
+		//printf("stopping event\n");
 		stop_result=PAPI_stop(eventset,counts);
 		if (stop_result!=PAPI_OK) {
 			if (!quiet) printf("Error stopping event %s!\n",

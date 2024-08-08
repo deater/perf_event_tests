@@ -101,13 +101,17 @@ event_create_race:	event_create_race.o ../lib/test_utils.o
 event_create_race.o:	event_create_race.c
 	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c event_create_race.c
 
+####
+
+papi_helpers.o:	papi_helpers.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_helpers.c
 
 ####
 
-mpx_oflo:	mpx_oflo.o ../lib/test_utils.o  ../lib/matrix_multiply.o ../lib/papi_helpers.o
+mpx_oflo:	mpx_oflo.o ../lib/test_utils.o  ../lib/matrix_multiply.o papi_helpers.o
 	$(CC) $(LFLAGS) -o mpx_oflo mpx_oflo.o \
 		../lib/test_utils.o ../lib/matrix_multiply.o \
-		$(PAPI_LIB) ../lib/papi_helpers.o
+		$(PAPI_LIB) papi_helpers.o
 
 
 mpx_oflo.o:	mpx_oflo.c
