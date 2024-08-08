@@ -1,5 +1,10 @@
 hookup vsyscall replay
 
+vsyscalls
+see October 6th 2023 e-mail
+
+io_uring
+
 md5sum the executable and store a copy, so can reproduce later even
 in the face of changing versions
 
