@@ -203,7 +203,7 @@ static void open_event(char *line) {
 	memset(&zeros,0,4096);
 	pe=(struct perf_event_attr *)&zeros;
 
-	parse_open_event(line,&orig_fd,&pid,&cpu,&group_fd,&flags,&pe);
+	parse_open_event(line,&orig_fd,&pid,&cpu,&group_fd,&flags,pe);
 
 	errno=0;
 
