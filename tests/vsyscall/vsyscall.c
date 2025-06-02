@@ -29,10 +29,24 @@
 static int detect_vsyscall(void) {
 	FILE *fff;
 	int result=0;
+	char string[BUFSIZ];
 
 	fff=fopen("/proc/self/maps","r");
 	if (fff!=NULL) {
+		while(1) {
+			if (fgets(string,BUFSIZ,fff)==NULL) {
+				break;
+			}
 
+//			printf("%s",string);
+
+			/* not very robust */
+			if (strstr(string,"[vsyscall]")!=NULL) {
+				result=1;
+				break;
+			}
+
+		}
 	}
 	return result;
 
@@ -89,14 +103,14 @@ void vsyscall_random_event(void) {
 
 int main(int argc, char **argv) {
 
-	struct timeval ours;
+	struct timeval ours={0,0};
 	int vsyscall_available=0;
 
 	vsyscall_available=detect_vsyscall();
 
 	if (vsyscall_available) {
-		vsyscall_gettimeofday(&ours);
 		printf("Vsyscall (or emulation) found\n");
+		vsyscall_gettimeofday(&ours);
 		printf("%ld %ld\n",ours.tv_sec,ours.tv_usec);
 	}
 	else {
