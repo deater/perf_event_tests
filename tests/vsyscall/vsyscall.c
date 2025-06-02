@@ -53,7 +53,6 @@ static int detect_vsyscall(void) {
 }
 
 /* Note: which other architectures support this? */
-/* TODO: add VDSO support */
 
 #ifdef __x86_64__
 int vsyscall_gettimeofday(struct timeval *tv) {
@@ -75,43 +74,72 @@ int vsyscall_gettimeofday(struct timeval *tv) {
 }
 #endif
 
-#if 0
-void vsyscall_random_event(void) {
 
-	int ret,i;
-	struct timeval tv;
+//typedef long (*time_func_t)(time_t *t);
+//const time_func_t vtime = (time_func_t)VSYS(0xffffffffff600400);
+//time_func_t vdso_time;
 
-	stats.vsyscall_attempts++;
-	stats.total_syscalls++;
+#ifdef __x86_64__
+time_t vsyscall_time(time_t *t) {
 
-	if (ignore_but_dont_skip.vsyscall) return;
+	register int64_t rax __asm__("rax") = 0xffffffffff600400;
+	register void *rdi __asm__("rdi") = t;
 
-	/* Make it more likely to hit this */
-	ret=0;
-	for(i=0;i<1000;i++) {
-		memset(&tv, 0, sizeof(tv));
-		ret+=vsyscall_gettimeofday(&tv);
-	}
+	__asm__ volatile (
+		"callq *%%rax \n\t"
+		: "+r" (rax)
+		: "r" (rdi)
+	);
 
-	sprintf(log_buffer,"V 1\n");
+	return rax;
+}
+#else
+time_t vsyscall_time(time_t *t) {
+	return 0;
+}
+#endif
 
-	/* FIXME: are there others we should be trying? */
+//typedef long (*getcpu_t)(unsigned *, unsigned *, void *);
+//const getcpu_t vgetcpu = (getcpu_t)VSYS(0xffffffffff600800);
+//getcpu_t vdso_getcpu;
 
-	if (ret==0) stats.vsyscall_successful++;
+#ifdef __x86_64__
+int vsyscall_getcpu(int *cpu, int *node) {
+
+	register int64_t rax __asm__("rax") = 0xffffffffff600800;
+	register void *rdi __asm__("rdi") = cpu;
+	register void *rsi __asm__("rsi") = node;
+
+	__asm__ volatile (
+		"callq *%%rax \n\t"
+		: "+r" (rax)
+		: "r" (rdi), "r" (rsi)
+	);
+
+	return rax;
+}
+#else
+int vsyscall_getcpu(int *cpu, int *node) {
+	return 0;
 }
 #endif
 
 int main(int argc, char **argv) {
 
 	struct timeval ours={0,0};
-	int vsyscall_available=0;
+	int vsyscall_available=0,cpu,node;
+	time_t our_time;
 
 	vsyscall_available=detect_vsyscall();
 
 	if (vsyscall_available) {
 		printf("Vsyscall (or emulation) found\n");
 		vsyscall_gettimeofday(&ours);
-		printf("%ld %ld\n",ours.tv_sec,ours.tv_usec);
+		printf("gettimeofday: %ld %ld\n",ours.tv_sec,ours.tv_usec);
+		our_time=vsyscall_time(&our_time);
+		printf("time: %ld\n",our_time);
+		vsyscall_getcpu(&cpu,&node);
+		printf("getcpu: %d %d\n",cpu,node);
 	}
 	else {
 		printf("No vsyscall support detected\n");
