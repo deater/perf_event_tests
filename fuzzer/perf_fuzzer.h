@@ -27,3 +27,8 @@ int find_random_active_sampling_event(void);
 int find_random_active_breakpoint_event(void);
 int find_empty_event(void);
 int lookup_event(int fd);
+
+
+extern int kernel_features;
+
+#define KERNEL_VSYSCALL	(1<<0)

@@ -75,6 +75,7 @@ struct skip_t ignore_but_dont_skip;
 /* Our Globals */
 struct event_data_t event_data[NUM_EVENTS];
 int active_events=0;
+int kernel_features=0;
 
 /* Type selection */
 static int type=TYPE_MMAP|
@@ -420,6 +421,17 @@ int main(int argc, char **argv) {
 
 	get_cpuinfo(cpuinfo);
 	printf("\tProcessor: %s\n",cpuinfo);
+
+
+	/**************************/
+	/* Detect Kernel Features */
+	/**************************/
+
+	kernel_features=0;
+
+	if (detect_vsyscall()) {
+		kernel_features|=KERNEL_VSYSCALL;
+	}
 
 	/*****************/
 	/* Print options */
