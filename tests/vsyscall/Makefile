@@ -6,11 +6,14 @@ LDFLAGS +=
 LIB = ../../lib
 
 PROGRAM_LIST = \
-	vsyscall
+	vsyscall \
+	vdso
 
 all: $(PROGRAM_LIST)
 
 vsyscall: vsyscall.o $(LIB)/libhelper.a
+
+vdso: vdso.o $(LIB)/libhelper.a
 
 install: all
 	$(INSTALL) -d $(prefix)/tests/ioctl
