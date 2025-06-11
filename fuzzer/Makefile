@@ -42,7 +42,8 @@ perf_fuzzer: perf_fuzzer.o perf_attr_print.o get_cpuinfo.o \
 		filter_address.o filter_tracepoint.o \
 		fuzz_access.o fuzz_close.o fuzz_fork.o fuzz_ioctl.o \
 		fuzz_million.o fuzz_mmap.o fuzz_open.o fuzz_overflow.o \
-		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_vsyscall.o fuzz_write.o \
+		fuzz_poll.o fuzz_prctl.o fuzz_read.o fuzz_vsyscall.o \
+		fuzz_affinity.o fuzz_write.o \
 		fuzzer_random.o fuzzer_stats.o \
 		../lib/libhelper.a \
 		trinity_files/trinity_lib.a
@@ -51,7 +52,8 @@ perf_fuzzer.x32: perf_fuzzer.xo perf_attr_print.xo get_cpuinfo.xo \
 		filter_address.xo filter_tracepoint.xo \
 		fuzz_access.xo fuzz_close.xo fuzz_fork.xo fuzz_ioctl.xo \
 		fuzz_million.xo fuzz_mmap.xo fuzz_open.xo fuzz_overflow.xo \
-		fuzz_poll.xo fuzz_prctl.xo fuzz_read.xo fuzz_vsyscall.xo fuzz_write.xo \
+		fuzz_poll.xo fuzz_prctl.xo fuzz_read.xo fuzz_vsyscall.xo \
+		fuzz_affinity.xo fuzz_write.xo \
 		fuzzer_random.xo fuzzer_stats.xo \
 		trinity_files/trinity_lib.xa
 
@@ -59,7 +61,8 @@ perf_fuzzer.x32: perf_fuzzer.xo perf_attr_print.xo get_cpuinfo.xo \
 		perf_fuzzer.xo perf_attr_print.xo get_cpuinfo.xo \
 		fuzz_access.xo fuzz_close.xo fuzz_fork.xo fuzz_ioctl.xo \
 		fuzz_million.xo fuzz_mmap.xo fuzz_open.xo fuzz_overflow.xo \
-		fuzz_poll.xo fuzz_prctl.xo fuzz_read.xo fuzz_vsyscall.xo fuzz_write.xo \
+		fuzz_poll.xo fuzz_prctl.xo fuzz_read.xo fuzz_vsyscall.xo \
+		fuzz_affinity.xo fuzz_write.xo \
 		fuzzer_random.xo fuzzer_stats.xo \
 		trinity_files/trinity_lib.xa \
 		../lib/libhelper.xa

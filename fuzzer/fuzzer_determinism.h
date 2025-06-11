@@ -35,6 +35,7 @@ struct skip_t {
 	int access;
 	int trash_mmap;
 	int vsyscall;
+	int affinity;
 };
 
 extern struct skip_t ignore_but_dont_skip;

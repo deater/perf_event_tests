@@ -31,6 +31,7 @@
 #include "fuzzer_stats.h"
 
 #include "fuzz_access.h"
+#include "fuzz_affinity.h"
 #include "fuzz_close.h"
 #include "fuzz_fork.h"
 #include "fuzz_ioctl.h"
@@ -91,7 +92,8 @@ static int type=TYPE_MMAP|
 		TYPE_MILLION|
 		TYPE_ACCESS|
 		TYPE_TRASH_MMAP|
-		TYPE_VSYSCALL;
+		TYPE_VSYSCALL|
+		TYPE_AFFINITY;
 
 
 static int throttle_close_event=0;
@@ -297,7 +299,7 @@ static void usage(char *name,int help) {
 		printf("\t\tM mmap\t\t\tF fork\n");
 		printf("\t\tQ trash-mmap\t\tW write\n");
 		printf("\t\tP prctl\t\t\tp poll\n");
-		printf("\t\tV vsyscall\n");
+		printf("\t\tV vsyscall\t\ta set cpu affinity\n");
 		printf("\t\tA file access\t\to overflow\n");
 		printf("\t\ti instruction loop\n");
 		printf("\n");
@@ -367,6 +369,7 @@ int main(int argc, char **argv) {
 					case 'A': type|=TYPE_ACCESS; break;
 					case 'o': type|=TYPE_OVERFLOW; break;
 					case 'i': type|=TYPE_MILLION; break;
+					case 'a': type|=TYPE_AFFINITY; break;
 					default: printf("Unknown type %c\n",
 							optarg[j]);
 					}
@@ -571,6 +574,7 @@ int main(int argc, char **argv) {
 	if (type&TYPE_PRCTL) printf("prctl "); else missing++;
 	if (type&TYPE_POLL)  printf("poll "); else missing++;
 	if (type&TYPE_VSYSCALL)  printf("vsyscall "); else missing++;
+	if (type&TYPE_AFFINITY)  printf("affinity"); else missing++;
 	printf("\n");
 
 	if (missing) {
@@ -585,6 +589,7 @@ int main(int argc, char **argv) {
 		if (!(type&TYPE_PRCTL)) printf("prctl ");
 		if (!(type&TYPE_POLL)) printf("poll ");
 		if (!(type&TYPE_VSYSCALL)) printf("vsyscall ");
+		if (!(type&TYPE_AFFINITY)) printf("affinity ");
 		printf("\n");
 	}
 
@@ -701,7 +706,7 @@ int main(int argc, char **argv) {
 
 	while(1) {
 
-		switch(rand()%12) {
+		switch(rand()%13) {
 			case 0:	if (type&TYPE_OPEN) {
 					open_random_event(type&TYPE_MMAP,
 							type&TYPE_OVERFLOW);
@@ -746,6 +751,10 @@ int main(int argc, char **argv) {
 				break;
 			case 10:if (type&TYPE_VSYSCALL) {
 					vsyscall_random_event();
+				}
+				break;
+			case 11: if (type&TYPE_AFFINITY) {
+					cpu_affinity_event();
 				}
 				break;
 			default:

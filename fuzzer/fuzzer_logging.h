@@ -17,6 +17,7 @@
 #define TYPE_ACCESS		0x1000
 #define TYPE_TRASH_MMAP		0x2000
 #define TYPE_VSYSCALL		0x4000
+#define TYPE_AFFINITY		0x8000
 
 extern int trigger_failure_logging;
 extern int logging;

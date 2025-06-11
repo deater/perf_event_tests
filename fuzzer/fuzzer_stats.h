@@ -26,6 +26,7 @@ struct fuzzer_stats_t {
 	long long fork_attempts,fork_successful;
 	long long poll_attempts,poll_successful;
 	long long access_attempts,access_successful;
+	long long affinity_attempts,affinity_successful;
 	int open_errno_count[MAX_ERRNOS];
 	int fork_errno_count[MAX_ERRNOS];
 	int open_type_success[MAX_OPEN_TYPE];
