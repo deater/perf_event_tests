@@ -14,16 +14,19 @@
 #include "fuzzer_logging.h"
 #include "fuzzer_stats.h"
 
+#define MAX_CPUS 1024
+
 void cpu_affinity_event(void) {
 
 	static int initialized=0;
 
 	pid_t pid=0;	/* current thread */
 	static cpu_set_t *cpu_mask;
-	int max_cpus=1024;
+	int max_cpus=MAX_CPUS;
 	size_t set_size;
+	int cpu_array[MAX_CPUS];
 
-	int j,which_one,result;
+	int j,which_one,result,num_set=0,which_cpu;
 
 	/* TODO: get size of mask with getaffinity and multiply by 2? */
 
@@ -41,28 +44,44 @@ void cpu_affinity_event(void) {
 	switch (which_one) {
 		/* set single core, low */
 		case 0:
+			num_set=1;
 //			printf("%ld %p\n",set_size,cpu_mask);
 			CPU_ZERO_S(set_size,cpu_mask);
-			CPU_SET_S(rand()%4,set_size,cpu_mask);
+			which_cpu=rand()%4;
+			CPU_SET_S(which_cpu,set_size,cpu_mask);
+			cpu_array[0]=which_cpu;
 			break;
 		/* set single core, full */
 		case 1:
+			num_set=1;
 			CPU_ZERO_S(set_size,cpu_mask);
 //			printf("Setting %d %d\n",new_value,max_cpus);
-			CPU_SET_S(rand()%max_cpus,set_size,cpu_mask);
+			which_cpu=rand()%max_cpus;
+			CPU_SET_S(which_cpu,set_size,cpu_mask);
+			cpu_array[0]=which_cpu;
 			break;
 		/* set lots of cores, low */
 		case 2:
+			num_set=0;
 			CPU_ZERO_S(set_size,cpu_mask);
 			for(j=0;j<32;j++) {
-				if (rand()%2) CPU_SET_S(j,max_cpus,cpu_mask);
+				if (rand()%2) {
+					CPU_SET_S(j,max_cpus,cpu_mask);
+					cpu_array[num_set]=j;
+					num_set++;
+				}
 			}
 			break;
 		/* set lots of cores, high */
 		case 3:
+			num_set=0;
 			CPU_ZERO_S(set_size,cpu_mask);
 			for(j=0;j<max_cpus;j++) {
-				if (rand()%2) CPU_SET_S(j,max_cpus,cpu_mask);
+				if (rand()%2) {
+					CPU_SET_S(j,max_cpus,cpu_mask);
+					cpu_array[num_set]=j;
+					num_set++;
+				}
 			}
 			break;
 		default: break;	// do nothing
@@ -75,10 +94,13 @@ void cpu_affinity_event(void) {
 
 	result=sched_setaffinity(pid,max_cpus,cpu_mask);
 
+	/* urgh doing this properly is hard */
+
 	if (result==0) {
 	        stats.affinity_successful++;
 		if (logging&TYPE_AFFINITY) {
-			sprintf(log_buffer,"A %d\n",which_one);
+			sprintf(log_buffer,"a %d %d %d\n",
+				which_one,num_set,cpu_array[0]);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 

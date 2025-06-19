@@ -15,6 +15,8 @@
 
 #include <fcntl.h>
 
+#include <sched.h>
+
 #include <shm.h>
 #include <syscall.h>
 #include "perf_event.h"
@@ -419,6 +421,74 @@ static void access_event(char *line) {
 
 }
 
+#define MAX_CPUS 1024
+
+static void affinity_event(char *line) {
+
+	static int initialized=0;
+
+	pid_t pid=0;    /* current thread */
+	static cpu_set_t *cpu_mask;
+	int max_cpus=MAX_CPUS;
+	size_t set_size;
+	int cpu_array[MAX_CPUS];
+
+	int which_one,result,num_set=0;
+//	int j,which_cpu;
+
+	/* TODO: get size of mask with getaffinity and multiply by 2? */
+
+	/* only do this once */
+	if (!initialized) {
+		cpu_mask=CPU_ALLOC(max_cpus);
+		if (cpu_mask==NULL) return;
+		initialized=1;
+	}
+
+	set_size=CPU_ALLOC_SIZE(max_cpus);
+
+	sscanf(line,"%*c %d %d %d",&which_one,&num_set,&cpu_array[0]);
+
+
+        switch (which_one) {
+
+		/* set single core, low */
+		case 0:
+                        num_set=1;
+                        CPU_ZERO_S(set_size,cpu_mask);
+                        CPU_SET_S(cpu_array[0],set_size,cpu_mask);
+                        break;
+                /* set single core, full */
+                case 1:
+                        CPU_ZERO_S(set_size,cpu_mask);
+                        CPU_SET_S(cpu_array[0],set_size,cpu_mask);
+                        break;
+                /* set lots of cores, low */
+                case 2:
+                        CPU_ZERO_S(set_size,cpu_mask);
+//                        for(j=0;j<32;j++) {
+				CPU_SET_S(cpu_array[0],max_cpus,cpu_mask);
+//
+                        break;
+                /* set lots of cores, high */
+                case 3:
+                        CPU_ZERO_S(set_size,cpu_mask);
+//                        for(j=0;j<max_cpus;j++) {
+//                                if (rand()%2) {
+				CPU_SET_S(cpu_array[0],max_cpus,cpu_mask);
+			break;
+		default:
+			fprintf(stderr,"Unknown affinity: %d\n",which_one);
+			break;
+
+	}
+	result=sched_setaffinity(pid,max_cpus,cpu_mask);
+	if (result<0) fprintf(stderr,"error sched_affinity()\n");
+}
+
+
+
+
 static void prctl_event(char *line) {
 
         int enable=0;
@@ -592,6 +662,7 @@ static void setup_overflow(char *line) {
 #define REPLAY_OVERFLOW		0x0400
 #define REPLAY_TRASH_MMAP	0x0800
 #define REPLAY_ACCESS		0x1000
+#define REPLAY_AFFINITY		0x2000
 #define REPLAY_ALL		0xffff
 
 static int get_sample_rate(void) {
@@ -794,7 +865,11 @@ int main(int argc, char **argv) {
 					replay_syscalls++;
 				}
 				break;
-
+			case 'a':
+				if (replay_which  & REPLAY_AFFINITY) {
+					affinity_event(line);
+					replay_syscalls++;
+				}
 			case 'C':
 				if (replay_which & REPLAY_CLOSE) {
 					close_event(line);
