@@ -252,6 +252,56 @@ static void access_event(char *line) {
         }
 }
 
+
+static void affinity_event(char *line) {
+
+#define MAX_CPUS 1024
+
+	int which_one,num_set;
+	int cpu_array[MAX_CPUS];
+
+
+	char *string;
+
+        string=strtok(line," \n");
+
+        string=strtok(NULL," \n");
+        if (string==NULL) return;
+        which_one=atoi(string);
+
+        string=strtok(NULL," \n");
+        if (string==NULL) return;
+        num_set=atoi(string);
+
+        int i=0;
+        while(1) {
+                string=strtok(NULL," \n");
+                if (string==NULL) break;
+                cpu_array[i]=atoi(string);
+                i++;
+        }
+
+
+	printf("\tset_size=CPU_ALLOC_SIZE(max_cpus);\n");
+
+	switch(which_one) {
+		case 0:
+			printf("\tCPU_ZERO_S(set_size,cpu_mask);\n");
+			printf("\tCPU_SET_S(%d,set_size,cpu_mask);\n",
+				cpu_array[0]);
+			printf("/* pid=0 means current thread */\n");
+		        printf("\tsched_setaffinity(0,max_cpus,cpu_mask);\n");
+			break;
+
+
+		default:
+			printf("/* AFFINITY TYPE %d NOT IMPLEMENTED */\n",which_one);
+			break;
+	}
+
+}
+
+
 static void fork_event(char *line) {
 
 	int enable=0;
@@ -333,6 +383,7 @@ int main(int argc, char **argv) {
 	printf("#include <sys/prctl.h>\n");
 	printf("#include <sys/wait.h>\n");
 	printf("#include <poll.h>\n");
+	printf("#include <sched.h>\n");
 	printf("#include <linux/hw_breakpoint.h>\n");
 	printf("#include <linux/perf_event.h>\n");
 
@@ -395,6 +446,14 @@ int main(int argc, char **argv) {
 	printf("\n\tint i;\n");
 	printf("\tfor(i=0;i<%d;i++) fd[i]=-1;\n\n",NUM_VALUES);
 
+	/* affinity boilerplate */
+	printf("#define MAX_CPUS 1024\n");
+	printf("static cpu_set_t *cpu_mask;\n");
+	printf("int max_cpus=MAX_CPUS;\n");
+	printf("size_t set_size;\n");
+	printf("cpu_mask=CPU_ALLOC(max_cpus);\n");
+
+
 	while(1) {
 		result=fgets(line,BUFSIZ,logfile);
 		if (result==NULL) break;
@@ -407,6 +466,10 @@ int main(int argc, char **argv) {
 		switch(line[0]) {
 			case 'A':
 				access_event(line);
+				total_syscalls++;
+				break;
+			case 'a':
+				affinity_event(line);
 				total_syscalls++;
 				break;
 			case 'C':
