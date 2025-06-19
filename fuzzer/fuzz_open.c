@@ -119,7 +119,20 @@ static void perf_log_attr(int fd, struct perf_event_attr *attr) {
 	write(fd,log_buffer,strlen(log_buffer));
 	sprintf(log_buffer,"%d ",attr->aux_output);
 	write(fd,log_buffer,strlen(log_buffer));
-
+/// new
+	sprintf(log_buffer,"%d ",attr->cgroup);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->text_poke);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->build_id);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->inherit_thread);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->remove_on_exec);
+	write(fd,log_buffer,strlen(log_buffer));
+	sprintf(log_buffer,"%d ",attr->sigtrap);
+	write(fd,log_buffer,strlen(log_buffer));
+// end new
 
 	sprintf(log_buffer,"%d ",attr->wakeup_events);	/* union */
 	write(fd,log_buffer,strlen(log_buffer));

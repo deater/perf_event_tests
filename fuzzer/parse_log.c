@@ -17,6 +17,8 @@ int parse_open_event(char *line,
 	int mmap2;
 	int comm_exec,use_clockid,context_switch,write_backward;
 	int namespaces,ksymbol,bpf_event,aux_output;
+	int cgroup,text_poke,build_id,inherit_thread,remove_on_exec;
+	int sigtrap;
 
 	sscanf(line,
 		"%*c %d %d %d %d %lx "
@@ -31,6 +33,7 @@ int parse_open_event(char *line,
 		"%d %d %d %d "
 		"%d %d %d %d "
 		"%d %d %d "
+		"%d %d %d %d %d %d "
 
 		"%d %d "
 		"%llx %llx %lld %lld"
@@ -48,6 +51,8 @@ int parse_open_event(char *line,
 		&exclude_callchain_kernel,&exclude_callchain_user,
 		&mmap2,&comm_exec,&use_clockid,&context_switch,
 		&write_backward,&namespaces,&ksymbol,&bpf_event,&aux_output,
+		&cgroup,&text_poke,&build_id,&inherit_thread,&remove_on_exec,
+		&sigtrap,
 
 		&pe->wakeup_events,&pe->bp_type,
 		&pe->config1,&pe->config2,&pe->branch_sample_type,
@@ -88,6 +93,12 @@ int parse_open_event(char *line,
 	pe->ksymbol=ksymbol;
 	pe->bpf_event=bpf_event;
 	pe->aux_output=aux_output;
+	pe->cgroup=cgroup;
+	pe->text_poke=text_poke;
+	pe->build_id=build_id;
+	pe->inherit_thread=inherit_thread;
+	pe->remove_on_exec=remove_on_exec;
+	pe->sigtrap=sigtrap;
 
 	return 0;
 

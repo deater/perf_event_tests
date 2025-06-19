@@ -672,6 +672,14 @@ void perf_pretty_print_attr(FILE *fff, struct perf_event_attr *pe, int fd) {
 	if (pe->ksymbol) fprintf(fff,"\tpe[%d].ksymbol=%d;\n",fd,pe->ksymbol);
 	if (pe->bpf_event) fprintf(fff,"\tpe[%d].bpf_event=%d;\n",fd,pe->bpf_event);
 	if (pe->aux_output) fprintf(fff,"\tpe[%d].aux_output=%d;\n",fd,pe->aux_output);
+	if (pe->cgroup) fprintf(fff,"\tpe[%d].cgroup=%d;\n",fd,pe->cgroup);
+	if (pe->text_poke) fprintf(fff,"\tpe[%d].text_poke=%d;\n",fd,pe->text_poke);
+	if (pe->build_id) fprintf(fff,"\tpe[%d].build_id=%d;\n",fd,pe->build_id);
+	if (pe->inherit_thread) fprintf(fff,"\tpe[%d].inherit_thread=%d;\n",fd,pe->inherit_thread);
+	if (pe->remove_on_exec) fprintf(fff,"\tpe[%d].remove_on_exec=%d;\n",fd,pe->remove_on_exec);
+	if (pe->sigtrap) fprintf(fff,"\tpe[%d].sigtrap=%d;\n",fd,pe->sigtrap);
+
+
 
 	if (pe->watermark) {
 		fprintf(fff,"\tpe[%d].wakeup_watermark=%d;\n",fd,pe->wakeup_watermark);
