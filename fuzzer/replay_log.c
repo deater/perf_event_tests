@@ -433,7 +433,7 @@ static void affinity_event(char *line) {
 	size_t set_size;
 	int cpu_array[MAX_CPUS];
 
-	int which_one,result,num_set=0;
+	int which_one,result,num_set=0,j;
 //	int j,which_cpu;
 
 	/* TODO: get size of mask with getaffinity and multiply by 2? */
@@ -447,35 +447,58 @@ static void affinity_event(char *line) {
 
 	set_size=CPU_ALLOC_SIZE(max_cpus);
 
-	sscanf(line,"%*c %d %d %d",&which_one,&num_set,&cpu_array[0]);
+//	printf("%s",line);
+
+	char *string;
+
+	string=strtok(line," \n");
+
+	string=strtok(NULL," \n");
+	if (string==NULL) return;
+	which_one=atoi(string);
+
+	string=strtok(NULL," \n");
+	if (string==NULL) return;
+	num_set=atoi(string);
+
+	int i=0;
+	while(1) {
+		string=strtok(NULL," \n");
+		if (string==NULL) break;
+		cpu_array[i]=atoi(string);
+		i++;
+	}
+
+//	printf("%d %d ",which_one,num_set);
+//	for(i=0;i<num_set;i++) printf("%d ",cpu_array[i]);
+//	printf("\n");
 
 
         switch (which_one) {
 
 		/* set single core, low */
 		case 0:
-                        num_set=1;
-                        CPU_ZERO_S(set_size,cpu_mask);
-                        CPU_SET_S(cpu_array[0],set_size,cpu_mask);
-                        break;
+			CPU_ZERO_S(set_size,cpu_mask);
+			CPU_SET_S(cpu_array[0],set_size,cpu_mask);
+			break;
                 /* set single core, full */
                 case 1:
-                        CPU_ZERO_S(set_size,cpu_mask);
-                        CPU_SET_S(cpu_array[0],set_size,cpu_mask);
-                        break;
+			CPU_ZERO_S(set_size,cpu_mask);
+			CPU_SET_S(cpu_array[0],set_size,cpu_mask);
+			break;
                 /* set lots of cores, low */
                 case 2:
                         CPU_ZERO_S(set_size,cpu_mask);
-//                        for(j=0;j<32;j++) {
-				CPU_SET_S(cpu_array[0],max_cpus,cpu_mask);
-//
+			for(j=0;j<num_set;j++) {
+				CPU_SET_S(cpu_array[j],max_cpus,cpu_mask);
+			}
                         break;
                 /* set lots of cores, high */
                 case 3:
                         CPU_ZERO_S(set_size,cpu_mask);
-//                        for(j=0;j<max_cpus;j++) {
-//                                if (rand()%2) {
-				CPU_SET_S(cpu_array[0],max_cpus,cpu_mask);
+			for(j=0;j<num_set;j++) {
+				CPU_SET_S(cpu_array[j],max_cpus,cpu_mask);
+			}
 			break;
 		default:
 			fprintf(stderr,"Unknown affinity: %d\n",which_one);

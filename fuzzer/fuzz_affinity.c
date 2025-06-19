@@ -26,7 +26,7 @@ void cpu_affinity_event(void) {
 	size_t set_size;
 	int cpu_array[MAX_CPUS];
 
-	int j,which_one,result,num_set=0,which_cpu;
+	int i,j,which_one,result,num_set=0,which_cpu;
 
 	/* TODO: get size of mask with getaffinity and multiply by 2? */
 
@@ -96,11 +96,19 @@ void cpu_affinity_event(void) {
 
 	/* urgh doing this properly is hard */
 
+	char buffer[BUFSIZ];
+
 	if (result==0) {
 	        stats.affinity_successful++;
 		if (logging&TYPE_AFFINITY) {
-			sprintf(log_buffer,"a %d %d %d\n",
-				which_one,num_set,cpu_array[0]);
+			sprintf(buffer,"a %d %d ",
+				which_one,num_set);
+			strncpy(log_buffer,buffer,BUFSIZ);
+			for(i=0;i<num_set;i++) {
+				sprintf(buffer,"%d ",cpu_array[i]);
+				strncat(log_buffer,buffer,BUFSIZ-1);
+			}
+			strncat(log_buffer,"\n",BUFSIZ-1);
 			write(log_fd,log_buffer,strlen(log_buffer));
 		}
 
