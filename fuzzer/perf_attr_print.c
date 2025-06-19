@@ -563,6 +563,14 @@ static void perf_pretty_print_read_format(FILE *fff, unsigned long long read_for
 		if (!our_format) return;
 		fprintf(fff,"|");
 	}
+
+	if (our_format&PERF_FORMAT_LOST) {
+		fprintf(fff,"PERF_FORMAT_LOST");
+		our_format&=~PERF_FORMAT_LOST;
+		if (!our_format) return;
+		fprintf(fff,"|");
+	}
+
 	fprintf(fff,"0x%llxULL",our_format);
 
 }
