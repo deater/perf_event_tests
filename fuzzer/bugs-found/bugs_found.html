@@ -167,10 +167,46 @@
 <hr><hr>
 
 <h2>Un Fixed bugs:</h2>
+
 	<ul>
+	<li>(crash)<br>
+		Reported July 2025<br>
+		Have not been able to isolate yet
+	<li>(warning)
+		perf/x86/intel: Fix unchecked PEBS_ENABLE MSR access error<br>
+		Topdown Related<br>
+		Reported June 2025<br>
+		Kan Liang sent patch, not applied yet?
 	</ul>
 
 <h2>Fixed bugs:</h2>
+
+<h3>Fixed in 6.16</h3>
+	<ul>
+	<li>(crash)
+		perf/x86/intel: Fix crash in icl_update_topdown_event()<br>
+		code was trying to read topdown events on
+		unsupported E-core on RaptorLake system<br>
+		Reported June 2025<br>
+		CVE-2025-38322<br>
+		Fixed by: b0823d5fbacb1c551d793cbfe7af24e0d1fa45ed
+	<li>(crash)
+		perf: Fix the throttle error of some clock events<br>
+		Reported June 2025<br>
+		Fixed by: bc4394e5e79cdda1b0997e0be1d65e242f523f02
+	<li>(warning)
+		perf/x86/intel: Fix IA32_PMC_x_CFG_B MSRs access error<br>
+		Reported: Dapeng Mi 29 May 2025<br>
+		Fixed by: 86aa94cd50b138be0dd872b0779fa3036e641881
+	</ul>
+
+<h3>Fixed in 6.10</h3>
+	<ul>
+	<li>(crash)
+		tracing/net_sched: NULL pointer dereference in perf_trace_qdisc_reset()<br>
+		Reported June 2024<br>
+		Fixed by: bab4923132feb3e439ae45962979c5d9d5c7c1f1
+	</ul>
 
 <h3>Fixed in 5.19</h3>
 	<ul>
