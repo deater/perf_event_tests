@@ -18,7 +18,10 @@ CROSS COMPILE
 ~~~~~~~~~~~~~
 
   1. make sure that the cross compiler toolchain is in PATH
-  2. run "make CROSS_COMPILE=<compiler name>"
+  2. Install kernel headers in include folder
+  e.g., make headers_install ARCH=arm64 \
+	INSTALL_HDR_PATH=/perf_event_test/include/
+  3. run "make CROSS_COMPILE=<compiler name>"
 
   e.g., "make CROSS_COMPILE=arm-linux-gnueabihf-"
 
