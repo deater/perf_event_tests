@@ -925,7 +925,7 @@ static int random_attr_size(void) {
 
 	int size=0;
 
-	switch(rand() % 13) {
+	switch(rand() % 14) {
 	case 0:	size = PERF_ATTR_SIZE_VER0;
 		break;
 	case 1: size = PERF_ATTR_SIZE_VER1;
@@ -944,13 +944,15 @@ static int random_attr_size(void) {
 		break;
 	case 8: size = PERF_ATTR_SIZE_VER8;
 		break;
-	case 9: size = sizeof(struct perf_event_attr);
+	case 9: size = PERF_ATTR_SIZE_VER9;
 		break;
-	case 10: size = rand32();
+	case 10: size = sizeof(struct perf_event_attr);
 		break;
-	case 11: size = get_len();
+	case 11: size = rand32();
 		break;
-	case 12: size = 0;
+	case 12: size = get_len();
+		break;
+	case 13: size = 0;
 		break;
 	default:
 		break;
@@ -1068,6 +1070,8 @@ static void create_mostly_valid_counting_event(struct perf_event_attr *attr,
 	attr->inherit_thread = RAND_BOOL();
 	attr->remove_on_exec = RAND_BOOL();
 	attr->sigtrap = RAND_BOOL();
+	attr->defer_callchain = RAND_BOOL();
+	attr->defer_output = RAND_BOOL();
 
 	/* wakeup events not relevant */
 
@@ -1198,6 +1202,7 @@ static void create_mostly_valid_sampling_event(struct perf_event_attr *attr,
 
 	attr->sig_data = rand64();
 	attr->config3 = rand64();
+	attr->config4 = rand64();
 
 }
 
@@ -1272,6 +1277,12 @@ static void create_random_event(struct perf_event_attr *attr)
 	attr->exclude_callchain_user = RAND_BOOL();
 	attr->mmap2 = RAND_BOOL();
 	attr->comm_exec = RAND_BOOL();
+	attr->use_clockid = RAND_BOOL();
+	attr->context_switch = RAND_BOOL();
+	attr->write_backward = RAND_BOOL();
+	attr->namespaces = RAND_BOOL();
+	attr->ksymbol = RAND_BOOL();
+	attr->bpf_event = RAND_BOOL();
 
 	attr->wakeup_events=rand32();
 
@@ -1287,6 +1298,15 @@ static void create_random_event(struct perf_event_attr *attr)
 	attr->branch_sample_type = rand64();
 	attr->sample_regs_user = rand64();
 	attr->sample_stack_user = rand32();
+
+
+	attr->aux_watermark = rand32();
+	attr->sample_max_stack = rand32();
+	attr->aux_sample_size = rand32();
+
+	attr->sig_data = rand64();
+	attr->config3 = rand64();
+	attr->config4 = rand64();
 
 }
 
