@@ -18,7 +18,18 @@ all:	\
 	papi_hybrid_sleep \
 	papi_hybrid_100m_two_events \
 	papi_hybrid_100m_one_eventset \
-	papi_hybrid_100m_one_eventset_multiplex
+	papi_hybrid_100m_one_eventset_multiplex \
+	papi_topdown
+
+###
+
+papi_topdown:	papi_topdown.o
+	$(CC) $(LFLAGS) -o papi_topdown papi_topdown.o \
+		$(PAPI_LIB)
+
+papi_topdown.o:	papi_topdown.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_topdown.c
+
 
 ###
 
@@ -103,8 +114,8 @@ event_create_race.o:	event_create_race.c
 
 ####
 
-papi_helpers.o:	papi_helpers.c
-	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c papi_helpers.c
+papi_helpers.o:	../lib/papi_helpers.c
+	$(CC) $(CFLAGS) $(PAPI_INCLUDE) -c ../lib/papi_helpers.c
 
 ####
 
