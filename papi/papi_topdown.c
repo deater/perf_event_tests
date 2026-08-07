@@ -29,11 +29,15 @@ int main(int argc, char **argv) {
 	long long total_2=0;
 	long long total_3=0;
 	long long total_4=0;
+	long long total_5=0;
+	long long total_6=0;
 
 	char *event_name1=NULL;
 	char *event_name2=NULL;
 	char *event_name3=NULL;
 	char *event_name4=NULL;
+	char *event_name5=NULL;
+	char *event_name6=NULL;
 
 
 	/* Init PAPI library */
@@ -72,6 +76,8 @@ int main(int argc, char **argv) {
 	event_name2=strdup("DISPATCH_STALLS_1:FE_NO_OPS:u=1:k=1");
 	event_name3=strdup("OPS_SOURCE_DISPATCHED_FROM_DECODER:DECODER:OPCACHE:k=1:u=1");
 	event_name4=strdup("RETIRED_OPS:k=1:u=1");
+	event_name5=strdup("DISPATCH_STALLS_1:BE_STALLS:u=1:k=1");
+	event_name6=strdup("DISPATCH_STALLS_1:SMT_CONTENTION:u=1:k=1");
 
 	/* create eventset */
 
@@ -118,6 +124,25 @@ int main(int argc, char **argv) {
 		exit(-1);
 	}
 
+	/* Try to open event5 */
+	retval=PAPI_add_named_event(eventset,event_name5);
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("Error adding %s\n",event_name5);
+		printf("%s\n",PAPI_strerror(retval));
+		fprintf(stderr,"Error adding event5\n");
+		exit(-1);
+	}
+
+	/* Try to open event6 */
+	retval=PAPI_add_named_event(eventset,event_name6);
+	if (retval!=PAPI_OK) {
+		if (!quiet) printf("Error adding %s\n",event_name6);
+		printf("%s\n",PAPI_strerror(retval));
+		fprintf(stderr,"Error adding event6\n");
+//		exit(-1);
+	}
+
+
 
 
 	if (!quiet) {
@@ -153,21 +178,32 @@ int main(int argc, char **argv) {
 		total_2=counts[1];
 		total_3=counts[2];
 		total_4=counts[3];
+		total_5=counts[4];
+		total_6=counts[5];
 //	}
 
 
 	long long total_dispatch_slots;
 	double frontend_bound;
 	double bad_speculation;
+	double backend_bound;
+	double smt_contention;
+	double retiring;
 
 	total_dispatch_slots=8*total_1;
 	frontend_bound=(double)total_2/(double)total_dispatch_slots;
 	bad_speculation=(total_3-total_4)/(double)total_dispatch_slots;
+	backend_bound=(total_5)/(double)total_dispatch_slots;
+	smt_contention=(total_6)/(double)total_dispatch_slots;
+	retiring=(total_4)/(double)total_dispatch_slots;
 
 	if (!quiet) {
 		printf("Total Dispatch Slots = %lld\n",total_dispatch_slots);
 		printf("Frontend Bound = %.2lf%%\n",frontend_bound*100.0);
 		printf("Bad Speculation = %.2lf%%\n",bad_speculation*100.0);
+		printf("Backend Bound = %.2lf%%\n",backend_bound*100.0);
+		printf("SMT Contention = %.2lf%%\n",smt_contention*100.0);
+		printf("Retiring = %.2lf%%\n",retiring*100.0);
 	}
 
 	if (!quiet) printf("\n");
