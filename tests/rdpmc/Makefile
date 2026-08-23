@@ -27,7 +27,8 @@ PROGRAM_LIST = \
 	rdpmc_sw_events \
 	rdpmc_validation \
 	rdpmc_comparision_readsyscall \
-	rdpmc_comparision_mmap
+	rdpmc_comparision_mmap \
+	rdpmc_jump
 
 all: $(PROGRAM_LIST)
 
@@ -72,6 +73,8 @@ rdpmc_validation: rdpmc_validation.o rdpmc_lib.o $(LIB)/libhelper.a
 rdpmc_comparision_readsyscall: rdpmc_comparision_readsyscall.o
 
 rdpmc_comparision_mmap: rdpmc_comparision_mmap.o
+
+rdpmc_jump: rdpmc_jump.o rdpmc_lib.o $(LIB)/libhelper.a
 
 install: all
 	$(INSTALL) -d $(prefix)/tests/rdpmc
