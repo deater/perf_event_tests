@@ -54,7 +54,8 @@ static void our_handler(int signum, siginfo_t *info, void *uc) {
 
 
 	ioctl(fd,PERF_EVENT_IOC_DISABLE,0);
-	overflows++;
+	if (overflows++ > 100)
+		return;
 	ioctl(fd, PERF_EVENT_IOC_REFRESH,1);
 }
 int perf_event_open(struct perf_event_attr *hw_event_uptr,
