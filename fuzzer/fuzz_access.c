@@ -72,6 +72,14 @@ static int setup_random_write_value(void) {
 	return size;
 }
 
+static int open_with_mode(const char* file, uint64_t flags)
+{
+	if (__OPEN_NEEDS_MODE(flags))
+		return open(file, flags, S_IRWXU);
+	else
+		return open(file, flags);
+}
+
 void access_random_file(void) {
 
 	int which_file;
@@ -99,7 +107,7 @@ void access_random_file(void) {
 		if (ignore_but_dont_skip.access) return;
 
 		/* read.  Make flags random too? */
-		fd=open(filenames[which_file],rand_open_flags());
+		fd=open_with_mode(filenames[which_file],rand_open_flags());
 		if (fd>0) {
 			result=read(fd,buffer,read_size);
 
@@ -116,7 +124,7 @@ void access_random_file(void) {
 	}
 	else if (which==1) {
 		/* write */
-		fd=open(filenames[which_file],rand_open_flags());
+		fd=open_with_mode(filenames[which_file],rand_open_flags());
 		if (fd>0) {
 			if (!ignore_but_dont_skip.access) {
 
@@ -138,7 +146,7 @@ void access_random_file(void) {
 	} else if (which==2) {
 		/* Leave open a certain number */
 		if (open_files<MAX_FILES) {
-			new_fd=open(filenames[which_file],rand_open_flags());
+			new_fd=open_with_mode(filenames[which_file],rand_open_flags());
 			if (new_fd>=0) {
 				for(which_file=0;which_file<TYPE_ACCESS;
 					which_file++) {
